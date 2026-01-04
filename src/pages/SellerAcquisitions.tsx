@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Filter, User, Mail, Phone, DollarSign, Building2, Calendar, ArrowRight, LayoutGrid, List, RefreshCw, AlertCircle, BedDouble, Bath, Ruler } from 'lucide-react';
+import { Search, Filter, User, Mail, Phone, DollarSign, Building2, Calendar, ArrowRight, LayoutGrid, List, RefreshCw, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { UnifiedPipelineBoard, UnifiedPipelineCard, type PipelineColumn } from '@/components/pipeline';
-import { useOpportunities, useUpdateOpportunityStage, GHLOpportunity } from '@/services/ghlApi';
+import { useOpportunities, useUpdateOpportunityStage, GHLOpportunity, PROPERTY_CUSTOM_FIELDS } from '@/services/ghlApi';
 import type { SellerAcquisitionStage } from '@/types';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -67,10 +67,10 @@ interface SellerAcquisition {
 
 // Transform GHL opportunity to SellerAcquisition
 const transformToSellerAcquisition = (opp: GHLOpportunity): SellerAcquisition => {
-  // Get custom field value - check both exact ID match and partial includes
+  // Get custom field value - same logic as Properties page
   const getCustomField = (fieldKey: string): string => {
     const field = opp.customFields?.find(
-      (cf) => cf.id === fieldKey || cf.id?.toLowerCase().includes(fieldKey.toLowerCase())
+      (cf) => cf.id === fieldKey || cf.id.includes(fieldKey)
     );
     return typeof field?.fieldValue === 'string' ? field.fieldValue : '';
   };
@@ -84,12 +84,12 @@ const transformToSellerAcquisition = (opp: GHLOpportunity): SellerAcquisition =>
     return isNaN(num) ? undefined : num;
   };
 
-  // Extract property details from custom fields using standard field keys
-  const city = getCustomField('property_city') || getCustomField('city') || '';
-  const propertyType = getCustomField('property_type') || '';
-  const beds = parseNumber(getCustomField('property_beds') || getCustomField('beds') || '');
-  const baths = parseNumber(getCustomField('property_baths') || getCustomField('baths') || '');
-  const sqft = parseNumber(getCustomField('property_sqft') || getCustomField('sqft') || '');
+  // Extract property details using the same field keys as Properties page
+  const city = getCustomField(PROPERTY_CUSTOM_FIELDS.city);
+  const propertyType = getCustomField(PROPERTY_CUSTOM_FIELDS.propertyType);
+  const beds = parseNumber(getCustomField(PROPERTY_CUSTOM_FIELDS.beds));
+  const baths = parseNumber(getCustomField(PROPERTY_CUSTOM_FIELDS.baths));
+  const sqft = parseNumber(getCustomField(PROPERTY_CUSTOM_FIELDS.sqft));
 
   return {
     id: opp.id,
@@ -98,7 +98,7 @@ const transformToSellerAcquisition = (opp: GHLOpportunity): SellerAcquisition =>
     sellerName: opp.contact?.name || 'Unknown', // Contact name
     contactPhone: opp.contact?.phone || getCustomField('phone'),
     contactEmail: opp.contact?.email || getCustomField('email'),
-    propertyAddress: opp.name || getCustomField('property_address') || '', // Opportunity name is the property
+    propertyAddress: opp.name || getCustomField(PROPERTY_CUSTOM_FIELDS.address) || '', // Opportunity name is the property
     city,
     state: getCustomField('state') || '',
     zipCode: getCustomField('zip') || '',
@@ -186,11 +186,11 @@ export default function SellerAcquisitions() {
   };
 
   const renderCard = (acquisition: SellerAcquisition) => {
-    // Build property details string
+    // Build property details string with beds/baths/sqft
     const propertyDetails = [
-      acquisition.beds && `${acquisition.beds} bd`,
-      acquisition.baths && `${acquisition.baths} ba`,
-      acquisition.sqft && `${acquisition.sqft.toLocaleString()} sqft`,
+      acquisition.beds ? `${acquisition.beds} bd` : null,
+      acquisition.baths ? `${acquisition.baths} ba` : null,
+      acquisition.sqft ? `${acquisition.sqft.toLocaleString()} sqft` : null,
     ].filter(Boolean).join(' · ');
 
     return (
@@ -210,28 +210,6 @@ export default function SellerAcquisitions() {
         lostLabel="Off Market"
         variant="property"
         imageFallbackIcon="building"
-        extraBadges={
-          <>
-            {acquisition.beds && (
-              <Badge variant="outline" className="text-xs gap-1">
-                <BedDouble className="h-3 w-3" />
-                {acquisition.beds}
-              </Badge>
-            )}
-            {acquisition.baths && (
-              <Badge variant="outline" className="text-xs gap-1">
-                <Bath className="h-3 w-3" />
-                {acquisition.baths}
-              </Badge>
-            )}
-            {acquisition.sqft && (
-              <Badge variant="outline" className="text-xs gap-1">
-                <Ruler className="h-3 w-3" />
-                {acquisition.sqft.toLocaleString()}
-              </Badge>
-            )}
-          </>
-        }
       />
     );
   };

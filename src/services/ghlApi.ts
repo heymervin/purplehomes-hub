@@ -265,7 +265,7 @@ export const useDeleteContact = () => {
 // ============ OPPORTUNITIES (Properties) ============
 
 // Custom field mapping for properties
-const PROPERTY_CUSTOM_FIELDS = {
+export const PROPERTY_CUSTOM_FIELDS = {
   address: 'property_address',
   city: 'property_city',
   beds: 'property_beds',
