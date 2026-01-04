@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
   Save, Loader2, Home, Bed, Bath, Square, MapPin, DollarSign,
-  Image as ImageIcon, FileText, Tag, Calendar, RefreshCw, Calculator,
+  Image as ImageIcon, Tag, Calendar, RefreshCw, Calculator,
   Search, Filter, ExternalLink, Settings, Share2, MessageSquare, CheckCircle
 } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
@@ -234,7 +234,6 @@ export function PropertyDetailModal({
       if (formData.sqft !== undefined) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.sqft] = String(formData.sqft);
       if (formData.condition) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.condition] = formData.condition;
       if (formData.propertyType) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.propertyType] = formData.propertyType;
-      if (formData.description) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.description] = formData.description;
       if (formData.heroImage) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.heroImage] = formData.heroImage;
       if (formData.caption) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.caption] = formData.caption;
       if (formData.downPayment !== undefined) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.downPayment] = String(formData.downPayment);
@@ -282,7 +281,6 @@ export function PropertyDetailModal({
               sqft: formData.sqft,
               condition: formData.condition,
               propertyType: formData.propertyType,
-              description: formData.description,
               monthlyPayment: formData.monthlyPayment,
               downPayment: formData.downPayment,
             },
@@ -554,17 +552,6 @@ export function PropertyDetailModal({
                         onChange={(v) => handleFieldChange('monthlyPayment', v)}
                       />
                     </div>
-                  </FieldSection>
-
-                  {/* Description */}
-                  <FieldSection title="Description" icon={FileText} iconColor="text-gray-600">
-                    <Textarea
-                      id="description"
-                      value={property.description || ''}
-                      onChange={(e) => handleFieldChange('description', e.target.value)}
-                      placeholder="Enter property description..."
-                      className="min-h-[120px]"
-                    />
                   </FieldSection>
                 </TabsContent>
 
