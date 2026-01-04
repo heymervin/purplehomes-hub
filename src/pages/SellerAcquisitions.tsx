@@ -67,9 +67,10 @@ interface SellerAcquisition {
 
 // Transform GHL opportunity to SellerAcquisition
 const transformToSellerAcquisition = (opp: GHLOpportunity): SellerAcquisition => {
+  // Get custom field value - check both exact ID match and partial includes
   const getCustomField = (fieldKey: string): string => {
     const field = opp.customFields?.find(
-      (cf) => cf.id?.includes(fieldKey)
+      (cf) => cf.id === fieldKey || cf.id?.toLowerCase().includes(fieldKey.toLowerCase())
     );
     return typeof field?.fieldValue === 'string' ? field.fieldValue : '';
   };
@@ -83,6 +84,13 @@ const transformToSellerAcquisition = (opp: GHLOpportunity): SellerAcquisition =>
     return isNaN(num) ? undefined : num;
   };
 
+  // Extract property details from custom fields using standard field keys
+  const city = getCustomField('property_city') || getCustomField('city') || '';
+  const propertyType = getCustomField('property_type') || '';
+  const beds = parseNumber(getCustomField('property_beds') || getCustomField('beds') || '');
+  const baths = parseNumber(getCustomField('property_baths') || getCustomField('baths') || '');
+  const sqft = parseNumber(getCustomField('property_sqft') || getCustomField('sqft') || '');
+
   return {
     id: opp.id,
     ghlStageId: opp.pipelineStageId,
@@ -90,15 +98,15 @@ const transformToSellerAcquisition = (opp: GHLOpportunity): SellerAcquisition =>
     sellerName: opp.contact?.name || 'Unknown', // Contact name
     contactPhone: opp.contact?.phone || getCustomField('phone'),
     contactEmail: opp.contact?.email || getCustomField('email'),
-    propertyAddress: opp.name || getCustomField('address') || '', // Opportunity name is the property
-    city: getCustomField('city') || getCustomField('property_city') || '',
+    propertyAddress: opp.name || getCustomField('property_address') || '', // Opportunity name is the property
+    city,
     state: getCustomField('state') || '',
     zipCode: getCustomField('zip') || '',
     askingPrice: opp.monetaryValue || undefined,
-    propertyType: getCustomField('property_type') || getCustomField('propertyType') || '',
-    beds: parseNumber(getCustomField('beds') || getCustomField('property_beds') || getCustomField('bedrooms') || ''),
-    baths: parseNumber(getCustomField('baths') || getCustomField('property_baths') || getCustomField('bathrooms') || ''),
-    sqft: parseNumber(getCustomField('sqft') || getCustomField('property_sqft') || getCustomField('square_feet') || ''),
+    propertyType,
+    beds,
+    baths,
+    sqft,
     notes: getCustomField('notes'),
     createdAt: opp.createdAt,
     updatedAt: opp.updatedAt,
