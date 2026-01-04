@@ -49,7 +49,7 @@ import { SocialStatusBadge } from '@/components/ui/social-status-badge';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { toast } from 'sonner';
 import type { Property, PropertyCondition, PropertyType, PropertyStatus } from '@/types';
-import { useUpdateProperty, useCustomFields } from '@/services/ghlApi';
+import { useUpdateProperty, useCustomFields, PROPERTY_CUSTOM_FIELDS } from '@/services/ghlApi';
 import { useUpdateAirtableProperty } from '@/services/matchingApi';
 import { DealCalculatorModal } from '@/components/calculator';
 
@@ -72,28 +72,6 @@ const PROPERTY_TYPES: PropertyType[] = [
 const STATUS_OPTIONS: PropertyStatus[] = [
   'pending', 'posted', 'scheduled', 'skipped', 'deleted', 'processing'
 ];
-
-// Custom field mapping for GHL
-const PROPERTY_CUSTOM_FIELDS = {
-  address: 'property_address',
-  city: 'property_city',
-  beds: 'property_beds',
-  baths: 'property_baths',
-  sqft: 'property_sqft',
-  condition: 'property_condition',
-  propertyType: 'property_type',
-  heroImage: 'property_hero_image',
-  images: 'property_images',
-  description: 'property_description',
-  status: 'social_status',
-  caption: 'social_caption',
-  brandedImage: 'branded_image',
-  postedDate: 'posted_date',
-  scheduledDate: 'scheduled_date',
-  downPayment: '0Wq2qVjwE3Qc5kCvtcAj',
-  monthlyPayment: 'U3Ago0WNHeF0jv1lGmi4',
-};
-
 // Parse combined city field into separate city, state, zip
 function parseCityField(cityField: string | undefined): { city: string; state: string; zip: string } {
   if (!cityField) return { city: '', state: '', zip: '' };
@@ -269,6 +247,13 @@ export function PropertyDetailModal({
 
       const ghlResult = await updateProperty.mutateAsync(ghlPayload);
       console.log('[PropertyDetailModal] GHL update result:', ghlResult);
+
+      // Verify the update was applied by checking the returned customFields
+      if (ghlResult?.customFields) {
+        console.log('[PropertyDetailModal] GHL returned customFields:', ghlResult.customFields);
+      } else {
+        console.warn('[PropertyDetailModal] GHL response missing customFields - update may not have applied');
+      }
 
       // Also save to Airtable for immediate UI update (GHL sync takes time)
       if (initialProperty.id) {

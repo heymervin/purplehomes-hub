@@ -547,6 +547,7 @@ if (resource === 'opportunities') {
 
         const responseData = await response.json();
         console.log('[OPPORTUNITIES] PUT - Response:', response.status, response.ok ? 'OK' : 'FAILED');
+        console.log('[OPPORTUNITIES] PUT - Full response data:', JSON.stringify(responseData).substring(0, 1000));
         if (!response.ok) {
           console.error('[OPPORTUNITIES] PUT - Error response:', JSON.stringify(responseData));
         }
