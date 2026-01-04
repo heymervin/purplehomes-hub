@@ -22,8 +22,8 @@ import { useAirtableProperties } from '@/services/matchingApi';
 const sourceOptions: { value: string; label: string }[] = [
   { value: 'all', label: 'All Sources' },
   { value: 'Inventory', label: 'Inventory' },
-  { value: 'Lead', label: 'Lead' },
   { value: 'Zillow', label: 'Zillow' },
+  { value: 'Acquisitions', label: 'Acquisitions' },
 ];
 
 const PROPERTY_TYPES: PropertyType[] = [
