@@ -285,7 +285,7 @@ export default function SellerAcquisitions() {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by address, seller, or email..."
+            placeholder="Search by address, contact, or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -343,7 +343,7 @@ export default function SellerAcquisitions() {
             <TableHeader>
               <TableRow>
                 <TableHead>Property</TableHead>
-                <TableHead>Seller</TableHead>
+                <TableHead>Contact</TableHead>
                 <TableHead>Stage</TableHead>
                 <TableHead>Asking Price</TableHead>
                 <TableHead>Type</TableHead>
@@ -416,7 +416,7 @@ export default function SellerAcquisitions() {
                 <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                   <User className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-xs text-muted-foreground">Seller</p>
+                    <p className="text-xs text-muted-foreground">Contact</p>
                     <p className="font-medium">{selectedAcquisition.sellerName}</p>
                   </div>
                 </div>
