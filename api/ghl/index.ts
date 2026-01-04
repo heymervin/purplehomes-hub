@@ -528,12 +528,13 @@ if (resource === 'opportunities') {
         // Transform customFields from object to array format if needed
         let payload = bodyWithoutId;
         if (bodyWithoutId.customFields && !Array.isArray(bodyWithoutId.customFields)) {
-          // Convert { fieldKey: value } to [{ key: fieldKey, field_value: value }]
-          // GHL API expects 'key' property for field key, not 'id'
+          // Convert { fieldId: value } to [{ id: fieldId, key: fieldId, field_value: value }]
+          // GHL API expects 'id', 'key', and 'field_value' properties for custom field updates
           payload = {
             ...bodyWithoutId,
-            customFields: Object.entries(bodyWithoutId.customFields).map(([fieldKey, value]) => ({
-              key: fieldKey,
+            customFields: Object.entries(bodyWithoutId.customFields).map(([fieldId, value]) => ({
+              id: fieldId,
+              key: fieldId,
               field_value: value
             }))
           };

@@ -271,29 +271,51 @@ export const useDeleteContact = () => {
 // ============ OPPORTUNITIES (Properties) ============
 
 // Custom field mapping for properties - using actual GHL field IDs
+// Verified against GHL API: GET /locations/{locationId}/customFields?model=opportunity
 export const PROPERTY_CUSTOM_FIELDS = {
-  address: 'UcJ0Qoz3kh0OjC9oLVsK', // Property Address
-  city: 'JiQiZk4AwSIuggxs8ryC', // City (e.g., "Slidell, LA")
-  state: '5v7Lz6YVwPXfKKRrEhcq', // State
-  zip: '6dHv2RhysNKnjerkXOpi', // Zip code
-  beds: 'gwSOmjOAkDtWKEML03jO', // Bedrooms (number)
-  baths: 'EeLEubHNtP21UHJz84qu', // Bathrooms (number)
-  sqft: '4LcuNhgER6BrC3q9GYAx', // Square footage (number)
-  condition: 'BA5GG9PSzxxNFLTrTtCj', // Property Condition
-  propertyType: 'Wd8WqrU2seSslsJUgYk3', // Property Type (e.g., "Single Family")
-  heroImage: 'iONNOHIkBVMVtVhMXxuX', // Hero Image (first image)
-  images: 'property_images', // Additional images (may need updating)
-  description: 'mSoNEbNp3kct8FfL318J', // Property description/notes
-  status: 'social_status', // SM-Pending, SM-Posted, etc.
-  caption: 'social_caption',
-  brandedImage: 'branded_image',
-  postedDate: 'posted_date',
-  scheduledDate: 'scheduled_date',
-  downPayment: '0Wq2qVjwE3Qc5kCvtcAj', // Proposed Down Payment custom field ID
-  monthlyPayment: 'U3Ago0WNHeF0jv1lGmi4', // Property Total Price (Monthly Payment) custom field ID
-  yearBuilt: 'WHDOMRbZsWosOFk6fG2O', // Year Built (number)
-  neighborhood: 'RnUjzlqP8BGnxQod0IBm', // Neighborhood rating
-  source: 'kPUeWhwTKlhqnME9Wsuu', // Source (Acquisitions, Inventory)
+  // Basic Property Info
+  address: 'UcJ0Qoz3kh0OjC9oLVsK', // Property Address (Opportunity) - key: opportunity.property_address
+  city: 'JiQiZk4AwSIuggxs8ryC', // Property City - key: opportunity.property_city
+  state: '5v7Lz6YVwPXfKKRrEhcq', // Property State - key: opportunity.property_state
+  zip: '6dHv2RhysNKnjerkXOpi', // Property Postal Code - key: opportunity.property_postal_code
+
+  // Property Details
+  beds: 'gwSOmjOAkDtWKEML03jO', // Bedroom Count - key: opportunity.bedroom_count
+  baths: 'EeLEubHNtP21UHJz84qu', // Bathroom Count - key: opportunity.bathroom_count
+  sqft: '4LcuNhgER6BrC3q9GYAx', // Square Feet - key: opportunity.square_feet
+  yearBuilt: 'WHDOMRbZsWosOFk6fG2O', // Year Built - key: opportunity.year_built
+  propertyType: 'Wd8WqrU2seSslsJUgYk3', // Property Type - key: opportunity.property_type
+  // Options: Single Family, Duplex, Multi Family, Condo, Lot, Mobile Home, Town House, Commercial, Triplex, 4-plex
+
+  // Condition
+  condition: 'RnUjzlqP8BGnxQod0IBm', // Current Condition - key: opportunity.current_condition
+  // Options: Excellent, Great, Good, Fair, Poor, Terrible, Needs some Repair
+  flooring: 'BA5GG9PSzxxNFLTrTtCj', // Flooring - key: opportunity.flooring
+  // Options: Needs Replaced, Good Condition
+
+  // Pricing
+  downPayment: '0Wq2qVjwE3Qc5kCvtcAj', // Proposed Down Payment - key: opportunity.proposed_down_payment
+  monthlyPayment: 'AyQTFKzBOB3TAyg4KRyz', // Proposed Monthly Payment - key: opportunity.proposed_monthly_payment
+
+  // Images & Media
+  heroImage: 'iONNOHIkBVMVtVhMXxuX', // Hero Image Upload - key: opportunity.hero_image_upload
+  brandedImage: 'geQG41J7EvnOipSVEVtU', // Imejis Branded Image - key: opportunity.imejis_branded_image
+
+  // Social Media
+  caption: 'L0rI3GED8RVqEVFebMIr', // AI Generated Caption - key: opportunity.ai_generated_caption
+  socialPostUrls: '9AnMRf8e0O1rqpzZQW7L', // Social Post URLs - key: opportunity.social_post_urls
+  postedDate: 'p6a36PhyDK1b3ywpg233', // Posted Date - key: opportunity.posted_date
+  scheduledDate: 'fZqdPu5zMXMA2vhVvCsX', // Scheduled Date - key: opportunity.scheduled_date
+
+  // Other
+  description: 'RW7UIpGEN8hwYbhGs9je', // Property Details - key: opportunity.details
+  motivation: 'mSoNEbNp3kct8FfL318J', // Motivation - key: opportunity.motivation
+  source: 'kPUeWhwTKlhqnME9Wsuu', // Property Sources - key: opportunity.property_sources
+  // Options: Zillow, Inventory, Acquisitions
+
+  // NOTE: 'social_status' with SM-Pending/SM-Posted options was NOT found in GHL custom fields
+  // This may need to be created or handled differently
+  status: 'social_status', // PLACEHOLDER - field not found in GHL
 };
 
 // Helper to extract value from GHL custom field object
