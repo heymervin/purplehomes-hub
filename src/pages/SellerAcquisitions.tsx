@@ -60,6 +60,7 @@ interface SellerAcquisition {
   beds?: number;
   baths?: number;
   sqft?: number;
+  heroImage?: string;
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -103,6 +104,7 @@ const transformToSellerAcquisition = (opp: GHLOpportunity): SellerAcquisition =>
   const beds = parseNumber(getCustomField(PROPERTY_CUSTOM_FIELDS.beds));
   const baths = parseNumber(getCustomField(PROPERTY_CUSTOM_FIELDS.baths));
   const sqft = parseNumber(getCustomField(PROPERTY_CUSTOM_FIELDS.sqft));
+  const heroImage = getCustomField(PROPERTY_CUSTOM_FIELDS.heroImage);
 
   return {
     id: opp.id,
@@ -120,6 +122,7 @@ const transformToSellerAcquisition = (opp: GHLOpportunity): SellerAcquisition =>
     beds,
     baths,
     sqft,
+    heroImage: heroImage || undefined,
     notes: getCustomField(PROPERTY_CUSTOM_FIELDS.description),
     createdAt: opp.createdAt,
     updatedAt: opp.updatedAt,
@@ -204,6 +207,7 @@ export default function SellerAcquisitions() {
         id={acquisition.id}
         title={acquisition.propertyAddress || 'No Address'}
         subtitle={acquisition.sellerName || undefined}
+        imageUrl={acquisition.heroImage}
         amount={acquisition.askingPrice}
         onClick={() => setSelectedAcquisition(acquisition)}
         onAdvance={() => moveToNextStage(acquisition)}
