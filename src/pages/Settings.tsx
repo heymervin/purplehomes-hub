@@ -261,7 +261,7 @@ export default function Settings() {
                 {[
                   { name: 'GHL_API_KEY', description: 'Your HighLevel API key', required: true },
                   { name: 'GHL_LOCATION_ID', description: 'Your HighLevel location ID', required: true },
-                  { name: 'GHL_SELLER_ACQUISITION_PIPELINE_ID', description: 'Pipeline ID for Seller Acquisitions (default: U4FANAMaB1gGddRaaD9x)', required: false },
+                  { name: 'GHL_SELLER_ACQUISITION_PIPELINE_ID', description: 'Pipeline ID for Property Pipeline (default: U4FANAMaB1gGddRaaD9x)', required: false },
                   { name: 'GHL_BUYER_ACQUISITION_PIPELINE_ID', description: 'Pipeline ID for Buyer Acquisitions (default: FRw9XPyTSnPv8ct0cWcm)', required: false },
                   { name: 'GHL_DEAL_ACQUISITION_PIPELINE_ID', description: 'Pipeline ID for Buyers/Deals (default: 2NeLTlKaeMyWOnLXdTCS)', required: false },
                   { name: 'GOOGLE_SHEET_ID', description: 'Google Sheet ID for staff auth', required: true },

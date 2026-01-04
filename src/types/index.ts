@@ -205,23 +205,17 @@ export interface ConnectionFailureNotification {
   acknowledged: boolean;
 }
 
-// Seller Acquisition Pipeline
-export type SellerAcquisitionStage = 
-  | 'new-lead'
-  | 'discovery'
-  | 'booked-call'
-  | 'follow-up'
-  | 'active-conversation'
-  | 'vetted'
-  | 'underwriting'
-  | 'offer-made'
-  | 'offer-follow-up'
-  | 'automated-nurture'
-  | 'negotiating'
-  | 'long-term-follow-up'
-  | 'cold-nurture'
-  | 'closed-acquired'
-  | 'lost';
+// Property Pipeline (formerly Seller Acquisition Pipeline)
+export type PropertyPipelineStage =
+  | 'new'
+  | 'active'
+  | 'engaged'
+  | 'contract'
+  | 'sold'
+  | 'off-market';
+
+// Legacy alias for backwards compatibility
+export type SellerAcquisitionStage = PropertyPipelineStage;
 
 export interface SellerAcquisition {
   id: string;

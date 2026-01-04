@@ -59,9 +59,7 @@ export const useBuyersWithMatches = (filters?: MatchFilters, pageSize: number = 
         nextOffset: result.nextOffset,
       };
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes (increased from 2 minutes due to server-side caching)
-    refetchInterval: 60 * 1000, // Poll every 60 seconds
-    refetchIntervalInBackground: false, // Don't poll when tab is inactive
+    staleTime: 5 * 60 * 1000, // 5 minutes - fetch fresh data on page load, cache for subsequent navigations
   });
 };
 
@@ -115,9 +113,7 @@ export const usePropertiesWithMatches = (filters?: MatchFilters, pageSize: numbe
         nextOffset: result.nextOffset,
       };
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes (increased from 2 minutes due to server-side caching)
-    refetchInterval: 60 * 1000, // Poll every 60 seconds
-    refetchIntervalInBackground: false, // Don't poll when tab is inactive
+    staleTime: 5 * 60 * 1000, // 5 minutes - fetch fresh data on page load, cache for subsequent navigations
   });
 };
 

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Filter, User, Mail, Phone, DollarSign, Building2, Calendar, ArrowRight, LayoutGrid, List, RefreshCw, AlertCircle } from 'lucide-react';
+import { Search, Filter, User, Mail, Phone, DollarSign, Building2, Calendar, ArrowRight, LayoutGrid, List, RefreshCw, AlertCircle, BedDouble, Bath, Ruler } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,36 +24,24 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Map GHL stage IDs to our stage types - USING ACTUAL STAGE IDs FROM ACQUISITION SELLER PIPELINE
+// Map GHL stage IDs to our stage types - Property Pipeline stages
 const stageIdMap: Record<string, SellerAcquisitionStage> = {
-  'ae1ddba7-19d2-4ea9-9a33-58fc37b1c5b2': 'new-lead',
-  '54bd52e5-5ae1-4391-bf8b-044a9cc936b6': 'discovery',
-  '280a212b-5f9f-45ac-b7bb-17aee00ddbd0': 'booked-call',
-  '4ce5e7e4-9ad2-4aad-a0c2-9cf29f4a0aa6': 'follow-up',
-  '8d7057d2-c941-4187-bdf2-7925a8cafd0a': 'vetted',
-  '1e404ae6-2d40-42d1-b006-0cfa89870ae0': 'underwriting',
-  'fe60854c-b236-4dd2-8e54-8e0e9bf4b940': 'offer-made',
-  'ad6facf4-2a79-49a6-8a9f-ef368874b6d1': 'offer-follow-up',
-  '70a1ab3d-b492-441a-ade9-5cd7e99d556a': 'negotiating',
-  '941984e3-bc1f-4744-a27b-0ff3d79a3969': 'long-term-follow-up',
-  'c62fba13-2975-4fdf-8fa3-ab0de5c5c912': 'cold-nurture',
-  'c07610dc-3293-45f7-b8ba-dd1de4426e24': 'lost', // Won / Lost stage
+  'ae1ddba7-19d2-4ea9-9a33-58fc37b1c5b2': 'new',
+  '54bd52e5-5ae1-4391-bf8b-044a9cc936b6': 'active',
+  '280a212b-5f9f-45ac-b7bb-17aee00ddbd0': 'engaged',
+  '4ce5e7e4-9ad2-4aad-a0c2-9cf29f4a0aa6': 'contract',
+  '8d7057d2-c941-4187-bdf2-7925a8cafd0a': 'sold',
+  '1e404ae6-2d40-42d1-b006-0cfa89870ae0': 'off-market',
 };
 
-// GHL stage IDs mapped to our stage keys
+// Property Pipeline stages configuration
 const stages: { id: SellerAcquisitionStage; label: string; color: string; ghlId: string }[] = [
-  { id: 'new-lead', label: 'New Lead', color: 'bg-blue-500', ghlId: 'ae1ddba7-19d2-4ea9-9a33-58fc37b1c5b2' },
-  { id: 'discovery', label: 'Discovery', color: 'bg-cyan-500', ghlId: '54bd52e5-5ae1-4391-bf8b-044a9cc936b6' },
-  { id: 'booked-call', label: 'Booked Call', color: 'bg-purple-500', ghlId: '280a212b-5f9f-45ac-b7bb-17aee00ddbd0' },
-  { id: 'follow-up', label: 'Follow Up', color: 'bg-indigo-500', ghlId: '4ce5e7e4-9ad2-4aad-a0c2-9cf29f4a0aa6' },
-  { id: 'vetted', label: 'Vetted', color: 'bg-pink-500', ghlId: '8d7057d2-c941-4187-bdf2-7925a8cafd0a' },
-  { id: 'underwriting', label: 'Underwriting', color: 'bg-rose-500', ghlId: '1e404ae6-2d40-42d1-b006-0cfa89870ae0' },
-  { id: 'offer-made', label: 'Offer Made', color: 'bg-amber-500', ghlId: 'fe60854c-b236-4dd2-8e54-8e0e9bf4b940' },
-  { id: 'offer-follow-up', label: 'Offer Follow Up', color: 'bg-orange-500', ghlId: 'ad6facf4-2a79-49a6-8a9f-ef368874b6d1' },
-  { id: 'negotiating', label: 'Negotiating', color: 'bg-teal-500', ghlId: '70a1ab3d-b492-441a-ade9-5cd7e99d556a' },
-  { id: 'long-term-follow-up', label: 'Follow Up Long Term Nurture', color: 'bg-emerald-500', ghlId: '941984e3-bc1f-4744-a27b-0ff3d79a3969' },
-  { id: 'cold-nurture', label: 'Cold Nurture', color: 'bg-slate-500', ghlId: 'c62fba13-2975-4fdf-8fa3-ab0de5c5c912' },
-  { id: 'lost', label: 'Won / Lost', color: 'bg-gray-500', ghlId: 'c07610dc-3293-45f7-b8ba-dd1de4426e24' },
+  { id: 'new', label: 'New', color: 'bg-blue-500', ghlId: 'ae1ddba7-19d2-4ea9-9a33-58fc37b1c5b2' },
+  { id: 'active', label: 'Active', color: 'bg-cyan-500', ghlId: '54bd52e5-5ae1-4391-bf8b-044a9cc936b6' },
+  { id: 'engaged', label: 'Engaged', color: 'bg-purple-500', ghlId: '280a212b-5f9f-45ac-b7bb-17aee00ddbd0' },
+  { id: 'contract', label: 'Contract', color: 'bg-amber-500', ghlId: '4ce5e7e4-9ad2-4aad-a0c2-9cf29f4a0aa6' },
+  { id: 'sold', label: 'Sold', color: 'bg-green-500', ghlId: '8d7057d2-c941-4187-bdf2-7925a8cafd0a' },
+  { id: 'off-market', label: 'Off Market', color: 'bg-gray-500', ghlId: '1e404ae6-2d40-42d1-b006-0cfa89870ae0' },
 ];
 
 interface SellerAcquisition {
@@ -69,6 +57,9 @@ interface SellerAcquisition {
   zipCode: string;
   askingPrice?: number;
   propertyType?: string;
+  beds?: number;
+  baths?: number;
+  sqft?: number;
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -84,21 +75,30 @@ const transformToSellerAcquisition = (opp: GHLOpportunity): SellerAcquisition =>
   };
 
   // Map the GHL stage ID directly to our stage
-  const stage = stageIdMap[opp.pipelineStageId] || 'new-lead';
+  const stage = stageIdMap[opp.pipelineStageId] || 'new';
+
+  // Parse numeric fields
+  const parseNumber = (val: string): number | undefined => {
+    const num = parseFloat(val);
+    return isNaN(num) ? undefined : num;
+  };
 
   return {
     id: opp.id,
     ghlStageId: opp.pipelineStageId,
     stage,
-    sellerName: opp.contact?.name || 'Unknown Seller', // Contact name
+    sellerName: opp.contact?.name || 'Unknown', // Contact name
     contactPhone: opp.contact?.phone || getCustomField('phone'),
     contactEmail: opp.contact?.email || getCustomField('email'),
     propertyAddress: opp.name || getCustomField('address') || '', // Opportunity name is the property
-    city: getCustomField('city') || '',
+    city: getCustomField('city') || getCustomField('property_city') || '',
     state: getCustomField('state') || '',
     zipCode: getCustomField('zip') || '',
     askingPrice: opp.monetaryValue || undefined,
-    propertyType: getCustomField('property_type'),
+    propertyType: getCustomField('property_type') || getCustomField('propertyType') || '',
+    beds: parseNumber(getCustomField('beds') || getCustomField('property_beds') || getCustomField('bedrooms') || ''),
+    baths: parseNumber(getCustomField('baths') || getCustomField('property_baths') || getCustomField('bathrooms') || ''),
+    sqft: parseNumber(getCustomField('sqft') || getCustomField('property_sqft') || getCustomField('square_feet') || ''),
     notes: getCustomField('notes'),
     createdAt: opp.createdAt,
     updatedAt: opp.updatedAt,
@@ -139,7 +139,7 @@ export default function SellerAcquisitions() {
       label: stage.label,
       color: stage.color.replace('bg-', ''), // Convert 'bg-blue-500' to 'blue-500' for border
       items: filteredAcquisitions.filter((a) => a.stage === stage.id),
-      isHidden: stage.id === 'lost',
+      isHidden: stage.id === 'off-market',
     }));
   }, [filteredAcquisitions]);
 
@@ -161,48 +161,80 @@ export default function SellerAcquisitions() {
     }
   };
 
-  const markAsLost = async (acquisition: SellerAcquisition) => {
-    const lostStage = stages.find(s => s.id === 'lost');
-    if (!lostStage) return;
-    
+  const markAsOffMarket = async (acquisition: SellerAcquisition) => {
+    const offMarketStage = stages.find(s => s.id === 'off-market');
+    if (!offMarketStage) return;
+
     try {
       await updateStageMutation.mutateAsync({
         opportunityId: acquisition.id,
-        stageId: lostStage.ghlId,
+        stageId: offMarketStage.ghlId,
         pipelineType: 'seller-acquisition',
       });
-      toast.success('Marked as Lost');
+      toast.success('Marked as Off Market');
     } catch (err) {
       toast.error('Failed to update stage in GHL');
     }
   };
 
-  const renderCard = (acquisition: SellerAcquisition) => (
-    <UnifiedPipelineCard
-      id={acquisition.id}
-      title={acquisition.propertyAddress || 'No Address'}
-      subtitle={acquisition.sellerName}
-      secondarySubtitle={acquisition.contactPhone}
-      location={`${acquisition.city}${acquisition.state ? `, ${acquisition.state}` : ''} ${acquisition.zipCode}`.trim()}
-      amount={acquisition.askingPrice}
-      type={acquisition.propertyType}
-      date={acquisition.createdAt}
-      dateFormat="absolute"
-      onClick={() => setSelectedAcquisition(acquisition)}
-      onAdvance={() => moveToNextStage(acquisition)}
-      onMarkLost={() => markAsLost(acquisition)}
-      variant="property"
-      imageFallbackIcon="building"
-    />
-  );
+  const renderCard = (acquisition: SellerAcquisition) => {
+    // Build property details string
+    const propertyDetails = [
+      acquisition.beds && `${acquisition.beds} bd`,
+      acquisition.baths && `${acquisition.baths} ba`,
+      acquisition.sqft && `${acquisition.sqft.toLocaleString()} sqft`,
+    ].filter(Boolean).join(' · ');
 
-  const activeCount = filteredAcquisitions.filter((a) => a.stage !== 'lost' && a.stage !== 'closed-acquired').length;
+    return (
+      <UnifiedPipelineCard
+        id={acquisition.id}
+        title={acquisition.propertyAddress || 'No Address'}
+        subtitle={acquisition.city || undefined}
+        secondarySubtitle={propertyDetails || undefined}
+        location={acquisition.propertyType || undefined}
+        amount={acquisition.askingPrice}
+        type={undefined}
+        date={acquisition.createdAt}
+        dateFormat="absolute"
+        onClick={() => setSelectedAcquisition(acquisition)}
+        onAdvance={() => moveToNextStage(acquisition)}
+        onMarkLost={() => markAsOffMarket(acquisition)}
+        lostLabel="Off Market"
+        variant="property"
+        imageFallbackIcon="building"
+        extraBadges={
+          <>
+            {acquisition.beds && (
+              <Badge variant="outline" className="text-xs gap-1">
+                <BedDouble className="h-3 w-3" />
+                {acquisition.beds}
+              </Badge>
+            )}
+            {acquisition.baths && (
+              <Badge variant="outline" className="text-xs gap-1">
+                <Bath className="h-3 w-3" />
+                {acquisition.baths}
+              </Badge>
+            )}
+            {acquisition.sqft && (
+              <Badge variant="outline" className="text-xs gap-1">
+                <Ruler className="h-3 w-3" />
+                {acquisition.sqft.toLocaleString()}
+              </Badge>
+            )}
+          </>
+        }
+      />
+    );
+  };
+
+  const activeCount = filteredAcquisitions.filter((a) => a.stage !== 'off-market' && a.stage !== 'sold').length;
 
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] gap-4">
         <AlertCircle className="h-12 w-12 text-destructive" />
-        <p className="text-muted-foreground">Failed to load seller acquisitions</p>
+        <p className="text-muted-foreground">Failed to load property pipeline</p>
         <Button onClick={() => refetch()} variant="outline">
           <RefreshCw className="h-4 w-4 mr-2" />
           Retry
@@ -216,7 +248,7 @@ export default function SellerAcquisitions() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Seller Acquisitions</h1>
+          <h1 className="text-2xl font-bold">Property Pipeline</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
             {isLoading ? 'Loading...' : `${activeCount} active · ${filteredAcquisitions.length} total opportunities`}
           </p>
@@ -299,7 +331,7 @@ export default function SellerAcquisitions() {
             });
           }}
           isLoading={isLoading}
-          hiddenColumnLabel="Won / Lost"
+          hiddenColumnLabel="Off Market"
           emptyStateMessage="No opportunities in this stage"
         />
       )}
@@ -322,7 +354,7 @@ export default function SellerAcquisitions() {
               {filteredAcquisitions.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    No seller acquisitions found
+                    No properties found
                   </TableCell>
                 </TableRow>
               ) : (
@@ -452,15 +484,15 @@ export default function SellerAcquisitions() {
                   <ArrowRight className="h-4 w-4 mr-2" />
                   Move to Next Stage
                 </Button>
-                <Button 
+                <Button
                   variant="outline"
                   onClick={() => {
-                    markAsLost(selectedAcquisition);
+                    markAsOffMarket(selectedAcquisition);
                     setSelectedAcquisition(null);
                   }}
                   disabled={updateStageMutation.isPending}
                 >
-                  Mark as Lost
+                  Off Market
                 </Button>
               </div>
             </div>

@@ -3,7 +3,7 @@ import { useCustomFields } from '@/services/ghlApi';
 
 // Define expected custom fields for each page/feature
 const EXPECTED_CUSTOM_FIELDS = {
-  // Seller Acquisitions
+  // Property Pipeline (formerly Seller Acquisitions)
   sellerAcquisitions: [
     { fieldKey: 'property_address', name: 'Property Address', type: 'TEXT', required: true, usedIn: ['Properties', 'Social Hub'] },
     { fieldKey: 'property_city', name: 'Property City', type: 'TEXT', required: true, usedIn: ['Properties', 'Social Hub'] },

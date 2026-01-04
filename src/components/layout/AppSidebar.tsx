@@ -29,7 +29,7 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Properties', href: '/properties', icon: Building2 },
   { name: 'Public Listings', href: '/listings', icon: Globe },
-  { name: 'Seller Acquisitions', href: '/seller-acquisitions', icon: Home },
+  { name: 'Property Pipeline', href: '/seller-acquisitions', icon: Home },
   { name: 'Buyer Acquisitions', href: '/acquisitions', icon: UserPlus },
   { name: 'Buyers Pipeline', href: '/buyers', icon: Users },
   { name: 'Property Matching', href: '/matching', icon: Target },

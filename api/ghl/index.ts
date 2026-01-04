@@ -455,14 +455,22 @@ if (resource === 'opportunities') {
 
             if (contactResponse.ok) {
               const contactData = await contactResponse.json();
+              const contact = contactData.contact;
+              // Build name from firstName + lastName if name is not available
+              const contactName = contact.name ||
+                [contact.firstName, contact.lastName].filter(Boolean).join(' ') ||
+                contact.email ||
+                'Unknown';
               return {
                 ...opp,
                 contact: {
-                  id: contactData.contact.id,
-                  name: contactData.contact.name,
-                  email: contactData.contact.email,
-                  phone: contactData.contact.phone,
-                  customFields: contactData.contact.customFields || [], // ← INCLUDE CUSTOM FIELDS!
+                  id: contact.id,
+                  name: contactName,
+                  firstName: contact.firstName,
+                  lastName: contact.lastName,
+                  email: contact.email,
+                  phone: contact.phone,
+                  customFields: contact.customFields || [],
                 }
               };
             } else if (contactResponse.status === 429) {
