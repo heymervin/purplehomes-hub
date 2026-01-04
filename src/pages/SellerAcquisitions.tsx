@@ -18,7 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { UnifiedPipelineBoard, UnifiedPipelineCard, type PipelineColumn } from '@/components/pipeline';
-import { useOpportunities, useUpdateOpportunityStage, GHLOpportunity, PROPERTY_CUSTOM_FIELDS } from '@/services/ghlApi';
+import { useOpportunities, useUpdateOpportunityStage, GHLOpportunity, GHLCustomField, PROPERTY_CUSTOM_FIELDS } from '@/services/ghlApi';
 import type { SellerAcquisitionStage } from '@/types';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -65,14 +65,27 @@ interface SellerAcquisition {
   updatedAt: string;
 }
 
+// Helper to extract value from GHL custom field object
+const extractCustomFieldValue = (field: GHLCustomField | undefined): string => {
+  if (!field) return '';
+  // Handle different value formats from GHL API
+  if (field.fieldValueString !== undefined) return field.fieldValueString;
+  if (field.fieldValueNumber !== undefined) return String(field.fieldValueNumber);
+  if (field.fieldValueArray !== undefined) return field.fieldValueArray.join(', ');
+  if (field.fieldValueFiles?.[0]?.url) return field.fieldValueFiles[0].url;
+  // Legacy format
+  if (typeof field.fieldValue === 'string') return field.fieldValue;
+  if (typeof field.value === 'string') return field.value;
+  if (typeof field.value === 'number') return String(field.value);
+  return '';
+};
+
 // Transform GHL opportunity to SellerAcquisition
 const transformToSellerAcquisition = (opp: GHLOpportunity): SellerAcquisition => {
-  // Get custom field value - same logic as Properties page
-  const getCustomField = (fieldKey: string): string => {
-    const field = opp.customFields?.find(
-      (cf) => cf.id === fieldKey || cf.id.includes(fieldKey)
-    );
-    return typeof field?.fieldValue === 'string' ? field.fieldValue : '';
+  // Get custom field value by field ID
+  const getCustomField = (fieldId: string): string => {
+    const field = opp.customFields?.find((cf) => cf.id === fieldId);
+    return extractCustomFieldValue(field);
   };
 
   // Map the GHL stage ID directly to our stage
@@ -84,7 +97,7 @@ const transformToSellerAcquisition = (opp: GHLOpportunity): SellerAcquisition =>
     return isNaN(num) ? undefined : num;
   };
 
-  // Extract property details using the same field keys as Properties page
+  // Extract property details using the correct GHL field IDs
   const city = getCustomField(PROPERTY_CUSTOM_FIELDS.city);
   const propertyType = getCustomField(PROPERTY_CUSTOM_FIELDS.propertyType);
   const beds = parseNumber(getCustomField(PROPERTY_CUSTOM_FIELDS.beds));
@@ -96,18 +109,18 @@ const transformToSellerAcquisition = (opp: GHLOpportunity): SellerAcquisition =>
     ghlStageId: opp.pipelineStageId,
     stage,
     sellerName: opp.contact?.name || 'Unknown', // Contact name
-    contactPhone: opp.contact?.phone || getCustomField('phone'),
-    contactEmail: opp.contact?.email || getCustomField('email'),
+    contactPhone: opp.contact?.phone,
+    contactEmail: opp.contact?.email,
     propertyAddress: opp.name || getCustomField(PROPERTY_CUSTOM_FIELDS.address) || '', // Opportunity name is the property
     city,
-    state: getCustomField('state') || '',
-    zipCode: getCustomField('zip') || '',
+    state: getCustomField(PROPERTY_CUSTOM_FIELDS.state) || '',
+    zipCode: getCustomField(PROPERTY_CUSTOM_FIELDS.zip) || '',
     askingPrice: opp.monetaryValue || undefined,
     propertyType,
     beds,
     baths,
     sqft,
-    notes: getCustomField('notes'),
+    notes: getCustomField(PROPERTY_CUSTOM_FIELDS.description),
     createdAt: opp.createdAt,
     updatedAt: opp.updatedAt,
   };

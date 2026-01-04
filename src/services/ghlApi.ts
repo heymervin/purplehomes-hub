@@ -28,7 +28,13 @@ export interface GHLContact {
 
 export interface GHLCustomField {
   id: string;
-  fieldValue: string | string[] | Record<string, unknown>;
+  type?: 'string' | 'number' | 'array';
+  // Different value properties based on type
+  fieldValue?: string | string[] | Record<string, unknown>; // Legacy format
+  fieldValueString?: string;
+  fieldValueNumber?: number;
+  fieldValueArray?: string[];
+  fieldValueFiles?: Array<{ url: string; meta?: { name: string } }>;
   value?: string | number | boolean;
 }
 
@@ -264,18 +270,20 @@ export const useDeleteContact = () => {
 
 // ============ OPPORTUNITIES (Properties) ============
 
-// Custom field mapping for properties
+// Custom field mapping for properties - using actual GHL field IDs
 export const PROPERTY_CUSTOM_FIELDS = {
-  address: 'property_address',
-  city: 'property_city',
-  beds: 'property_beds',
-  baths: 'property_baths',
-  sqft: 'property_sqft',
-  condition: 'property_condition',
-  propertyType: 'property_type',
-  heroImage: 'property_hero_image',
-  images: 'property_images',
-  description: 'property_description',
+  address: 'UcJ0Qoz3kh0OjC9oLVsK', // Property Address
+  city: 'JiQiZk4AwSIuggxs8ryC', // City (e.g., "Slidell, LA")
+  state: '5v7Lz6YVwPXfKKRrEhcq', // State
+  zip: '6dHv2RhysNKnjerkXOpi', // Zip code
+  beds: 'gwSOmjOAkDtWKEML03jO', // Bedrooms (number)
+  baths: 'EeLEubHNtP21UHJz84qu', // Bathrooms (number)
+  sqft: '4LcuNhgER6BrC3q9GYAx', // Square footage (number)
+  condition: 'BA5GG9PSzxxNFLTrTtCj', // Property Condition
+  propertyType: 'Wd8WqrU2seSslsJUgYk3', // Property Type (e.g., "Single Family")
+  heroImage: 'iONNOHIkBVMVtVhMXxuX', // Hero Image (first image)
+  images: 'property_images', // Additional images (may need updating)
+  description: 'mSoNEbNp3kct8FfL318J', // Property description/notes
   status: 'social_status', // SM-Pending, SM-Posted, etc.
   caption: 'social_caption',
   brandedImage: 'branded_image',
@@ -283,15 +291,31 @@ export const PROPERTY_CUSTOM_FIELDS = {
   scheduledDate: 'scheduled_date',
   downPayment: '0Wq2qVjwE3Qc5kCvtcAj', // Proposed Down Payment custom field ID
   monthlyPayment: 'U3Ago0WNHeF0jv1lGmi4', // Property Total Price (Monthly Payment) custom field ID
+  yearBuilt: 'WHDOMRbZsWosOFk6fG2O', // Year Built (number)
+  neighborhood: 'RnUjzlqP8BGnxQod0IBm', // Neighborhood rating
+  source: 'kPUeWhwTKlhqnME9Wsuu', // Source (Acquisitions, Inventory)
+};
+
+// Helper to extract value from GHL custom field object
+const extractCustomFieldValue = (field: GHLCustomField | undefined): string => {
+  if (!field) return '';
+  // Handle different value formats from GHL API
+  if (field.fieldValueString !== undefined) return field.fieldValueString;
+  if (field.fieldValueNumber !== undefined) return String(field.fieldValueNumber);
+  if (field.fieldValueArray !== undefined) return field.fieldValueArray.join(', ');
+  if (field.fieldValueFiles?.[0]?.url) return field.fieldValueFiles[0].url;
+  // Legacy format
+  if (typeof field.fieldValue === 'string') return field.fieldValue;
+  if (typeof field.value === 'string') return field.value;
+  if (typeof field.value === 'number') return String(field.value);
+  return '';
 };
 
 // Transform GHL Opportunity to Property
 export const transformOpportunityToProperty = (opp: GHLOpportunity): Property => {
-  const getCustomField = (fieldKey: string): string => {
-    const field = opp.customFields?.find(
-      (cf) => cf.id === fieldKey || cf.id.includes(fieldKey)
-    );
-    return typeof field?.fieldValue === 'string' ? field.fieldValue : '';
+  const getCustomField = (fieldId: string): string => {
+    const field = opp.customFields?.find((cf) => cf.id === fieldId);
+    return extractCustomFieldValue(field);
   };
 
   const heroImage = getCustomField(PROPERTY_CUSTOM_FIELDS.heroImage);
