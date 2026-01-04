@@ -260,11 +260,15 @@ export function PropertyDetailModal({
       });
 
       // Save to GHL (source of truth)
-      await updateProperty.mutateAsync({
+      const ghlPayload = {
         id: initialProperty.ghlOpportunityId,
         monetaryValue: formData.price,
         customFields: customFieldsUpdate,
-      });
+      };
+      console.log('[PropertyDetailModal] Sending GHL update:', ghlPayload);
+
+      const ghlResult = await updateProperty.mutateAsync(ghlPayload);
+      console.log('[PropertyDetailModal] GHL update result:', ghlResult);
 
       // Also save to Airtable for immediate UI update (GHL sync takes time)
       if (initialProperty.id) {

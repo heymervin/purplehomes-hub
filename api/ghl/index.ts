@@ -519,26 +519,39 @@ if (resource === 'opportunities') {
       }
       
       if (method === 'PUT' && id) {
+        console.log('[OPPORTUNITIES] PUT - Updating opportunity:', id);
+        console.log('[OPPORTUNITIES] PUT - Request body:', JSON.stringify(body).substring(0, 500));
+
         // Remove 'id' from body since it's already in the URL - GHL API doesn't accept id in body
         const { id: _id, ...bodyWithoutId } = body;
 
         // Transform customFields from object to array format if needed
         let payload = bodyWithoutId;
         if (bodyWithoutId.customFields && !Array.isArray(bodyWithoutId.customFields)) {
-          // Convert { fieldKey: value } to [{ id: fieldKey, field_value: value }]
+          // Convert { fieldKey: value } to [{ key: fieldKey, field_value: value }]
+          // GHL API expects 'key' property for field key, not 'id'
           payload = {
             ...bodyWithoutId,
-            customFields: Object.entries(bodyWithoutId.customFields).map(([key, value]) => ({
-              id: key,
+            customFields: Object.entries(bodyWithoutId.customFields).map(([fieldKey, value]) => ({
+              key: fieldKey,
               field_value: value
             }))
           };
         }
 
+        console.log('[OPPORTUNITIES] PUT - Transformed payload:', JSON.stringify(payload).substring(0, 500));
+
         const response = await fetch(`${GHL_API_URL}/opportunities/${id}`, {
           method: 'PUT', headers, body: JSON.stringify(payload)
         });
-        return res.status(response.ok ? 200 : response.status).json(await response.json());
+
+        const responseData = await response.json();
+        console.log('[OPPORTUNITIES] PUT - Response:', response.status, response.ok ? 'OK' : 'FAILED');
+        if (!response.ok) {
+          console.error('[OPPORTUNITIES] PUT - Error response:', JSON.stringify(responseData));
+        }
+
+        return res.status(response.ok ? 200 : response.status).json(responseData);
       }
       
       if (method === 'DELETE' && id) {
