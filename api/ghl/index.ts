@@ -511,19 +511,22 @@ if (resource === 'opportunities') {
       }
       
       if (method === 'PUT' && id) {
+        // Remove 'id' from body since it's already in the URL - GHL API doesn't accept id in body
+        const { id: _id, ...bodyWithoutId } = body;
+
         // Transform customFields from object to array format if needed
-        let payload = body;
-        if (body.customFields && !Array.isArray(body.customFields)) {
+        let payload = bodyWithoutId;
+        if (bodyWithoutId.customFields && !Array.isArray(bodyWithoutId.customFields)) {
           // Convert { fieldKey: value } to [{ id: fieldKey, field_value: value }]
           payload = {
-            ...body,
-            customFields: Object.entries(body.customFields).map(([key, value]) => ({
+            ...bodyWithoutId,
+            customFields: Object.entries(bodyWithoutId.customFields).map(([key, value]) => ({
               id: key,
               field_value: value
             }))
           };
         }
-        
+
         const response = await fetch(`${GHL_API_URL}/opportunities/${id}`, {
           method: 'PUT', headers, body: JSON.stringify(payload)
         });
