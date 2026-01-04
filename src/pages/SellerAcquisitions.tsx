@@ -199,24 +199,12 @@ export default function SellerAcquisitions() {
   };
 
   const renderCard = (acquisition: SellerAcquisition) => {
-    // Build property details string with beds/baths/sqft
-    const propertyDetails = [
-      acquisition.beds ? `${acquisition.beds} bd` : null,
-      acquisition.baths ? `${acquisition.baths} ba` : null,
-      acquisition.sqft ? `${acquisition.sqft.toLocaleString()} sqft` : null,
-    ].filter(Boolean).join(' · ');
-
     return (
       <UnifiedPipelineCard
         id={acquisition.id}
         title={acquisition.propertyAddress || 'No Address'}
-        subtitle={acquisition.city || undefined}
-        secondarySubtitle={propertyDetails || undefined}
-        location={acquisition.propertyType || undefined}
+        subtitle={acquisition.sellerName || undefined}
         amount={acquisition.askingPrice}
-        type={undefined}
-        date={acquisition.createdAt}
-        dateFormat="absolute"
         onClick={() => setSelectedAcquisition(acquisition)}
         onAdvance={() => moveToNextStage(acquisition)}
         onMarkLost={() => markAsOffMarket(acquisition)}
