@@ -49,7 +49,7 @@ import { SocialStatusBadge } from '@/components/ui/social-status-badge';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { toast } from 'sonner';
 import type { Property, PropertyCondition, PropertyType, PropertyStatus } from '@/types';
-import { useUpdateProperty, useCustomFields, PROPERTY_CUSTOM_FIELDS } from '@/services/ghlApi';
+import { useUpdateProperty, useCustomFields, useProperty, PROPERTY_CUSTOM_FIELDS, extractCustomFieldValue } from '@/services/ghlApi';
 import { useUpdateAirtableProperty } from '@/services/matchingApi';
 import { DealCalculatorModal } from '@/components/calculator';
 
@@ -111,8 +111,11 @@ export function PropertyDetailModal({
   const updateProperty = useUpdateProperty();
   const updateAirtableProperty = useUpdateAirtableProperty();
 
-  // Fetch custom fields for the dropdown (only if GHL connected)
-  const { data: customFieldsData } = useCustomFields('opportunity');
+  // Fetch custom field definitions for the folders/inputs
+  const { data: customFieldsData, refetch: refetchCustomFields } = useCustomFields('all');
+
+  // Fetch raw opportunity data to get current custom field values
+  const { data: opportunityData } = useProperty(initialProperty?.ghlOpportunityId || '');
 
   // Local form state
   const [formData, setFormData] = useState<Partial<Property>>({});
@@ -153,6 +156,21 @@ export function PropertyDetailModal({
       setHasChanges(false);
     }
   }, [initialProperty]);
+
+  // Populate custom field values from the raw opportunity data
+  useEffect(() => {
+    if (opportunityData?.opportunity?.customFields) {
+      const values: Record<string, string> = {};
+      for (const cf of opportunityData.opportunity.customFields) {
+        const value = extractCustomFieldValue(cf);
+        if (value) {
+          values[cf.id] = value;
+        }
+      }
+      console.log('[PropertyDetailModal] Loaded custom field values:', Object.keys(values).length);
+      setCustomFieldValues(values);
+    }
+  }, [opportunityData]);
 
   const handleFieldChange = (field: keyof Property, value: string | number | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -300,9 +318,12 @@ export function PropertyDetailModal({
       position: cf.position,
       parentId: cf.parentId,
       isFolder: cf.isFolder,
-      model: cf.model as 'contact' | 'opportunity' | 'both' | undefined,
-      options: cf.options,
-      required: cf.required,
+      // Map GHL's model values to our types ('all' -> 'both')
+      model: (cf.model === 'all' ? 'both' : cf.model) as 'contact' | 'opportunity' | 'both' | undefined,
+      // GHL returns options as 'picklistOptions'
+      options: cf.picklistOptions,
+      // Mark as required if field name contains "Required" in parent folder
+      required: false, // Will be determined by folder name
     }));
     return groupFieldsByFolder(allFields, modelFilter);
   }, [customFieldsData, modelFilter]);
@@ -753,7 +774,7 @@ export function PropertyDetailModal({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => onSaved?.()}
+                      onClick={() => refetchCustomFields()}
                     >
                       <RefreshCw className="h-4 w-4" />
                     </Button>

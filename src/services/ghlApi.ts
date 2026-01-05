@@ -38,6 +38,21 @@ export interface GHLCustomField {
   value?: string | number | boolean;
 }
 
+// Custom field DEFINITION (from /locations/{locationId}/customFields endpoint)
+export interface GHLCustomFieldDefinition {
+  id: string;
+  name: string;
+  fieldKey: string;
+  dataType: string;
+  placeholder?: string;
+  position?: number;
+  parentId?: string | null;
+  isFolder?: boolean;
+  model?: 'contact' | 'opportunity' | 'all';
+  picklistOptions?: string[];  // GHL returns options as picklistOptions
+  acceptedFormat?: string[];   // For file fields
+}
+
 export interface GHLOpportunity {
   id: string;
   name: string;
@@ -1116,7 +1131,7 @@ export const useScheduledPosts = () => {
 export const useCustomFields = (model: 'contact' | 'opportunity' | 'all' = 'opportunity') => {
   return useQuery({
     queryKey: ['ghl-custom-fields', model],
-    queryFn: () => fetchGHL<{ customFields: { id: string; name: string; fieldKey: string; dataType: string }[] }>(
+    queryFn: () => fetchGHL<{ customFields: GHLCustomFieldDefinition[] }>(
       `custom-fields?model=${model}`
     ),
     staleTime: 30 * 60 * 1000, // 30 minutes - these rarely change
