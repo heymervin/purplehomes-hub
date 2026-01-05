@@ -111,8 +111,8 @@ export function PropertyDetailModal({
   const updateProperty = useUpdateProperty();
   const updateAirtableProperty = useUpdateAirtableProperty();
 
-  // Fetch custom field definitions for the folders/inputs
-  const { data: customFieldsData, refetch: refetchCustomFields, isLoading: isLoadingCustomFields, error: customFieldsError } = useCustomFields('all');
+  // Fetch custom field definitions for the folders/inputs (opportunity fields only)
+  const { data: customFieldsData, refetch: refetchCustomFields, isLoading: isLoadingCustomFields, error: customFieldsError } = useCustomFields('opportunity');
 
   // Fetch raw opportunity data to get current custom field values
   const { data: opportunityData } = useProperty(initialProperty?.ghlOpportunityId || '');
@@ -159,6 +159,12 @@ export function PropertyDetailModal({
 
   // Populate custom field values from the raw opportunity data
   useEffect(() => {
+    console.log('[PropertyDetailModal] Opportunity data:', {
+      hasOpportunityData: !!opportunityData,
+      opportunityId: initialProperty?.ghlOpportunityId,
+      customFieldsCount: opportunityData?.opportunity?.customFields?.length || 0
+    });
+
     if (opportunityData?.opportunity?.customFields) {
       const values: Record<string, string> = {};
       for (const cf of opportunityData.opportunity.customFields) {
@@ -167,10 +173,14 @@ export function PropertyDetailModal({
           values[cf.id] = value;
         }
       }
-      console.log('[PropertyDetailModal] Loaded custom field values:', Object.keys(values).length);
+      console.log('[PropertyDetailModal] Loaded custom field values:', {
+        totalFields: opportunityData.opportunity.customFields.length,
+        filledFields: Object.keys(values).length,
+        sampleValues: Object.entries(values).slice(0, 3)
+      });
       setCustomFieldValues(values);
     }
-  }, [opportunityData]);
+  }, [opportunityData, initialProperty?.ghlOpportunityId]);
 
   // Debug: Log custom fields data
   useEffect(() => {
