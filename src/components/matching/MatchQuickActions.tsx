@@ -106,7 +106,7 @@ export function MatchQuickActions({
         return [
           {
             id: 'mark-responded',
-            label: 'Mark Responded',
+            label: 'Mark Interested',
             icon: MessageSquare,
             variant: 'default',
             primary: true,
@@ -180,7 +180,7 @@ export function MatchQuickActions({
         return [
           {
             id: 'move-to-contracts',
-            label: 'Move to Contracts',
+            label: 'Move to Contracts Signed',
             icon: FileText,
             variant: 'default',
             primary: true,

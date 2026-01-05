@@ -29,6 +29,7 @@ import {
   ClipboardList,
   ChevronDown,
   Calculator,
+  TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -379,6 +380,18 @@ export function EnhancedMatchDetailModal({
                         <Badge variant="secondary" className="text-xs">
                           <DollarSign className="h-3 w-3 mr-1" />
                           {formatPrice(buyer.downPayment)} budget
+                        </Badge>
+                      )}
+                      {buyer.monthlyIncome && (
+                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                          <TrendingUp className="h-3 w-3 mr-1" />
+                          {formatPrice(buyer.monthlyIncome)}/mo income
+                        </Badge>
+                      )}
+                      {buyer.monthlyLiabilities && (
+                        <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">
+                          <DollarSign className="h-3 w-3 mr-1" />
+                          {formatPrice(buyer.monthlyLiabilities)}/mo liabilities
                         </Badge>
                       )}
                     </div>

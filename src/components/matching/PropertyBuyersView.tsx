@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import {
   Select,
@@ -32,6 +33,7 @@ import {
   User,
   Mail,
   Eye,
+  TrendingUp,
 } from 'lucide-react';
 import { usePropertyBuyers, usePropertiesWithMatches } from '@/services/matchingApi';
 import { useNavigate } from 'react-router-dom';
@@ -39,6 +41,8 @@ import { MatchSectionDivider } from './MatchSectionDivider';
 import { MatchScoreBadge } from './MatchScoreBadge';
 import { StageBadge } from './StageBadge';
 import { MatchDetailModal } from './MatchDetailModal';
+import { BuyerSelectionBar } from './BuyerSelectionBar';
+import { SendPropertyToBuyersModal } from './SendPropertyToBuyersModal';
 import type { ScoredBuyer, PropertyDetails } from '@/types/matching';
 import type { MatchDealStage } from '@/types/associations';
 
@@ -46,11 +50,14 @@ interface BuyerCardProps {
   scoredBuyer: ScoredBuyer;
   property?: PropertyDetails;
   onViewDetails?: () => void;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
 }
 
-function BuyerCard({ scoredBuyer, property, onViewDetails }: BuyerCardProps) {
+function BuyerCard({ scoredBuyer, property, onViewDetails, isSelected, onToggleSelect }: BuyerCardProps) {
   const { buyer, score, currentStage } = scoredBuyer;
   const isInPipeline = !!currentStage;
+  const canSelect = onToggleSelect && !isInPipeline;
 
   // Calculate budget ratio if available
   const getBudgetInfo = () => {
@@ -73,11 +80,33 @@ function BuyerCard({ scoredBuyer, property, onViewDetails }: BuyerCardProps) {
       className={cn(
         "p-4 transition-colors relative group",
         isInPipeline ? "border-l-4 border-l-green-500 bg-green-50/30" : "hover:bg-muted/30",
-        onViewDetails && "cursor-pointer hover:border-purple-300"
+        onViewDetails && "cursor-pointer hover:border-purple-300",
+        isSelected && "ring-2 ring-purple-500 bg-purple-50/50"
       )}
       onClick={onViewDetails}
     >
-      <div className="flex gap-4">
+      {/* Selection Checkbox - Only show for non-pipeline buyers */}
+      {canSelect && (
+        <div
+          className="absolute top-3 left-3 z-10"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleSelect();
+          }}
+        >
+          <Checkbox
+            checked={isSelected}
+            className={cn(
+              "h-5 w-5 border-2",
+              isSelected
+                ? "bg-purple-600 border-purple-600 text-white"
+                : "bg-white border-gray-300 hover:border-purple-400"
+            )}
+          />
+        </div>
+      )}
+
+      <div className={cn("flex gap-4", canSelect && "ml-6")}>
         {/* Buyer Avatar */}
         <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center">
           <User className="h-8 w-8 text-purple-400" />
@@ -118,6 +147,18 @@ function BuyerCard({ scoredBuyer, property, onViewDetails }: BuyerCardProps) {
               <span className="flex items-center gap-1 font-medium text-foreground">
                 <DollarSign className="h-3 w-3" />
                 {buyer.downPayment.toLocaleString()} down
+              </span>
+            )}
+            {buyer.monthlyIncome && (
+              <span className="flex items-center gap-1 text-green-700">
+                <TrendingUp className="h-3 w-3" />
+                ${buyer.monthlyIncome.toLocaleString()}/mo
+              </span>
+            )}
+            {buyer.monthlyLiabilities && (
+              <span className="flex items-center gap-1 text-orange-600">
+                <DollarSign className="h-3 w-3" />
+                ${buyer.monthlyLiabilities.toLocaleString()}/mo debt
               </span>
             )}
           </div>
@@ -225,6 +266,10 @@ export function PropertyBuyersView({
   const [selectedBuyer, setSelectedBuyer] = useState<ScoredBuyer | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
 
+  // State for buyer selection
+  const [selectedBuyerIds, setSelectedBuyerIds] = useState<Set<string>>(new Set());
+  const [sendModalOpen, setSendModalOpen] = useState(false);
+
   // Use external state if provided, otherwise use internal state
   const propertyCode = externalPropertyCode !== undefined ? externalPropertyCode : internalPropertyCode;
 
@@ -307,6 +352,56 @@ export function PropertyBuyersView({
   const interestedBuyers = filteredBuyers.interested;
   const potentialBuyers = filteredBuyers.potential;
 
+  // Get all selectable buyers (not in pipeline)
+  const selectableBuyers = useMemo(() => {
+    return [...interestedBuyers, ...potentialBuyers].filter(sb => !sb.currentStage);
+  }, [interestedBuyers, potentialBuyers]);
+
+  // Get selected buyers as ScoredBuyer objects
+  const selectedBuyers = useMemo(() => {
+    return [...interestedBuyers, ...potentialBuyers].filter(sb => {
+      const buyerId = sb.buyer.recordId || sb.buyer.contactId;
+      return selectedBuyerIds.has(buyerId);
+    });
+  }, [interestedBuyers, potentialBuyers, selectedBuyerIds]);
+
+  // Selection helpers
+  const toggleBuyerSelection = (buyerId: string) => {
+    setSelectedBuyerIds(prev => {
+      const next = new Set(prev);
+      if (next.has(buyerId)) {
+        next.delete(buyerId);
+      } else {
+        next.add(buyerId);
+      }
+      return next;
+    });
+  };
+
+  const selectAllBuyers = () => {
+    if (selectedBuyerIds.size === selectableBuyers.length) {
+      // All are selected, so clear selection
+      setSelectedBuyerIds(new Set());
+    } else {
+      // Select all selectable buyers
+      setSelectedBuyerIds(new Set(selectableBuyers.map(sb => sb.buyer.recordId || sb.buyer.contactId)));
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedBuyerIds(new Set());
+  };
+
+  // Clear selection when property changes
+  const handlePropertySelectInternal = (newPropertyCode: string | null) => {
+    clearSelection();
+    if (onPropertySelect) {
+      onPropertySelect(newPropertyCode);
+    } else {
+      setInternalPropertyCode(newPropertyCode);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Property Selector */}
@@ -318,7 +413,7 @@ export function PropertyBuyersView({
           </div>
           <Select
             value={propertyCode || ''}
-            onValueChange={(value) => handlePropertySelect(value || null)}
+            onValueChange={(value) => handlePropertySelectInternal(value || null)}
           >
             <SelectTrigger className="w-[400px]">
               <SelectValue placeholder="Choose a property to see interested buyers..." />
@@ -461,17 +556,22 @@ export function PropertyBuyersView({
                 </div>
 
                 <div className="grid grid-cols-1 gap-3">
-                  {interestedBuyers.map((scoredBuyer) => (
-                    <BuyerCard
-                      key={scoredBuyer.buyer.recordId || scoredBuyer.buyer.contactId}
-                      scoredBuyer={scoredBuyer}
-                      property={propertyBuyersData.property}
-                      onViewDetails={() => {
-                        setSelectedBuyer(scoredBuyer);
-                        setDetailModalOpen(true);
-                      }}
-                    />
-                  ))}
+                  {interestedBuyers.map((scoredBuyer) => {
+                    const buyerId = scoredBuyer.buyer.recordId || scoredBuyer.buyer.contactId;
+                    return (
+                      <BuyerCard
+                        key={buyerId}
+                        scoredBuyer={scoredBuyer}
+                        property={propertyBuyersData.property}
+                        onViewDetails={() => {
+                          setSelectedBuyer(scoredBuyer);
+                          setDetailModalOpen(true);
+                        }}
+                        isSelected={selectedBuyerIds.has(buyerId)}
+                        onToggleSelect={() => toggleBuyerSelection(buyerId)}
+                      />
+                    );
+                  })}
                 </div>
               </div>
 
@@ -489,17 +589,22 @@ export function PropertyBuyersView({
           {/* Other Potential Buyers */}
           {potentialBuyers.length > 0 && (
             <div className="grid grid-cols-1 gap-3">
-              {potentialBuyers.map((scoredBuyer) => (
-                <BuyerCard
-                  key={scoredBuyer.buyer.recordId || scoredBuyer.buyer.contactId}
-                  scoredBuyer={scoredBuyer}
-                  property={propertyBuyersData.property}
-                  onViewDetails={() => {
-                    setSelectedBuyer(scoredBuyer);
-                    setDetailModalOpen(true);
-                  }}
-                />
-              ))}
+              {potentialBuyers.map((scoredBuyer) => {
+                const buyerId = scoredBuyer.buyer.recordId || scoredBuyer.buyer.contactId;
+                return (
+                  <BuyerCard
+                    key={buyerId}
+                    scoredBuyer={scoredBuyer}
+                    property={propertyBuyersData.property}
+                    onViewDetails={() => {
+                      setSelectedBuyer(scoredBuyer);
+                      setDetailModalOpen(true);
+                    }}
+                    isSelected={selectedBuyerIds.has(buyerId)}
+                    onToggleSelect={() => toggleBuyerSelection(buyerId)}
+                  />
+                );
+              })}
             </div>
           )}
 
@@ -545,7 +650,30 @@ export function PropertyBuyersView({
             onOpenChange={setDetailModalOpen}
             viewMode="property-centric"
           />
+
+          {/* Send Property to Buyers Modal */}
+          <SendPropertyToBuyersModal
+            property={propertyBuyersData.property}
+            buyers={selectedBuyers}
+            open={sendModalOpen}
+            onOpenChange={setSendModalOpen}
+            onSendSuccess={() => {
+              clearSelection();
+            }}
+          />
         </div>
+      )}
+
+      {/* Buyer Selection Bar - Floating at bottom */}
+      {propertyBuyersData && selectableBuyers.length > 0 && (
+        <BuyerSelectionBar
+          selectedCount={selectedBuyerIds.size}
+          totalCount={selectableBuyers.length}
+          allSelected={selectedBuyerIds.size === selectableBuyers.length && selectableBuyers.length > 0}
+          onSelectAll={selectAllBuyers}
+          onClearSelection={clearSelection}
+          onSendSelected={() => setSendModalOpen(true)}
+        />
       )}
     </div>
   );

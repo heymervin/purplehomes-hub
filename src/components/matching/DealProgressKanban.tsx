@@ -67,8 +67,8 @@ const STAGE_UI_CONFIGS: StageUIConfig[] = [
   },
   {
     id: 'Buyer Responded',
-    label: 'Buyer Responded',
-    shortLabel: 'Responded',
+    label: 'Interested',
+    shortLabel: 'Interested',
     icon: MessageSquare,
     color: 'text-cyan-600',
     bgColor: 'bg-cyan-100',
@@ -103,8 +103,8 @@ const STAGE_UI_CONFIGS: StageUIConfig[] = [
   },
   {
     id: 'Contracts',
-    label: 'Contracts',
-    shortLabel: 'Contracts',
+    label: 'Contracts Signed',
+    shortLabel: 'Contracts Signed',
     icon: FileCheck,
     color: 'text-indigo-600',
     bgColor: 'bg-indigo-100',

@@ -474,6 +474,18 @@ export function BuyerPropertiesView({
                     <span>${buyerProperties.buyer.downPayment.toLocaleString()} down</span>
                   </div>
                 )}
+                {buyerProperties.buyer.monthlyIncome && (
+                  <div className="flex items-center gap-1">
+                    <TrendingUp className="h-4 w-4 text-green-600" />
+                    <span className="text-green-700">${buyerProperties.buyer.monthlyIncome.toLocaleString()}/mo income</span>
+                  </div>
+                )}
+                {buyerProperties.buyer.monthlyLiabilities && (
+                  <div className="flex items-center gap-1">
+                    <DollarSign className="h-4 w-4 text-orange-500" />
+                    <span className="text-orange-600">${buyerProperties.buyer.monthlyLiabilities.toLocaleString()}/mo liabilities</span>
+                  </div>
+                )}
                 {(buyerProperties.buyer.city || buyerProperties.buyer.preferredLocation) && (
                   <div className="flex items-center gap-1">
                     <MapPin className="h-4 w-4 text-muted-foreground" />

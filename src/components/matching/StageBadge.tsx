@@ -40,8 +40,8 @@ const STAGE_CONFIGS: Record<MatchDealStage, StageConfig> = {
   },
   'Buyer Responded': {
     icon: MessageSquare,
-    label: 'Buyer Responded',
-    shortLabel: 'Responded',
+    label: 'Interested',
+    shortLabel: 'Interested',
     bgColor: 'bg-cyan-50',
     textColor: 'text-cyan-700',
     borderColor: 'border-cyan-200',
@@ -72,8 +72,8 @@ const STAGE_CONFIGS: Record<MatchDealStage, StageConfig> = {
   },
   'Contracts': {
     icon: FileCheck,
-    label: 'Contracts',
-    shortLabel: 'Contracts',
+    label: 'Contracts Signed',
+    shortLabel: 'Contracts Signed',
     bgColor: 'bg-indigo-50',
     textColor: 'text-indigo-700',
     borderColor: 'border-indigo-200',

@@ -345,11 +345,43 @@ export default function Matching() {
 
           {/* By Property Tab */}
           <TabsContent value="by-property" className="mt-6">
-            <PropertyBuyersView
-              selectedPropertyCode={selectedPropertyCode}
-              onPropertySelect={setSelectedPropertyCode}
-              filters={filters}
-            />
+            {!selectedPropertyCode ? (
+              <div className="space-y-6">
+                <MatchingSummary
+                  onSelectBuyer={handleSelectBuyer}
+                  onViewProperty={handleSelectProperty}
+                />
+
+                {/* Manual Selection Section */}
+                <div className="border-t pt-6">
+                  <p className="text-sm text-muted-foreground text-center mb-4">
+                    Or select a property manually:
+                  </p>
+                  <PropertyBuyersView
+                    selectedPropertyCode={selectedPropertyCode}
+                    onPropertySelect={setSelectedPropertyCode}
+                    filters={filters}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedPropertyCode(null)}
+                  className="mb-2"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-2" />
+                  Back to Summary
+                </Button>
+                <PropertyBuyersView
+                  selectedPropertyCode={selectedPropertyCode}
+                  onPropertySelect={setSelectedPropertyCode}
+                  filters={filters}
+                />
+              </div>
+            )}
           </TabsContent>
 
         </Tabs>

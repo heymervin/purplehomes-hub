@@ -458,7 +458,7 @@ export default function SellerAcquisitions() {
 
               {selectedAcquisition.notes && (
                 <div className="p-3 bg-muted/50 rounded-lg">
-                  <p className="text-xs text-muted-foreground mb-1">Notes</p>
+                  <p className="text-xs text-muted-foreground mb-1">Property Details</p>
                   <p className="text-sm">{selectedAcquisition.notes}</p>
                 </div>
               )}
