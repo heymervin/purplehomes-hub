@@ -112,7 +112,7 @@ export function PropertyDetailModal({
   const updateAirtableProperty = useUpdateAirtableProperty();
 
   // Fetch custom field definitions for the folders/inputs
-  const { data: customFieldsData, refetch: refetchCustomFields } = useCustomFields('all');
+  const { data: customFieldsData, refetch: refetchCustomFields, isLoading: isLoadingCustomFields, error: customFieldsError } = useCustomFields('all');
 
   // Fetch raw opportunity data to get current custom field values
   const { data: opportunityData } = useProperty(initialProperty?.ghlOpportunityId || '');
@@ -171,6 +171,18 @@ export function PropertyDetailModal({
       setCustomFieldValues(values);
     }
   }, [opportunityData]);
+
+  // Debug: Log custom fields data
+  useEffect(() => {
+    console.log('[PropertyDetailModal] Custom fields data:', {
+      isLoading: isLoadingCustomFields,
+      hasError: !!customFieldsError,
+      error: customFieldsError,
+      hasData: !!customFieldsData,
+      fieldCount: customFieldsData?.customFields?.length || 0,
+      fields: customFieldsData?.customFields?.slice(0, 3).map(f => ({ id: f.id, name: f.name }))
+    });
+  }, [customFieldsData, isLoadingCustomFields, customFieldsError]);
 
   const handleFieldChange = (field: keyof Property, value: string | number | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -807,8 +819,33 @@ export function PropertyDetailModal({
                       </div>
                     )}
 
+                    {/* Loading State */}
+                    {isLoadingCustomFields && (
+                      <div className="text-center py-12">
+                        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-3" />
+                        <p className="text-muted-foreground font-medium">Loading custom fields...</p>
+                      </div>
+                    )}
+
+                    {/* Error State */}
+                    {customFieldsError && !isLoadingCustomFields && (
+                      <div className="text-center py-12">
+                        <Tag className="h-12 w-12 mx-auto text-destructive/30 mb-3" />
+                        <p className="text-destructive font-medium">Failed to load custom fields</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {customFieldsError instanceof Error ? customFieldsError.message : 'An error occurred'}
+                        </p>
+                        <button
+                          onClick={() => refetchCustomFields()}
+                          className="mt-4 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    )}
+
                     {/* Empty State */}
-                    {filteredFolders.length === 0 && ungroupedFields.length === 0 && (
+                    {!isLoadingCustomFields && !customFieldsError && filteredFolders.length === 0 && ungroupedFields.length === 0 && (
                       <div className="text-center py-12">
                         <Tag className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
                         <p className="text-muted-foreground font-medium">
