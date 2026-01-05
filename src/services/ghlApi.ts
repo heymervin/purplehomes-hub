@@ -549,7 +549,7 @@ export const GHL_OPPORTUNITY_FIELDS = {
 };
 
 // Helper to extract value from GHL custom field object
-const extractCustomFieldValue = (field: GHLCustomField | undefined): string => {
+export const extractCustomFieldValue = (field: GHLCustomField | undefined): string => {
   if (!field) return '';
   // Handle different value formats from GHL API
   if (field.fieldValueString !== undefined) return field.fieldValueString;
