@@ -22,13 +22,17 @@ export function groupFieldsByFolder(
     .filter(f => f.isFolder)
     .filter(f => modelFilter === 'all' || f.model === modelFilter || f.model === 'both');
 
+  // Create a set of valid folder IDs for quick lookup
+  const folderIds = new Set(folders.map(f => f.id));
+
   const allFields = fields.filter(f => !f.isFolder);
 
   // Group fields by parentId
   const fieldsByParent = new Map<string | null, GHLCustomField[]>();
 
   allFields.forEach(field => {
-    const parentId = field.parentId || null;
+    // If field has a parentId but that folder doesn't exist, treat as ungrouped
+    const parentId = field.parentId && folderIds.has(field.parentId) ? field.parentId : null;
     if (!fieldsByParent.has(parentId)) {
       fieldsByParent.set(parentId, []);
     }
