@@ -180,7 +180,16 @@ export function PropertyDetailModal({
       error: customFieldsError,
       hasData: !!customFieldsData,
       fieldCount: customFieldsData?.customFields?.length || 0,
-      fields: customFieldsData?.customFields?.slice(0, 3).map(f => ({ id: f.id, name: f.name }))
+      fields: customFieldsData?.customFields?.slice(0, 3).map(f => ({
+        id: f.id,
+        name: f.name,
+        isFolder: f.isFolder,
+        parentId: f.parentId,
+        model: f.model
+      })),
+      folderCount: customFieldsData?.customFields?.filter(f => f.isFolder).length || 0,
+      opportunityFieldCount: customFieldsData?.customFields?.filter(f => f.model === 'opportunity').length || 0,
+      contactFieldCount: customFieldsData?.customFields?.filter(f => f.model === 'contact').length || 0,
     });
   }, [customFieldsData, isLoadingCustomFields, customFieldsError]);
 
@@ -337,7 +346,18 @@ export function PropertyDetailModal({
       // Mark as required if field name contains "Required" in parent folder
       required: false, // Will be determined by folder name
     }));
-    return groupFieldsByFolder(allFields, modelFilter);
+    const result = groupFieldsByFolder(allFields, modelFilter);
+    console.log('[PropertyDetailModal] After grouping:', {
+      totalFields: allFields.length,
+      foldersCount: result.folders.length,
+      ungroupedCount: result.ungroupedFields.length,
+      modelFilter,
+      folderFields: allFields.filter(f => f.isFolder).length,
+      nonFolderFields: allFields.filter(f => !f.isFolder).length,
+      sampleFolder: result.folders[0],
+      sampleUngrouped: result.ungroupedFields.slice(0, 3)
+    });
+    return result;
   }, [customFieldsData, modelFilter]);
 
   // Apply search and empty filter
