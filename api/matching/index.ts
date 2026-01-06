@@ -23,6 +23,7 @@ import {
   isMapboxConfigured,
   geocode,
 } from '../../lib/mapbox';
+import { gunzipSync } from 'zlib';
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
@@ -314,6 +315,7 @@ function collectSupportingImages(propertyFields: any): string[] {
 /**
  * Fetches cached data from System Cache table
  * Returns null if cache is not available or invalid
+ * Handles both compressed (v2) and uncompressed (v1) cache data
  */
 async function fetchCachedData(cacheKey: string, headers: any): Promise<any | null> {
   try {
@@ -336,12 +338,27 @@ async function fetchCachedData(cacheKey: string, headers: any): Promise<any | nu
       return null;
     }
 
-    const data = JSON.parse(record.fields.data || '{"records":[]}');
-    console.log(`[Matching] Loaded ${data.records?.length || 0} records from cache: ${cacheKey}`);
+    // Handle both compressed and uncompressed data
+    let data;
+    const isCompressed = record.fields.compressed === true;
+    const version = record.fields.version || 1;
+
+    if (isCompressed && version >= 2) {
+      // Decompress gzipped base64 data
+      const compressedBuffer = Buffer.from(record.fields.data, 'base64');
+      const decompressed = gunzipSync(compressedBuffer);
+      data = JSON.parse(decompressed.toString());
+      console.log(`[Matching] Loaded ${data.records?.length || 0} records from compressed cache: ${cacheKey}`);
+    } else {
+      // Legacy uncompressed data
+      data = JSON.parse(record.fields.data || '{"records":[]}');
+      console.log(`[Matching] Loaded ${data.records?.length || 0} records from uncompressed cache: ${cacheKey}`);
+    }
+
     return data;
 
   } catch (error) {
-    console.error(`[Matching] Error fetching cache for ${cacheKey}:`, error);
+    console.error(`[Matching] Error fetching/decompressing cache for ${cacheKey}:`, error);
     return null;
   }
 }
@@ -508,41 +525,35 @@ async function fetchExistingMatches(headers: any, refreshAll: boolean): Promise<
   }
 
   try {
-    // Try to fetch from cache first
-    console.log('[Matching] Attempting to fetch existing matches from cache...');
-    const cachedMatches = await fetchCachedData('matches', headers);
-    let matchRecords = cachedMatches?.records || [];
+    // ALWAYS fetch ALL matches from Airtable for accurate duplicate prevention
+    // Note: Cannot rely on cache because it's limited to ~100 matches due to Airtable's 100KB field size limit
+    console.log('[Matching] Fetching ALL existing matches from Airtable with pagination for duplicate prevention...');
+    let matchRecords: any[] = [];
+    let offset: string | undefined;
+    let pageCount = 0;
 
-    // Fallback to direct Airtable query if cache unavailable
-    if (!cachedMatches || matchRecords.length === 0) {
-      console.log('[Matching] Cache miss - fetching ALL matches from Airtable with pagination...');
-      matchRecords = [];
-      let offset: string | undefined;
-      let pageCount = 0;
+    // Paginate through ALL existing matches
+    do {
+      pageCount++;
+      const url = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches`);
+      url.searchParams.set('pageSize', '100');
+      if (offset) url.searchParams.set('offset', offset);
 
-      // Paginate through ALL existing matches
-      do {
-        pageCount++;
-        const url = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches`);
-        url.searchParams.set('pageSize', '100');
-        if (offset) url.searchParams.set('offset', offset);
+      const res = await fetch(url.toString(), { headers });
 
-        const res = await fetch(url.toString(), { headers });
+      if (!res.ok) {
+        console.warn('[Matching] Failed to fetch existing matches page', pageCount, ', proceeding with partial skip set');
+        break;
+      }
 
-        if (!res.ok) {
-          console.warn('[Matching] Failed to fetch existing matches page', pageCount, ', proceeding with partial skip set');
-          break;
-        }
+      const data = await res.json();
+      matchRecords.push(...(data.records || []));
+      offset = data.offset;
 
-        const data = await res.json();
-        matchRecords.push(...(data.records || []));
-        offset = data.offset;
+      console.log(`[Matching] Fetched page ${pageCount}: ${data.records?.length || 0} matches (total so far: ${matchRecords.length})`);
+    } while (offset);
 
-        console.log(`[Matching] Fetched page ${pageCount}: ${data.records?.length || 0} matches (total so far: ${matchRecords.length})`);
-      } while (offset);
-
-      console.log(`[Matching] Finished fetching ${matchRecords.length} existing matches from Airtable across ${pageCount} pages`);
-    }
+    console.log(`[Matching] Finished fetching ${matchRecords.length} existing matches from Airtable across ${pageCount} pages`);
 
     const skipSet = new Set<string>();
     const matchMap = new Map<string, string>();
@@ -561,7 +572,7 @@ async function fetchExistingMatches(headers: any, refreshAll: boolean): Promise<
       }
     }
 
-    console.log(`[Matching] Loaded ${skipSet.size} existing matches into memory`);
+    console.log(`[Matching] Loaded ${skipSet.size} existing match pairings into skipSet for duplicate prevention`);
     return { skipSet, matchMap };
 
   } catch (error) {
@@ -1552,6 +1563,7 @@ async function handleAggregatedBuyers(
       buyerType: buyer.fields['Buyer Type'],
       qualified: ['Yes', 'yes', 'YES', 'true', true, 1, '1'].includes(buyer.fields['Qualified']),
       language: buyer.fields['Language'] === 'Spanish' ? 'Spanish' : 'English',
+      dateAdded: buyer.fields['Date Added'] || buyer.createdTime,
       matches: buyerMatches,
       totalMatches: buyerMatches.length,
     };

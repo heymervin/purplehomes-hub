@@ -762,7 +762,7 @@ export const usePropertyBuyers = (propertyCode: string | null) => {
 export const useBuyersList = () => {
   return useQuery({
     queryKey: ['buyers-list'],
-    queryFn: async (): Promise<Array<{ recordId: string; contactId: string; firstName: string; lastName: string; email: string }>> => {
+    queryFn: async (): Promise<Array<{ recordId: string; contactId: string; firstName: string; lastName: string; email: string; qualified?: boolean; dateAdded?: string; totalMatches: number }>> => {
       console.log('[Matching API] Fetching buyers list');
 
       const response = await fetch(`${MATCHING_API_BASE}?action=aggregated-buyers&limit=100`);
@@ -774,13 +774,16 @@ export const useBuyersList = () => {
 
       const result = await response.json();
 
-      // Extract just the fields we need for the dropdown
+      // Extract the fields we need for the dropdown, including qualified status and match count
       const buyers = (result.data || []).map((buyer: BuyerWithMatches) => ({
         recordId: buyer.recordId || '',
         contactId: buyer.contactId,
         firstName: buyer.firstName,
         lastName: buyer.lastName,
         email: buyer.email,
+        qualified: buyer.qualified,
+        dateAdded: buyer.dateAdded,
+        totalMatches: buyer.totalMatches,
       }));
 
       console.log('[Matching API] Buyers list fetched:', buyers.length);

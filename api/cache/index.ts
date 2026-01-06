@@ -9,6 +9,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { gzipSync, gunzipSync } from 'zlib';
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
@@ -87,12 +88,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(404).json({ error: `Cache not found: ${cacheKey}` });
       }
 
-      // Parse the JSON data field
+      // Parse the JSON data field - handle both compressed and uncompressed data
       let parsedData = { records: [] };
       try {
-        parsedData = JSON.parse(record.fields.data || '{"records":[]}');
+        const isCompressed = record.fields.compressed === true;
+        const version = record.fields.version || 1;
+
+        if (isCompressed && version >= 2) {
+          // Decompress gzipped base64 data
+          const compressedBuffer = Buffer.from(record.fields.data, 'base64');
+          const decompressed = gunzipSync(compressedBuffer);
+          parsedData = JSON.parse(decompressed.toString());
+        } else {
+          // Legacy uncompressed data
+          parsedData = JSON.parse(record.fields.data || '{"records":[]}');
+        }
       } catch (e) {
-        console.error('Failed to parse cache data:', e);
+        console.error('Failed to parse/decompress cache data:', e);
       }
 
       return res.status(200).json({
@@ -103,6 +115,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         lastSynced: record.fields.last_synced || null,
         version: record.fields.version || 1,
         isValid: record.fields.is_valid || false,
+        compressed: record.fields.compressed || false,
         airtableRecordId: record.id,
       });
     }
@@ -215,21 +228,53 @@ async function updateCache(cacheKey: string, data: any, recordCount: number): Pr
   const recordId = findData.records?.[0]?.id;
 
   const jsonData = JSON.stringify(data);
-  const dataSize = jsonData.length;
-  console.log(`[Sync] Cache data size for ${cacheKey}: ${dataSize} characters (${(dataSize / 1024).toFixed(2)} KB)`);
+  const originalSize = jsonData.length;
+  console.log(`[Sync] Original cache data size for ${cacheKey}: ${originalSize} characters (${(originalSize / 1024).toFixed(2)} KB)`);
 
-  if (dataSize > 100000) {
-    console.warn(`[Sync] WARNING: Cache data for ${cacheKey} exceeds Airtable's 100KB limit! Size: ${dataSize}`);
+  // Compress data using gzip and encode as base64 for storage
+  const compressed = gzipSync(jsonData);
+  const compressedBase64 = compressed.toString('base64');
+  const compressedSize = compressedBase64.length;
+  const compressionRatio = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+
+  console.log(`[Sync] Compressed cache data size for ${cacheKey}: ${compressedSize} characters (${(compressedSize / 1024).toFixed(2)} KB) - ${compressionRatio}% size reduction`);
+
+  if (compressedSize > 100000) {
+    console.warn(`[Sync] WARNING: Cache data for ${cacheKey} exceeds Airtable's 100KB limit even after compression! Size: ${compressedSize}. Cache will be marked as incomplete.`);
+    // Mark cache as invalid if it's too large
+    const incompleteCacheFields = {
+      cache_key: cacheKey,
+      data: JSON.stringify({ records: [], incomplete: true, reason: 'Data exceeds 100KB limit even after compression' }),
+      record_count: 0,
+      source_count: recordCount,
+      last_synced: new Date().toISOString(),
+      is_valid: false,
+      version: 2, // Version 2 indicates compression support
+      compressed: false,
+    };
+
+    if (recordId) {
+      await fetch(
+        `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${encodeURIComponent(CACHE_TABLE)}/${recordId}`,
+        {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({ fields: incompleteCacheFields }),
+        }
+      );
+    }
+    return;
   }
 
   const cacheFields = {
     cache_key: cacheKey,
-    data: jsonData,
+    data: compressedBase64,
     record_count: recordCount,
     source_count: recordCount,
     last_synced: new Date().toISOString(),
     is_valid: true,
-    version: 1,
+    version: 2, // Version 2 indicates compression
+    compressed: true, // Flag to indicate data is compressed
   };
 
   if (recordId) {

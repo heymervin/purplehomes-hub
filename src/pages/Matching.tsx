@@ -306,20 +306,19 @@ export default function Matching() {
           <TabsContent value="by-buyer" className="mt-6">
             {!selectedBuyerId ? (
               <div className="space-y-6">
-                <MatchingSummary
-                  onSelectBuyer={handleSelectBuyer}
-                  onViewProperty={handleSelectProperty}
+                {/* Manual Selection Section - Now at the top */}
+                <BuyerPropertiesView
+                  selectedBuyerId={selectedBuyerId}
+                  onBuyerSelect={setSelectedBuyerId}
+                  filters={filters}
                 />
-                
-                {/* Manual Selection Section */}
+
+                {/* Top Buyers Summary - Now below the manual selector */}
                 <div className="border-t pt-6">
-                  <p className="text-sm text-muted-foreground text-center mb-4">
-                    Or select a buyer manually:
-                  </p>
-                  <BuyerPropertiesView
-                    selectedBuyerId={selectedBuyerId}
-                    onBuyerSelect={setSelectedBuyerId}
-                    filters={filters}
+                  <h2 className="text-lg font-semibold mb-4">Top Buyers with Matches</h2>
+                  <MatchingSummary
+                    onSelectBuyer={handleSelectBuyer}
+                    onViewProperty={handleSelectProperty}
                   />
                 </div>
               </div>

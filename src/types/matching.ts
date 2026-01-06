@@ -24,6 +24,7 @@ export interface BuyerCriteria {
   buyerType?: string;
   qualified?: boolean;
   language?: 'English' | 'Spanish'; // Buyer's preferred language
+  dateAdded?: string; // Date the buyer was added to the system
   lat?: number;
   lng?: number;
   locationLat?: number; // Geocoded latitude

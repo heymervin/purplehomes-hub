@@ -35,6 +35,8 @@ import {
   Eye,
   Check,
   TrendingUp,
+  CheckCircle,
+  XCircle,
 } from 'lucide-react';
 import { useBuyerProperties, useBuyersList } from '@/services/matchingApi';
 import { useNavigate } from 'react-router-dom';
@@ -315,22 +317,47 @@ export function BuyerPropertiesView({
   const { data: buyersList, isLoading: loadingBuyers } = useBuyersList();
   const { data: buyerProperties, isLoading: loadingProperties, error } = useBuyerProperties(buyerId);
 
-  // Filter buyers list based on search
+  // Filter and sort buyers list
   const filteredBuyersList = useMemo(() => {
-    if (!buyersList || !filters?.search) return buyersList;
-    const searchLower = filters.search.toLowerCase();
-    return buyersList.filter((buyer) => {
-      const firstName = buyer.firstName?.toLowerCase() || '';
-      const lastName = buyer.lastName?.toLowerCase() || '';
-      const email = buyer.email?.toLowerCase() || '';
-      const city = buyer.city?.toLowerCase() || '';
-      return (
-        firstName.includes(searchLower) ||
-        lastName.includes(searchLower) ||
-        email.includes(searchLower) ||
-        city.includes(searchLower)
-      );
+    if (!buyersList) return buyersList;
+
+    let filtered = buyersList;
+
+    // Apply search filter if provided
+    if (filters?.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = buyersList.filter((buyer) => {
+        const firstName = buyer.firstName?.toLowerCase() || '';
+        const lastName = buyer.lastName?.toLowerCase() || '';
+        const email = buyer.email?.toLowerCase() || '';
+        return (
+          firstName.includes(searchLower) ||
+          lastName.includes(searchLower) ||
+          email.includes(searchLower)
+        );
+      });
+    }
+
+    // Sort buyers: Top 5 with matches first, then new buyers by date
+    const sorted = [...filtered].sort((a, b) => {
+      // First, sort by match count (descending)
+      if (a.totalMatches !== b.totalMatches) {
+        return b.totalMatches - a.totalMatches;
+      }
+
+      // Then, sort by date added (newest first)
+      if (a.dateAdded && b.dateAdded) {
+        return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
+      }
+
+      // If one has dateAdded and the other doesn't, prioritize the one with dateAdded
+      if (a.dateAdded && !b.dateAdded) return -1;
+      if (!a.dateAdded && b.dateAdded) return 1;
+
+      return 0;
     });
+
+    return sorted;
   }, [buyersList, filters?.search]);
 
   // Filter properties based on filters
@@ -415,17 +442,17 @@ export function BuyerPropertiesView({
     <div className="space-y-6">
       {/* Buyer Selector */}
       <div className="bg-card border rounded-lg p-4">
-        <div className="flex items-center gap-4">
+        <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm font-medium">
             <Users className="h-4 w-4 text-purple-500" />
-            <span>Select Buyer:</span>
+            <span>Select a buyer to view their property matches:</span>
           </div>
           <Select
             value={buyerId || ''}
             onValueChange={(value) => handleBuyerSelect(value || null)}
           >
-            <SelectTrigger className="w-[300px]">
-              <SelectValue placeholder="Choose a buyer to see their matches..." />
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Choose a buyer..." />
             </SelectTrigger>
             <SelectContent>
               {loadingBuyers ? (
@@ -435,8 +462,28 @@ export function BuyerPropertiesView({
               ) : (
                 filteredBuyersList?.map((buyer) => (
                   <SelectItem key={buyer.recordId || buyer.contactId} value={buyer.recordId || buyer.contactId}>
-                    {buyer.firstName} {buyer.lastName}
-                    <span className="text-muted-foreground ml-2 text-xs">{buyer.email}</span>
+                    <div className="flex items-center justify-between w-full gap-2">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="truncate">
+                          {buyer.firstName} {buyer.lastName}
+                        </span>
+                        {buyer.qualified !== undefined && (
+                          buyer.qualified ? (
+                            <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0" title="Qualified" />
+                          ) : (
+                            <XCircle className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" title="Not Qualified" />
+                          )
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {buyer.totalMatches > 0 && (
+                          <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
+                            {buyer.totalMatches}
+                          </Badge>
+                        )}
+                        <span className="text-muted-foreground text-xs truncate max-w-[150px]">{buyer.email}</span>
+                      </div>
+                    </div>
                   </SelectItem>
                 ))
               )}
@@ -449,9 +496,32 @@ export function BuyerPropertiesView({
           <div className="mt-4 pt-4 border-t">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold">
-                  {buyerProperties.buyer.firstName} {buyerProperties.buyer.lastName}
-                </h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold">
+                    {buyerProperties.buyer.firstName} {buyerProperties.buyer.lastName}
+                  </h3>
+                  {buyerProperties.buyer.qualified !== undefined && (
+                    <Badge
+                      variant={buyerProperties.buyer.qualified ? "default" : "secondary"}
+                      className={buyerProperties.buyer.qualified
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-gray-200 text-gray-600"
+                      }
+                    >
+                      {buyerProperties.buyer.qualified ? (
+                        <>
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Qualified
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="h-3 w-3 mr-1" />
+                          Not Qualified
+                        </>
+                      )}
+                    </Badge>
+                  )}
+                </div>
                 <p className="text-sm text-muted-foreground">{buyerProperties.buyer.email}</p>
               </div>
               <div className="flex gap-4 text-sm">
