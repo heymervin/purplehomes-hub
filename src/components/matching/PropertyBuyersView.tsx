@@ -80,20 +80,14 @@ function BuyerCard({ scoredBuyer, property, onViewDetails, isSelected, onToggleS
       className={cn(
         "p-4 transition-colors relative group",
         isInPipeline ? "border-l-4 border-l-green-500 bg-green-50/30" : "hover:bg-muted/30",
-        onViewDetails && "cursor-pointer hover:border-purple-300",
+        canSelect && "cursor-pointer hover:border-purple-300",
         isSelected && "ring-2 ring-purple-500 bg-purple-50/50"
       )}
-      onClick={onViewDetails}
+      onClick={canSelect ? onToggleSelect : undefined}
     >
       {/* Selection Checkbox - Only show for non-pipeline buyers */}
       {canSelect && (
-        <div
-          className="absolute top-3 left-3 z-10"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleSelect();
-          }}
-        >
+        <div className="absolute top-3 left-3 z-10 pointer-events-none">
           <Checkbox
             checked={isSelected}
             className={cn(
