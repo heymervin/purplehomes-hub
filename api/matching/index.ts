@@ -2107,7 +2107,7 @@ async function handleBuyerProperties(
       buyer: buyerInfo,
       priorityMatches,
       exploreMatches,
-      totalCount: scoredProperties.length,
+      totalCount: matchedPropertiesOnly.length,
       stats: {
         priorityCount: priorityMatches.length,
         exploreCount: exploreMatches.length,
