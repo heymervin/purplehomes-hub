@@ -227,7 +227,7 @@ function BuyerCard({ scoredBuyer, property, onViewDetails, isSelected, onToggleS
           <Button
             variant="outline"
             size="sm"
-            className="h-7 text-xs bg-white hover:bg-purple-50 hover:border-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="h-7 text-xs bg-white hover:bg-purple-600 hover:text-white hover:border-purple-600 border-gray-200 text-gray-600 transition-all shadow-sm"
             onClick={(e) => {
               e.stopPropagation();
               onViewDetails();
