@@ -4,7 +4,7 @@
  * Shows immediate value on page load:
  * - 3 key stats: Ready to Send, Sent Today, In Pipeline (linked)
  * - Top 5 buyers by match count
- * - Top 5 properties by match count
+ * - Top 5 new buyers by date added
  */
 
 import { useNavigate } from 'react-router-dom';
@@ -17,12 +17,12 @@ import {
   Send,
   TrendingUp,
   Users,
-  Home,
   ArrowRight,
-  MapPin,
   Mail,
+  UserPlus,
+  Calendar,
 } from 'lucide-react';
-import { useBuyersWithMatches, usePropertiesWithMatches, useMatchStats } from '@/services/matchingApi';
+import { useBuyersWithMatches, useNewBuyers, useMatchStats } from '@/services/matchingApi';
 
 interface MatchingSummaryProps {
   onSelectBuyer: (buyerId: string) => void;
@@ -35,12 +35,14 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
   // Get match stats from new endpoint
   const { data: matchStats, isLoading: loadingStats } = useMatchStats();
 
-  // Get top 5 buyers and properties
+  // Get top 5 buyers by match count
   const { data: topBuyersData, isLoading: loadingBuyers } = useBuyersWithMatches({}, 5);
-  const { data: topPropertiesData, isLoading: loadingProperties } = usePropertiesWithMatches({}, 5);
+
+  // Get top 5 new buyers by date added
+  const { data: newBuyersData, isLoading: loadingNewBuyers } = useNewBuyers(5);
 
   const topBuyers = topBuyersData?.data || [];
-  const topProperties = topPropertiesData?.data || [];
+  const newBuyers = newBuyersData?.data || [];
 
   // Use stats from API
   const readyToSend = matchStats?.readyToSend || 0;
@@ -207,68 +209,90 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
           </div>
         </Card>
 
-        {/* Top Properties */}
+        {/* New Buyers */}
         <Card>
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Home className="h-5 w-5 text-purple-500" />
-                Top Properties by Interest
+                <UserPlus className="h-5 w-5 text-green-500" />
+                New Buyers
               </h3>
-              <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-                Top 5
+              <Badge variant="secondary" className="bg-green-100 text-green-700">
+                Recent 5
               </Badge>
             </div>
 
-            {loadingProperties ? (
+            {loadingNewBuyers ? (
               <div className="space-y-3">
                 {[...Array(5)].map((_, i) => (
                   <Skeleton key={i} className="h-16 w-full" />
                 ))}
               </div>
-            ) : topProperties.length === 0 ? (
+            ) : newBuyers.length === 0 ? (
               <div className="text-center py-8 text-sm text-muted-foreground">
-                No properties with matches yet
+                No new buyers yet
               </div>
             ) : (
               <div className="space-y-2">
-                {topProperties.map((property, index) => (
-                  <div
-                    key={property.recordId}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group"
-                  >
-                    {/* Rank */}
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-sm font-semibold text-purple-700">
-                      {index + 1}
-                    </div>
+                {newBuyers.map((buyer, index) => {
+                  // Count unsent matches for this buyer
+                  const unsentCount = buyer.matches.filter((m) => !m.stage).length;
 
-                    {/* Property Info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{property.address}</p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {property.city}
-                        {property.state && `, ${property.state}`}
-                      </p>
-                    </div>
+                  // Format date added
+                  const dateAdded = buyer.dateAdded
+                    ? new Date(buyer.dateAdded).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })
+                    : 'Unknown';
 
-                    {/* Buyer Count */}
-                    <Badge variant="secondary" className="flex-shrink-0">
-                      {property.totalMatches} {property.totalMatches === 1 ? 'buyer' : 'buyers'}
-                    </Badge>
-
-                    {/* View Button */}
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => onViewProperty(property.recordId)}
+                  return (
+                    <div
+                      key={buyer.recordId || buyer.contactId}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group"
                     >
-                      View
-                      <ArrowRight className="h-3 w-3 ml-1" />
-                    </Button>
-                  </div>
-                ))}
+                      {/* Rank/Position */}
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-sm font-semibold text-green-700">
+                        {index + 1}
+                      </div>
+
+                      {/* Buyer Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm truncate">
+                          {buyer.firstName} {buyer.lastName}
+                        </p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Added {dateAdded}
+                        </p>
+                      </div>
+
+                      {/* Match Count with unsent indicator */}
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Badge variant="secondary">
+                          {buyer.totalMatches} {buyer.totalMatches === 1 ? 'match' : 'matches'}
+                        </Badge>
+                        {unsentCount > 0 && (
+                          <Badge variant="outline" className="text-purple-600 border-purple-300">
+                            {unsentCount} unsent
+                          </Badge>
+                        )}
+                      </div>
+
+                      {/* View Button */}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="flex-shrink-0"
+                        onClick={() => onSelectBuyer(buyer.recordId || buyer.contactId)}
+                      >
+                        View
+                        <ArrowRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

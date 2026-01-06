@@ -64,6 +64,51 @@ export const useBuyersWithMatches = (filters?: MatchFilters, pageSize: number = 
 };
 
 /**
+ * Fetch new buyers sorted by date added (most recent first)
+ */
+export const useNewBuyers = (pageSize: number = 5) => {
+  return useQuery({
+    queryKey: ['new-buyers', pageSize],
+    queryFn: async (): Promise<{ data: BuyerWithMatches[] }> => {
+      console.log('[Matching API] Fetching new buyers', 'pageSize:', pageSize);
+
+      const params = new URLSearchParams({
+        action: 'aggregated-buyers',
+        limit: '100', // Fetch more to ensure we have enough with dateAdded
+      });
+
+      const response = await fetch(`${MATCHING_API_BASE}?${params}`);
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to fetch buyers' }));
+        throw new Error(error.error || 'Failed to fetch new buyers');
+      }
+
+      const result = await response.json();
+
+      console.log('[Matching API] Buyers fetched for new buyers list:', {
+        count: result.data?.length || 0,
+      });
+
+      // Filter buyers with dateAdded and sort by most recent
+      const buyersWithDate = (result.data || [])
+        .filter((buyer: BuyerWithMatches) => buyer.dateAdded)
+        .sort((a: BuyerWithMatches, b: BuyerWithMatches) => {
+          const dateA = new Date(a.dateAdded!).getTime();
+          const dateB = new Date(b.dateAdded!).getTime();
+          return dateB - dateA; // Most recent first
+        })
+        .slice(0, pageSize);
+
+      return {
+        data: buyersWithDate,
+      };
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes - fetch fresh data on page load, cache for subsequent navigations
+  });
+};
+
+/**
  * Fetch all properties with their matches using optimized aggregated endpoint
  * This solves the N+1 query problem by doing server-side aggregation
  */
