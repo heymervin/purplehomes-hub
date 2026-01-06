@@ -515,19 +515,33 @@ async function fetchExistingMatches(headers: any, refreshAll: boolean): Promise<
 
     // Fallback to direct Airtable query if cache unavailable
     if (!cachedMatches || matchRecords.length === 0) {
-      console.log('[Matching] Cache miss - fetching matches from Airtable...');
-      const res = await fetch(
-        `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches`,
-        { headers }
-      );
+      console.log('[Matching] Cache miss - fetching ALL matches from Airtable with pagination...');
+      matchRecords = [];
+      let offset: string | undefined;
+      let pageCount = 0;
 
-      if (!res.ok) {
-        console.warn('[Matching] Failed to fetch existing matches, proceeding without skip set');
-        return { skipSet: new Set(), matchMap: new Map() };
-      }
+      // Paginate through ALL existing matches
+      do {
+        pageCount++;
+        const url = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches`);
+        url.searchParams.set('pageSize', '100');
+        if (offset) url.searchParams.set('offset', offset);
 
-      const data = await res.json();
-      matchRecords = data.records || [];
+        const res = await fetch(url.toString(), { headers });
+
+        if (!res.ok) {
+          console.warn('[Matching] Failed to fetch existing matches page', pageCount, ', proceeding with partial skip set');
+          break;
+        }
+
+        const data = await res.json();
+        matchRecords.push(...(data.records || []));
+        offset = data.offset;
+
+        console.log(`[Matching] Fetched page ${pageCount}: ${data.records?.length || 0} matches (total so far: ${matchRecords.length})`);
+      } while (offset);
+
+      console.log(`[Matching] Finished fetching ${matchRecords.length} existing matches from Airtable across ${pageCount} pages`);
     }
 
     const skipSet = new Set<string>();
@@ -2025,12 +2039,18 @@ async function handleBuyerProperties(
       };
     });
 
+    // Step 3.5: Filter to only include properties that have match records
+    // This ensures that if matches are cleared, no properties are shown
+    const matchedPropertiesOnly = scoredProperties.filter((sp: any) => sp.matchId);
+
+    console.log(`[Buyer Properties] Filtered to ${matchedPropertiesOnly.length} properties with match records (out of ${scoredProperties.length} total)`);
+
     // Step 4: Split into priority and explore, sort by score
-    const priorityMatches = scoredProperties
+    const priorityMatches = matchedPropertiesOnly
       .filter((sp: any) => sp.score.isPriority)
       .sort((a: any, b: any) => b.score.score - a.score.score);
 
-    const exploreMatches = scoredProperties
+    const exploreMatches = matchedPropertiesOnly
       .filter((sp: any) => !sp.score.isPriority)
       .sort((a: any, b: any) => b.score.score - a.score.score);
 
@@ -2161,6 +2181,36 @@ async function handlePropertyBuyers(
       buyers = directBuyersData.records || [];
     }
 
+    // Step 2.5: Fetch existing matches for this property to get matchId
+    let matchesData = await fetchCachedData('matches', headers);
+    let allMatches = matchesData?.records || [];
+
+    if (!matchesData || allMatches.length === 0) {
+      console.log('[Property Buyers] Cache miss - fetching matches from Airtable...');
+      const matchesRes = await fetch(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches`, { headers });
+      if (matchesRes.ok) {
+        const directMatchesData = await matchesRes.json();
+        allMatches = directMatchesData.records || [];
+      }
+    }
+
+    // Create a map of buyer record ID to match record for this property
+    const matchesByBuyerId = new Map<string, any>();
+    const propertyRecordId = property.id;
+
+    for (const match of allMatches) {
+      // Property Code is a linked record array
+      const matchPropertyId = match.fields['Property Code']?.[0];
+      if (matchPropertyId === propertyRecordId) {
+        // Contact ID is a linked record array
+        const buyerRecordId = match.fields['Contact ID']?.[0];
+        if (buyerRecordId) {
+          matchesByBuyerId.set(buyerRecordId, match);
+        }
+      }
+    }
+
+    console.log(`[Property Buyers] Found ${matchesByBuyerId.size} existing matches for property`);
     console.log(`[Property Buyers] Scoring ${buyers.length} buyers for property`);
 
     // Step 3: Score all buyers for this property
@@ -2171,6 +2221,9 @@ async function handlePropertyBuyers(
       const preferredZipCodes = typeof zipCodesRaw === 'string'
         ? zipCodesRaw.split(',').map((z: string) => z.trim()).filter(Boolean)
         : Array.isArray(zipCodesRaw) ? zipCodesRaw : [];
+
+      // Look up existing match record for this buyer
+      const existingMatch = matchesByBuyerId.get(buyer.id);
 
       return {
         buyer: {
@@ -2209,11 +2262,20 @@ async function handlePropertyBuyers(
           isPriority: score.isPriority,
           distanceMiles: score.distanceMiles,
         },
+        // Include match record info if it exists
+        matchId: existingMatch?.id || undefined,
+        currentStage: existingMatch?.fields['Match Stage'] || undefined,
       };
     });
 
+    // Step 3.5: Filter to only include buyers that have match records
+    // This ensures that if matches are cleared, no buyers are shown
+    const matchedBuyersOnly = scoredBuyers.filter((sb: any) => sb.matchId);
+
+    console.log(`[Property Buyers] Filtered to ${matchedBuyersOnly.length} buyers with match records (out of ${scoredBuyers.length} total)`);
+
     // Step 4: Filter by minimum score (e.g., 30) and sort by score descending
-    const qualifiedBuyers = scoredBuyers
+    const qualifiedBuyers = matchedBuyersOnly
       .filter((sb: any) => sb.score.score >= 30)
       .sort((a: any, b: any) => b.score.score - a.score.score);
 
