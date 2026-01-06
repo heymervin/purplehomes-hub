@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
-  SearchInput,
+  QuickSearchInput,
   FilterSelect,
   FilterCheckbox,
   FilterBar,
@@ -262,11 +262,13 @@ export default function Matching() {
       {/* Filter Bar */}
       <div className="px-6">
         <FilterBar hasActiveFilters={hasActiveFilters} onClearAll={clearAllFilters}>
-          <SearchInput
+          <QuickSearchInput
             value={filters.search}
             onChange={(value) => setFilters((f) => ({ ...f, search: value }))}
             placeholder="Search buyers or properties..."
             className="w-full sm:w-64"
+            onSelectBuyer={handleSelectBuyer}
+            onSelectProperty={handleSelectProperty}
           />
           <FilterSelect
             label="Min Score"
@@ -306,19 +308,21 @@ export default function Matching() {
           <TabsContent value="by-buyer" className="mt-6">
             {!selectedBuyerId ? (
               <div className="space-y-6">
-                {/* Manual Selection Section - Now at the top */}
-                <BuyerPropertiesView
-                  selectedBuyerId={selectedBuyerId}
-                  onBuyerSelect={setSelectedBuyerId}
-                  filters={filters}
+                {/* Top Buyers Summary */}
+                <MatchingSummary
+                  onSelectBuyer={handleSelectBuyer}
+                  onViewProperty={handleSelectProperty}
                 />
 
-                {/* Top Buyers Summary - Now below the manual selector */}
+                {/* Manual Selection Section */}
                 <div className="border-t pt-6">
-                  <h2 className="text-lg font-semibold mb-4">Top Buyers with Matches</h2>
-                  <MatchingSummary
-                    onSelectBuyer={handleSelectBuyer}
-                    onViewProperty={handleSelectProperty}
+                  <p className="text-sm text-muted-foreground text-center mb-4">
+                    Or select a buyer manually:
+                  </p>
+                  <BuyerPropertiesView
+                    selectedBuyerId={selectedBuyerId}
+                    onBuyerSelect={setSelectedBuyerId}
+                    filters={filters}
                   />
                 </div>
               </div>
