@@ -129,6 +129,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         return await handlePropertyBuyers(req, res, headers);
 
+      // Match stats endpoint (for dashboard summary)
+      case 'match-stats':
+        if (req.method !== 'GET') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+        return await handleMatchStats(req, res, headers);
+
       default:
         return res.status(400).json({ error: 'Unknown action', action });
     }
@@ -2335,6 +2342,90 @@ async function handlePropertyBuyers(
 
   } catch (error) {
     console.error('[Property Buyers] Error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get match statistics for dashboard summary
+ * Calculates:
+ * - Ready to Send: matches without a stage (not yet sent)
+ * - Sent Today: matches sent today (based on Date Sent field)
+ * - In Pipeline: matches with any stage set
+ */
+async function handleMatchStats(
+  _req: VercelRequest,
+  res: VercelResponse,
+  headers: any
+): Promise<VercelResponse> {
+  try {
+    console.log('[Match Stats] Fetching all matches from Airtable...');
+
+    // Fetch all matches from Airtable
+    const allMatches: any[] = [];
+    let offset: string | undefined;
+
+    do {
+      const url = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches`);
+      url.searchParams.set('pageSize', '100');
+      if (offset) url.searchParams.set('offset', offset);
+
+      const response = await fetch(url.toString(), { headers });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Airtable error: ${error.error?.message || 'Unknown error'}`);
+      }
+
+      const data = await response.json();
+      allMatches.push(...data.records);
+      offset = data.offset;
+    } while (offset);
+
+    console.log(`[Match Stats] Fetched ${allMatches.length} total matches`);
+
+    // Calculate stats
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+
+    let readyToSend = 0;
+    let sentToday = 0;
+    let inPipeline = 0;
+
+    for (const match of allMatches) {
+      const stage = match.fields['Match Stage'];
+      const dateSent = match.fields['Date Sent'];
+
+      if (!stage) {
+        // No stage = ready to send
+        readyToSend++;
+      } else {
+        // Has stage = in pipeline
+        inPipeline++;
+
+        // Check if sent today
+        if (dateSent) {
+          const sentDate = new Date(dateSent);
+          if (sentDate >= todayStart && sentDate < todayEnd) {
+            sentToday++;
+          }
+        }
+      }
+    }
+
+    console.log(`[Match Stats] Ready to Send: ${readyToSend}, Sent Today: ${sentToday}, In Pipeline: ${inPipeline}`);
+
+    return res.status(200).json({
+      readyToSend,
+      sentToday,
+      inPipeline,
+      totalMatches: allMatches.length,
+    });
+
+  } catch (error) {
+    console.error('[Match Stats] Error:', error);
     throw error;
   }
 }

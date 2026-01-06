@@ -928,3 +928,34 @@ export const useUpdateAirtableProperty = () => {
     },
   });
 };
+
+/**
+ * Fetch match statistics for dashboard summary
+ */
+export const useMatchStats = () => {
+  return useQuery({
+    queryKey: ['match-stats'],
+    queryFn: async (): Promise<{
+      readyToSend: number;
+      sentToday: number;
+      inPipeline: number;
+      totalMatches: number;
+    }> => {
+      console.log('[Matching API] Fetching match stats');
+
+      const response = await fetch(`${MATCHING_API_BASE}?action=match-stats`);
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to fetch match stats' }));
+        throw new Error(error.error || 'Failed to fetch match stats');
+      }
+
+      const result = await response.json();
+      console.log('[Matching API] Match stats fetched:', result);
+
+      return result;
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+  });
+};

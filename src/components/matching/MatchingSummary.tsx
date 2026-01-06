@@ -22,8 +22,7 @@ import {
   MapPin,
   Mail,
 } from 'lucide-react';
-import { useBuyersWithMatches, usePropertiesWithMatches } from '@/services/matchingApi';
-import { useMatchingData } from '@/hooks/useCache';
+import { useBuyersWithMatches, usePropertiesWithMatches, useMatchStats } from '@/services/matchingApi';
 
 interface MatchingSummaryProps {
   onSelectBuyer: (buyerId: string) => void;
@@ -33,8 +32,8 @@ interface MatchingSummaryProps {
 export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSummaryProps) {
   const navigate = useNavigate();
 
-  // Get cache data for accurate total counts
-  const { matchesCount, isLoading: loadingCache } = useMatchingData();
+  // Get match stats from new endpoint
+  const { data: matchStats, isLoading: loadingStats } = useMatchStats();
 
   // Get top 5 buyers and properties
   const { data: topBuyersData, isLoading: loadingBuyers } = useBuyersWithMatches({}, 5);
@@ -43,44 +42,10 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
   const topBuyers = topBuyersData?.data || [];
   const topProperties = topPropertiesData?.data || [];
 
-  // Calculate stats based on match stage (Deal Pipeline status)
-  const calculateStats = () => {
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-    let readyToSend = 0;  // Matches without a stage (unsent)
-    let sentToday = 0;    // Matches sent today
-    let inPipeline = 0;   // Matches with any stage set
-
-    topBuyers.forEach((buyer) => {
-      buyer.matches.forEach((match) => {
-        // Check if match has a stage (is in pipeline)
-        // stage field from Match Stage column (Deal Pipeline)
-        const stage = match.stage;
-
-        if (!stage) {
-          // No stage = ready to send
-          readyToSend++;
-        } else {
-          // Has stage = in pipeline
-          inPipeline++;
-
-          // Check if sent today (stage is 'Sent to Buyer' and recent activity)
-          if (stage === 'Sent to Buyer') {
-            // Check if it was updated today
-            const updatedAt = match.updatedAt ? new Date(match.updatedAt) : null;
-            if (updatedAt && updatedAt >= todayStart) {
-              sentToday++;
-            }
-          }
-        }
-      });
-    });
-
-    return { readyToSend, sentToday, inPipeline };
-  };
-
-  const { readyToSend, sentToday, inPipeline } = calculateStats();
+  // Use stats from API
+  const readyToSend = matchStats?.readyToSend || 0;
+  const sentToday = matchStats?.sentToday || 0;
+  const inPipeline = matchStats?.inPipeline || 0;
 
   return (
     <div className="space-y-6">
@@ -96,7 +61,7 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Ready to Send</p>
-                {loadingCache || loadingBuyers ? (
+                {loadingStats ? (
                   <Skeleton className="h-8 w-16 mt-1" />
                 ) : (
                   <p className="text-3xl font-bold text-foreground">{readyToSend}</p>
@@ -119,7 +84,7 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Sent Today</p>
-                {loadingBuyers ? (
+                {loadingStats ? (
                   <Skeleton className="h-8 w-16 mt-1" />
                 ) : (
                   <p className="text-3xl font-bold text-foreground">{sentToday}</p>
@@ -145,7 +110,7 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-muted-foreground">In Pipeline</p>
-                {loadingBuyers ? (
+                {loadingStats ? (
                   <Skeleton className="h-8 w-16 mt-1" />
                 ) : (
                   <p className="text-3xl font-bold text-foreground">{inPipeline}</p>
