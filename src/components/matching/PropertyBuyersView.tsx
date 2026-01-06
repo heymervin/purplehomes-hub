@@ -555,7 +555,7 @@ export function PropertyBuyersView({
                   </Badge>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {interestedBuyers.map((scoredBuyer) => {
                     const buyerId = scoredBuyer.buyer.recordId || scoredBuyer.buyer.contactId;
                     return (
@@ -588,7 +588,7 @@ export function PropertyBuyersView({
 
           {/* Other Potential Buyers */}
           {potentialBuyers.length > 0 && (
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {potentialBuyers.map((scoredBuyer) => {
                 const buyerId = scoredBuyer.buyer.recordId || scoredBuyer.buyer.contactId;
                 return (
