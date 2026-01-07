@@ -72,8 +72,8 @@ const STAGE_CONFIGS: Record<MatchDealStage, StageConfig> = {
   },
   'Contracts': {
     icon: FileCheck,
-    label: 'Contracts Signed',
-    shortLabel: 'Contracts Signed',
+    label: 'Contracts',
+    shortLabel: 'Contracts',
     bgColor: 'bg-indigo-50',
     textColor: 'text-indigo-700',
     borderColor: 'border-indigo-200',

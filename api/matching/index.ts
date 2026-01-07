@@ -2448,11 +2448,33 @@ async function handleMatchStats(
 // ============ MATCHING PREFERENCES ============
 
 const PREFERENCES_TABLE = 'Matching Preferences';
+
+// Default affordability settings
+const DEFAULT_AFFORDABILITY = {
+  fixedOtherCosts: 8310,
+  fixedLoanFees: 1990,
+  downPaymentPercent: 20,
+  closingCostPercent: 1,
+  pointsPercent: 2,
+  pointsFinancedPercent: 80,
+  priceBuffer: 0,
+  minDownPayment: 10300,
+};
+
+// Default match flexibility settings
+const DEFAULT_MATCH_FLEXIBILITY = {
+  bedroomFlex: 'minus1' as const,
+  bathroomFlex: 'minus1' as const,
+  budgetFlexPercent: 10 as const,
+};
+
 const DEFAULT_PREFERENCES = {
   budgetMultiplier: 8,
   zillowMaxPrice: 275000,
   zillowMinDays: 90,
   zillowKeywords: 'seller finance OR owner finance OR bond for deed',
+  affordability: DEFAULT_AFFORDABILITY,
+  matchFlexibility: DEFAULT_MATCH_FLEXIBILITY,
 };
 
 /**
@@ -2483,11 +2505,28 @@ async function handleGetPreferences(
     }
 
     const record = data.records[0];
+    const f = record.fields;
+
     const preferences = {
-      budgetMultiplier: record.fields['Budget Multiplier'] ?? DEFAULT_PREFERENCES.budgetMultiplier,
-      zillowMaxPrice: record.fields['Zillow Max Price'] ?? DEFAULT_PREFERENCES.zillowMaxPrice,
-      zillowMinDays: record.fields['Zillow Min Days'] ?? DEFAULT_PREFERENCES.zillowMinDays,
-      zillowKeywords: record.fields['Zillow Keywords'] ?? DEFAULT_PREFERENCES.zillowKeywords,
+      budgetMultiplier: f['Budget Multiplier'] ?? DEFAULT_PREFERENCES.budgetMultiplier,
+      zillowMaxPrice: f['Zillow Max Price'] ?? DEFAULT_PREFERENCES.zillowMaxPrice,
+      zillowMinDays: f['Zillow Min Days'] ?? DEFAULT_PREFERENCES.zillowMinDays,
+      zillowKeywords: f['Zillow Keywords'] ?? DEFAULT_PREFERENCES.zillowKeywords,
+      affordability: {
+        fixedOtherCosts: f['Fixed Other Costs'] ?? DEFAULT_AFFORDABILITY.fixedOtherCosts,
+        fixedLoanFees: f['Fixed Loan Fees'] ?? DEFAULT_AFFORDABILITY.fixedLoanFees,
+        downPaymentPercent: f['Down Payment Percent'] ?? DEFAULT_AFFORDABILITY.downPaymentPercent,
+        closingCostPercent: f['Closing Cost Percent'] ?? DEFAULT_AFFORDABILITY.closingCostPercent,
+        pointsPercent: f['Points Percent'] ?? DEFAULT_AFFORDABILITY.pointsPercent,
+        pointsFinancedPercent: f['Points Financed Percent'] ?? DEFAULT_AFFORDABILITY.pointsFinancedPercent,
+        priceBuffer: f['Price Buffer'] ?? DEFAULT_AFFORDABILITY.priceBuffer,
+        minDownPayment: f['Min Down Payment'] ?? DEFAULT_AFFORDABILITY.minDownPayment,
+      },
+      matchFlexibility: {
+        bedroomFlex: f['Bedroom Flex'] ?? DEFAULT_MATCH_FLEXIBILITY.bedroomFlex,
+        bathroomFlex: f['Bathroom Flex'] ?? DEFAULT_MATCH_FLEXIBILITY.bathroomFlex,
+        budgetFlexPercent: f['Budget Flex Percent'] ?? DEFAULT_MATCH_FLEXIBILITY.budgetFlexPercent,
+      },
     };
 
     console.log('[Matching Preferences] Returning preferences:', preferences);
@@ -2510,13 +2549,15 @@ async function handleUpdatePreferences(
   headers: any
 ): Promise<VercelResponse> {
   try {
-    const { budgetMultiplier, zillowMaxPrice, zillowMinDays, zillowKeywords } = req.body;
+    const { budgetMultiplier, zillowMaxPrice, zillowMinDays, zillowKeywords, affordability, matchFlexibility } = req.body;
 
     console.log('[Matching Preferences] Updating preferences:', {
       budgetMultiplier,
       zillowMaxPrice,
       zillowMinDays,
-      zillowKeywords
+      zillowKeywords,
+      affordability,
+      matchFlexibility
     });
 
     // First, check if record exists
@@ -2532,6 +2573,25 @@ async function handleUpdatePreferences(
     if (zillowMaxPrice !== undefined) fields['Zillow Max Price'] = zillowMaxPrice;
     if (zillowMinDays !== undefined) fields['Zillow Min Days'] = zillowMinDays;
     if (zillowKeywords !== undefined) fields['Zillow Keywords'] = zillowKeywords;
+
+    // Handle nested affordability settings
+    if (affordability !== undefined) {
+      if (affordability.fixedOtherCosts !== undefined) fields['Fixed Other Costs'] = affordability.fixedOtherCosts;
+      if (affordability.fixedLoanFees !== undefined) fields['Fixed Loan Fees'] = affordability.fixedLoanFees;
+      if (affordability.downPaymentPercent !== undefined) fields['Down Payment Percent'] = affordability.downPaymentPercent;
+      if (affordability.closingCostPercent !== undefined) fields['Closing Cost Percent'] = affordability.closingCostPercent;
+      if (affordability.pointsPercent !== undefined) fields['Points Percent'] = affordability.pointsPercent;
+      if (affordability.pointsFinancedPercent !== undefined) fields['Points Financed Percent'] = affordability.pointsFinancedPercent;
+      if (affordability.priceBuffer !== undefined) fields['Price Buffer'] = affordability.priceBuffer;
+      if (affordability.minDownPayment !== undefined) fields['Min Down Payment'] = affordability.minDownPayment;
+    }
+
+    // Handle nested match flexibility settings
+    if (matchFlexibility !== undefined) {
+      if (matchFlexibility.bedroomFlex !== undefined) fields['Bedroom Flex'] = matchFlexibility.bedroomFlex;
+      if (matchFlexibility.bathroomFlex !== undefined) fields['Bathroom Flex'] = matchFlexibility.bathroomFlex;
+      if (matchFlexibility.budgetFlexPercent !== undefined) fields['Budget Flex Percent'] = matchFlexibility.budgetFlexPercent;
+    }
 
     let url: string;
     let method: string;
@@ -2570,7 +2630,7 @@ async function handleUpdatePreferences(
     console.log('[Matching Preferences] Preferences saved successfully');
     return res.status(200).json({
       success: true,
-      preferences: { budgetMultiplier, zillowMaxPrice, zillowMinDays, zillowKeywords },
+      preferences: { budgetMultiplier, zillowMaxPrice, zillowMinDays, zillowKeywords, affordability, matchFlexibility },
     });
   } catch (error) {
     console.error('[Matching Preferences] Update error:', error);

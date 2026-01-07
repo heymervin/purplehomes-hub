@@ -29,4 +29,10 @@ export { SourceBadge } from './SourceBadge';
 export { ZillowTypeBadge } from './ZillowTypeBadge';
 export { ZillowPropertyCard } from './ZillowPropertyCard';
 export { SaveZillowModal } from './SaveZillowModal';
-export { SendFlyerModal } from './SendFlyerModal';
+
+// Zillow match status components
+export { MatchTypeBadge } from './MatchTypeBadge';
+export { MatchStatusPills } from './MatchStatusPills';
+export { ZillowFilters } from './ZillowFilters';
+export { ZillowListingCard } from './ZillowListingCard';
+export { BuyerCriteriaBanner } from './BuyerCriteriaBanner';

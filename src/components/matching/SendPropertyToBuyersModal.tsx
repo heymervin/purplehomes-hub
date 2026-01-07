@@ -22,6 +22,59 @@ import { STAGE_ASSOCIATION_IDS } from '@/types/associations';
 import type { ScoredBuyer, PropertyDetails, MatchActivity, MatchActivityType } from '@/types/matching';
 
 const AIRTABLE_API_BASE = '/api/airtable';
+const GHL_PROPERTY_SENT_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/fJgopVh0YwOMQJtUeQRk/webhook-trigger/018b6284-9355-46df-ab33-b36662afb00c';
+
+/**
+ * Trigger GHL webhook when a property is sent to buyers
+ * This enables follow-up sequences in GHL
+ */
+async function triggerPropertySentWebhook(
+  property: PropertyDetails,
+  buyers: ScoredBuyer[],
+  sendMethod: 'sms' | 'email' | 'sms-email'
+): Promise<void> {
+  // Trigger webhook for each buyer to enable individual follow-up sequences
+  for (const sb of buyers) {
+    try {
+      const payload = {
+        event: 'property_sent_to_buyer',
+        timestamp: new Date().toISOString(),
+        buyer: {
+          contactId: sb.buyer.contactId,
+          recordId: sb.buyer.recordId,
+          firstName: sb.buyer.firstName,
+          lastName: sb.buyer.lastName,
+          email: sb.buyer.email,
+          phone: sb.buyer.phone,
+          language: sb.buyer.language || 'English',
+        },
+        properties: [{
+          recordId: property.recordId,
+          address: property.address,
+          city: property.city,
+          state: property.state,
+          price: property.price,
+          beds: property.beds,
+          baths: property.baths,
+          matchScore: sb.score.score,
+          isPriority: sb.score.isPriority || false,
+        }],
+        sendMethod,
+        propertyCount: 1,
+      };
+
+      await fetch(GHL_PROPERTY_SENT_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      console.warn('[SendPropertyToBuyers] Failed to trigger GHL webhook for buyer:', sb.buyer.email, error);
+      // Don't fail the whole operation if webhook fails
+    }
+  }
+  console.log(`[SendPropertyToBuyers] GHL webhooks triggered for ${buyers.length} buyers`);
+}
 
 interface SendPropertyToBuyersModalProps {
   property: PropertyDetails;
@@ -311,7 +364,15 @@ export function SendPropertyToBuyersModal({
 
       console.log(`[SendPropertyToBuyers] Updated ${updated} matches, created ${created} new matches, synced ${synced} to GHL, failed ${failed}`);
 
-      // Step 4: Sync server-side cache
+      // Step 4: Trigger GHL webhook for follow-up sequences
+      const webhookSendMethod = willSendSMS && willSendEmail
+        ? 'sms-email'
+        : willSendSMS
+        ? 'sms'
+        : 'email';
+      await triggerPropertySentWebhook(property, buyers, webhookSendMethod);
+
+      // Step 5: Sync server-side cache
       try {
         await fetch('/api/cache?action=sync&cacheKey=matches', {
           method: 'POST',
@@ -321,7 +382,7 @@ export function SendPropertyToBuyersModal({
         console.warn('[SendPropertyToBuyers] Failed to sync server cache:', cacheError);
       }
 
-      // Step 5: Invalidate and refetch queries so UI updates immediately
+      // Step 6: Invalidate and refetch queries so UI updates immediately
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['deals'] }),
         queryClient.invalidateQueries({ queryKey: ['pipeline-stats'] }),
@@ -338,7 +399,7 @@ export function SendPropertyToBuyersModal({
       // Force refetch of the property's buyers to update UI immediately
       await queryClient.refetchQueries({ queryKey: ['property-buyers'] });
 
-      // Step 6: Show appropriate toast based on results
+      // Step 7: Show appropriate toast based on results
       const sentDescription = sentMethods.join(' & ') + ' sent';
       const totalSuccessful = updated + created;
 

@@ -15,6 +15,7 @@ import {
   LogOut,
   Target,
   Kanban,
+  UserCog,
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -31,6 +32,7 @@ const navigation = [
   { name: 'Public Listings', href: '/listings', icon: Globe },
   { name: 'Property Pipeline', href: '/seller-acquisitions', icon: Home },
   { name: 'Buyer Acquisitions', href: '/acquisitions', icon: UserPlus },
+  { name: 'Buyer Management', href: '/buyer-management', icon: UserCog },
   // { name: 'Buyers Pipeline', href: '/buyers', icon: Users }, // Hidden for now
   { name: 'Property Matching', href: '/matching', icon: Target },
   { name: 'Deal Pipeline', href: '/deals', icon: Kanban },

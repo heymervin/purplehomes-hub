@@ -103,12 +103,12 @@ const STAGE_UI_CONFIGS: StageUIConfig[] = [
   },
   {
     id: 'Contracts',
-    label: 'Contracts Signed',
-    shortLabel: 'Contracts Signed',
+    label: 'Contracts',
+    shortLabel: 'Contracts',
     icon: FileCheck,
     color: 'text-indigo-600',
     bgColor: 'bg-indigo-100',
-    description: 'Contracts in progress',
+    description: 'Contracts are signed',
   },
   {
     id: 'Qualified',

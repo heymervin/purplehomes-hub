@@ -180,7 +180,7 @@ export function MatchQuickActions({
         return [
           {
             id: 'move-to-contracts',
-            label: 'Move to Contracts Signed',
+            label: 'Move to Contracts',
             icon: FileText,
             variant: 'default',
             primary: true,

@@ -18,6 +18,7 @@ import Documents from "@/pages/Documents";
 import SocialMedia from "@/pages/SocialMedia";
 import Settings from "@/pages/Settings";
 import ActivityLogs from "@/pages/ActivityLogs";
+import BuyerManagement from "@/pages/BuyerManagement";
 import PublicListings from "@/pages/PublicListings";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
@@ -44,6 +45,7 @@ const App = () => (
                 <Route path="/properties" element={<Properties />} />
                 <Route path="/properties/:id" element={<PropertyDetail />} />
                 <Route path="/buyers" element={<Buyers />} />
+                <Route path="/buyer-management" element={<BuyerManagement />} />
                 <Route path="/acquisitions" element={<BuyerAcquisitions />} />
                 <Route path="/seller-acquisitions" element={<SellerAcquisitions />} />
                 <Route path="/contacts" element={<Contacts />} />

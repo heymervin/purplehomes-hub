@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Check, X, RefreshCw, ExternalLink, Plus, Trash2, Wifi, WifiOff, Key, Save, Server, Clock, CheckCircle2, XCircle, Activity, Calculator, Loader2, Target, Home } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Check, X, RefreshCw, ExternalLink, Plus, Trash2, Wifi, WifiOff, Key, Save, Server, Clock, CheckCircle2, XCircle, Activity, Calculator, Loader2, Target, Home, DollarSign, Sliders } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -27,6 +27,18 @@ import { useTestAssociationsApi } from '@/services/ghlAssociationsApi';
 import { useCalculatorDefaults, useUpdateCalculatorDefaults } from '@/services/calculatorApi';
 import { useMatchingPreferences, useUpdateMatchingPreferences } from '@/services/matchingApi';
 import type { CalculatorDefaults } from '@/types/calculator';
+import {
+  DEFAULT_AFFORDABILITY_SETTINGS,
+  DEFAULT_MATCH_FLEXIBILITY,
+  type AffordabilitySettings,
+  type ZillowMatchFlexibility
+} from '@/types/matching';
+import {
+  calculateMaxAffordablePrice,
+  calculateEntryFactor,
+  calculateFixedTotal
+} from '@/lib/affordability';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function Settings() {
   const { connectionStatus, setConnectionStatus, propertiesPerPage, setPropertiesPerPage } = useAppStore();
@@ -65,6 +77,19 @@ export default function Settings() {
   const [localZillowKeywords, setLocalZillowKeywords] = useState<string>('seller finance OR owner finance OR bond for deed');
   const [hasZillowChanges, setHasZillowChanges] = useState(false);
 
+  // Affordability formula settings
+  const [affordabilitySettings, setAffordabilitySettings] = useState<AffordabilitySettings>(
+    DEFAULT_AFFORDABILITY_SETTINGS
+  );
+  const [hasAffordabilityChanges, setHasAffordabilityChanges] = useState(false);
+  const [testDownPayment, setTestDownPayment] = useState<number>(50000);
+
+  // Match flexibility settings
+  const [matchFlexibility, setMatchFlexibility] = useState<ZillowMatchFlexibility>(
+    DEFAULT_MATCH_FLEXIBILITY
+  );
+  const [hasFlexibilityChanges, setHasFlexibilityChanges] = useState(false);
+
   // Load saved config on mount
   useEffect(() => {
     const config = getApiConfig();
@@ -94,8 +119,31 @@ export default function Settings() {
       if (matchingPreferencesData.zillowKeywords) {
         setLocalZillowKeywords(matchingPreferencesData.zillowKeywords);
       }
+      // Sync affordability settings
+      if (matchingPreferencesData.affordability) {
+        setAffordabilitySettings(matchingPreferencesData.affordability);
+      }
+      // Sync match flexibility settings
+      if (matchingPreferencesData.matchFlexibility) {
+        setMatchFlexibility(matchingPreferencesData.matchFlexibility);
+      }
     }
   }, [matchingPreferencesData]);
+
+  // Calculate live preview for affordability formula
+  const livePreview = useMemo(() => {
+    const fixedTotal = calculateFixedTotal(affordabilitySettings);
+    const entryFactor = calculateEntryFactor(affordabilitySettings);
+    const available = testDownPayment - fixedTotal;
+    const maxPrice = calculateMaxAffordablePrice(testDownPayment, affordabilitySettings);
+
+    return {
+      fixedTotal,
+      entryFactor: (entryFactor * 100).toFixed(1),
+      available,
+      maxPrice,
+    };
+  }, [affordabilitySettings, testDownPayment]);
 
   const handleDefaultChange = (field: keyof CalculatorDefaults, value: number) => {
     setLocalDefaults(prev => ({ ...prev, [field]: value }));
@@ -133,6 +181,30 @@ export default function Settings() {
       toast.success('Zillow settings saved');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to save settings');
+    }
+  };
+
+  const handleSaveAffordability = async () => {
+    try {
+      await updateMatchingPreferences.mutateAsync({
+        affordability: affordabilitySettings
+      });
+      setHasAffordabilityChanges(false);
+      toast.success('Affordability settings saved');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to save affordability settings');
+    }
+  };
+
+  const handleSaveFlexibility = async () => {
+    try {
+      await updateMatchingPreferences.mutateAsync({
+        matchFlexibility: matchFlexibility
+      });
+      setHasFlexibilityChanges(false);
+      toast.success('Match flexibility settings saved');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to save flexibility settings');
     }
   };
 
@@ -1030,6 +1102,336 @@ export default function Settings() {
                     </div>
                   )}
                 </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Affordability Formula Settings */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-primary" />
+                    Affordability Formula
+                  </CardTitle>
+                  <CardDescription>
+                    Configure how max affordable price is calculated from down payment
+                  </CardDescription>
+                </div>
+                <Button
+                  onClick={handleSaveAffordability}
+                  disabled={!hasAffordabilityChanges || updateMatchingPreferences.isPending}
+                  size="sm"
+                >
+                  {updateMatchingPreferences.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  Save
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Fixed Costs */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-muted-foreground">Fixed Costs</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Red-Box Costs ($)</Label>
+                    <div className="relative mt-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                      <Input
+                        type="number"
+                        value={affordabilitySettings.fixedOtherCosts}
+                        onChange={(e) => {
+                          setAffordabilitySettings(s => ({ ...s, fixedOtherCosts: Number(e.target.value) }));
+                          setHasAffordabilityChanges(true);
+                        }}
+                        className="pl-7"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Loan Fees ($)</Label>
+                    <div className="relative mt-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                      <Input
+                        type="number"
+                        value={affordabilitySettings.fixedLoanFees}
+                        onChange={(e) => {
+                          setAffordabilitySettings(s => ({ ...s, fixedLoanFees: Number(e.target.value) }));
+                          setHasAffordabilityChanges(true);
+                        }}
+                        className="pl-7"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Percentage Costs */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-muted-foreground">Percentage Costs</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Down Payment %</Label>
+                    <div className="relative mt-1">
+                      <Input
+                        type="number"
+                        value={affordabilitySettings.downPaymentPercent}
+                        onChange={(e) => {
+                          setAffordabilitySettings(s => ({ ...s, downPaymentPercent: Number(e.target.value) }));
+                          setHasAffordabilityChanges(true);
+                        }}
+                        className="pr-7"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Closing Costs %</Label>
+                    <div className="relative mt-1">
+                      <Input
+                        type="number"
+                        value={affordabilitySettings.closingCostPercent}
+                        onChange={(e) => {
+                          setAffordabilitySettings(s => ({ ...s, closingCostPercent: Number(e.target.value) }));
+                          setHasAffordabilityChanges(true);
+                        }}
+                        className="pr-7"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Points %</Label>
+                    <div className="relative mt-1">
+                      <Input
+                        type="number"
+                        value={affordabilitySettings.pointsPercent}
+                        onChange={(e) => {
+                          setAffordabilitySettings(s => ({ ...s, pointsPercent: Number(e.target.value) }));
+                          setHasAffordabilityChanges(true);
+                        }}
+                        className="pr-7"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="w-1/2">
+                  <Label>Points Financed %</Label>
+                  <p className="text-xs text-muted-foreground mb-1">Portion of points rolled into loan</p>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      value={affordabilitySettings.pointsFinancedPercent}
+                      onChange={(e) => {
+                        setAffordabilitySettings(s => ({ ...s, pointsFinancedPercent: Number(e.target.value) }));
+                        setHasAffordabilityChanges(true);
+                      }}
+                      className="pr-7"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Adjustments */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-muted-foreground">Adjustments</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Price Buffer ($)</Label>
+                    <p className="text-xs text-muted-foreground mb-1">Added to max price (set to 0 for exact)</p>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                      <Input
+                        type="number"
+                        value={affordabilitySettings.priceBuffer}
+                        onChange={(e) => {
+                          setAffordabilitySettings(s => ({ ...s, priceBuffer: Number(e.target.value) }));
+                          setHasAffordabilityChanges(true);
+                        }}
+                        className="pl-7"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Min Down Payment ($)</Label>
+                    <p className="text-xs text-muted-foreground mb-1">Required to run affordability search</p>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                      <Input
+                        type="number"
+                        value={affordabilitySettings.minDownPayment}
+                        onChange={(e) => {
+                          setAffordabilitySettings(s => ({ ...s, minDownPayment: Number(e.target.value) }));
+                          setHasAffordabilityChanges(true);
+                        }}
+                        className="pl-7"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Preview */}
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 space-y-3">
+                <h4 className="font-medium text-purple-900">Live Preview</h4>
+                <div>
+                  <Label>Test Down Payment</Label>
+                  <div className="relative w-48 mt-1">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                    <Input
+                      type="number"
+                      value={testDownPayment}
+                      onChange={(e) => setTestDownPayment(Number(e.target.value))}
+                      className="pl-7"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-purple-600">Fixed Costs:</span>
+                    <span className="ml-2 font-medium">${livePreview.fixedTotal.toLocaleString()}</span>
+                  </div>
+                  <div>
+                    <span className="text-purple-600">Entry Factor:</span>
+                    <span className="ml-2 font-medium">{livePreview.entryFactor}%</span>
+                  </div>
+                  <div>
+                    <span className="text-purple-600">Available for Entry:</span>
+                    <span className="ml-2 font-medium">${livePreview.available.toLocaleString()}</span>
+                  </div>
+                  <div>
+                    <span className="text-purple-600 font-semibold">MAX AFFORDABLE:</span>
+                    <span className="ml-2 font-bold text-purple-900">${livePreview.maxPrice.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {hasAffordabilityChanges && (
+                <p className="text-sm text-yellow-600 font-medium">You have unsaved changes</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Match Flexibility Settings */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sliders className="h-5 w-5 text-primary" />
+                    Match Flexibility (Zillow Results)
+                  </CardTitle>
+                  <CardDescription>
+                    Control which properties appear in Zillow search results
+                  </CardDescription>
+                </div>
+                <Button
+                  onClick={handleSaveFlexibility}
+                  disabled={!hasFlexibilityChanges || updateMatchingPreferences.isPending}
+                  size="sm"
+                >
+                  {updateMatchingPreferences.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  Save
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <p className="text-sm text-muted-foreground">
+                When showing Zillow results, include properties that:
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Bedrooms */}
+                <div className="space-y-2">
+                  <Label>Bedrooms</Label>
+                  <RadioGroup
+                    value={matchFlexibility.bedroomFlex}
+                    onValueChange={(v) => {
+                      setMatchFlexibility(s => ({ ...s, bedroomFlex: v as 'exact' | 'minus1' | 'minus2' }));
+                      setHasFlexibilityChanges(true);
+                    }}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="exact" id="beds-exact" />
+                      <label htmlFor="beds-exact" className="text-sm">Exact or more only</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="minus1" id="beds-minus1" />
+                      <label htmlFor="beds-minus1" className="text-sm">Allow 1 less bedroom</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="minus2" id="beds-minus2" />
+                      <label htmlFor="beds-minus2" className="text-sm">Allow 2 less bedrooms</label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                {/* Bathrooms */}
+                <div className="space-y-2">
+                  <Label>Bathrooms</Label>
+                  <RadioGroup
+                    value={matchFlexibility.bathroomFlex}
+                    onValueChange={(v) => {
+                      setMatchFlexibility(s => ({ ...s, bathroomFlex: v as 'exact' | 'minus1' | 'minus2' }));
+                      setHasFlexibilityChanges(true);
+                    }}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="exact" id="baths-exact" />
+                      <label htmlFor="baths-exact" className="text-sm">Exact or more only</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="minus1" id="baths-minus1" />
+                      <label htmlFor="baths-minus1" className="text-sm">Allow 1 less bathroom</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="minus2" id="baths-minus2" />
+                      <label htmlFor="baths-minus2" className="text-sm">Allow 2 less bathrooms</label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </div>
+
+              {/* Budget Flexibility */}
+              <div className="space-y-2">
+                <Label>Budget Flexibility</Label>
+                <p className="text-xs text-muted-foreground">Show properties over max affordable price?</p>
+                <RadioGroup
+                  value={matchFlexibility.budgetFlexPercent.toString()}
+                  onValueChange={(v) => {
+                    setMatchFlexibility(s => ({ ...s, budgetFlexPercent: Number(v) as 0 | 5 | 10 | 15 | 20 }));
+                    setHasFlexibilityChanges(true);
+                  }}
+                  className="grid grid-cols-2 md:grid-cols-5 gap-2"
+                >
+                  {[0, 5, 10, 15, 20].map((pct) => (
+                    <div key={pct} className="flex items-center space-x-2">
+                      <RadioGroupItem value={pct.toString()} id={`budget-${pct}`} />
+                      <label htmlFor={`budget-${pct}`} className="text-sm">
+                        {pct === 0 ? 'Within budget only' : `Up to ${pct}% over`}
+                      </label>
+                    </div>
+                  ))}
+                </RadioGroup>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Example: $176,000 max + {matchFlexibility.budgetFlexPercent}% = Shows up to $
+                  {Math.round(176000 * (1 + matchFlexibility.budgetFlexPercent / 100)).toLocaleString()}
+                </p>
+              </div>
+
+              {hasFlexibilityChanges && (
+                <p className="text-sm text-yellow-600 font-medium">You have unsaved changes</p>
               )}
             </CardContent>
           </Card>

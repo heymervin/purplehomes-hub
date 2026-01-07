@@ -6,6 +6,104 @@ import { MatchDealStage } from './associations';
 
 export type { MatchDealStage } from './associations';
 
+/**
+ * Affordability Formula Settings
+ * All values configurable from Settings page
+ */
+export interface AffordabilitySettings {
+  fixedOtherCosts: number;        // Default: 8310 (red-box costs)
+  fixedLoanFees: number;          // Default: 1990
+  downPaymentPercent: number;     // Default: 20
+  closingCostPercent: number;     // Default: 1
+  pointsPercent: number;          // Default: 2
+  pointsFinancedPercent: number;  // Default: 80
+  priceBuffer: number;            // Default: 0
+  minDownPayment: number;         // Default: 10300
+}
+
+/**
+ * Default affordability settings
+ */
+export const DEFAULT_AFFORDABILITY_SETTINGS: AffordabilitySettings = {
+  fixedOtherCosts: 8310,
+  fixedLoanFees: 1990,
+  downPaymentPercent: 20,
+  closingCostPercent: 1,
+  pointsPercent: 2,
+  pointsFinancedPercent: 80,
+  priceBuffer: 0,
+  minDownPayment: 10300,
+};
+
+/**
+ * Zillow Match Flexibility Settings
+ */
+export interface ZillowMatchFlexibility {
+  bedroomFlex: 'exact' | 'minus1' | 'minus2';    // Default: 'minus1'
+  bathroomFlex: 'exact' | 'minus1' | 'minus2';   // Default: 'minus1'
+  budgetFlexPercent: 0 | 5 | 10 | 15 | 20;       // Default: 10
+}
+
+/**
+ * Default match flexibility settings
+ */
+export const DEFAULT_MATCH_FLEXIBILITY: ZillowMatchFlexibility = {
+  bedroomFlex: 'minus1',
+  bathroomFlex: 'minus1',
+  budgetFlexPercent: 10,
+};
+
+/**
+ * Zillow listing match status
+ */
+export interface ZillowMatchStatus {
+  matchType: 'perfect' | 'near' | 'stretch' | 'partial';
+
+  budget: {
+    status: 'met' | 'close' | 'over';
+    difference: number;        // positive = under, negative = over
+    percentOver: number | null;
+    label: string;             // e.g., "$11k under" or "5% over"
+  };
+
+  bedrooms: {
+    status: 'met' | 'close' | 'miss';
+    property: number;
+    wanted: number;
+    difference: number;
+    label: string;             // e.g., "3 bed (exact)" or "2 bed (1 less)"
+  };
+
+  bathrooms: {
+    status: 'met' | 'close' | 'miss';
+    property: number;
+    wanted: number;
+    difference: number;
+    label: string;
+  };
+
+  location: {
+    status: 'met' | 'close' | 'miss';
+    inPreferredCity: boolean;
+    city: string;
+    label: string;             // e.g., "In Dallas" or "Plano (12 mi)"
+  };
+
+  summary: string | null;      // e.g., "Slightly over budget, different city"
+}
+
+/**
+ * Zillow filter state for search results
+ */
+export interface ZillowFilterState {
+  showPerfect: boolean;
+  showNear: boolean;
+  showStretch: boolean;
+  withinBudget: boolean;
+  meetsBeds: boolean;
+  meetsBaths: boolean;
+}
+
 export interface BuyerCriteria {
   contactId: string;
   recordId?: string;
@@ -242,10 +340,18 @@ export interface PropertyBuyersResponse {
 export interface MatchingPreferences {
   id?: string;
   budgetMultiplier: number; // Default: 8
+
   // Zillow Search Settings
   zillowMaxPrice: number; // Default: 275000 - Max price for 90+ Days search
   zillowMinDays: number; // Default: 90 - Min days on market for 90+ Days search
   zillowKeywords: string; // Default: 'seller finance OR owner finance OR bond for deed'
+
+  // Affordability Formula Settings
+  affordability: AffordabilitySettings;
+
+  // Match Flexibility Settings
+  matchFlexibility: ZillowMatchFlexibility;
+
   updatedAt?: string;
 }
 
@@ -257,6 +363,8 @@ export const DEFAULT_MATCHING_PREFERENCES: MatchingPreferences = {
   zillowMaxPrice: 275000,
   zillowMinDays: 90,
   zillowKeywords: 'seller finance OR owner finance OR bond for deed',
+  affordability: DEFAULT_AFFORDABILITY_SETTINGS,
+  matchFlexibility: DEFAULT_MATCH_FLEXIBILITY,
 };
 
 /**

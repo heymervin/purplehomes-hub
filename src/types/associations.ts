@@ -160,7 +160,7 @@ export const STAGE_CONFIGS: StageConfig[] = [
   { id: 'Showing Scheduled', label: 'Showing Scheduled', shortLabel: 'Scheduled', order: 3, isExitState: false, color: 'amber', description: 'Property showing scheduled' },
   { id: 'Property Viewed', label: 'Property Viewed', shortLabel: 'Viewed', order: 4, isExitState: false, color: 'purple', description: 'Buyer has viewed property' },
   { id: 'Underwriting', label: 'Underwriting', shortLabel: 'Underwriting', order: 5, isExitState: false, color: 'orange', description: 'Numbers being prepared' },
-  { id: 'Contracts', label: 'Contracts Signed', shortLabel: 'Contracts Signed', order: 6, isExitState: false, color: 'indigo', description: 'Contracts in progress' },
+  { id: 'Contracts', label: 'Contracts', shortLabel: 'Contracts', order: 6, isExitState: false, color: 'indigo', description: 'Contracts are signed' },
   { id: 'Qualified', label: 'Qualified', shortLabel: 'Qualified', order: 7, isExitState: false, color: 'teal', description: 'Buyer qualified for property' },
   { id: 'Closed Deal / Won', label: 'Closed Deal / Won', shortLabel: 'Closed', order: 8, isExitState: false, color: 'emerald', description: 'Deal completed successfully' },
   { id: 'Not Interested', label: 'Not Interested', shortLabel: 'Not Interested', order: 99, isExitState: true, color: 'red', description: 'Buyer not interested in property' },

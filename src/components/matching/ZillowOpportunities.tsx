@@ -44,17 +44,19 @@ import {
   Castle,
   Caravan,
   LandPlot,
-  Send,
   Info,
   Settings,
   type LucideIcon,
 } from 'lucide-react';
 import { useZillowSearchByType } from '@/services/zillowApi';
-import { useZillowSettings } from '@/services/matchingApi';
-import { calculateMaxAffordablePrice } from '@/lib/affordability';
-import type { BuyerCriteria } from '@/types/matching';
+import { useZillowSettings, useMatchingPreferences } from '@/services/matchingApi';
+import { calculateMaxAffordablePrice, calculateMaxAffordablePriceWithFlex, hasValidDownPayment } from '@/lib/affordability';
+import { calculateZillowMatchStatus, filterZillowListings, countByMatchType, sortByMatchQuality } from '@/lib/zillowMatchScorer';
+import type { BuyerCriteria, ZillowFilterState, ZillowMatchStatus } from '@/types/matching';
 import type { ZillowSearchType, ZillowListing } from '@/types/zillow';
-import { SendFlyerModal } from './SendFlyerModal';
+import { BuyerCriteriaBanner } from './BuyerCriteriaBanner';
+import { ZillowFilters } from './ZillowFilters';
+import { ZillowListingCard } from './ZillowListingCard';
 import {
   Tooltip,
   TooltipContent,
@@ -178,17 +180,19 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
   const [selectedSearchType, setSelectedSearchType] = useState<ZillowSearchType | null>(null);
   const [selectedPropertyType, setSelectedPropertyType] = useState<string | null>(null);
 
-  // Send Flyer modal state
-  const [sendFlyerModalOpen, setSendFlyerModalOpen] = useState(false);
-  const [selectedListing, setSelectedListing] = useState<ZillowListing | null>(null);
+  // Filter state for match-based filtering
+  const [filters, setFilters] = useState<ZillowFilterState>({
+    showPerfect: true,
+    showNear: true,
+    showStretch: false,
+    withinBudget: false,
+    meetsBeds: false,
+    meetsBaths: false,
+  });
 
-  // Get Zillow settings from preferences
+  // Get Zillow settings and matching preferences
   const zillowSettings = useZillowSettings();
-
-  const handleSendFlyer = (listing: ZillowListing) => {
-    setSelectedListing(listing);
-    setSendFlyerModalOpen(true);
-  };
+  const { data: matchingPrefs } = useMatchingPreferences();
 
   // Query for selected search type
   const { data, isLoading, error, refetch, isFetching } = useZillowSearchByType(
@@ -201,12 +205,12 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
     setSelectedPropertyType(null);
   }, [selectedSearchType]);
 
-  // Filter results by property type
+  // Filter results by property type (applied on top of match filters)
   const filteredResults = useMemo(() => {
-    if (!data?.results) return [];
-    if (!selectedPropertyType) return data.results;
-    return data.results.filter(r => r.propertyType === selectedPropertyType);
-  }, [data?.results, selectedPropertyType]);
+    const listingsToFilter = matchFilteredListings.length > 0 ? matchFilteredListings : processedListings;
+    if (!selectedPropertyType) return listingsToFilter;
+    return listingsToFilter.filter(r => r.listing.propertyType === selectedPropertyType);
+  }, [matchFilteredListings, processedListings, selectedPropertyType]);
 
   // Get unique property types with counts for filter dropdown
   const propertyTypeCounts = useMemo(() => {
@@ -218,10 +222,58 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
     }, {} as Record<string, number>);
   }, [data?.results]);
 
-  // Calculate max price for display
-  const maxPrice = buyer.downPayment && buyer.downPayment > 10300
-    ? calculateMaxAffordablePrice(buyer.downPayment)
+  // Get affordability and flexibility settings (with defaults)
+  const affordabilitySettings = matchingPrefs?.affordability || {
+    fixedOtherCosts: 8310,
+    fixedLoanFees: 1990,
+    downPaymentPercent: 20,
+    closingCostPercent: 1,
+    pointsPercent: 2,
+    pointsFinancedPercent: 80,
+    priceBuffer: 0,
+    minDownPayment: 10300,
+  };
+
+  const flexibilitySettings = matchingPrefs?.matchFlexibility || {
+    bedroomFlex: 'minus1' as const,
+    bathroomFlex: 'minus1' as const,
+    budgetFlexPercent: 10 as const,
+  };
+
+  // Calculate max price using configurable settings
+  const maxPrice = hasValidDownPayment(buyer.downPayment, affordabilitySettings)
+    ? calculateMaxAffordablePrice(buyer.downPayment!, affordabilitySettings)
     : null;
+
+  const maxWithFlex = maxPrice
+    ? calculateMaxAffordablePriceWithFlex(buyer.downPayment!, affordabilitySettings, flexibilitySettings.budgetFlexPercent)
+    : null;
+
+  // Process listings with match status
+  const processedListings = useMemo(() => {
+    if (!data?.results || !maxPrice) return [];
+
+    return data.results.map(listing => ({
+      listing,
+      matchStatus: calculateZillowMatchStatus(
+        listing,
+        buyer,
+        maxPrice,
+        flexibilitySettings
+      ),
+    }));
+  }, [data?.results, buyer, maxPrice, flexibilitySettings]);
+
+  // Apply match-based filters
+  const matchFilteredListings = useMemo(() => {
+    if (!processedListings.length) return [];
+    return filterZillowListings(processedListings, filters);
+  }, [processedListings, filters]);
+
+  // Get match counts for filter badges
+  const matchCounts = useMemo(() => {
+    return countByMatchType(processedListings);
+  }, [processedListings]);
 
   // Check if buyer has required data for each search type
   const canSearchCreative = !!(buyer.preferredLocation || buyer.city);
@@ -244,7 +296,6 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
   };
 
   return (
-    <>
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <Card className="border-2 border-purple-200 bg-purple-50/30">
         <CollapsibleTrigger asChild>
@@ -268,33 +319,14 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
 
         <CollapsibleContent>
           <div className="p-4 pt-0 space-y-4">
-            {/* Buyer Criteria Summary */}
-            <div className="bg-white rounded-lg p-3 border border-purple-100">
-              <h4 className="text-xs font-semibold text-purple-900 mb-2">Buyer Criteria:</h4>
-              <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                {buyer.buyerType && (
-                  <span className="flex items-center gap-1 font-medium text-purple-700 bg-purple-100 px-2 py-0.5 rounded">
-                    {buyer.buyerType}
-                  </span>
-                )}
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  {buyer.preferredLocation || buyer.city || 'No location'}
-                </span>
-                {buyer.desiredBeds && (
-                  <span className="flex items-center gap-1">
-                    <Bed className="h-3 w-3" />
-                    {buyer.desiredBeds}+ beds
-                  </span>
-                )}
-                {maxPrice && (
-                  <span className="flex items-center gap-1 font-medium text-foreground">
-                    <DollarSign className="h-3 w-3" />
-                    Max: ${maxPrice.toLocaleString()}
-                  </span>
-                )}
-              </div>
-            </div>
+            {/* Buyer Criteria Banner */}
+            {maxPrice && (
+              <BuyerCriteriaBanner
+                buyer={buyer}
+                maxAffordable={maxPrice}
+                maxWithFlex={maxWithFlex || undefined}
+              />
+            )}
 
             {/* Search Type Buttons */}
             <div className="grid grid-cols-3 gap-2">
@@ -455,9 +487,7 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
                         {selectedSearchType} Results
                       </h4>
                       <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-                        {selectedPropertyType
-                          ? `${filteredResults.length} of ${data.results.length}`
-                          : data.results.length}
+                        {filteredResults.length} of {processedListings.length}
                       </Badge>
                       {data.cached && (
                         <Badge variant="outline" className="text-xs">
@@ -483,56 +513,67 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
                       </Button>
                     </div>
                   </div>
-
-                  {/* Property Type Filter */}
-                  {Object.keys(propertyTypeCounts).length > 1 && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">Filter:</span>
-                      <Select
-                        value={selectedPropertyType || 'all'}
-                        onValueChange={(value) => setSelectedPropertyType(value === 'all' ? null : value)}
-                      >
-                        <SelectTrigger className="h-8 w-[160px] text-xs">
-                          <SelectValue placeholder="All Types" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all" className="text-xs">
-                            All Types ({data.results.length})
-                          </SelectItem>
-                          {Object.entries(propertyTypeCounts).map(([type, count]) => {
-                            const config = getPropertyTypeConfig(type);
-                            const Icon = config.icon;
-                            return (
-                              <SelectItem key={type} value={type} className="text-xs">
-                                <span className="flex items-center gap-1.5">
-                                  <Icon className={`h-3.5 w-3.5 ${config.color}`} />
-                                  {config.label} ({count})
-                                </span>
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
                 </div>
+
+                {/* Match Filters */}
+                {processedListings.length > 0 && (
+                  <ZillowFilters
+                    filters={filters}
+                    onFiltersChange={setFilters}
+                    counts={matchCounts}
+                    totalResults={processedListings.length}
+                  />
+                )}
+
+                {/* Property Type Filter */}
+                {Object.keys(propertyTypeCounts).length > 1 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Property Type:</span>
+                    <Select
+                      value={selectedPropertyType || 'all'}
+                      onValueChange={(value) => setSelectedPropertyType(value === 'all' ? null : value)}
+                    >
+                      <SelectTrigger className="h-8 w-[160px] text-xs">
+                        <SelectValue placeholder="All Types" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all" className="text-xs">
+                          All Types ({data.results.length})
+                        </SelectItem>
+                        {Object.entries(propertyTypeCounts).map(([type, count]) => {
+                          const config = getPropertyTypeConfig(type);
+                          const Icon = config.icon;
+                          return (
+                            <SelectItem key={type} value={type} className="text-xs">
+                              <span className="flex items-center gap-1.5">
+                                <Icon className={`h-3.5 w-3.5 ${config.color}`} />
+                                {config.label} ({count})
+                              </span>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 {/* Results List */}
                 {filteredResults.length > 0 ? (
-                  <div className="space-y-2">
-                    {filteredResults.map((listing) => (
-                      <ZillowOpportunityCard
+                  <div className="space-y-3">
+                    {filteredResults.map(({ listing, matchStatus }) => (
+                      <ZillowListingCard
                         key={listing.zpid}
                         listing={listing}
-                        onSendFlyer={handleSendFlyer}
+                        matchStatus={matchStatus}
+                        onCall={(phone) => window.open(`tel:${phone}`, '_self')}
                       />
                     ))}
                   </div>
                 ) : (
                   <div className="text-center py-8 bg-white rounded-lg border">
                     <p className="text-sm text-muted-foreground">
-                      {selectedPropertyType
-                        ? 'No properties match the selected filter'
+                      {selectedPropertyType || filters.showPerfect || filters.showNear || filters.showStretch
+                        ? 'No properties match the selected filters'
                         : 'No properties found for this search'}
                     </p>
                   </div>
@@ -550,156 +591,5 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
         </CollapsibleContent>
       </Card>
     </Collapsible>
-
-      {/* Send Flyer Modal */}
-      {selectedListing && (
-        <SendFlyerModal
-          open={sendFlyerModalOpen}
-          onOpenChange={setSendFlyerModalOpen}
-          listing={selectedListing}
-          buyer={buyer}
-        />
-      )}
-    </>
-  );
-}
-
-/**
- * Individual opportunity card component
- */
-interface ZillowOpportunityCardProps {
-  listing: ZillowListing;
-  onSendFlyer: (listing: ZillowListing) => void;
-}
-
-function ZillowOpportunityCard({ listing, onSendFlyer }: ZillowOpportunityCardProps) {
-  const [imageError, setImageError] = useState(false);
-  const imageUrl = listing.images?.[0];
-  const typeConfig = getPropertyTypeConfig(listing.propertyType);
-  const TypeIcon = typeConfig.icon;
-
-  return (
-    <Card className="p-3 hover:bg-purple-50/30 transition-colors">
-      <div className="flex gap-3">
-        {/* Property Image with property-type-specific fallback */}
-        <div className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden ${
-          imageUrl && !imageError
-            ? 'bg-gray-100'
-            : `bg-gradient-to-br ${typeConfig.bgColor} to-white`
-        }`}>
-          {imageUrl && !imageError ? (
-            <img
-              src={imageUrl}
-              alt={listing.address}
-              className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <TypeIcon className={`h-8 w-8 ${typeConfig.color} opacity-60`} />
-            </div>
-          )}
-        </div>
-
-        {/* Property Details */}
-        <div className="flex-1 min-w-0">
-          {/* Header with address and property type badge */}
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <h5 className="font-medium text-sm truncate">{listing.address}</h5>
-              <p className="text-xs text-muted-foreground truncate">
-                {listing.city}, {listing.state} {listing.zipCode}
-              </p>
-            </div>
-            <PropertyTypeBadge propertyType={listing.propertyType} size="sm" />
-          </div>
-
-          {/* Stats */}
-          <div className="flex items-center gap-3 mt-1 text-xs">
-            <span className="flex items-center gap-1 font-semibold text-foreground">
-              <DollarSign className="h-3 w-3" />
-              {listing.price.toLocaleString()}
-            </span>
-            <span className="flex items-center gap-1">
-              <Bed className="h-3 w-3" />
-              {listing.beds}
-            </span>
-            <span className="flex items-center gap-1">
-              <Bath className="h-3 w-3" />
-              {listing.baths}
-            </span>
-            {listing.sqft && (
-              <span className="flex items-center gap-1">
-                <Square className="h-3 w-3" />
-                {listing.sqft.toLocaleString()}
-              </span>
-            )}
-          </div>
-
-          {/* Days on Market Badge */}
-          {listing.daysOnMarket && listing.daysOnMarket > 0 && (
-            <div className="mt-2">
-              <Badge
-                variant={listing.daysOnMarket >= 90 ? 'default' : 'secondary'}
-                className={`text-xs ${
-                  listing.daysOnMarket >= 90
-                    ? 'bg-orange-500 hover:bg-orange-600'
-                    : 'bg-gray-100 text-gray-600'
-                }`}
-              >
-                {listing.daysOnMarket} days on market
-              </Badge>
-            </div>
-          )}
-
-          {/* Listing Agent */}
-          {listing.listingAgent && (
-            <div className="mt-2 pt-2 border-t border-gray-100">
-              <p className="text-xs font-medium text-foreground">
-                {listing.listingAgent.name}
-              </p>
-              {listing.listingAgent.phone && (
-                <p className="text-xs text-muted-foreground">
-                  {listing.listingAgent.phone}
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex items-center gap-2 mt-2">
-            {listing.listingAgent?.phone && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 text-xs"
-                onClick={() => window.open(`tel:${listing.listingAgent!.phone}`, '_self')}
-              >
-                <Phone className="h-3 w-3 mr-1" />
-                Call
-              </Button>
-            )}
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-7 text-xs"
-              onClick={() => window.open(listing.zillowUrl, '_blank')}
-            >
-              <ExternalLink className="h-3 w-3 mr-1" />
-              View on Zillow
-            </Button>
-            <Button
-              size="sm"
-              className="h-7 text-xs bg-purple-600 hover:bg-purple-700 text-white"
-              onClick={() => onSendFlyer(listing)}
-            >
-              <Send className="h-3 w-3 mr-1" />
-              Send Flyer
-            </Button>
-          </div>
-        </div>
-      </div>
-    </Card>
   );
 }
