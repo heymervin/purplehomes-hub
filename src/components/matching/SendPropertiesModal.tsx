@@ -302,6 +302,7 @@ export function SendPropertiesModal({
         queryClient.invalidateQueries({ queryKey: ['buyer-properties'] }),
         queryClient.invalidateQueries({ queryKey: ['property-buyers'] }),
         queryClient.invalidateQueries({ queryKey: ['cache', 'matches'] }),
+        queryClient.invalidateQueries({ queryKey: ['match-stats'] }),
       ]);
 
       // Force refetch of the buyer's properties to update UI immediately
