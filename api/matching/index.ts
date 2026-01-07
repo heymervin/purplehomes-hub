@@ -1987,12 +1987,12 @@ async function handleBuyerProperties(
 
     // Create a map of property record ID to match record for this buyer
     const matchesByPropertyId = new Map<string, any>();
-    const buyerContactId = buyer.fields['Contact ID'];
+    const buyerRecordId = buyer.id;
 
     for (const match of allMatches) {
-      // Match records link to buyer via Contact ID field
-      const matchContactId = match.fields['Contact ID (for GHL)'] || '';
-      if (matchContactId === buyerContactId) {
+      // Contact ID is a linked record array - extract the first element
+      const matchBuyerRecordId = match.fields['Contact ID']?.[0];
+      if (matchBuyerRecordId === buyerRecordId) {
         // Property Code is a linked record array
         const propertyRecordId = match.fields['Property Code']?.[0];
         if (propertyRecordId) {

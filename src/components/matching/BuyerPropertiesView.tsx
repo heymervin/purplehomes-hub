@@ -458,10 +458,19 @@ export function BuyerPropertiesView({
 
   const selectAll = () => {
     if (!buyerProperties) return;
+    // Only select properties that are NOT already in the pipeline
     const allIds = [...buyerProperties.priorityMatches, ...buyerProperties.exploreMatches]
+      .filter(sp => !sp.currentStage)
       .map(sp => sp.property.recordId);
     setSelectedPropertyIds(new Set(allIds));
   };
+
+  // Calculate selectable properties (those not already in pipeline)
+  const selectableProperties = useMemo(() => {
+    if (!buyerProperties) return [];
+    return [...buyerProperties.priorityMatches, ...buyerProperties.exploreMatches]
+      .filter(sp => !sp.currentStage);
+  }, [buyerProperties]);
 
   return (
     <div className="space-y-6">
@@ -737,12 +746,12 @@ export function BuyerPropertiesView({
         />
       )}
 
-      {/* Floating Selection Bar */}
-      {buyerProperties && (
+      {/* Floating Selection Bar - only show if there are selectable properties */}
+      {buyerProperties && selectableProperties.length > 0 && (
         <PropertySelectionBar
           selectedCount={selectedPropertyIds.size}
-          totalCount={buyerProperties.totalCount}
-          allSelected={selectedPropertyIds.size === buyerProperties.totalCount && buyerProperties.totalCount > 0}
+          totalCount={selectableProperties.length}
+          allSelected={selectedPropertyIds.size === selectableProperties.length && selectableProperties.length > 0}
           onSelectAll={selectAll}
           onClearSelection={clearSelection}
           onSendSelected={() => setSendModalOpen(true)}
