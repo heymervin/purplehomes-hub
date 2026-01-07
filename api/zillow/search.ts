@@ -5,7 +5,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { runZillowSearch } from '../../src/lib/apify';
+import { runZillowSearch, type ZillowSearchSettings } from '../../src/lib/apify';
 import { calculateMaxAffordablePrice, hasValidDownPayment } from '../../src/lib/affordability';
 import { findCachedSearch, saveCachedSearch, getSearchAge } from '../../src/lib/airtable-cache';
 import type { ZillowSearchResponse, ZillowSearchType } from '../../src/types/zillow';
@@ -13,6 +13,14 @@ import type { BuyerCriteria } from '../../src/types/matching';
 
 const AIRTABLE_API_URL = 'https://api.airtable.com/v0';
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
+const PREFERENCES_TABLE = 'Matching Preferences';
+
+// Default Zillow settings
+const DEFAULT_ZILLOW_SETTINGS: ZillowSearchSettings = {
+  maxPrice: 275000,
+  minDays: 90,
+  keywords: 'seller finance OR owner finance OR bond for deed',
+};
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') {
@@ -104,6 +112,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       maxPrice = calculateMaxAffordablePrice(buyer.downPayment!);
     }
 
+    // Fetch Zillow settings from Airtable
+    let zillowSettings = DEFAULT_ZILLOW_SETTINGS;
+    try {
+      const settingsUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${encodeURIComponent(PREFERENCES_TABLE)}?maxRecords=1`;
+      const settingsRes = await fetch(settingsUrl, { headers });
+      if (settingsRes.ok) {
+        const settingsData = await settingsRes.json();
+        if (settingsData.records && settingsData.records.length > 0) {
+          const record = settingsData.records[0];
+          zillowSettings = {
+            maxPrice: record.fields['Zillow Max Price'] ?? DEFAULT_ZILLOW_SETTINGS.maxPrice,
+            minDays: record.fields['Zillow Min Days'] ?? DEFAULT_ZILLOW_SETTINGS.minDays,
+            keywords: record.fields['Zillow Keywords'] ?? DEFAULT_ZILLOW_SETTINGS.keywords,
+          };
+          console.log('[Zillow Search] Using settings from Airtable:', zillowSettings);
+        }
+      }
+    } catch (err) {
+      console.log('[Zillow Search] Using default settings (fetch failed)');
+    }
+
     // Check cache first
     const cached = await findCachedSearch(
       buyer.recordId!,
@@ -138,7 +167,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { listings, runId } = await runZillowSearch(
       buyer,
       searchType as ZillowSearchType,
-      maxPrice || undefined
+      maxPrice || undefined,
+      zillowSettings
     );
 
     // Save to cache (async, don't wait)

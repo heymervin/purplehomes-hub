@@ -45,13 +45,22 @@ import {
   Caravan,
   LandPlot,
   Send,
+  Info,
+  Settings,
   type LucideIcon,
 } from 'lucide-react';
 import { useZillowSearchByType } from '@/services/zillowApi';
+import { useZillowSettings } from '@/services/matchingApi';
 import { calculateMaxAffordablePrice } from '@/lib/affordability';
 import type { BuyerCriteria } from '@/types/matching';
 import type { ZillowSearchType, ZillowListing } from '@/types/zillow';
 import { SendFlyerModal } from './SendFlyerModal';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 // Property type configuration for icons, colors, and labels
 interface PropertyTypeConfig {
@@ -173,6 +182,9 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
   const [sendFlyerModalOpen, setSendFlyerModalOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<ZillowListing | null>(null);
 
+  // Get Zillow settings from preferences
+  const zillowSettings = useZillowSettings();
+
   const handleSendFlyer = (listing: ZillowListing) => {
     setSelectedListing(listing);
     setSendFlyerModalOpen(true);
@@ -286,48 +298,132 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
 
             {/* Search Type Buttons */}
             <div className="grid grid-cols-3 gap-2">
-              <Button
-                variant={selectedSearchType === 'Creative Financing' ? 'default' : 'outline'}
-                className={`h-auto py-3 px-2 flex flex-col items-center gap-1 ${
-                  selectedSearchType === 'Creative Financing'
-                    ? 'bg-purple-600 hover:bg-purple-700'
-                    : 'hover:bg-purple-50 hover:border-purple-300'
-                }`}
-                onClick={() => handleSearchTypeClick('Creative Financing')}
-                disabled={!canSearchCreative || isLoading}
-              >
-                <Tag className="h-4 w-4" />
-                <span className="text-xs font-medium">Creative Financing</span>
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={selectedSearchType === 'Creative Financing' ? 'default' : 'outline'}
+                      className={`h-auto py-3 px-2 flex flex-col items-center gap-1 ${
+                        selectedSearchType === 'Creative Financing'
+                          ? 'bg-purple-600 hover:bg-purple-700'
+                          : 'hover:bg-purple-50 hover:border-purple-300'
+                      }`}
+                      onClick={() => handleSearchTypeClick('Creative Financing')}
+                      disabled={!canSearchCreative || isLoading}
+                    >
+                      <Tag className="h-4 w-4" />
+                      <span className="text-xs font-medium">Creative Financing</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-[280px]">
+                    <p className="text-xs">
+                      <span className="font-semibold">Keywords:</span>{' '}
+                      {zillowSettings.keywords.length > 60
+                        ? zillowSettings.keywords.substring(0, 60) + '...'
+                        : zillowSettings.keywords}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-              <Button
-                variant={selectedSearchType === '90+ Days' ? 'default' : 'outline'}
-                className={`h-auto py-3 px-2 flex flex-col items-center gap-1 ${
-                  selectedSearchType === '90+ Days'
-                    ? 'bg-purple-600 hover:bg-purple-700'
-                    : 'hover:bg-purple-50 hover:border-purple-300'
-                }`}
-                onClick={() => handleSearchTypeClick('90+ Days')}
-                disabled={!canSearch90Days || isLoading}
-              >
-                <Calendar className="h-4 w-4" />
-                <span className="text-xs font-medium">90+ Days</span>
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={selectedSearchType === '90+ Days' ? 'default' : 'outline'}
+                      className={`h-auto py-3 px-2 flex flex-col items-center gap-1 ${
+                        selectedSearchType === '90+ Days'
+                          ? 'bg-purple-600 hover:bg-purple-700'
+                          : 'hover:bg-purple-50 hover:border-purple-300'
+                      }`}
+                      onClick={() => handleSearchTypeClick('90+ Days')}
+                      disabled={!canSearch90Days || isLoading}
+                    >
+                      <Calendar className="h-4 w-4" />
+                      <span className="text-xs font-medium">{zillowSettings.minDays}+ Days</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p className="text-xs">
+                      <span className="font-semibold">Max Price:</span> ${zillowSettings.maxPrice.toLocaleString()}
+                      <br />
+                      <span className="font-semibold">Min Days:</span> {zillowSettings.minDays} days on market
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-              <Button
-                variant={selectedSearchType === 'Affordability' ? 'default' : 'outline'}
-                className={`h-auto py-3 px-2 flex flex-col items-center gap-1 ${
-                  selectedSearchType === 'Affordability'
-                    ? 'bg-purple-600 hover:bg-purple-700'
-                    : 'hover:bg-purple-50 hover:border-purple-300'
-                }`}
-                onClick={() => handleSearchTypeClick('Affordability')}
-                disabled={!canSearchAffordability || isLoading}
-              >
-                <Wallet className="h-4 w-4" />
-                <span className="text-xs font-medium">Affordable Range</span>
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={selectedSearchType === 'Affordability' ? 'default' : 'outline'}
+                      className={`h-auto py-3 px-2 flex flex-col items-center gap-1 ${
+                        selectedSearchType === 'Affordability'
+                          ? 'bg-purple-600 hover:bg-purple-700'
+                          : 'hover:bg-purple-50 hover:border-purple-300'
+                      }`}
+                      onClick={() => handleSearchTypeClick('Affordability')}
+                      disabled={!canSearchAffordability || isLoading}
+                    >
+                      <Wallet className="h-4 w-4" />
+                      <span className="text-xs font-medium">Affordable Range</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <p className="text-xs">
+                      <span className="font-semibold">Max Price:</span> ${maxPrice?.toLocaleString() || 'N/A'}
+                      <br />
+                      <span className="text-muted-foreground">Based on buyer's down payment</span>
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
+
+            {/* Active Search Criteria Banner */}
+            {selectedSearchType && !isLoading && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-purple-100 border border-purple-200 rounded-lg text-xs">
+                <Info className="h-3.5 w-3.5 text-purple-600 flex-shrink-0" />
+                <div className="flex-1 text-purple-800">
+                  {selectedSearchType === 'Creative Financing' && (
+                    <span>
+                      <span className="font-medium">Searching for:</span>{' '}
+                      <span className="italic">"{zillowSettings.keywords}"</span>
+                    </span>
+                  )}
+                  {selectedSearchType === '90+ Days' && (
+                    <span>
+                      <span className="font-medium">Criteria:</span>{' '}
+                      Max ${zillowSettings.maxPrice.toLocaleString()} | {zillowSettings.minDays}+ days on market
+                    </span>
+                  )}
+                  {selectedSearchType === 'Affordability' && maxPrice && (
+                    <span>
+                      <span className="font-medium">Max affordable price:</span>{' '}
+                      ${maxPrice.toLocaleString()} (from ${buyer.downPayment?.toLocaleString()} down)
+                    </span>
+                  )}
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0 text-purple-600 hover:text-purple-800 hover:bg-purple-200"
+                        onClick={() => window.open('/settings?tab=preferences', '_blank')}
+                      >
+                        <Settings className="h-3.5 w-3.5" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <p className="text-xs">Edit search settings</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            )}
 
             {/* Loading State */}
             {isLoading && (

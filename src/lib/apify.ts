@@ -15,19 +15,30 @@ const client = new ApifyClient({
 const ZILLOW_ACTOR_ID = 'jupri~zillow-scraper';
 
 /**
+ * Zillow settings passed from the API
+ */
+export interface ZillowSearchSettings {
+  maxPrice: number;
+  minDays: number;
+  keywords: string;
+}
+
+/**
  * Run Zillow search via Apify for a specific buyer and search type
  *
  * @param buyer - Buyer criteria including location and preferences
  * @param searchType - Type of search to perform
  * @param maxPrice - Optional max price override (for Affordability search)
+ * @param settings - Optional Zillow settings from the API
  * @returns Object containing listings array and Apify run ID
  */
 export async function runZillowSearch(
   buyer: BuyerCriteria,
   searchType: ZillowSearchType,
-  maxPrice?: number
+  maxPrice?: number,
+  settings?: ZillowSearchSettings
 ): Promise<{ listings: ZillowListing[], runId: string }> {
-  const input = buildApifyInput(buyer, searchType, maxPrice);
+  const input = buildApifyInput(buyer, searchType, maxPrice, settings);
 
   console.log('[Apify] Running Zillow search:', { searchType, location: input.location, input });
 
@@ -51,11 +62,12 @@ export async function runZillowSearch(
 
     // Post-fetch filter for 90+ Days search (min_days doesn't work for sale searches)
     if (searchType === '90+ Days') {
+      const minDays = settings?.minDays || 90;
       const beforeFilter = listings.length;
       listings = listings.filter(listing =>
-        listing.daysOnMarket && listing.daysOnMarket >= 90
+        listing.daysOnMarket && listing.daysOnMarket >= minDays
       );
-      console.log(`[Apify] Filtered 90+ days: ${beforeFilter} -> ${listings.length} results`);
+      console.log(`[Apify] Filtered ${minDays}+ days: ${beforeFilter} -> ${listings.length} results`);
     }
 
     // Limit to 20 results after filtering
@@ -98,7 +110,8 @@ function mapPropertyTypeToZillow(propertyType: string): string | undefined {
 function buildApifyInput(
   buyer: BuyerCriteria,
   searchType: ZillowSearchType,
-  maxPrice?: number
+  maxPrice?: number,
+  settings?: ZillowSearchSettings
 ): Record<string, any> {
   const location = buyer.preferredLocation || buyer.city || buyer.location || '';
 
@@ -144,7 +157,7 @@ function buildApifyInput(
   if (searchType === 'Creative Financing') {
     return {
       ...baseInput,
-      prompt: 'seller finance OR owner finance OR bond for deed',
+      prompt: settings?.keywords || 'seller finance OR owner finance OR bond for deed',
     };
   }
 
@@ -153,7 +166,7 @@ function buildApifyInput(
       ...baseInput,
       // Note: max_days filters for "listed within X days" (recent), not "on market X+ days"
       // So we don't use it - we filter post-fetch by daysOnMarket instead
-      max_price: 275000,
+      max_price: settings?.maxPrice || 275000,
       limit: 200,             // Fetch many to filter down to 90+ days (stale listings)
     };
   }

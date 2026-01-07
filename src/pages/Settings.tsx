@@ -59,6 +59,12 @@ export default function Settings() {
   const [localBudgetMultiplier, setLocalBudgetMultiplier] = useState<number>(8);
   const [hasMatchingPrefsChanges, setHasMatchingPrefsChanges] = useState(false);
 
+  // Zillow settings (part of matching preferences)
+  const [localZillowMaxPrice, setLocalZillowMaxPrice] = useState<number>(275000);
+  const [localZillowMinDays, setLocalZillowMinDays] = useState<number>(90);
+  const [localZillowKeywords, setLocalZillowKeywords] = useState<string>('seller finance OR owner finance OR bond for deed');
+  const [hasZillowChanges, setHasZillowChanges] = useState(false);
+
   // Load saved config on mount
   useEffect(() => {
     const config = getApiConfig();
@@ -73,10 +79,21 @@ export default function Settings() {
     }
   }, [calculatorDefaultsData]);
 
-  // Sync matching preferences when API data loads
+  // Sync matching preferences and Zillow settings when API data loads
   useEffect(() => {
-    if (matchingPreferencesData?.budgetMultiplier) {
-      setLocalBudgetMultiplier(matchingPreferencesData.budgetMultiplier);
+    if (matchingPreferencesData) {
+      if (matchingPreferencesData.budgetMultiplier) {
+        setLocalBudgetMultiplier(matchingPreferencesData.budgetMultiplier);
+      }
+      if (matchingPreferencesData.zillowMaxPrice) {
+        setLocalZillowMaxPrice(matchingPreferencesData.zillowMaxPrice);
+      }
+      if (matchingPreferencesData.zillowMinDays) {
+        setLocalZillowMinDays(matchingPreferencesData.zillowMinDays);
+      }
+      if (matchingPreferencesData.zillowKeywords) {
+        setLocalZillowKeywords(matchingPreferencesData.zillowKeywords);
+      }
     }
   }, [matchingPreferencesData]);
 
@@ -102,6 +119,20 @@ export default function Settings() {
       toast.success('Matching preferences saved');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to save preferences');
+    }
+  };
+
+  const handleSaveZillowSettings = async () => {
+    try {
+      await updateMatchingPreferences.mutateAsync({
+        zillowMaxPrice: localZillowMaxPrice,
+        zillowMinDays: localZillowMinDays,
+        zillowKeywords: localZillowKeywords,
+      });
+      setHasZillowChanges(false);
+      toast.success('Zillow settings saved');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to save settings');
     }
   };
 
@@ -851,6 +882,149 @@ export default function Settings() {
                   </div>
 
                   {hasMatchingPrefsChanges && (
+                    <div className="flex items-center gap-2 text-sm text-yellow-600">
+                      <span className="font-medium">You have unsaved changes</span>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Zillow Search Settings */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Home className="h-5 w-5 text-primary" />
+                    Zillow Search Settings
+                  </CardTitle>
+                  <CardDescription>
+                    Configure default parameters for Zillow property searches
+                  </CardDescription>
+                </div>
+                <Button
+                  onClick={handleSaveZillowSettings}
+                  disabled={!hasZillowChanges || updateMatchingPreferences.isPending}
+                  size="sm"
+                >
+                  {updateMatchingPreferences.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  Save Settings
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {isLoadingMatchingPrefs ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <>
+                  {/* 90+ Days on Market Search */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-sm text-muted-foreground border-b pb-2">
+                      90+ Days on Market Search
+                    </h4>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Max Property Price</Label>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          Maximum price for stale listing searches
+                        </p>
+                        <Select
+                          value={localZillowMaxPrice.toString()}
+                          onValueChange={(v) => {
+                            setLocalZillowMaxPrice(parseInt(v));
+                            setHasZillowChanges(true);
+                          }}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="200000">$200,000</SelectItem>
+                            <SelectItem value="250000">$250,000</SelectItem>
+                            <SelectItem value="275000">$275,000</SelectItem>
+                            <SelectItem value="300000">$300,000</SelectItem>
+                            <SelectItem value="350000">$350,000</SelectItem>
+                            <SelectItem value="400000">$400,000</SelectItem>
+                            <SelectItem value="500000">$500,000</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label>Minimum Days on Market</Label>
+                        <p className="text-xs text-muted-foreground mb-2">
+                          Only show properties listed for at least this many days
+                        </p>
+                        <Select
+                          value={localZillowMinDays.toString()}
+                          onValueChange={(v) => {
+                            setLocalZillowMinDays(parseInt(v));
+                            setHasZillowChanges(true);
+                          }}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="30">30 days</SelectItem>
+                            <SelectItem value="60">60 days</SelectItem>
+                            <SelectItem value="90">90 days</SelectItem>
+                            <SelectItem value="120">120 days</SelectItem>
+                            <SelectItem value="180">180 days</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Creative Financing Search */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-sm text-muted-foreground border-b pb-2">
+                      Creative Financing Search
+                    </h4>
+
+                    <div>
+                      <Label>Search Keywords</Label>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        Keywords to find creative financing opportunities
+                      </p>
+                      <Textarea
+                        value={localZillowKeywords}
+                        onChange={(e) => {
+                          setLocalZillowKeywords(e.target.value);
+                          setHasZillowChanges(true);
+                        }}
+                        placeholder="seller finance OR owner finance OR bond for deed"
+                        className="min-h-[80px]"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Tip: Use OR between keywords for broader results
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Affordability Section */}
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm text-muted-foreground border-b pb-2">
+                      Affordability Search
+                    </h4>
+                    <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+                      <p className="text-sm text-blue-700">
+                        Max price is calculated automatically from buyer's down payment using Purple Homes' financing formula.
+                      </p>
+                    </div>
+                  </div>
+
+                  {hasZillowChanges && (
                     <div className="flex items-center gap-2 text-sm text-yellow-600">
                       <span className="font-medium">You have unsaved changes</span>
                     </div>
