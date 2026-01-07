@@ -313,10 +313,8 @@ export function SendPropertyToBuyersModal({
 
       // Step 4: Sync server-side cache
       try {
-        await fetch('/api/cache?action=sync', {
+        await fetch('/api/cache?action=sync&cacheKey=matches', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cacheKey: 'matches' }),
         });
         console.log('[SendPropertyToBuyers] Server cache synced');
       } catch (cacheError) {

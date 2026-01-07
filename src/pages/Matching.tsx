@@ -41,11 +41,18 @@ const BEDS_OPTIONS = [
   { value: '4', label: '4+' },
 ];
 
+const MATCH_STATUS_OPTIONS = [
+  { value: 'all', label: 'All Matches' },
+  { value: 'ready', label: 'Ready to Send' },
+  { value: 'sent', label: 'Already Sent' },
+];
+
 export interface MatchingFilters {
   search: string;
   minScore: string;
   beds: string;
   priorityOnly: boolean;
+  matchStatus: string;
 }
 
 export default function Matching() {
@@ -62,6 +69,7 @@ export default function Matching() {
     minScore: 'all',
     beds: 'all',
     priorityOnly: false,
+    matchStatus: 'all',
   });
 
   // Check if any filters are active
@@ -70,7 +78,8 @@ export default function Matching() {
       filters.search !== '' ||
       filters.minScore !== 'all' ||
       filters.beds !== 'all' ||
-      filters.priorityOnly
+      filters.priorityOnly ||
+      filters.matchStatus !== 'all'
     );
   }, [filters]);
 
@@ -81,6 +90,7 @@ export default function Matching() {
       minScore: 'all',
       beds: 'all',
       priorityOnly: false,
+      matchStatus: 'all',
     });
   };
 
@@ -281,6 +291,12 @@ export default function Matching() {
             value={filters.beds}
             options={BEDS_OPTIONS}
             onChange={(value) => setFilters((f) => ({ ...f, beds: value }))}
+          />
+          <FilterSelect
+            label="Status"
+            value={filters.matchStatus}
+            options={MATCH_STATUS_OPTIONS}
+            onChange={(value) => setFilters((f) => ({ ...f, matchStatus: value }))}
           />
           <FilterCheckbox
             label="Priority Only"

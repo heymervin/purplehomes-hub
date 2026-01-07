@@ -283,10 +283,8 @@ export function SendPropertiesModal({
 
       // Step 4: Sync server-side cache so matching page reflects changes
       try {
-        await fetch('/api/cache?action=sync', {
+        await fetch('/api/cache?action=sync&cacheKey=matches', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cacheKey: 'matches' }),
         });
         console.log('[SendProperties] Server cache synced');
       } catch (cacheError) {

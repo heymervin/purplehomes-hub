@@ -416,6 +416,15 @@ export function BuyerPropertiesView({
       filtered = filtered.filter((sp) => sp.score.isPriority);
     }
 
+    // Filter by match status
+    if (filters?.matchStatus && filters.matchStatus !== 'all') {
+      if (filters.matchStatus === 'ready') {
+        filtered = filtered.filter((sp) => !sp.currentStage);
+      } else if (filters.matchStatus === 'sent') {
+        filtered = filtered.filter((sp) => !!sp.currentStage);
+      }
+    }
+
     // Sort by score descending
     filtered.sort((a, b) => b.score.score - a.score.score);
 

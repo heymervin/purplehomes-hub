@@ -351,6 +351,15 @@ export function PropertyBuyersView({
       allBuyers = allBuyers.filter((sb) => sb.score.isPriority);
     }
 
+    // Filter by match status
+    if (filters?.matchStatus && filters.matchStatus !== 'all') {
+      if (filters.matchStatus === 'ready') {
+        allBuyers = allBuyers.filter((sb) => !sb.currentStage);
+      } else if (filters.matchStatus === 'sent') {
+        allBuyers = allBuyers.filter((sb) => !!sb.currentStage);
+      }
+    }
+
     // Split into interested (score >= 60) and potential (30-59)
     const interested = allBuyers.filter((sb) => sb.score.score >= 60);
     const potential = allBuyers.filter((sb) => sb.score.score < 60);
