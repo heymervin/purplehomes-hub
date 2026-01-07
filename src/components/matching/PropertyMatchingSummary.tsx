@@ -7,14 +7,11 @@
  * - Top 5 new properties by date added
  */
 
-import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import {
   Target,
   Send,
@@ -25,95 +22,32 @@ import {
   Calendar,
   Plus,
 } from 'lucide-react';
-import { usePropertiesWithMatches, useNewProperties, useMatchStats, useBudgetMultiplier } from '@/services/matchingApi';
+import { usePropertiesWithMatches, useNewProperties, useMatchStats } from '@/services/matchingApi';
 import { SourceBadge } from './SourceBadge';
-import type { PropertyWithMatches } from '@/types/matching';
-
-export interface PropertyMatchFilters {
-  sameCity: boolean;
-  withinBudget: boolean;
-}
 
 interface PropertyMatchingSummaryProps {
   onSelectProperty: (propertyCode: string) => void;
-  filters?: PropertyMatchFilters;
-  onFiltersChange?: (filters: PropertyMatchFilters) => void;
 }
 
-export function PropertyMatchingSummary({
-  onSelectProperty,
-  filters = { sameCity: false, withinBudget: false },
-  onFiltersChange,
-}: PropertyMatchingSummaryProps) {
+export function PropertyMatchingSummary({ onSelectProperty }: PropertyMatchingSummaryProps) {
   const navigate = useNavigate();
-  const budgetMultiplier = useBudgetMultiplier();
 
   // Get match stats from endpoint
   const { data: matchStats, isLoading: loadingStats } = useMatchStats();
 
-  // Get more properties to filter from (fetch 20 to have enough after filtering)
-  const { data: topPropertiesData, isLoading: loadingProperties } = usePropertiesWithMatches({}, 20);
+  // Get top 5 properties by match count
+  const { data: topPropertiesData, isLoading: loadingProperties } = usePropertiesWithMatches({}, 5);
 
-  // Get more new properties to filter from
-  const { data: newPropertiesData, isLoading: loadingNewProperties } = useNewProperties(20);
+  // Get top 5 new properties by date added
+  const { data: newPropertiesData, isLoading: loadingNewProperties } = useNewProperties(5);
 
-  // Filter function to check if property has qualifying matches
-  const filterProperty = (property: PropertyWithMatches): boolean => {
-    // If no filters active, include all
-    if (!filters.sameCity && !filters.withinBudget) return true;
-
-    // Check if at least one match meets filter criteria
-    const qualifyingMatches = property.matches?.filter((match) => {
-      const buyer = match.buyer;
-      if (!buyer) return false;
-
-      // Same city check
-      if (filters.sameCity) {
-        const buyerCity = buyer.city?.toLowerCase().trim();
-        const propertyCity = property.city?.toLowerCase().trim();
-        if (!buyerCity || !propertyCity || buyerCity !== propertyCity) {
-          return false;
-        }
-      }
-
-      // Within budget check (using monthlyIncome * multiplier)
-      if (filters.withinBudget) {
-        const budget = (buyer.monthlyIncome || 0) * budgetMultiplier;
-        if (!property.price || property.price > budget) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-
-    return (qualifyingMatches?.length || 0) > 0;
-  };
-
-  // Apply filters to properties
-  const topProperties = useMemo(() => {
-    const all = topPropertiesData?.data || [];
-    const filtered = all.filter(filterProperty);
-    return filtered.slice(0, 5);
-  }, [topPropertiesData?.data, filters, budgetMultiplier]);
-
-  const newProperties = useMemo(() => {
-    const all = newPropertiesData?.data || [];
-    const filtered = all.filter(filterProperty);
-    return filtered.slice(0, 5);
-  }, [newPropertiesData?.data, filters, budgetMultiplier]);
+  const topProperties = topPropertiesData?.data || [];
+  const newProperties = newPropertiesData?.data || [];
 
   // Use stats from API
   const readyToSend = matchStats?.readyToSend || 0;
   const sentToday = matchStats?.sentToday || 0;
   const inPipeline = matchStats?.inPipeline || 0;
-
-  // Handle filter toggle
-  const handleFilterChange = (key: keyof PropertyMatchFilters, value: boolean) => {
-    if (onFiltersChange) {
-      onFiltersChange({ ...filters, [key]: value });
-    }
-  };
 
   // Format date for display
   const formatDate = (dateString?: string) => {
@@ -137,42 +71,6 @@ export function PropertyMatchingSummary({
 
   return (
     <div className="space-y-6">
-      {/* Filter Bar */}
-      {onFiltersChange && (
-        <Card className="p-4">
-          <div className="flex items-center gap-6 flex-wrap">
-            <span className="text-sm font-medium text-muted-foreground">Match Filters:</span>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="sameCity"
-                checked={filters.sameCity}
-                onCheckedChange={(checked) => handleFilterChange('sameCity', checked === true)}
-              />
-              <Label htmlFor="sameCity" className="text-sm cursor-pointer flex items-center gap-1">
-                <MapPin className="h-3.5 w-3.5 text-blue-500" />
-                Same City
-              </Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="withinBudget"
-                checked={filters.withinBudget}
-                onCheckedChange={(checked) => handleFilterChange('withinBudget', checked === true)}
-              />
-              <Label htmlFor="withinBudget" className="text-sm cursor-pointer flex items-center gap-1">
-                <span className="text-green-500">$</span>
-                Within Budget
-              </Label>
-            </div>
-            {(filters.sameCity || filters.withinBudget) && (
-              <span className="text-xs text-muted-foreground ml-auto">
-                Showing properties with at least one qualifying match
-              </span>
-            )}
-          </div>
-        </Card>
-      )}
-
       {/* Stats Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Ready to Send */}

@@ -8,7 +8,7 @@ import { useRunMatching, useClearMatches } from '@/services/matchingApi';
 import { BuyerPropertiesView } from '@/components/matching/BuyerPropertiesView';
 import { PropertyBuyersView } from '@/components/matching/PropertyBuyersView';
 import { MatchingSummary } from '@/components/matching/MatchingSummary';
-import { PropertyMatchingSummary, type PropertyMatchFilters } from '@/components/matching/PropertyMatchingSummary';
+import { PropertyMatchingSummary } from '@/components/matching/PropertyMatchingSummary';
 import { useMatchingData } from '@/hooks/useCache';
 import { toast } from 'sonner';
 import {
@@ -63,12 +63,6 @@ export default function Matching() {
   const [activeTab, setActiveTab] = useState<'by-buyer' | 'by-property'>('by-buyer');
   const [selectedBuyerId, setSelectedBuyerId] = useState<string | null>(null);
   const [selectedPropertyCode, setSelectedPropertyCode] = useState<string | null>(null);
-
-  // Property match filter state (for By Property tab)
-  const [propertyMatchFilters, setPropertyMatchFilters] = useState<PropertyMatchFilters>({
-    sameCity: false,
-    withinBudget: false,
-  });
 
   // Filter state
   const [filters, setFilters] = useState<MatchingFilters>({
@@ -375,8 +369,6 @@ export default function Matching() {
               <div className="space-y-6">
                 <PropertyMatchingSummary
                   onSelectProperty={handleSelectProperty}
-                  filters={propertyMatchFilters}
-                  onFiltersChange={setPropertyMatchFilters}
                 />
 
                 {/* Manual Selection Section */}

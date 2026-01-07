@@ -36,7 +36,7 @@ import {
   TrendingUp,
   Calendar,
 } from 'lucide-react';
-import { usePropertyBuyers, usePropertiesWithMatches } from '@/services/matchingApi';
+import { usePropertyBuyers, usePropertiesWithMatches, useBudgetMultiplier } from '@/services/matchingApi';
 import { useNavigate } from 'react-router-dom';
 import { MatchSectionDivider } from './MatchSectionDivider';
 import { MatchScoreBadge } from './MatchScoreBadge';
@@ -280,6 +280,11 @@ export function PropertyBuyersView({
   const [selectedBuyerIds, setSelectedBuyerIds] = useState<Set<string>>(new Set());
   const [sendModalOpen, setSendModalOpen] = useState(false);
 
+  // Match filter state
+  const [sameCity, setSameCity] = useState(false);
+  const [withinBudget, setWithinBudget] = useState(false);
+  const budgetMultiplier = useBudgetMultiplier();
+
   // Use external state if provided, otherwise use internal state
   const propertyCode = externalPropertyCode !== undefined ? externalPropertyCode : internalPropertyCode;
 
@@ -360,12 +365,32 @@ export function PropertyBuyersView({
       }
     }
 
+    // Filter by same city
+    if (sameCity && propertyBuyersData.property) {
+      const propertyCity = propertyBuyersData.property.city?.toLowerCase().trim();
+      if (propertyCity) {
+        allBuyers = allBuyers.filter((sb) => {
+          const buyerCity = sb.buyer.city?.toLowerCase().trim();
+          return buyerCity && buyerCity === propertyCity;
+        });
+      }
+    }
+
+    // Filter by within budget
+    if (withinBudget && propertyBuyersData.property?.price) {
+      const propertyPrice = propertyBuyersData.property.price;
+      allBuyers = allBuyers.filter((sb) => {
+        const budget = (sb.buyer.monthlyIncome || 0) * budgetMultiplier;
+        return budget >= propertyPrice;
+      });
+    }
+
     // Split into interested (score >= 60) and potential (30-59)
     const interested = allBuyers.filter((sb) => sb.score.score >= 60);
     const potential = allBuyers.filter((sb) => sb.score.score < 60);
 
     return { interested, potential, total: allBuyers.length };
-  }, [propertyBuyersData, filters]);
+  }, [propertyBuyersData, filters, sameCity, withinBudget, budgetMultiplier]);
 
   // For backward compatibility
   const interestedBuyers = filteredBuyers.interested;
@@ -510,6 +535,52 @@ export function PropertyBuyersView({
           </div>
         )}
       </div>
+
+      {/* Match Filters - Show when property is selected */}
+      {propertyBuyersData && (
+        <Card className="p-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="text-sm font-medium text-muted-foreground">Match Filters:</span>
+
+            <button
+              onClick={() => setSameCity(!sameCity)}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                sameCity
+                  ? 'bg-purple-500 text-white'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50'
+              )}
+            >
+              📍 Same City
+            </button>
+
+            <button
+              onClick={() => setWithinBudget(!withinBudget)}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                withinBudget
+                  ? 'bg-purple-500 text-white'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50'
+              )}
+            >
+              💰 Within Budget
+            </button>
+
+            {/* Clear All */}
+            {(sameCity || withinBudget) && (
+              <button
+                onClick={() => {
+                  setSameCity(false);
+                  setWithinBudget(false);
+                }}
+                className="ml-auto text-sm text-muted-foreground hover:text-foreground"
+              >
+                Clear all
+              </button>
+            )}
+          </div>
+        </Card>
+      )}
 
       {/* Loading State */}
       {loadingBuyers && propertyCode && (
