@@ -1523,6 +1523,9 @@ if (resource === 'opportunities') {
           const uploadApiKey = GHL_API_V2 || GHL_API_KEY;
           console.log('[MESSAGES] Upload using API key:', GHL_API_V2 ? 'GHL_API_V2' : 'GHL_API_KEY');
 
+          // Convert form-data stream to buffer for fetch API compatibility
+          const formBuffer = form.getBuffer();
+
           const response = await fetch(`${GHL_API_URL}/conversations/messages/upload`, {
             method: 'POST',
             headers: {
@@ -1530,7 +1533,7 @@ if (resource === 'opportunities') {
               'Version': '2021-07-28',
               ...form.getHeaders()
             },
-            body: form as any
+            body: formBuffer
           });
 
           const responseText = await response.text();

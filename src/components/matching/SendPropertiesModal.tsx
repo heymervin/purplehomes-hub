@@ -88,7 +88,7 @@ async function updateMatchStages(
           }
         }
 
-        // Update the match with new stage and activity
+        // Update the match with new stage, date sent, and activity
         const updateResponse = await fetch(
           `${AIRTABLE_API_BASE}?action=update-record&table=${encodeURIComponent('Property-Buyer Matches')}&recordId=${sp.matchId}`,
           {
@@ -97,6 +97,7 @@ async function updateMatchStages(
             body: JSON.stringify({
               fields: {
                 'Match Stage': 'Sent to Buyer',
+                'Date Sent': new Date().toISOString(),
                 Activities: JSON.stringify([...currentActivities, newActivity]),
               },
             }),
@@ -121,6 +122,7 @@ async function updateMatchStages(
                 'Match Notes': sp.score.reasoning || '',
                 'Match Status': 'Active',
                 'Match Stage': 'Sent to Buyer',
+                'Date Sent': new Date().toISOString(),
                 'Is Priority': sp.score.isPriority || false,
                 'Distance': sp.score.distanceMiles || null,
                 Activities: JSON.stringify([newActivity]),

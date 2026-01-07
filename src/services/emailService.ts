@@ -1,4 +1,3 @@
-import { generatePropertyMatchPDF, generatePropertyFlyerPDF } from '@/lib/pdfGenerator';
 import type { Property } from '@/types';
 import type { AirtablePropertyMatch } from './airtableApi';
 
@@ -33,65 +32,7 @@ export interface BulkSendOptions {
 }
 
 /**
- * Convert Blob to Base64 for email attachment
- */
-async function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result as string;
-      // Remove data:application/pdf;base64, prefix
-      resolve(base64.split(',')[1]);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
-
-/**
- * Upload PDF attachment to GHL and get URL for use in messages
- * GHL requires attachments to be uploaded first to get a URL, then the URL is used in the message
- */
-async function uploadPdfAttachment(pdfBase64: string, filename: string): Promise<string[]> {
-  const response = await fetch(`${API_BASE}?resource=messages&action=upload`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      fileData: pdfBase64,
-      fileName: filename,
-      fileType: 'application/pdf',
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Failed to upload attachment' }));
-    throw new Error(error.message || error.error || `Failed to upload attachment: ${response.status}`);
-  }
-
-  const result = await response.json();
-
-  // The upload endpoint returns urls as an array
-  if (result.urls && Array.isArray(result.urls)) {
-    return result.urls;
-  }
-
-  // Handle single URL response
-  if (result.url) {
-    return [result.url];
-  }
-
-  // If the response has a different structure, try to extract URLs from data
-  if (result.data?.urls) {
-    return Array.isArray(result.data.urls) ? result.data.urls : [result.data.urls];
-  }
-
-  throw new Error('Upload succeeded but no URL was returned');
-}
-
-/**
- * Send property matches via HighLevel email with PDF attachment
+ * Send property matches via HighLevel email
  */
 export async function sendPropertyEmail(options: SendPropertyEmailOptions): Promise<{ success: boolean; messageId?: string }> {
   const {
@@ -112,23 +53,6 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
   const subject = options.subject || (isSpanish
     ? `Tus Propiedades Encontradas de Purple Homes`
     : `Your Matched Properties from Purple Homes`);
-
-  // Generate PDF
-  const pdfBlob = await generatePropertyMatchPDF({
-    properties,
-    buyerName: contactName,
-    buyerEmail: contactEmail,
-    agentName,
-    agentPhone,
-    agentEmail,
-  });
-
-  // Convert to base64
-  const pdfBase64 = await blobToBase64(pdfBlob);
-  const filename = `Purple-Homes-Properties-${contactName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
-
-  // Upload PDF to GHL and get URL (required for attachments)
-  const attachmentUrls = await uploadPdfAttachment(pdfBase64, filename);
 
   // Prepare email body based on language
   const emailBody = isSpanish ? `
@@ -152,16 +76,8 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
         ` : ''}
 
         <p style="color: #4B5563; line-height: 1.6;">
-          Adjuntamos un PDF detallado con toda la información de las propiedades incluyendo:
+          A continuación encontrarás toda la información detallada de las propiedades:
         </p>
-
-        <ul style="color: #4B5563; line-height: 1.8;">
-          <li>Direcciones y ubicaciones de las propiedades</li>
-          <li>Precios y opciones de enganche</li>
-          <li>Estimaciones de pagos mensuales</li>
-          <li>Especificaciones detalladas de las propiedades</li>
-          <li>Condiciones y tipos de propiedades</li>
-        </ul>
 
         <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; margin: 25px 0;">
           <h3 style="color: #1F2937; margin-top: 0; font-size: 16px;">Resumen Rápido de Propiedades:</h3>
@@ -183,7 +99,7 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
           `).join('')}
           ${properties.length > 3 ? `
             <div style="color: #6B7280; font-style: italic; margin-top: 10px; font-size: 13px;">
-              + ${properties.length - 3} propiedad${properties.length - 3 === 1 ? '' : 'es'} más en el PDF adjunto
+              + ${properties.length - 3} propiedad${properties.length - 3 === 1 ? '' : 'es'} más
             </div>
           ` : ''}
         </div>
@@ -230,16 +146,8 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
         ` : ''}
 
         <p style="color: #4B5563; line-height: 1.6;">
-          Please find attached a detailed PDF with all property information including:
+          Below you'll find all the detailed property information:
         </p>
-
-        <ul style="color: #4B5563; line-height: 1.8;">
-          <li>Property addresses and locations</li>
-          <li>Pricing and down payment options</li>
-          <li>Monthly payment estimates</li>
-          <li>Detailed property specifications</li>
-          <li>Property conditions and types</li>
-        </ul>
 
         <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; margin: 25px 0;">
           <h3 style="color: #1F2937; margin-top: 0; font-size: 16px;">Quick Property Summary:</h3>
@@ -261,7 +169,7 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
           `).join('')}
           ${properties.length > 3 ? `
             <div style="color: #6B7280; font-style: italic; margin-top: 10px; font-size: 13px;">
-              + ${properties.length - 3} more ${properties.length - 3 === 1 ? 'property' : 'properties'} in the attached PDF
+              + ${properties.length - 3} more ${properties.length - 3 === 1 ? 'property' : 'properties'}
             </div>
           ` : ''}
         </div>
@@ -301,7 +209,6 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
       to: contactEmail,
       subject,
       html: emailBody,
-      attachments: attachmentUrls,
       // Use dedicated email header if configured
       useDedicatedHeader: true,
     }),
@@ -467,26 +374,6 @@ export async function sendPropertyFlyer(options: SendFlyerOptions): Promise<{ su
     agentEmail = 'info@purplehomes.com',
   } = options;
 
-  // Generate PDF flyer
-  const pdfBlob = await generatePropertyFlyerPDF({
-    property: {
-      ...property,
-      zillowPrice: property.price, // Store original if needed
-    },
-    buyerName: contactName,
-    buyerEmail: contactEmail,
-    agentName,
-    agentPhone,
-    agentEmail,
-  });
-
-  // Convert to base64
-  const pdfBase64 = await blobToBase64(pdfBlob);
-  const filename = `Purple-Homes-Flyer-${property.address.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
-
-  // Upload PDF to GHL and get URL (required for attachments)
-  const attachmentUrls = await uploadPdfAttachment(pdfBase64, filename);
-
   // Prepare email body
   const emailBody = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -533,10 +420,6 @@ export async function sendPropertyFlyer(options: SendFlyerOptions): Promise<{ su
         </div>
 
         <p style="color: #4B5563; line-height: 1.6;">
-          Please find attached a detailed PDF flyer with all the property information.
-        </p>
-
-        <p style="color: #4B5563; line-height: 1.6;">
           Interested in this property? Contact us today to schedule a viewing!
         </p>
 
@@ -571,7 +454,6 @@ export async function sendPropertyFlyer(options: SendFlyerOptions): Promise<{ su
       to: contactEmail,
       subject: `Property Opportunity: ${property.address}`,
       html: emailBody,
-      attachments: attachmentUrls,
       useDedicatedHeader: true,
     }),
   });

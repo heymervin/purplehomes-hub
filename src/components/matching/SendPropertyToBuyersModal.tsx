@@ -86,7 +86,7 @@ async function updateBuyerMatchStages(
           }
         }
 
-        // Update the match with new stage and activity
+        // Update the match with new stage, date sent, and activity
         const updateResponse = await fetch(
           `${AIRTABLE_API_BASE}?action=update-record&table=${encodeURIComponent('Property-Buyer Matches')}&recordId=${sb.matchId}`,
           {
@@ -95,6 +95,7 @@ async function updateBuyerMatchStages(
             body: JSON.stringify({
               fields: {
                 'Match Stage': 'Sent to Buyer',
+                'Date Sent': new Date().toISOString(),
                 Activities: JSON.stringify([...currentActivities, newActivity]),
               },
             }),
@@ -119,6 +120,7 @@ async function updateBuyerMatchStages(
                 'Match Notes': sb.score.reasoning || '',
                 'Match Status': 'Active',
                 'Match Stage': 'Sent to Buyer',
+                'Date Sent': new Date().toISOString(),
                 'Is Priority': sb.score.isPriority || false,
                 'Distance': sb.score.distanceMiles || null,
                 Activities: JSON.stringify([newActivity]),
@@ -538,7 +540,7 @@ export function SendPropertyToBuyersModal({
                 <div className="flex-1">
                   <label className="text-sm font-medium flex items-center gap-2 cursor-pointer">
                     <Mail className="h-4 w-4 text-blue-600" />
-                    Email with PDF
+                    Email
                     {sendViaEmail && canSendEmail && (
                       <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
                         {buyersWithEmail.length} recipients
@@ -546,7 +548,7 @@ export function SendPropertyToBuyersModal({
                     )}
                   </label>
                   <p className="text-xs text-muted-foreground">
-                    {canSendEmail ? 'Includes detailed property PDF' : 'No buyers have email addresses'}
+                    {canSendEmail ? 'Includes detailed property information' : 'No buyers have email addresses'}
                   </p>
                 </div>
               </div>
