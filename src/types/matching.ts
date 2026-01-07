@@ -64,7 +64,7 @@ export interface PropertyDetails {
   condition?: string; // Property condition (Excellent, Great, Good, etc.)
 
   // Source tracking fields
-  source?: 'Inventory' | 'Lead' | 'Zillow'; // Property source
+  source?: 'Inventory' | 'Partnered' | 'Acquisitions' | 'Zillow'; // Property source
   zillowType?: 'Keywords' | 'Formula' | 'DOM'; // Zillow search type (only if source = 'Zillow')
   zillowZpid?: string; // Zillow property ID for deduplication
   zillowUrl?: string; // Link to original Zillow listing
@@ -234,4 +234,27 @@ export interface PropertyBuyersResponse {
   stats: {
     timeMs: number;
   };
+}
+
+/**
+ * Matching Preferences - User-configurable matching settings
+ */
+export interface MatchingPreferences {
+  id?: string;
+  budgetMultiplier: number; // Default: 8
+  updatedAt?: string;
+}
+
+/**
+ * Source filter options (excludes Zillow which has its own section)
+ */
+export type PropertySourceFilter = 'Inventory' | 'Partnered' | 'Acquisitions';
+
+/**
+ * Match filter state for property matching page
+ */
+export interface MatchFilterState {
+  sources: PropertySourceFilter[];
+  sameCity: boolean;
+  withinBudget: boolean;
 }

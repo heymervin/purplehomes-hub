@@ -47,16 +47,16 @@ export interface Property {
 }
 
 // Buyer Home Acquisition Pipeline (interested buyers who submit offers)
-export type AcquisitionStage = 
-  | 'inventory-discussions' 
-  | 'property-sourcing' 
-  | 'buyer-review' 
-  | 'underwriting-checklist' 
-  | 'offer-submitted' 
-  | 'buyer-contract-signed' 
-  | 'qualification-phase' 
-  | 'closing-scheduled' 
-  | 'closed-won' 
+// Updated to match "2. Buyer Home Acquisition" pipeline stages
+export type AcquisitionStage =
+  | 'matching'
+  | 'underwriting-checklist'
+  | 'buyer-review'
+  | 'offer-received'
+  | 'buyer-contract-signed'
+  | 'qualification-phase'
+  | 'closing-scheduled'
+  | 'closed-won'
   | 'lost';
 
 export interface BuyerAcquisition {

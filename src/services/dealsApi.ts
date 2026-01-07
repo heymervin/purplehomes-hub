@@ -816,13 +816,48 @@ export const useUpdateDealStage = () => {
         );
       });
 
+      // Also update deals-by-stage cache immediately so the modal shows the correct stage
+      // when clicking on a card right after dragging it
+      queryClient.setQueryData(
+        ['deals-by-stage'],
+        (oldData: Record<MatchDealStage, Deal[]> | undefined) => {
+          if (!oldData) return oldData;
+
+          const { dealId, fromStage, toStage } = variables;
+          const newData = { ...oldData };
+
+          // Find and remove the deal from the old stage
+          const fromStageDeals = newData[fromStage] || [];
+          const dealIndex = fromStageDeals.findIndex(d => d.id === dealId);
+
+          if (dealIndex === -1) return oldData; // Deal not found, don't modify
+
+          // Get the deal and update it
+          const deal = fromStageDeals[dealIndex];
+          const updatedDeal: Deal = {
+            ...deal,
+            status: toStage,
+            ghlRelationId: data.ghlRelationId,
+          };
+
+          // Remove from old stage
+          newData[fromStage] = fromStageDeals.filter(d => d.id !== dealId);
+
+          // Add to new stage (maintaining score-based sort order)
+          const toStageDeals = [...(newData[toStage] || []), updatedDeal];
+          toStageDeals.sort((a, b) => b.score - a.score);
+          newData[toStage] = toStageDeals;
+
+          return newData;
+        }
+      );
+
       if (data.ghlRelationId) {
         console.log('[Deals API] Updated deal cache with new ghlRelationId:', data.ghlRelationId);
       }
 
-      // Invalidate other queries (but NOT 'deals' - we updated it manually above)
+      // Invalidate other queries (but NOT 'deals' or 'deals-by-stage' - we updated them manually above)
       queryClient.invalidateQueries({ queryKey: ['pipeline-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['deals-by-stage'] });
       queryClient.invalidateQueries({ queryKey: ['deals-by-buyer'] });
       queryClient.invalidateQueries({ queryKey: ['deals-by-property'] });
       queryClient.invalidateQueries({ queryKey: ['stale-deals'] });

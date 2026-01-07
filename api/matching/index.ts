@@ -136,6 +136,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         return await handleMatchStats(req, res, headers);
 
+      // Matching preferences endpoints
+      case 'get-preferences':
+        if (req.method !== 'GET') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+        return await handleGetPreferences(req, res, headers);
+
+      case 'update-preferences':
+        if (req.method !== 'PUT' && req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed. Use PUT or POST.' });
+        }
+        return await handleUpdatePreferences(req, res, headers);
+
       default:
         return res.status(400).json({ error: 'Unknown action', action });
     }
@@ -2428,6 +2441,124 @@ async function handleMatchStats(
 
   } catch (error) {
     console.error('[Match Stats] Error:', error);
+    throw error;
+  }
+}
+
+// ============ MATCHING PREFERENCES ============
+
+const PREFERENCES_TABLE = 'Matching Preferences';
+const DEFAULT_PREFERENCES = {
+  budgetMultiplier: 8,
+};
+
+/**
+ * Get matching preferences
+ */
+async function handleGetPreferences(
+  _req: VercelRequest,
+  res: VercelResponse,
+  headers: any
+): Promise<VercelResponse> {
+  try {
+    console.log('[Matching Preferences] Fetching preferences...');
+
+    const url = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${encodeURIComponent(PREFERENCES_TABLE)}?maxRecords=1`;
+
+    const response = await fetch(url, { headers });
+
+    if (!response.ok) {
+      console.log('[Matching Preferences] Table not found or error, returning defaults');
+      return res.status(200).json({ preferences: DEFAULT_PREFERENCES });
+    }
+
+    const data = await response.json();
+
+    if (!data.records || data.records.length === 0) {
+      console.log('[Matching Preferences] No record found, returning defaults');
+      return res.status(200).json({ preferences: DEFAULT_PREFERENCES });
+    }
+
+    const record = data.records[0];
+    const preferences = {
+      budgetMultiplier: record.fields['Budget Multiplier'] ?? DEFAULT_PREFERENCES.budgetMultiplier,
+    };
+
+    console.log('[Matching Preferences] Returning preferences:', preferences);
+    return res.status(200).json({
+      preferences,
+      recordId: record.id,
+    });
+  } catch (error) {
+    console.error('[Matching Preferences] Get preferences error:', error);
+    return res.status(200).json({ preferences: DEFAULT_PREFERENCES });
+  }
+}
+
+/**
+ * Update matching preferences
+ */
+async function handleUpdatePreferences(
+  req: VercelRequest,
+  res: VercelResponse,
+  headers: any
+): Promise<VercelResponse> {
+  try {
+    const { budgetMultiplier } = req.body;
+
+    console.log('[Matching Preferences] Updating preferences:', { budgetMultiplier });
+
+    // First, check if record exists
+    const listUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${encodeURIComponent(PREFERENCES_TABLE)}?maxRecords=1`;
+    const listResponse = await fetch(listUrl, { headers });
+    const listData = await listResponse.json();
+
+    const fields: Record<string, any> = {
+      'Budget Multiplier': budgetMultiplier,
+      'Updated At': new Date().toISOString(),
+    };
+
+    let url: string;
+    let method: string;
+    let body: string;
+
+    if (listData.records && listData.records.length > 0) {
+      // Update existing record
+      const recordId = listData.records[0].id;
+      url = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${encodeURIComponent(PREFERENCES_TABLE)}/${recordId}`;
+      method = 'PATCH';
+      body = JSON.stringify({ fields });
+      console.log('[Matching Preferences] Updating existing record:', recordId);
+    } else {
+      // Create new record
+      url = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${encodeURIComponent(PREFERENCES_TABLE)}`;
+      method = 'POST';
+      body = JSON.stringify({ records: [{ fields }] });
+      console.log('[Matching Preferences] Creating new record');
+    }
+
+    const response = await fetch(url, {
+      method,
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('[Matching Preferences] Update error:', error);
+      return res.status(response.status).json({
+        error: 'Failed to save preferences',
+        details: error,
+      });
+    }
+
+    console.log('[Matching Preferences] Preferences saved successfully');
+    return res.status(200).json({
+      success: true,
+      preferences: { budgetMultiplier },
+    });
+  } catch (error) {
+    console.error('[Matching Preferences] Update error:', error);
     throw error;
   }
 }

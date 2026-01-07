@@ -33,13 +33,12 @@ import type { BuyerAcquisition, AcquisitionStage, ChecklistItem, BuyerChecklist 
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
-// Map GHL stage IDs to our stage types - USING ACTUAL STAGE IDs FROM BUYER ACQUISITION PIPELINE
+// Map GHL stage IDs to our stage types - USING ACTUAL STAGE IDs FROM "2. Buyer Home Acquisition" PIPELINE
 const stageIdMap: Record<string, AcquisitionStage> = {
-  '82b1d31b-4807-44a4-a2e5-aa2fe17a74b0': 'inventory-discussions',
-  'aa7fdb9c-425f-4f09-8345-7d999ec65dce': 'property-sourcing',
-  '75bf05cb-0f78-48ec-962a-708b8d13a6ab': 'buyer-review',
+  '82b1d31b-4807-44a4-a2e5-aa2fe17a74b0': 'matching',
   '305be21b-3c52-4fae-abdf-23c5477d05a5': 'underwriting-checklist',
-  '1e7c6dc4-9a41-47ff-9445-497f1081774c': 'offer-submitted',
+  '75bf05cb-0f78-48ec-962a-708b8d13a6ab': 'buyer-review',
+  '1e7c6dc4-9a41-47ff-9445-497f1081774c': 'offer-received',
   '4377ef1f-a103-42e9-adfa-c7a78d22723a': 'buyer-contract-signed',
   'bc8d6c4b-4da3-4c5d-8aa0-eeb7feed3859': 'qualification-phase',
   '6f3f0a41-3c31-4f33-aa41-47e4d61fdc51': 'closing-scheduled',
@@ -47,18 +46,34 @@ const stageIdMap: Record<string, AcquisitionStage> = {
   '9b88275f-ae74-44f9-85be-f9c8ae78a0c4': 'lost',
 };
 
+// Using unified pipeline colors from COLUMN_COLORS
 const stages: { id: AcquisitionStage; label: string; color: string; ghlId: string }[] = [
-  { id: 'inventory-discussions', label: 'Inventory Discussions', color: 'bg-blue-500', ghlId: '82b1d31b-4807-44a4-a2e5-aa2fe17a74b0' },
-  { id: 'property-sourcing', label: 'Property Sourcing', color: 'bg-cyan-500', ghlId: 'aa7fdb9c-425f-4f09-8345-7d999ec65dce' },
-  { id: 'buyer-review', label: 'Buyer Review', color: 'bg-purple-500', ghlId: '75bf05cb-0f78-48ec-962a-708b8d13a6ab' },
-  { id: 'underwriting-checklist', label: 'Underwriting / Checklist', color: 'bg-indigo-500', ghlId: '305be21b-3c52-4fae-abdf-23c5477d05a5' },
-  { id: 'offer-submitted', label: 'Offer Submitted', color: 'bg-amber-500', ghlId: '1e7c6dc4-9a41-47ff-9445-497f1081774c' },
-  { id: 'buyer-contract-signed', label: 'Buyer Contract Signed', color: 'bg-orange-500', ghlId: '4377ef1f-a103-42e9-adfa-c7a78d22723a' },
-  { id: 'qualification-phase', label: 'Qualification Phase', color: 'bg-pink-500', ghlId: 'bc8d6c4b-4da3-4c5d-8aa0-eeb7feed3859' },
-  { id: 'closing-scheduled', label: 'Closing Scheduled', color: 'bg-teal-500', ghlId: '6f3f0a41-3c31-4f33-aa41-47e4d61fdc51' },
-  { id: 'closed-won', label: 'Closed = Won', color: 'bg-green-500', ghlId: '1caa0fe9-608d-4f55-82f9-d43f35bb5123' },
-  { id: 'lost', label: 'Lost', color: 'bg-gray-500', ghlId: '9b88275f-ae74-44f9-85be-f9c8ae78a0c4' },
+  { id: 'matching', label: 'Matching', color: 'blue', ghlId: '82b1d31b-4807-44a4-a2e5-aa2fe17a74b0' },
+  { id: 'underwriting-checklist', label: 'Underwriting / Checklist', color: 'cyan', ghlId: '305be21b-3c52-4fae-abdf-23c5477d05a5' },
+  { id: 'buyer-review', label: 'Buyer Review', color: 'indigo', ghlId: '75bf05cb-0f78-48ec-962a-708b8d13a6ab' },
+  { id: 'offer-received', label: 'Offer Received', color: 'amber', ghlId: '1e7c6dc4-9a41-47ff-9445-497f1081774c' },
+  { id: 'buyer-contract-signed', label: 'Buyer Contract Signed', color: 'orange', ghlId: '4377ef1f-a103-42e9-adfa-c7a78d22723a' },
+  { id: 'qualification-phase', label: 'Qualification Phase', color: 'purple', ghlId: 'bc8d6c4b-4da3-4c5d-8aa0-eeb7feed3859' },
+  { id: 'closing-scheduled', label: 'Closing Scheduled', color: 'teal', ghlId: '6f3f0a41-3c31-4f33-aa41-47e4d61fdc51' },
+  { id: 'closed-won', label: 'Closed = Won', color: 'green', ghlId: '1caa0fe9-608d-4f55-82f9-d43f35bb5123' },
+  { id: 'lost', label: 'Lost', color: 'gray', ghlId: '9b88275f-ae74-44f9-85be-f9c8ae78a0c4' },
 ];
+
+// Helper to get badge background color from unified color key
+const getBadgeBgClass = (colorKey: string): string => {
+  const colorMap: Record<string, string> = {
+    blue: 'bg-blue-500',
+    cyan: 'bg-cyan-500',
+    indigo: 'bg-indigo-500',
+    amber: 'bg-amber-500',
+    orange: 'bg-orange-500',
+    purple: 'bg-purple-500',
+    teal: 'bg-teal-500',
+    green: 'bg-green-500',
+    gray: 'bg-gray-400',
+  };
+  return colorMap[colorKey] || 'bg-gray-500';
+};
 
 // Default checklist structure - USING REAL GHL CUSTOM FIELDS
 const defaultChecklist: BuyerChecklist = {
@@ -132,7 +147,7 @@ const transformToBuyerAcquisition = (opp: GHLOpportunity): ExtendedBuyerAcquisit
   const contactPropertyType = getContactField('property_type') || getContactField('bagWtxQFWwBbGf9kn9th') || undefined;
 
   // Map the GHL stage ID directly to our stage
-  const stage = stageIdMap[opp.pipelineStageId] || 'inventory-discussions';
+  const stage = stageIdMap[opp.pipelineStageId] || 'matching';
 
   return {
     id: opp.id,
@@ -295,7 +310,7 @@ export default function BuyerAcquisitions() {
     return stages.map((stage) => ({
       id: stage.id,
       label: stage.label,
-      color: stage.color.replace('bg-', ''), // Convert 'bg-blue-500' to 'blue-500' for border
+      color: stage.color, // Already using unified color keys (e.g., 'blue', 'cyan')
       items: filteredAcquisitions.filter((a) => a.stage === stage.id),
       isHidden: stage.id === 'lost',
     }));
@@ -628,7 +643,7 @@ export default function BuyerAcquisitions() {
                         </TableCell>
                         <TableCell>{acq.propertyAddress || '-'}</TableCell>
                         <TableCell>
-                          <Badge className={`${stage?.color} text-white`}>
+                          <Badge className={`${getBadgeBgClass(stage?.color || 'gray')} text-white`}>
                             {stage?.label}
                           </Badge>
                         </TableCell>
@@ -662,7 +677,7 @@ export default function BuyerAcquisitions() {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold">{selectedAcquisition.name}</h3>
-                  <Badge className={`${stages.find(s => s.id === selectedAcquisition.stage)?.color} text-white`}>
+                  <Badge className={`${getBadgeBgClass(stages.find(s => s.id === selectedAcquisition.stage)?.color || 'gray')} text-white`}>
                     {stages.find(s => s.id === selectedAcquisition.stage)?.label}
                   </Badge>
                 </div>

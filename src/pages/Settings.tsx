@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Check, X, RefreshCw, ExternalLink, Plus, Trash2, Wifi, WifiOff, Key, Save, Server, Clock, CheckCircle2, XCircle, Activity, Calculator, Loader2 } from 'lucide-react';
+import { Check, X, RefreshCw, ExternalLink, Plus, Trash2, Wifi, WifiOff, Key, Save, Server, Clock, CheckCircle2, XCircle, Activity, Calculator, Loader2, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,7 @@ import { SyncHistoryLog } from '@/components/settings/SyncHistoryLog';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
 import { useTestAssociationsApi } from '@/services/ghlAssociationsApi';
 import { useCalculatorDefaults, useUpdateCalculatorDefaults } from '@/services/calculatorApi';
+import { useMatchingPreferences, useUpdateMatchingPreferences } from '@/services/matchingApi';
 import type { CalculatorDefaults } from '@/types/calculator';
 
 export default function Settings() {
@@ -51,6 +52,12 @@ export default function Settings() {
   const [localDefaults, setLocalDefaults] = useState<Partial<CalculatorDefaults>>({});
   const [hasDefaultsChanges, setHasDefaultsChanges] = useState(false);
 
+  // Matching preferences
+  const { data: matchingPreferencesData, isLoading: isLoadingMatchingPrefs } = useMatchingPreferences();
+  const updateMatchingPreferences = useUpdateMatchingPreferences();
+  const [localBudgetMultiplier, setLocalBudgetMultiplier] = useState<number>(8);
+  const [hasMatchingPrefsChanges, setHasMatchingPrefsChanges] = useState(false);
+
   // Load saved config on mount
   useEffect(() => {
     const config = getApiConfig();
@@ -65,6 +72,13 @@ export default function Settings() {
     }
   }, [calculatorDefaultsData]);
 
+  // Sync matching preferences when API data loads
+  useEffect(() => {
+    if (matchingPreferencesData?.budgetMultiplier) {
+      setLocalBudgetMultiplier(matchingPreferencesData.budgetMultiplier);
+    }
+  }, [matchingPreferencesData]);
+
   const handleDefaultChange = (field: keyof CalculatorDefaults, value: number) => {
     setLocalDefaults(prev => ({ ...prev, [field]: value }));
     setHasDefaultsChanges(true);
@@ -77,6 +91,16 @@ export default function Settings() {
       toast.success('Calculator defaults saved');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to save defaults');
+    }
+  };
+
+  const handleSaveMatchingPreferences = async () => {
+    try {
+      await updateMatchingPreferences.mutateAsync({ budgetMultiplier: localBudgetMultiplier });
+      setHasMatchingPrefsChanges(false);
+      toast.success('Matching preferences saved');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to save preferences');
     }
   };
 
@@ -758,6 +782,80 @@ export default function Settings() {
                   </SelectContent>
                 </Select>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Matching Preferences */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-primary" />
+                    Matching Preferences
+                  </CardTitle>
+                  <CardDescription>
+                    Configure how properties are matched and filtered for buyers
+                  </CardDescription>
+                </div>
+                <Button
+                  onClick={handleSaveMatchingPreferences}
+                  disabled={!hasMatchingPrefsChanges || updateMatchingPreferences.isPending}
+                  size="sm"
+                >
+                  {updateMatchingPreferences.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  Save Preferences
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isLoadingMatchingPrefs ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <Label>Budget Multiplier</Label>
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Properties priced up to this multiple of buyer's down payment are considered "Within Budget"
+                    </p>
+                    <Select
+                      value={localBudgetMultiplier.toString()}
+                      onValueChange={(v) => {
+                        setLocalBudgetMultiplier(parseInt(v));
+                        setHasMatchingPrefsChanges(true);
+                      }}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="5">5×</SelectItem>
+                        <SelectItem value="6">6×</SelectItem>
+                        <SelectItem value="7">7×</SelectItem>
+                        <SelectItem value="8">8×</SelectItem>
+                        <SelectItem value="10">10×</SelectItem>
+                        <SelectItem value="12">12×</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
+                    <span className="font-medium">💡 Example:</span> Buyer with $40,000 down → Max price: ${(40000 * localBudgetMultiplier).toLocaleString()}
+                  </div>
+
+                  {hasMatchingPrefsChanges && (
+                    <div className="flex items-center gap-2 text-sm text-yellow-600">
+                      <span className="font-medium">You have unsaved changes</span>
+                    </div>
+                  )}
+                </>
+              )}
             </CardContent>
           </Card>
 

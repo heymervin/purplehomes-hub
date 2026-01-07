@@ -39,7 +39,7 @@ import {
   XCircle,
   Calendar,
 } from 'lucide-react';
-import { useBuyerProperties, useBuyersList } from '@/services/matchingApi';
+import { useBuyerProperties, useBuyersList, useMatchingPreferences } from '@/services/matchingApi';
 import { useNavigate } from 'react-router-dom';
 import { MatchSectionDivider } from './MatchSectionDivider';
 import { MatchScoreBadge } from './MatchScoreBadge';
@@ -50,7 +50,7 @@ import { PropertySelectionBar } from './PropertySelectionBar';
 import { SendPropertiesModal } from './SendPropertiesModal';
 import { MatchDetailModal } from './MatchDetailModal';
 import { StageBadge } from './StageBadge';
-import type { ScoredProperty, BuyerCriteria } from '@/types/matching';
+import type { ScoredProperty, BuyerCriteria, PropertySourceFilter } from '@/types/matching';
 import { ArrowRight } from 'lucide-react';
 
 interface PropertyCardProps {
@@ -333,6 +333,32 @@ export function BuyerPropertiesView({
   const { data: buyersList, isLoading: loadingBuyers } = useBuyersList();
   const { data: buyerProperties, isLoading: loadingProperties, error } = useBuyerProperties(buyerId);
 
+  // Matching preferences for budget multiplier
+  const { data: matchingPreferences } = useMatchingPreferences();
+  const budgetMultiplier = matchingPreferences?.budgetMultiplier ?? 8;
+
+  // Source and match filter state
+  const [sourceFilters, setSourceFilters] = useState<PropertySourceFilter[]>([]);
+  const [sameCity, setSameCity] = useState(false);
+  const [withinBudget, setWithinBudget] = useState(false);
+
+  // Filter toggle handlers
+  const toggleSourceFilter = (source: PropertySourceFilter) => {
+    setSourceFilters((prev) =>
+      prev.includes(source)
+        ? prev.filter((s) => s !== source)
+        : [...prev, source]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSourceFilters([]);
+    setSameCity(false);
+    setWithinBudget(false);
+  };
+
+  const hasActiveFilters = sourceFilters.length > 0 || sameCity || withinBudget;
+
   // Filter and sort buyers list
   const filteredBuyersList = useMemo(() => {
     if (!buyersList) return buyersList;
@@ -425,11 +451,46 @@ export function BuyerPropertiesView({
       }
     }
 
+    // Filter by source (multi-select, OR logic within)
+    if (sourceFilters.length > 0) {
+      filtered = filtered.filter((sp) =>
+        sourceFilters.includes(sp.property.source as PropertySourceFilter)
+      );
+    }
+
+    // Filter by same city
+    if (sameCity && buyerProperties.buyer) {
+      const buyerLocation = buyerProperties.buyer.preferredLocation?.toLowerCase() || '';
+      filtered = filtered.filter((sp) => {
+        const propertyCity = sp.property.city?.toLowerCase() || '';
+        // Check if property city is contained in buyer's preferred location or vice versa
+        return buyerLocation.includes(propertyCity) || propertyCity.includes(buyerLocation);
+      });
+    }
+
+    // Filter by within budget
+    if (withinBudget && buyerProperties.buyer) {
+      const maxPrice = (buyerProperties.buyer.downPayment || 0) * budgetMultiplier;
+      filtered = filtered.filter((sp) => (sp.property.price || 0) <= maxPrice);
+    }
+
     // Sort by score descending
     filtered.sort((a, b) => b.score.score - a.score.score);
 
     return filtered;
-  }, [buyerProperties, filters]);
+  }, [buyerProperties, filters, sourceFilters, sameCity, withinBudget, budgetMultiplier]);
+
+  // Calculate source counts for filter badges (from ALL properties, not filtered)
+  const sourceCounts = useMemo(() => {
+    if (!buyerProperties) return { Inventory: 0, Partnered: 0, Acquisitions: 0 };
+
+    const allProperties = [...buyerProperties.priorityMatches, ...buyerProperties.exploreMatches];
+    return {
+      Inventory: allProperties.filter((sp) => sp.property.source === 'Inventory').length,
+      Partnered: allProperties.filter((sp) => sp.property.source === 'Partnered').length,
+      Acquisitions: allProperties.filter((sp) => sp.property.source === 'Acquisitions').length,
+    };
+  }, [buyerProperties]);
 
   // State for property selection
   const [selectedPropertyIds, setSelectedPropertyIds] = useState<Set<string>>(new Set());
@@ -601,6 +662,91 @@ export function BuyerPropertiesView({
           </div>
         )}
       </div>
+
+      {/* Filter Chips - Show when buyer is selected and properties loaded */}
+      {buyerProperties && !loadingProperties && (
+        <div className="space-y-3 p-4 bg-muted/30 rounded-lg border">
+          {/* Source Filters */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-muted-foreground mr-2">Source:</span>
+
+            <button
+              onClick={() => toggleSourceFilter('Inventory')}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                sourceFilters.includes('Inventory')
+                  ? 'bg-green-500 text-white'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-green-300 hover:bg-green-50'
+              )}
+            >
+              🏠 Inventory ({sourceCounts.Inventory})
+            </button>
+
+            <button
+              onClick={() => toggleSourceFilter('Partnered')}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                sourceFilters.includes('Partnered')
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50'
+              )}
+            >
+              🤝 Partnered ({sourceCounts.Partnered})
+            </button>
+
+            <button
+              onClick={() => toggleSourceFilter('Acquisitions')}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                sourceFilters.includes('Acquisitions')
+                  ? 'bg-orange-500 text-white'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50'
+              )}
+            >
+              📋 Acquisitions ({sourceCounts.Acquisitions})
+            </button>
+          </div>
+
+          {/* Match Filters */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-muted-foreground mr-2">Match:</span>
+
+            <button
+              onClick={() => setSameCity(!sameCity)}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                sameCity
+                  ? 'bg-purple-500 text-white'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50'
+              )}
+            >
+              📍 Same City
+            </button>
+
+            <button
+              onClick={() => setWithinBudget(!withinBudget)}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                withinBudget
+                  ? 'bg-purple-500 text-white'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50'
+              )}
+            >
+              💰 Within Budget
+            </button>
+
+            {/* Clear All */}
+            {hasActiveFilters && (
+              <button
+                onClick={clearAllFilters}
+                className="ml-auto text-sm text-muted-foreground hover:text-foreground"
+              >
+                Clear all
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Loading State */}
       {loadingProperties && buyerId && (

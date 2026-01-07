@@ -3,7 +3,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { BuyerWithMatches, PropertyWithMatches, PropertyDetails, RunMatchingResponse, MatchFilters, MatchActivity, PropertyMatch, BuyerPropertiesResponse, PropertyBuyersResponse } from '@/types/matching';
+import type { BuyerWithMatches, PropertyWithMatches, PropertyDetails, RunMatchingResponse, MatchFilters, MatchActivity, PropertyMatch, BuyerPropertiesResponse, PropertyBuyersResponse, MatchingPreferences } from '@/types/matching';
 import type { MatchDealStage } from '@/types/associations';
 
 const MATCHING_API_BASE = '/api/matching';
@@ -1002,5 +1002,70 @@ export const useMatchStats = () => {
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+  });
+};
+
+// ============ MATCHING PREFERENCES ============
+
+const DEFAULT_PREFERENCES: MatchingPreferences = {
+  budgetMultiplier: 8,
+};
+
+/**
+ * Fetch matching preferences
+ */
+export const useMatchingPreferences = () => {
+  return useQuery({
+    queryKey: ['matching-preferences'],
+    queryFn: async (): Promise<MatchingPreferences> => {
+      console.log('[Matching API] Fetching matching preferences');
+
+      const response = await fetch(`${MATCHING_API_BASE}?action=get-preferences`);
+
+      if (!response.ok) {
+        console.warn('[Matching API] Failed to fetch preferences, using defaults');
+        return DEFAULT_PREFERENCES;
+      }
+
+      const result = await response.json();
+      console.log('[Matching API] Matching preferences fetched:', result.preferences);
+
+      return result.preferences || DEFAULT_PREFERENCES;
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes - preferences rarely change
+  });
+};
+
+/**
+ * Update matching preferences
+ */
+export const useUpdateMatchingPreferences = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (
+      preferences: Partial<MatchingPreferences>
+    ): Promise<{ success: boolean; preferences: MatchingPreferences }> => {
+      console.log('[Matching API] Updating matching preferences:', preferences);
+
+      const response = await fetch(`${MATCHING_API_BASE}?action=update-preferences`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(preferences),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to save preferences' }));
+        throw new Error(error.error || 'Failed to save matching preferences');
+      }
+
+      const result = await response.json();
+      console.log('[Matching API] Matching preferences updated:', result);
+
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['matching-preferences'] });
+    },
   });
 };

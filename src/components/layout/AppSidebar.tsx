@@ -31,7 +31,7 @@ const navigation = [
   { name: 'Public Listings', href: '/listings', icon: Globe },
   { name: 'Property Pipeline', href: '/seller-acquisitions', icon: Home },
   { name: 'Buyer Acquisitions', href: '/acquisitions', icon: UserPlus },
-  { name: 'Buyers Pipeline', href: '/buyers', icon: Users },
+  // { name: 'Buyers Pipeline', href: '/buyers', icon: Users }, // Hidden for now
   { name: 'Property Matching', href: '/matching', icon: Target },
   { name: 'Deal Pipeline', href: '/deals', icon: Kanban },
   { name: 'Contacts', href: '/contacts', icon: UsersRound },

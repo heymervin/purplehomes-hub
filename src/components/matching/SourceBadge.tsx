@@ -1,7 +1,7 @@
-import { Home, FileText, Search } from 'lucide-react';
+import { Home, Handshake, FileText, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
-type PropertySource = 'Inventory' | 'Lead' | 'Zillow';
+type PropertySource = 'Inventory' | 'Partnered' | 'Acquisitions' | 'Zillow';
 
 interface SourceBadgeProps {
   source: PropertySource;
@@ -12,19 +12,24 @@ interface SourceBadgeProps {
  * SourceBadge - Display property source as a colored badge
  *
  * Shows where a property came from:
- * - Inventory (blue): Properties from internal inventory
- * - Lead (green): Properties from acquisition pipeline/leads
+ * - Inventory (green): Properties from internal inventory
+ * - Partnered (blue): Properties from partnered agents
+ * - Acquisitions (orange): Properties from acquisition pipeline
  * - Zillow (purple): Properties saved from Zillow search
  */
 export function SourceBadge({ source, size = 'sm' }: SourceBadgeProps) {
   const config = {
     Inventory: {
       icon: Home,
+      className: 'bg-green-100 text-green-700 border-green-200',
+    },
+    Partnered: {
+      icon: Handshake,
       className: 'bg-blue-100 text-blue-700 border-blue-200',
     },
-    Lead: {
+    Acquisitions: {
       icon: FileText,
-      className: 'bg-green-100 text-green-700 border-green-200',
+      className: 'bg-orange-100 text-orange-700 border-orange-200',
     },
     Zillow: {
       icon: Search,

@@ -299,12 +299,6 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
         </Card>
       </div>
 
-      {/* Manual Selection CTA */}
-      <div className="text-center">
-        <p className="text-sm text-muted-foreground">
-          Or select manually from the dropdown below
-        </p>
-      </div>
     </div>
   );
 }
