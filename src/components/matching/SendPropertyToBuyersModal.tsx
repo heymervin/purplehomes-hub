@@ -40,10 +40,11 @@ async function updateBuyerMatchStages(
   buyers: ScoredBuyer[],
   activityType: MatchActivityType = 'email-sent',
   customMessage?: string
-): Promise<{ updated: number; created: number; synced: number }> {
+): Promise<{ updated: number; created: number; synced: number; failed: number }> {
   let updated = 0;
   let created = 0;
   let synced = 0;
+  let failed = 0;
 
   for (const sb of buyers) {
     try {
@@ -104,6 +105,11 @@ async function updateBuyerMatchStages(
 
         if (updateResponse.ok) {
           updated++;
+        } else {
+          // Log details for debugging and increment failure count
+          const errText = await updateResponse.text().catch(() => null);
+          console.error('[SendPropertyToBuyers] Failed to update match', sb.matchId, updateResponse.status, errText);
+          failed++;
         }
       } else {
         // Create new match record
@@ -131,6 +137,10 @@ async function updateBuyerMatchStages(
 
         if (createResponse.ok) {
           created++;
+        } else {
+          const errText = await createResponse.text().catch(() => null);
+          console.error('[SendPropertyToBuyers] Failed to create match for buyer', sb.buyer.email, createResponse.status, errText);
+          failed++;
         }
       }
 
@@ -156,7 +166,7 @@ async function updateBuyerMatchStages(
     }
   }
 
-  return { updated, created, synced };
+  return { updated, created, synced, failed };
 }
 
 /**
@@ -292,14 +302,14 @@ export function SendPropertyToBuyersModal({
         : 'email-sent';
 
       // Step 3: Update match stages for ALL selected buyers (creates deals in pipeline)
-      const { updated, created, synced } = await updateBuyerMatchStages(
+      const { updated, created, synced, failed } = await updateBuyerMatchStages(
         property,
         buyers,
         activityType,
         customMessage
       );
 
-      console.log(`[SendPropertyToBuyers] Updated ${updated} matches, created ${created} new matches, synced ${synced} to GHL`);
+      console.log(`[SendPropertyToBuyers] Updated ${updated} matches, created ${created} new matches, synced ${synced} to GHL, failed ${failed}`);
 
       // Step 4: Sync server-side cache
       try {
@@ -313,15 +323,21 @@ export function SendPropertyToBuyersModal({
         console.warn('[SendPropertyToBuyers] Failed to sync server cache:', cacheError);
       }
 
-      // Step 5: Invalidate queries so UI updates
-      queryClient.invalidateQueries({ queryKey: ['deals'] });
-      queryClient.invalidateQueries({ queryKey: ['pipeline-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['deals-by-stage'] });
-      queryClient.invalidateQueries({ queryKey: ['deals-by-buyer'] });
-      queryClient.invalidateQueries({ queryKey: ['stale-deals'] });
-      queryClient.invalidateQueries({ queryKey: ['buyers-with-matches'] });
-      queryClient.invalidateQueries({ queryKey: ['property-buyers'] });
-      queryClient.invalidateQueries({ queryKey: ['cache', 'matches'] });
+      // Step 5: Invalidate and refetch queries so UI updates immediately
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['deals'] }),
+        queryClient.invalidateQueries({ queryKey: ['pipeline-stats'] }),
+        queryClient.invalidateQueries({ queryKey: ['deals-by-stage'] }),
+        queryClient.invalidateQueries({ queryKey: ['deals-by-buyer'] }),
+        queryClient.invalidateQueries({ queryKey: ['stale-deals'] }),
+        queryClient.invalidateQueries({ queryKey: ['buyers-with-matches'] }),
+        queryClient.invalidateQueries({ queryKey: ['buyer-properties'] }),
+        queryClient.invalidateQueries({ queryKey: ['property-buyers'] }),
+        queryClient.invalidateQueries({ queryKey: ['cache', 'matches'] }),
+      ]);
+
+      // Force refetch of the property's buyers to update UI immediately
+      await queryClient.refetchQueries({ queryKey: ['property-buyers'] });
 
       // Step 6: Show success toast
       const sentDescription = sentMethods.join(' & ') + ' sent';
@@ -338,6 +354,11 @@ export function SendPropertyToBuyersModal({
           },
         }
       );
+
+      // Warn if any updates/creates failed so the user can investigate
+      if (typeof failed === 'number' && failed > 0) {
+        toast.error(`${failed} match${failed === 1 ? '' : 'es'} failed to update — check console or server logs`);
+      }
 
       // Call success callback
       onSendSuccess?.();

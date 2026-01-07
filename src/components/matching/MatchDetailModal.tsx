@@ -34,20 +34,17 @@ import {
   extractReasoningSummary,
 } from '@/components/matching/MatchTags';
 import { DealProgressKanban } from './DealProgressKanban';
-import { MatchActivityTimeline } from './MatchActivityTimeline';
 import { MatchQuickActions } from './MatchQuickActions';
 import {
   PropertyMatch,
   PropertyDetails,
   BuyerCriteria,
-  MatchActivity,
 } from '@/types/matching';
 import { MatchDealStage } from '@/types/associations';
 
 export interface MatchWithDetails extends PropertyMatch {
   property?: PropertyDetails;
   buyer?: BuyerCriteria;
-  activities?: MatchActivity[];
 }
 
 interface MatchDetailModalProps {
@@ -82,7 +79,7 @@ export function MatchDetailModal({
     navigate(`/deals?dealId=${match.id}`);
   };
 
-  const { property, buyer, activities = [] } = match;
+  const { property, buyer } = match;
 
   const handleStageChange = async (newStage: MatchDealStage) => {
     if (!onStageChange) return;
@@ -295,16 +292,6 @@ export function MatchDetailModal({
                 <Separator />
               </>
             )}
-
-            {/* Activity Timeline Section */}
-            <div>
-              <h3 className="text-base font-semibold mb-4">Activity History</h3>
-              <MatchActivityTimeline
-                activities={activities}
-                maxVisible={5}
-                showDateGroups={true}
-              />
-            </div>
 
             {/* Property Notes */}
             {property?.notes && (

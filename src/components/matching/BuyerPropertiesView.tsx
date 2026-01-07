@@ -37,6 +37,7 @@ import {
   TrendingUp,
   CheckCircle,
   XCircle,
+  Calendar,
 } from 'lucide-react';
 import { useBuyerProperties, useBuyersList } from '@/services/matchingApi';
 import { useNavigate } from 'react-router-dom';
@@ -69,8 +70,15 @@ function PropertyCard({
   onToggleSelect,
   onViewDetails,
 }: PropertyCardProps) {
-  const { property, score, currentStage } = scoredProperty;
+  const { property, score, currentStage, dateSent } = scoredProperty;
   const isInPipeline = !!currentStage;
+
+  // Format date sent for display
+  const formatDateSent = (dateStr?: string) => {
+    if (!dateStr) return null;
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
 
   // Generate highlight tags for explore section
   const getExploreHighlights = () => {
@@ -143,10 +151,18 @@ function PropertyCard({
         </div>
       )}
 
-      {/* Stage Badge - Top Right */}
-      {isInPipeline && currentStage && (
-        <div className="absolute top-3 right-3 z-10">
-          <StageBadge stage={currentStage} size="sm" showIcon className="shadow-sm" />
+      {/* Stage Badge and Date Sent - Top Right */}
+      {isInPipeline && (currentStage || dateSent) && (
+        <div className="absolute top-3 right-3 z-10 flex flex-col gap-1 items-end">
+          {currentStage && (
+            <StageBadge stage={currentStage} size="sm" showIcon className="shadow-sm" />
+          )}
+          {dateSent && (
+            <Badge variant="outline" className="text-xs border-blue-200 text-blue-700 bg-blue-50 shadow-sm">
+              <Calendar className="h-3 w-3 mr-1" />
+              Sent {formatDateSent(dateSent)}
+            </Badge>
+          )}
         </div>
       )}
 

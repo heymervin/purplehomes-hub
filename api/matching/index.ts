@@ -2055,6 +2055,7 @@ async function handleBuyerProperties(
         // Include match record info if it exists
         matchId: existingMatch?.id || undefined,
         currentStage: existingMatch?.fields['Match Stage'] || undefined,
+        dateSent: existingMatch?.fields['Date Sent'] || undefined,
       };
     });
 
@@ -2284,6 +2285,7 @@ async function handlePropertyBuyers(
         // Include match record info if it exists
         matchId: existingMatch?.id || undefined,
         currentStage: existingMatch?.fields['Match Stage'] || undefined,
+        dateSent: existingMatch?.fields['Date Sent'] || undefined,
       };
     });
 

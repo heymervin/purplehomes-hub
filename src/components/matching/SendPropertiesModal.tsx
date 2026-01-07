@@ -42,10 +42,11 @@ async function updateMatchStages(
   properties: ScoredProperty[],
   activityType: MatchActivityType = 'email-sent',
   customMessage?: string
-): Promise<{ updated: number; created: number; synced: number }> {
+): Promise<{ updated: number; created: number; synced: number; failed: number }> {
   let updated = 0;
   let created = 0;
   let synced = 0;
+  let failed = 0;
 
   // Determine the activity details based on type
   const activityDetails = activityType === 'sms-sent'
@@ -106,6 +107,10 @@ async function updateMatchStages(
 
         if (updateResponse.ok) {
           updated++;
+        } else {
+          const errText = await updateResponse.text().catch(() => null);
+          console.error('[SendProperties] Failed to update match', sp.matchId, updateResponse.status, errText);
+          failed++;
         }
       } else {
         // Create new match record
@@ -133,6 +138,10 @@ async function updateMatchStages(
 
         if (createResponse.ok) {
           created++;
+        } else {
+          const errText = await createResponse.text().catch(() => null);
+          console.error('[SendProperties] Failed to create match for property', sp.property.address, createResponse.status, errText);
+          failed++;
         }
       }
 
@@ -160,7 +169,7 @@ async function updateMatchStages(
     }
   }
 
-  return { updated, created, synced };
+  return { updated, created, synced, failed };
 }
 
 export function SendPropertiesModal({
@@ -263,14 +272,14 @@ export function SendPropertiesModal({
         : 'email-sent';
 
       // Step 3: Update match stages (this creates deals in the pipeline)
-      const { updated, created, synced } = await updateMatchStages(
+      const { updated, created, synced, failed } = await updateMatchStages(
         buyer,
         properties,
         activityType,
         customMessage
       );
 
-      console.log(`[SendProperties] Updated ${updated} matches, created ${created} new matches, synced ${synced} to GHL`);
+      console.log(`[SendProperties] Updated ${updated} matches, created ${created} new matches, synced ${synced} to GHL, failed ${failed}`);
 
       // Step 4: Sync server-side cache so matching page reflects changes
       try {
@@ -284,15 +293,21 @@ export function SendPropertiesModal({
         console.warn('[SendProperties] Failed to sync server cache:', cacheError);
       }
 
-      // Step 5: Invalidate queries so UI updates
-      queryClient.invalidateQueries({ queryKey: ['deals'] });
-      queryClient.invalidateQueries({ queryKey: ['pipeline-stats'] });
-      queryClient.invalidateQueries({ queryKey: ['deals-by-stage'] });
-      queryClient.invalidateQueries({ queryKey: ['deals-by-buyer'] });
-      queryClient.invalidateQueries({ queryKey: ['stale-deals'] });
-      queryClient.invalidateQueries({ queryKey: ['buyers-with-matches'] });
-      queryClient.invalidateQueries({ queryKey: ['buyer-properties'] });
-      queryClient.invalidateQueries({ queryKey: ['cache', 'matches'] });
+      // Step 5: Invalidate and refetch queries so UI updates immediately
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['deals'] }),
+        queryClient.invalidateQueries({ queryKey: ['pipeline-stats'] }),
+        queryClient.invalidateQueries({ queryKey: ['deals-by-stage'] }),
+        queryClient.invalidateQueries({ queryKey: ['deals-by-buyer'] }),
+        queryClient.invalidateQueries({ queryKey: ['stale-deals'] }),
+        queryClient.invalidateQueries({ queryKey: ['buyers-with-matches'] }),
+        queryClient.invalidateQueries({ queryKey: ['buyer-properties'] }),
+        queryClient.invalidateQueries({ queryKey: ['property-buyers'] }),
+        queryClient.invalidateQueries({ queryKey: ['cache', 'matches'] }),
+      ]);
+
+      // Force refetch of the buyer's properties to update UI immediately
+      await queryClient.refetchQueries({ queryKey: ['buyer-properties'] });
 
       // Step 6: Show success toast with View in Pipeline action
       const sentDescription = sentMethods.join(' & ') + ' sent';
@@ -309,7 +324,9 @@ export function SendPropertiesModal({
           },
         }
       );
-
+      if (typeof failed === 'number' && failed > 0) {
+        toast.error(`${failed} match${failed === 1 ? '' : 'es'} failed to update — check console or server logs`);
+      }
       // Call success callback
       onSendSuccess?.();
 

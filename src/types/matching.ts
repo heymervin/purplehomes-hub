@@ -4,7 +4,7 @@
 
 import { MatchDealStage } from './associations';
 
-export { MatchDealStage } from './associations';
+export type { MatchDealStage } from './associations';
 
 export interface BuyerCriteria {
   contactId: string;
@@ -195,6 +195,7 @@ export interface ScoredProperty {
   score: MatchScore;
   currentStage?: string;  // Current deal stage
   matchId?: string;       // Reference to match record
+  dateSent?: string;      // ISO date when property was sent to buyer
 }
 
 /**
@@ -220,6 +221,7 @@ export interface ScoredBuyer {
   score: MatchScore;
   currentStage?: string;  // Current deal stage
   matchId?: string;       // Reference to match record
+  dateSent?: string;      // ISO date when property was sent to buyer
 }
 
 /**

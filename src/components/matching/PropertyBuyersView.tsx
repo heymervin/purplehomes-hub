@@ -34,6 +34,7 @@ import {
   Mail,
   Eye,
   TrendingUp,
+  Calendar,
 } from 'lucide-react';
 import { usePropertyBuyers, usePropertiesWithMatches } from '@/services/matchingApi';
 import { useNavigate } from 'react-router-dom';
@@ -55,9 +56,16 @@ interface BuyerCardProps {
 }
 
 function BuyerCard({ scoredBuyer, property, onViewDetails, isSelected, onToggleSelect }: BuyerCardProps) {
-  const { buyer, score, currentStage } = scoredBuyer;
+  const { buyer, score, currentStage, dateSent } = scoredBuyer;
   const isInPipeline = !!currentStage;
   const canSelect = onToggleSelect && !isInPipeline;
+
+  // Format date sent for display
+  const formatDateSent = (dateStr?: string) => {
+    if (!dateStr) return null;
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
 
   // Calculate budget ratio if available
   const getBudgetInfo = () => {
@@ -202,6 +210,14 @@ function BuyerCard({ scoredBuyer, property, onViewDetails, isSelected, onToggleS
             {/* Stage Badge */}
             {isInPipeline && currentStage && (
               <StageBadge stage={currentStage as MatchDealStage} size="sm" showIcon />
+            )}
+
+            {/* Date Sent */}
+            {dateSent && (
+              <Badge variant="outline" className="text-xs border-blue-200 text-blue-700 bg-blue-50">
+                <Calendar className="h-3 w-3 mr-1" />
+                Sent {formatDateSent(dateSent)}
+              </Badge>
             )}
           </div>
 
