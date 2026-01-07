@@ -109,6 +109,51 @@ export const useNewBuyers = (pageSize: number = 5) => {
 };
 
 /**
+ * Fetch new properties sorted by createdAt date (most recent first)
+ */
+export const useNewProperties = (pageSize: number = 5) => {
+  return useQuery({
+    queryKey: ['new-properties', pageSize],
+    queryFn: async (): Promise<{ data: PropertyWithMatches[] }> => {
+      console.log('[Matching API] Fetching new properties', 'pageSize:', pageSize);
+
+      const params = new URLSearchParams({
+        action: 'aggregated-properties',
+        limit: '100', // Fetch more to ensure we have enough with createdAt
+      });
+
+      const response = await fetch(`${MATCHING_API_BASE}?${params}`);
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to fetch properties' }));
+        throw new Error(error.error || 'Failed to fetch new properties');
+      }
+
+      const result = await response.json();
+
+      console.log('[Matching API] Properties fetched for new properties list:', {
+        count: result.data?.length || 0,
+      });
+
+      // Filter properties with createdAt and sort by most recent
+      const propertiesWithDate = (result.data || [])
+        .filter((property: PropertyWithMatches) => property.createdAt)
+        .sort((a: PropertyWithMatches, b: PropertyWithMatches) => {
+          const dateA = new Date(a.createdAt!).getTime();
+          const dateB = new Date(b.createdAt!).getTime();
+          return dateB - dateA; // Most recent first
+        })
+        .slice(0, pageSize);
+
+      return {
+        data: propertiesWithDate,
+      };
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+/**
  * Fetch all properties with their matches using optimized aggregated endpoint
  * This solves the N+1 query problem by doing server-side aggregation
  */
@@ -1007,9 +1052,9 @@ export const useMatchStats = () => {
 
 // ============ MATCHING PREFERENCES ============
 
-const DEFAULT_PREFERENCES: MatchingPreferences = {
-  budgetMultiplier: 8,
-};
+import { DEFAULT_MATCHING_PREFERENCES } from '@/types/matching';
+
+const DEFAULT_PREFERENCES: MatchingPreferences = DEFAULT_MATCHING_PREFERENCES;
 
 /**
  * Fetch matching preferences
@@ -1068,4 +1113,28 @@ export const useUpdateMatchingPreferences = () => {
       queryClient.invalidateQueries({ queryKey: ['matching-preferences'] });
     },
   });
+};
+
+// ============ ZILLOW SETTINGS CONVENIENCE HOOKS ============
+
+/**
+ * Get Zillow search settings from matching preferences
+ * Convenience hook for Zillow search components
+ */
+export const useZillowSettings = () => {
+  const { data } = useMatchingPreferences();
+  return {
+    maxPrice: data?.zillowMaxPrice ?? DEFAULT_PREFERENCES.zillowMaxPrice,
+    minDays: data?.zillowMinDays ?? DEFAULT_PREFERENCES.zillowMinDays,
+    keywords: data?.zillowKeywords ?? DEFAULT_PREFERENCES.zillowKeywords,
+  };
+};
+
+/**
+ * Get budget multiplier from matching preferences
+ * Convenience hook for budget calculation
+ */
+export const useBudgetMultiplier = () => {
+  const { data } = useMatchingPreferences();
+  return data?.budgetMultiplier ?? DEFAULT_PREFERENCES.budgetMultiplier;
 };

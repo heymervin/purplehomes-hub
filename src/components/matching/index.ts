@@ -20,6 +20,10 @@ export type { MatchWithDetails } from './MatchDetailModal';
 export { StageBadge } from './StageBadge';
 export { EnhancedMatchDetailModal } from './EnhancedMatchDetailModal';
 
+// Summary components
+export { MatchingSummary } from './MatchingSummary';
+export { PropertyMatchingSummary } from './PropertyMatchingSummary';
+
 // Zillow integration components
 export { SourceBadge } from './SourceBadge';
 export { ZillowTypeBadge } from './ZillowTypeBadge';

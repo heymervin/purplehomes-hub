@@ -8,6 +8,7 @@ import { useRunMatching, useClearMatches } from '@/services/matchingApi';
 import { BuyerPropertiesView } from '@/components/matching/BuyerPropertiesView';
 import { PropertyBuyersView } from '@/components/matching/PropertyBuyersView';
 import { MatchingSummary } from '@/components/matching/MatchingSummary';
+import { PropertyMatchingSummary } from '@/components/matching/PropertyMatchingSummary';
 import { useMatchingData } from '@/hooks/useCache';
 import { toast } from 'sonner';
 import {
@@ -366,9 +367,8 @@ export default function Matching() {
           <TabsContent value="by-property" className="mt-6">
             {!selectedPropertyCode ? (
               <div className="space-y-6">
-                <MatchingSummary
-                  onSelectBuyer={handleSelectBuyer}
-                  onViewProperty={handleSelectProperty}
+                <PropertyMatchingSummary
+                  onSelectProperty={handleSelectProperty}
                 />
 
                 {/* Manual Selection Section */}

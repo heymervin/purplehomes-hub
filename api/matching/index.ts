@@ -2450,6 +2450,9 @@ async function handleMatchStats(
 const PREFERENCES_TABLE = 'Matching Preferences';
 const DEFAULT_PREFERENCES = {
   budgetMultiplier: 8,
+  zillowMaxPrice: 275000,
+  zillowMinDays: 90,
+  zillowKeywords: 'seller finance OR owner finance OR bond for deed',
 };
 
 /**
@@ -2482,6 +2485,9 @@ async function handleGetPreferences(
     const record = data.records[0];
     const preferences = {
       budgetMultiplier: record.fields['Budget Multiplier'] ?? DEFAULT_PREFERENCES.budgetMultiplier,
+      zillowMaxPrice: record.fields['Zillow Max Price'] ?? DEFAULT_PREFERENCES.zillowMaxPrice,
+      zillowMinDays: record.fields['Zillow Min Days'] ?? DEFAULT_PREFERENCES.zillowMinDays,
+      zillowKeywords: record.fields['Zillow Keywords'] ?? DEFAULT_PREFERENCES.zillowKeywords,
     };
 
     console.log('[Matching Preferences] Returning preferences:', preferences);
@@ -2504,19 +2510,30 @@ async function handleUpdatePreferences(
   headers: any
 ): Promise<VercelResponse> {
   try {
-    const { budgetMultiplier } = req.body;
+    const { budgetMultiplier, zillowMaxPrice, zillowMinDays, zillowKeywords } = req.body;
 
-    console.log('[Matching Preferences] Updating preferences:', { budgetMultiplier });
+    console.log('[Matching Preferences] Updating preferences:', {
+      budgetMultiplier,
+      zillowMaxPrice,
+      zillowMinDays,
+      zillowKeywords
+    });
 
     // First, check if record exists
     const listUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${encodeURIComponent(PREFERENCES_TABLE)}?maxRecords=1`;
     const listResponse = await fetch(listUrl, { headers });
     const listData = await listResponse.json();
 
+    // Build fields object, only including provided values
     const fields: Record<string, any> = {
-      'Budget Multiplier': budgetMultiplier,
       'Updated At': new Date().toISOString(),
     };
+
+    // Only include fields that were provided in the request
+    if (budgetMultiplier !== undefined) fields['Budget Multiplier'] = budgetMultiplier;
+    if (zillowMaxPrice !== undefined) fields['Zillow Max Price'] = zillowMaxPrice;
+    if (zillowMinDays !== undefined) fields['Zillow Min Days'] = zillowMinDays;
+    if (zillowKeywords !== undefined) fields['Zillow Keywords'] = zillowKeywords;
 
     let url: string;
     let method: string;
@@ -2555,7 +2572,7 @@ async function handleUpdatePreferences(
     console.log('[Matching Preferences] Preferences saved successfully');
     return res.status(200).json({
       success: true,
-      preferences: { budgetMultiplier },
+      preferences: { budgetMultiplier, zillowMaxPrice, zillowMinDays, zillowKeywords },
     });
   } catch (error) {
     console.error('[Matching Preferences] Update error:', error);

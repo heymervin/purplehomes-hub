@@ -242,8 +242,22 @@ export interface PropertyBuyersResponse {
 export interface MatchingPreferences {
   id?: string;
   budgetMultiplier: number; // Default: 8
+  // Zillow Search Settings
+  zillowMaxPrice: number; // Default: 275000 - Max price for 90+ Days search
+  zillowMinDays: number; // Default: 90 - Min days on market for 90+ Days search
+  zillowKeywords: string; // Default: 'seller finance OR owner finance OR bond for deed'
   updatedAt?: string;
 }
+
+/**
+ * Default matching preferences
+ */
+export const DEFAULT_MATCHING_PREFERENCES: MatchingPreferences = {
+  budgetMultiplier: 8,
+  zillowMaxPrice: 275000,
+  zillowMinDays: 90,
+  zillowKeywords: 'seller finance OR owner finance OR bond for deed',
+};
 
 /**
  * Source filter options (excludes Zillow which has its own section)
