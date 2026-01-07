@@ -2525,9 +2525,7 @@ async function handleUpdatePreferences(
     const listData = await listResponse.json();
 
     // Build fields object, only including provided values
-    const fields: Record<string, any> = {
-      'Updated At': new Date().toISOString(),
-    };
+    const fields: Record<string, any> = {};
 
     // Only include fields that were provided in the request
     if (budgetMultiplier !== undefined) fields['Budget Multiplier'] = budgetMultiplier;
