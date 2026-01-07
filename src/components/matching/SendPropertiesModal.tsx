@@ -98,7 +98,7 @@ async function updateMatchStages(
             body: JSON.stringify({
               fields: {
                 'Match Stage': 'Sent to Buyer',
-                'Date Sent': new Date().toISOString(),
+                'Date Sent': new Date().toISOString().split('T')[0],
                 Activities: JSON.stringify([...currentActivities, newActivity]),
               },
             }),
@@ -127,7 +127,7 @@ async function updateMatchStages(
                 'Match Notes': sp.score.reasoning || '',
                 'Match Status': 'Active',
                 'Match Stage': 'Sent to Buyer',
-                'Date Sent': new Date().toISOString(),
+                'Date Sent': new Date().toISOString().split('T')[0],
                 'Is Priority': sp.score.isPriority || false,
                 'Distance': sp.score.distanceMiles || null,
                 Activities: JSON.stringify([newActivity]),
@@ -309,29 +309,43 @@ export function SendPropertiesModal({
       // Force refetch of the buyer's properties to update UI immediately
       await queryClient.refetchQueries({ queryKey: ['buyer-properties'] });
 
-      // Step 6: Show success toast with View in Pipeline action
+      // Step 6: Show appropriate toast based on results
       const sentDescription = sentMethods.join(' & ') + ' sent';
-      toast.success(
-        `Sent ${properties.length} ${properties.length === 1 ? 'property' : 'properties'} to ${buyer.firstName}!`,
-        {
-          description: synced > 0
-            ? `${sentDescription} • ${updated + created} deals added to pipeline • Synced to GHL`
-            : `${sentDescription} • ${updated + created} deals added to pipeline`,
-          duration: 6000,
-          action: {
-            label: 'View in Pipeline',
-            onClick: () => navigate('/deals'),
-          },
-        }
-      );
-      if (typeof failed === 'number' && failed > 0) {
-        toast.error(`${failed} match${failed === 1 ? '' : 'es'} failed to update — check console or server logs`);
-      }
-      // Call success callback
-      onSendSuccess?.();
+      const totalSuccessful = updated + created;
 
-      // Close modal
-      onOpenChange(false);
+      if (totalSuccessful > 0) {
+        // At least some operations succeeded
+        toast.success(
+          `Sent ${properties.length} ${properties.length === 1 ? 'property' : 'properties'} to ${buyer.firstName}!`,
+          {
+            description: synced > 0
+              ? `${sentDescription} • ${totalSuccessful} deals added to pipeline • Synced to GHL`
+              : `${sentDescription} • ${totalSuccessful} deals added to pipeline`,
+            duration: 6000,
+            action: {
+              label: 'View in Pipeline',
+              onClick: () => navigate('/deals'),
+            },
+          }
+        );
+
+        if (failed > 0) {
+          toast.error(`${failed} match${failed === 1 ? '' : 'es'} failed to update — check console or server logs`);
+        }
+
+        // Call success callback and close modal
+        onSendSuccess?.();
+        onOpenChange(false);
+      } else {
+        // All operations failed
+        toast.error(
+          `Failed to send ${properties.length === 1 ? 'property' : 'properties'}`,
+          {
+            description: 'Could not update match records. Check console or server logs for details.',
+            duration: 8000,
+          }
+        );
+      }
 
       // Reset form
       setCustomMessage('');
