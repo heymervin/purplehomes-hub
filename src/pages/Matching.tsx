@@ -9,6 +9,8 @@ import { BuyerPropertiesView } from '@/components/matching/BuyerPropertiesView';
 import { PropertyBuyersView } from '@/components/matching/PropertyBuyersView';
 import { MatchingSummary } from '@/components/matching/MatchingSummary';
 import { PropertyMatchingSummary } from '@/components/matching/PropertyMatchingSummary';
+import { AllBuyersSection } from '@/components/matching/AllBuyersSection';
+import { AllPropertiesSection } from '@/components/matching/AllPropertiesSection';
 import { useMatchingData } from '@/hooks/useCache';
 import { toast } from 'sonner';
 import {
@@ -307,17 +309,8 @@ export default function Matching() {
                   onViewProperty={handleSelectProperty}
                 />
 
-                {/* Manual Selection Section */}
-                <div className="border-t pt-6">
-                  <p className="text-sm text-muted-foreground text-center mb-4">
-                    Or select a buyer manually:
-                  </p>
-                  <BuyerPropertiesView
-                    selectedBuyerId={selectedBuyerId}
-                    onBuyerSelect={setSelectedBuyerId}
-                    filters={filters}
-                  />
-                </div>
+                {/* All Buyers Section */}
+                <AllBuyersSection onSelectBuyer={handleSelectBuyer} />
               </div>
             ) : (
               <div className="space-y-4">
@@ -347,17 +340,8 @@ export default function Matching() {
                   onSelectProperty={handleSelectProperty}
                 />
 
-                {/* Manual Selection Section */}
-                <div className="border-t pt-6">
-                  <p className="text-sm text-muted-foreground text-center mb-4">
-                    Or select a property manually:
-                  </p>
-                  <PropertyBuyersView
-                    selectedPropertyCode={selectedPropertyCode}
-                    onPropertySelect={setSelectedPropertyCode}
-                    filters={filters}
-                  />
-                </div>
+                {/* All Properties Section */}
+                <AllPropertiesSection onSelectProperty={handleSelectProperty} />
               </div>
             ) : (
               <div className="space-y-4">
