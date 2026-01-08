@@ -3,7 +3,7 @@
  * Uses configurable settings from Airtable/Settings page
  */
 
-import { AffordabilitySettings, DEFAULT_AFFORDABILITY_SETTINGS } from '@/types/matching';
+import { AffordabilitySettings, DEFAULT_AFFORDABILITY_SETTINGS } from '../types/matching';
 
 /**
  * Calculate maximum affordable price based on down payment and settings

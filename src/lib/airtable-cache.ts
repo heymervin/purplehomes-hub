@@ -3,7 +3,7 @@
  * Uses existing "System Cache" table for 24-hour caching
  */
 
-import type { ZillowListing, ZillowSearchType } from '@/types/zillow';
+import type { ZillowListing, ZillowSearchType } from '../types/zillow';
 
 const AIRTABLE_API_URL = 'https://api.airtable.com/v0';
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;

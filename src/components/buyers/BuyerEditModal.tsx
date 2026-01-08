@@ -47,11 +47,9 @@ import { toast } from 'sonner';
 import { useUpdateBuyer, useRematchBuyer } from '@/services/buyersApi';
 import type { BuyerRecord, BuyerFormData } from '@/types/buyer';
 import {
-  BUYER_TYPE_OPTIONS,
   LANGUAGE_OPTIONS,
   BEDS_OPTIONS,
   BATHS_OPTIONS,
-  STATE_OPTIONS,
   buyerToFormData,
   formatCurrency,
 } from '@/types/buyer';
@@ -321,13 +319,14 @@ export function BuyerEditModal({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="preferredLocation">Preferred Location</Label>
+                  <Label htmlFor="preferredLocation">Preferred City</Label>
                   <Input
                     id="preferredLocation"
                     value={formData.preferredLocation}
                     onChange={(e) => updateField('preferredLocation', e.target.value)}
-                    placeholder="Metairie, LA"
+                    placeholder="New Orleans, Metairie, Baton Rouge"
                   />
+                  <p className="text-xs text-muted-foreground">Multiple values can be entered, separated by commas</p>
                 </div>
 
                 <div className="space-y-2">
@@ -341,54 +340,6 @@ export function BuyerEditModal({
                   <p className="text-xs text-muted-foreground">Comma-separated ZIP codes</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      value={formData.city}
-                      onChange={(e) => updateField('city', e.target.value)}
-                      placeholder="Metairie"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="state">State</Label>
-                    <Select
-                      value={formData.state}
-                      onValueChange={(v) => updateField('state', v)}
-                    >
-                      <SelectTrigger id="state">
-                        <SelectValue placeholder="Select..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {STATE_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="buyerType">Buyer Type</Label>
-                  <Select
-                    value={formData.buyerType}
-                    onValueChange={(v) => updateField('buyerType', v)}
-                  >
-                    <SelectTrigger id="buyerType">
-                      <SelectValue placeholder="Select..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {BUYER_TYPE_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
               </TabsContent>
 
               {/* Financials Tab */}

@@ -4,8 +4,8 @@
  */
 
 import { ApifyClient } from 'apify-client';
-import type { BuyerCriteria } from '@/types/matching';
-import type { ZillowListing, ZillowSearchType } from '@/types/zillow';
+import type { BuyerCriteria } from '../types/matching';
+import type { ZillowListing, ZillowSearchType } from '../types/zillow';
 
 // Initialize Apify client
 const client = new ApifyClient({
