@@ -135,6 +135,8 @@ export function getMissingCriteria(buyer: BuyerRecord): string[] {
   if (!buyer.desiredBaths) missing.push('Bathrooms');
   if (!buyer.preferredLocation && !buyer.city) missing.push('Location');
   if (!buyer.downPayment) missing.push('Down Payment');
+  if (!buyer.monthlyIncome) missing.push('Monthly Income');
+  if (!buyer.monthlyLiabilities) missing.push('Monthly Liabilities');
   return missing;
 }
 

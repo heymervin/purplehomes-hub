@@ -301,10 +301,8 @@ async function handleUpdate(
   }
 
   try {
-    // Build Airtable update payload
-    const airtableFields: Record<string, any> = {
-      'Last Updated': new Date().toISOString(),
-    };
+    // Build Airtable update payload (Last Updated is automated in Airtable)
+    const airtableFields: Record<string, any> = {};
 
     // Map form fields to Airtable columns
     if (fields.firstName !== undefined) airtableFields['First Name'] = fields.firstName;
