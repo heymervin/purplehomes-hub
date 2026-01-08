@@ -47,13 +47,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { MatchScoreBadge } from '@/components/matching/MatchScoreBadge';
+import { MatchScoreBadge } from './MatchScoreBadge';
 import { StageBadge } from './StageBadge';
 import {
   ScoreBreakdown,
   MatchDetailsList,
   extractReasoningSummary,
-} from '@/components/matching/MatchTags';
+} from './MatchTags';
 import { DealProgressKanban } from './DealProgressKanban';
 import { MatchNotesPanel, type NoteEntry } from './MatchNotesPanel';
 import { AIInsightCard } from './AIInsightCard';
@@ -67,7 +67,7 @@ import { MatchDealStage } from '@/types/associations';
 import type { Deal } from '@/types/deals';
 import { DealCalculatorModal } from '@/components/calculator';
 
-export interface MatchWithDetails extends PropertyMatch {
+export interface EnhancedMatchWithDetails extends PropertyMatch {
   property?: PropertyDetails;
   buyer?: BuyerCriteria;
   activities?: MatchActivity[];
@@ -75,7 +75,7 @@ export interface MatchWithDetails extends PropertyMatch {
 }
 
 interface EnhancedMatchDetailModalProps {
-  match: MatchWithDetails | null;
+  match: EnhancedMatchWithDetails | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onStageChange?: (matchId: string, newStage: MatchDealStage) => Promise<void>;

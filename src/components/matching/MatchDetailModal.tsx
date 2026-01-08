@@ -27,12 +27,12 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { MatchScoreBadge } from '@/components/matching/MatchScoreBadge';
+import { MatchScoreBadge } from './MatchScoreBadge';
 import {
   ScoreBreakdown,
   MatchDetailsList,
   extractReasoningSummary,
-} from '@/components/matching/MatchTags';
+} from './MatchTags';
 import { DealProgressKanban } from './DealProgressKanban';
 import { MatchQuickActions } from './MatchQuickActions';
 import {

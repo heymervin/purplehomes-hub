@@ -19,6 +19,7 @@ export { MatchDetailModal } from './MatchDetailModal';
 export type { MatchWithDetails } from './MatchDetailModal';
 export { StageBadge } from './StageBadge';
 export { EnhancedMatchDetailModal } from './EnhancedMatchDetailModal';
+export type { EnhancedMatchWithDetails } from './EnhancedMatchDetailModal';
 
 // Summary components
 export { MatchingSummary } from './MatchingSummary';
