@@ -286,6 +286,17 @@ export interface MatchFilters {
 }
 
 /**
+ * UI-level matching filters used by the Matching page components
+ */
+export interface MatchingFilters {
+  search: string;
+  minScore: string;
+  beds: string;
+  priorityOnly: boolean;
+  matchStatus: string;
+}
+
+/**
  * Scored property for buyer-properties endpoint
  */
 export interface ScoredProperty {

@@ -128,6 +128,11 @@ function isMatchingAction(action: string | undefined): boolean {
     'aggregated-buyers',
     'aggregated-properties',
     'clear',
+    'buyer-properties',
+    'property-buyers',
+    'match-stats',
+    'get-preferences',
+    'update-preferences',
   ];
   return matchingActions.includes(action);
 }

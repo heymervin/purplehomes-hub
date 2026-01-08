@@ -7,7 +7,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import type { MatchingFilters } from '@/pages/Matching';
+import type { MatchingFilters } from '@/types/matching';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';

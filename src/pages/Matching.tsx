@@ -23,6 +23,7 @@ import {
   FilterCheckbox,
   FilterBar,
 } from '@/components/filters';
+import type { MatchingFilters } from '@/types/matching';
 
 // Filter options
 const MIN_SCORE_OPTIONS = [
@@ -47,14 +48,6 @@ const MATCH_STATUS_OPTIONS = [
   { value: 'ready', label: 'Ready to Send' },
   { value: 'sent', label: 'Already Sent' },
 ];
-
-export interface MatchingFilters {
-  search: string;
-  minScore: string;
-  beds: string;
-  priorityOnly: boolean;
-  matchStatus: string;
-}
 
 export default function Matching() {
   const [searchParams, setSearchParams] = useSearchParams();
