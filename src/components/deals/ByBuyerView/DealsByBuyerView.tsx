@@ -79,7 +79,11 @@ export function DealsByBuyerView({ filters, onViewDeal }: DealsByBuyerViewProps)
           filteredDeals = filteredDeals.filter((deal) => {
             const sentDate = deal.dateSent || deal.createdAt;
             if (!sentDate) return false;
-            return isToday(new Date(sentDate));
+            // Parse date-only strings (YYYY-MM-DD) as local time, not UTC
+            const dateStr = sentDate.split('T')[0];
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const localDate = new Date(year, month - 1, day);
+            return isToday(localDate);
           });
         }
 

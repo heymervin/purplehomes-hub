@@ -91,7 +91,12 @@ export function DealsListView({
         // Use dateSent (when sent to buyer) or fall back to createdAt
         const sentDate = deal.dateSent || deal.createdAt;
         if (!sentDate) return false;
-        return isToday(new Date(sentDate));
+        // Parse date-only strings (YYYY-MM-DD) as local time, not UTC
+        // new Date("2025-01-08") parses as UTC midnight, causing timezone issues
+        const dateStr = sentDate.split('T')[0]; // Get just the date part
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const localDate = new Date(year, month - 1, day);
+        return isToday(localDate);
       });
     }
 
