@@ -129,6 +129,7 @@ function transformMatchToDeal(
     ghlRelationId: match.ghlRelationId,
     createdAt: match.createdAt,
     updatedAt: match.updatedAt || match.createdAt,
+    dateSent: match.dateSent,
     property: match.property as PropertyDetails,
     buyer: buyer,
     isStale: metadata.isStale,
