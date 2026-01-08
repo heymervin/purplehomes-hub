@@ -74,11 +74,12 @@ export function DealsByBuyerView({ filters, onViewDeal }: DealsByBuyerViewProps)
           filteredDeals = filteredDeals.filter((deal) => deal.isStale);
         }
 
-        // Filter by sent today
+        // Filter by sent today - check dateSent field (when deal was sent to buyer)
         if (filters?.sentToday) {
           filteredDeals = filteredDeals.filter((deal) => {
-            if (!deal.createdAt) return false;
-            return isToday(new Date(deal.createdAt));
+            const sentDate = deal.dateSent || deal.createdAt;
+            if (!sentDate) return false;
+            return isToday(new Date(sentDate));
           });
         }
 

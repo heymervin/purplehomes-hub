@@ -235,6 +235,7 @@ export interface PropertyMatch {
   ghlRelationId?: string; // GHL relation ID for syncing
   createdAt?: string;
   updatedAt?: string;
+  dateSent?: string; // ISO date when deal was sent to buyer
 }
 
 export interface BuyerWithMatches extends BuyerCriteria {
