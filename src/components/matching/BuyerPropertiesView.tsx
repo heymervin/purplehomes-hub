@@ -38,6 +38,7 @@ import {
   CheckCircle,
   XCircle,
   Calendar,
+  Send,
 } from 'lucide-react';
 import { useBuyerProperties, useBuyersList, useMatchingPreferences } from '@/services/matchingApi';
 import { useNavigate } from 'react-router-dom';
@@ -49,6 +50,7 @@ import { ZillowOpportunities } from './ZillowOpportunities';
 import { PropertySelectionBar } from './PropertySelectionBar';
 import { SendPropertiesModal } from './SendPropertiesModal';
 import { MatchDetailModal } from './MatchDetailModal';
+import { SentPropertiesModal } from './SentPropertiesModal';
 import { StageBadge } from './StageBadge';
 import type { ScoredProperty, BuyerCriteria, PropertySourceFilter } from '@/types/matching';
 import { ArrowRight } from 'lucide-react';
@@ -335,7 +337,7 @@ export function BuyerPropertiesView({
 
   // Matching preferences for budget multiplier
   const { data: matchingPreferences } = useMatchingPreferences();
-  const budgetMultiplier = matchingPreferences?.budgetMultiplier ?? 8;
+  const budgetMultiplier = matchingPreferences?.budgetMultiplier ?? 20;
 
   // Source and match filter state
   const [sourceFilters, setSourceFilters] = useState<PropertySourceFilter[]>([]);
@@ -494,10 +496,21 @@ export function BuyerPropertiesView({
       });
     }
 
-    // Filter by within budget
-    if (withinBudget && buyerProperties.buyer) {
-      const maxPrice = (buyerProperties.buyer.downPayment || 0) * budgetMultiplier;
-      filtered = filtered.filter((sp) => (sp.property.price || 0) <= maxPrice);
+    // Filter by within budget (down payment should be X% of price)
+    if (withinBudget && buyerProperties.buyer && buyerProperties.buyer.downPayment) {
+      const buyerDownPayment = buyerProperties.buyer.downPayment;
+      const requiredPercentage = budgetMultiplier || 20; // Default to 20%
+
+      filtered = filtered.filter((sp) => {
+        const propertyPrice = sp.property.price || 0;
+        if (propertyPrice === 0) return false;
+
+        // Calculate what % the buyer's down payment is of the property price
+        const downPaymentPercentage = (buyerDownPayment / propertyPrice) * 100;
+
+        // Check if buyer's down payment meets the minimum required percentage
+        return downPaymentPercentage >= requiredPercentage;
+      });
     }
 
     // Sort by score descending
@@ -525,6 +538,9 @@ export function BuyerPropertiesView({
   // State for match detail modal (read-only view)
   const [selectedProperty, setSelectedProperty] = useState<ScoredProperty | null>(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
+
+  // State for sent properties modal
+  const [sentPropertiesModalOpen, setSentPropertiesModalOpen] = useState(false);
 
   // Selection handlers
   const togglePropertySelection = (recordId: string) => {
@@ -557,6 +573,13 @@ export function BuyerPropertiesView({
     if (!buyerProperties) return [];
     return [...buyerProperties.priorityMatches, ...buyerProperties.exploreMatches]
       .filter(sp => !sp.currentStage);
+  }, [buyerProperties]);
+
+  // Calculate sent properties count (those already in pipeline)
+  const sentPropertiesCount = useMemo(() => {
+    if (!buyerProperties) return 0;
+    return [...buyerProperties.priorityMatches, ...buyerProperties.exploreMatches]
+      .filter(sp => sp.currentStage).length;
   }, [buyerProperties]);
 
   return (
@@ -643,7 +666,26 @@ export function BuyerPropertiesView({
                     </Badge>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">{buyerProperties.buyer.email}</p>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                  <span>{buyerProperties.buyer.email}</span>
+                  <span>•</span>
+                  <span>{buyerProperties.totalCount} matches</span>
+                  <span>•</span>
+                  {sentPropertiesCount > 0 ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSentPropertiesModalOpen(true);
+                      }}
+                      className="text-purple-600 hover:text-purple-700 hover:underline font-medium transition-colors inline-flex items-center gap-1"
+                    >
+                      <Send className="h-3 w-3" />
+                      {sentPropertiesCount} sent
+                    </button>
+                  ) : (
+                    <span>0 sent</span>
+                  )}
+                </div>
               </div>
               <div className="flex gap-4 text-sm">
                 {(buyerProperties.buyer.desiredBeds || buyerProperties.buyer.desiredBaths) && (
@@ -953,6 +995,13 @@ export function BuyerPropertiesView({
           }}
         />
       )}
+
+      {/* Sent Properties Modal */}
+      <SentPropertiesModal
+        open={sentPropertiesModalOpen}
+        onOpenChange={setSentPropertiesModalOpen}
+        buyer={buyerProperties?.buyer || null}
+      />
 
       {/* Floating Selection Bar - only show if there are selectable properties */}
       {buyerProperties && selectableProperties.length > 0 && (

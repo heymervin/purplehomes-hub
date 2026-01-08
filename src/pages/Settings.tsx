@@ -68,7 +68,7 @@ export default function Settings() {
   // Matching preferences
   const { data: matchingPreferencesData, isLoading: isLoadingMatchingPrefs } = useMatchingPreferences();
   const updateMatchingPreferences = useUpdateMatchingPreferences();
-  const [localBudgetMultiplier, setLocalBudgetMultiplier] = useState<number>(8);
+  const [localBudgetMultiplier, setLocalBudgetMultiplier] = useState<number>(20);
   const [hasMatchingPrefsChanges, setHasMatchingPrefsChanges] = useState(false);
 
   // Zillow settings (part of matching preferences)
@@ -924,9 +924,9 @@ export default function Settings() {
               ) : (
                 <>
                   <div>
-                    <Label>Budget Multiplier</Label>
+                    <Label>Minimum Down Payment Percentage</Label>
                     <p className="text-sm text-muted-foreground mb-2">
-                      Properties priced up to this multiple of buyer's down payment are considered "Within Budget"
+                      Buyer's down payment must be at least this percentage of the property price to be "Within Budget"
                     </p>
                     <Select
                       value={localBudgetMultiplier.toString()}
@@ -939,18 +939,17 @@ export default function Settings() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="5">5×</SelectItem>
-                        <SelectItem value="6">6×</SelectItem>
-                        <SelectItem value="7">7×</SelectItem>
-                        <SelectItem value="8">8×</SelectItem>
-                        <SelectItem value="10">10×</SelectItem>
-                        <SelectItem value="12">12×</SelectItem>
+                        <SelectItem value="10">10%</SelectItem>
+                        <SelectItem value="15">15%</SelectItem>
+                        <SelectItem value="20">20%</SelectItem>
+                        <SelectItem value="25">25%</SelectItem>
+                        <SelectItem value="30">30%</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-                    <span className="font-medium">💡 Example:</span> Buyer with $40,000 down → Max price: ${(40000 * localBudgetMultiplier).toLocaleString()}
+                    <span className="font-medium">💡 Example:</span> Buyer with $30,000 down at {localBudgetMultiplier}% → Max price: ${Math.round(30000 / (localBudgetMultiplier / 100)).toLocaleString()}
                   </div>
 
                   {hasMatchingPrefsChanges && (

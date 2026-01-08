@@ -349,7 +349,7 @@ export interface PropertyBuyersResponse {
  */
 export interface MatchingPreferences {
   id?: string;
-  budgetMultiplier: number; // Default: 8
+  budgetMultiplier: number; // Minimum down payment percentage (Default: 20%)
 
   // Zillow Search Settings
   zillowMaxPrice: number; // Default: 275000 - Max price for 90+ Days search
@@ -369,7 +369,7 @@ export interface MatchingPreferences {
  * Default matching preferences
  */
 export const DEFAULT_MATCHING_PREFERENCES: MatchingPreferences = {
-  budgetMultiplier: 8,
+  budgetMultiplier: 20,
   zillowMaxPrice: 275000,
   zillowMinDays: 90,
   zillowKeywords: 'seller finance OR owner finance OR bond for deed',

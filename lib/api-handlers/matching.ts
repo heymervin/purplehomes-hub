@@ -2469,7 +2469,7 @@ const DEFAULT_MATCH_FLEXIBILITY = {
 };
 
 const DEFAULT_PREFERENCES = {
-  budgetMultiplier: 8,
+  budgetMultiplier: 20,
   zillowMaxPrice: 275000,
   zillowMinDays: 90,
   zillowKeywords: 'seller finance OR owner finance OR bond for deed',

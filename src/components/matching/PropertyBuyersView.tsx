@@ -380,12 +380,20 @@ export function PropertyBuyersView({
       }
     }
 
-    // Filter by within budget
+    // Filter by within budget (buyer's down payment should be X% of property price)
     if (withinBudget && propertyBuyersData.property?.price) {
       const propertyPrice = propertyBuyersData.property.price;
+      const requiredPercentage = budgetMultiplier || 20; // Default to 20%
+
       allBuyers = allBuyers.filter((sb) => {
-        const budget = (sb.buyer.monthlyIncome || 0) * budgetMultiplier;
-        return budget >= propertyPrice;
+        const buyerDownPayment = sb.buyer.downPayment || 0;
+        if (buyerDownPayment === 0 || propertyPrice === 0) return false;
+
+        // Calculate what % the buyer's down payment is of the property price
+        const downPaymentPercentage = (buyerDownPayment / propertyPrice) * 100;
+
+        // Check if buyer's down payment meets the minimum required percentage
+        return downPaymentPercentage >= requiredPercentage;
       });
     }
 
