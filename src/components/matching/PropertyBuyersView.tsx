@@ -285,6 +285,10 @@ export function PropertyBuyersView({
   const [withinBudget, setWithinBudget] = useState(false);
   const budgetMultiplier = useBudgetMultiplier();
 
+  // Bed/Bath filter state (filters by buyer's desired beds/baths)
+  const [bedsFilter, setBedsFilter] = useState<string>('all'); // 'all', '1', '2', '3', '4', '5'
+  const [bathsFilter, setBathsFilter] = useState<string>('all'); // 'all', '1', '1.5', '2', '2.5', '3'
+
   // Use external state if provided, otherwise use internal state
   const propertyCode = externalPropertyCode !== undefined ? externalPropertyCode : internalPropertyCode;
 
@@ -385,12 +389,42 @@ export function PropertyBuyersView({
       });
     }
 
+    // Filter by buyer's desired beds (EXACT match, not minimum)
+    if (bedsFilter !== 'all') {
+      const exactBeds = parseInt(bedsFilter, 10);
+      allBuyers = allBuyers.filter((sb) => {
+        const desiredBeds = sb.buyer.desiredBeds;
+        if (!desiredBeds) return false;
+        if (bedsFilter === '5') {
+          // 5+ means 5 or more
+          return desiredBeds >= exactBeds;
+        }
+        // Exact match for 1, 2, 3, 4
+        return desiredBeds === exactBeds;
+      });
+    }
+
+    // Filter by buyer's desired baths (EXACT match, not minimum)
+    if (bathsFilter !== 'all') {
+      const exactBaths = parseFloat(bathsFilter);
+      allBuyers = allBuyers.filter((sb) => {
+        const desiredBaths = sb.buyer.desiredBaths;
+        if (!desiredBaths) return false;
+        if (bathsFilter === '3') {
+          // 3+ means 3 or more
+          return desiredBaths >= exactBaths;
+        }
+        // Exact match for 1, 1.5, 2, 2.5
+        return desiredBaths === exactBaths;
+      });
+    }
+
     // Split into interested (score >= 60) and potential (30-59)
     const interested = allBuyers.filter((sb) => sb.score.score >= 60);
     const potential = allBuyers.filter((sb) => sb.score.score < 60);
 
     return { interested, potential, total: allBuyers.length };
-  }, [propertyBuyersData, filters, sameCity, withinBudget, budgetMultiplier]);
+  }, [propertyBuyersData, filters, sameCity, withinBudget, budgetMultiplier, bedsFilter, bathsFilter]);
 
   // For backward compatibility
   const interestedBuyers = filteredBuyers.interested;
@@ -566,12 +600,50 @@ export function PropertyBuyersView({
               💰 Within Budget
             </button>
 
+            {/* Beds Filter Dropdown (filters by buyer's desired beds) */}
+            <Select value={bedsFilter} onValueChange={setBedsFilter}>
+              <SelectTrigger className={cn(
+                "h-8 w-[110px]",
+                bedsFilter !== 'all' && "border-purple-500 bg-purple-50"
+              )}>
+                <SelectValue placeholder="Beds" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any Beds</SelectItem>
+                <SelectItem value="1">1 Bed</SelectItem>
+                <SelectItem value="2">2 Beds</SelectItem>
+                <SelectItem value="3">3 Beds</SelectItem>
+                <SelectItem value="4">4 Beds</SelectItem>
+                <SelectItem value="5">5+ Beds</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Baths Filter Dropdown (filters by buyer's desired baths) */}
+            <Select value={bathsFilter} onValueChange={setBathsFilter}>
+              <SelectTrigger className={cn(
+                "h-8 w-[110px]",
+                bathsFilter !== 'all' && "border-purple-500 bg-purple-50"
+              )}>
+                <SelectValue placeholder="Baths" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any Baths</SelectItem>
+                <SelectItem value="1">1 Bath</SelectItem>
+                <SelectItem value="1.5">1.5 Baths</SelectItem>
+                <SelectItem value="2">2 Baths</SelectItem>
+                <SelectItem value="2.5">2.5 Baths</SelectItem>
+                <SelectItem value="3">3+ Baths</SelectItem>
+              </SelectContent>
+            </Select>
+
             {/* Clear All */}
-            {(sameCity || withinBudget) && (
+            {(sameCity || withinBudget || bedsFilter !== 'all' || bathsFilter !== 'all') && (
               <button
                 onClick={() => {
                   setSameCity(false);
                   setWithinBudget(false);
+                  setBedsFilter('all');
+                  setBathsFilter('all');
                 }}
                 className="ml-auto text-sm text-muted-foreground hover:text-foreground"
               >
