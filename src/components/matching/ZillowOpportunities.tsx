@@ -205,13 +205,6 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
     setSelectedPropertyType(null);
   }, [selectedSearchType]);
 
-  // Filter results by property type (applied on top of match filters)
-  const filteredResults = useMemo(() => {
-    const listingsToFilter = matchFilteredListings.length > 0 ? matchFilteredListings : processedListings;
-    if (!selectedPropertyType) return listingsToFilter;
-    return listingsToFilter.filter(r => r.listing.propertyType === selectedPropertyType);
-  }, [matchFilteredListings, processedListings, selectedPropertyType]);
-
   // Get unique property types with counts for filter dropdown
   const propertyTypeCounts = useMemo(() => {
     if (!data?.results) return {};
@@ -269,6 +262,14 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
     if (!processedListings.length) return [];
     return filterZillowListings(processedListings, filters);
   }, [processedListings, filters]);
+
+  // Filter results by property type (applied on top of match filters)
+  // NOTE: This must come AFTER processedListings and matchFilteredListings are defined
+  const filteredResults = useMemo(() => {
+    const listingsToFilter = matchFilteredListings.length > 0 ? matchFilteredListings : processedListings;
+    if (!selectedPropertyType) return listingsToFilter;
+    return listingsToFilter.filter(r => r.listing.propertyType === selectedPropertyType);
+  }, [matchFilteredListings, processedListings, selectedPropertyType]);
 
   // Get match counts for filter badges
   const matchCounts = useMemo(() => {

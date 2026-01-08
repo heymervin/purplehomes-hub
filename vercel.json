@@ -55,6 +55,9 @@
     },
     "api/zillow/index.ts": {
       "maxDuration": 60
+    },
+    "api/ai/index.ts": {
+      "maxDuration": 30
     }
   }
 }
