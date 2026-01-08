@@ -44,7 +44,7 @@ const DEAL_ACQUISITION_PIPELINE_ID = process.env.GHL_DEAL_ACQUISITION_PIPELINE_I
 const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID;
 const GOOGLE_SHEET_CREDENTIALS = process.env.GOOGLE_SHEET_CREDENTIALS;
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export async function ghlHandler(req: VercelRequest, res: VercelResponse) {
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
   console.log('[GHL API] Request received:', {
     method: req.method,

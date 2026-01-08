@@ -1,6 +1,46 @@
 {
   "rewrites": [
     {
+      "source": "/api/ghl",
+      "destination": "/api?service=ghl"
+    },
+    {
+      "source": "/api/matching",
+      "destination": "/api?service=matching"
+    },
+    {
+      "source": "/api/airtable",
+      "destination": "/api?service=airtable"
+    },
+    {
+      "source": "/api/cache",
+      "destination": "/api?service=cache"
+    },
+    {
+      "source": "/api/buyers",
+      "destination": "/api?service=buyers"
+    },
+    {
+      "source": "/api/insights",
+      "destination": "/api/ai?action=insights"
+    },
+    {
+      "source": "/api/social/generate-caption",
+      "destination": "/api/ai?action=caption"
+    },
+    {
+      "source": "/api/zillow/search",
+      "destination": "/api/zillow?action=search"
+    },
+    {
+      "source": "/api/properties/save-from-zillow",
+      "destination": "/api/zillow?action=save"
+    },
+    {
+      "source": "/api/properties/check-zillow",
+      "destination": "/api/zillow?action=check"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
@@ -10,7 +50,10 @@
     }
   ],
   "functions": {
-    "api/matching/index.ts": {
+    "api/index.ts": {
+      "maxDuration": 60
+    },
+    "api/zillow/index.ts": {
       "maxDuration": 60
     }
   }

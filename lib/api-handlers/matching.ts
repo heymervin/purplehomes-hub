@@ -15,14 +15,14 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { generateMatchScore } from '../../lib/matching/scorer';
-import type { MatchScore } from '../../lib/matching/scorer';
+import { generateMatchScore } from '../matching/scorer';
+import type { MatchScore } from '../matching/scorer';
 import {
   geocodeBuyerLocation,
   geocodePropertyLocation,
   isMapboxConfigured,
   geocode,
-} from '../../lib/mapbox';
+} from '../mapbox';
 import { gunzipSync } from 'zlib';
 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
@@ -41,7 +41,7 @@ function extractZipFromCity(city: string | undefined): string | undefined {
   return match ? match[0] : undefined;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export async function matchingHandler(req: VercelRequest, res: VercelResponse) {
   console.log('[Matching API] Request:', {
     method: req.method,
     action: req.query.action,

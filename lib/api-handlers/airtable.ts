@@ -59,7 +59,7 @@ async function fetchWithRetry(
   throw lastError || new Error('Failed after retries');
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export async function airtableHandler(req: VercelRequest, res: VercelResponse) {
   console.log('[Airtable API] Request:', {
     method: req.method,
     action: req.query.action,
