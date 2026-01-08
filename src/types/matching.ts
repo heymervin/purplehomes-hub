@@ -291,7 +291,6 @@ export interface MatchFilters {
 export interface MatchingFilters {
   search: string;
   minScore: string;
-  beds: string;
   priorityOnly: boolean;
   matchStatus: string;
 }

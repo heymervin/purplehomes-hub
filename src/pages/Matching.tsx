@@ -35,14 +35,6 @@ const MIN_SCORE_OPTIONS = [
   { value: '90', label: '90+' },
 ];
 
-const BEDS_OPTIONS = [
-  { value: 'all', label: 'Any Beds' },
-  { value: '1', label: '1+' },
-  { value: '2', label: '2+' },
-  { value: '3', label: '3+' },
-  { value: '4', label: '4+' },
-];
-
 const MATCH_STATUS_OPTIONS = [
   { value: 'all', label: 'All Matches' },
   { value: 'ready', label: 'Ready to Send' },
@@ -61,7 +53,6 @@ export default function Matching() {
   const [filters, setFilters] = useState<MatchingFilters>({
     search: '',
     minScore: 'all',
-    beds: 'all',
     priorityOnly: false,
     matchStatus: 'all',
   });
@@ -71,7 +62,6 @@ export default function Matching() {
     return (
       filters.search !== '' ||
       filters.minScore !== 'all' ||
-      filters.beds !== 'all' ||
       filters.priorityOnly ||
       filters.matchStatus !== 'all'
     );
@@ -82,7 +72,6 @@ export default function Matching() {
     setFilters({
       search: '',
       minScore: 'all',
-      beds: 'all',
       priorityOnly: false,
       matchStatus: 'all',
     });
@@ -279,12 +268,6 @@ export default function Matching() {
             value={filters.minScore}
             options={MIN_SCORE_OPTIONS}
             onChange={(value) => setFilters((f) => ({ ...f, minScore: value }))}
-          />
-          <FilterSelect
-            label="Beds"
-            value={filters.beds}
-            options={BEDS_OPTIONS}
-            onChange={(value) => setFilters((f) => ({ ...f, beds: value }))}
           />
           <FilterSelect
             label="Status"

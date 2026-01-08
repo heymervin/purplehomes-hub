@@ -342,6 +342,10 @@ export function BuyerPropertiesView({
   const [sameCity, setSameCity] = useState(false);
   const [withinBudget, setWithinBudget] = useState(false);
 
+  // Bed/Bath filter state
+  const [bedsFilter, setBedsFilter] = useState<string>('all'); // 'all', '1', '2', '3', '4', '5'
+  const [bathsFilter, setBathsFilter] = useState<string>('all'); // 'all', '1', '1.5', '2', '2.5', '3'
+
   // Filter toggle handlers
   const toggleSourceFilter = (source: PropertySourceFilter) => {
     setSourceFilters((prev) =>
@@ -355,9 +359,11 @@ export function BuyerPropertiesView({
     setSourceFilters([]);
     setSameCity(false);
     setWithinBudget(false);
+    setBedsFilter('all');
+    setBathsFilter('all');
   };
 
-  const hasActiveFilters = sourceFilters.length > 0 || sameCity || withinBudget;
+  const hasActiveFilters = sourceFilters.length > 0 || sameCity || withinBudget || bedsFilter !== 'all' || bathsFilter !== 'all';
 
   // Filter and sort buyers list
   const filteredBuyersList = useMemo(() => {
@@ -431,10 +437,30 @@ export function BuyerPropertiesView({
       filtered = filtered.filter((sp) => sp.score.score >= minScore);
     }
 
-    // Filter by beds
-    if (filters?.beds && filters.beds !== 'all') {
-      const minBeds = parseInt(filters.beds, 10);
-      filtered = filtered.filter((sp) => sp.property.beds >= minBeds);
+    // Filter by beds (EXACT match, not minimum)
+    if (bedsFilter !== 'all') {
+      const exactBeds = parseInt(bedsFilter, 10);
+      filtered = filtered.filter((sp) => {
+        if (bedsFilter === '5') {
+          // 5+ means 5 or more
+          return sp.property.beds >= exactBeds;
+        }
+        // Exact match for 1, 2, 3, 4
+        return sp.property.beds === exactBeds;
+      });
+    }
+
+    // Filter by baths (EXACT match, not minimum)
+    if (bathsFilter !== 'all') {
+      const exactBaths = parseFloat(bathsFilter);
+      filtered = filtered.filter((sp) => {
+        if (bathsFilter === '3') {
+          // 3+ means 3 or more
+          return sp.property.baths >= exactBaths;
+        }
+        // Exact match for 1, 1.5, 2, 2.5
+        return sp.property.baths === exactBaths;
+      });
     }
 
     // Filter by priority only
@@ -478,7 +504,7 @@ export function BuyerPropertiesView({
     filtered.sort((a, b) => b.score.score - a.score.score);
 
     return filtered;
-  }, [buyerProperties, filters, sourceFilters, sameCity, withinBudget, budgetMultiplier]);
+  }, [buyerProperties, filters, sourceFilters, sameCity, withinBudget, budgetMultiplier, bedsFilter, bathsFilter]);
 
   // Calculate source counts for filter badges (from ALL properties, not filtered)
   const sourceCounts = useMemo(() => {
@@ -734,6 +760,42 @@ export function BuyerPropertiesView({
             >
               💰 Within Budget
             </button>
+
+            {/* Beds Filter Dropdown */}
+            <Select value={bedsFilter} onValueChange={setBedsFilter}>
+              <SelectTrigger className={cn(
+                "h-8 w-[110px]",
+                bedsFilter !== 'all' && "border-purple-500 bg-purple-50"
+              )}>
+                <SelectValue placeholder="Beds" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any Beds</SelectItem>
+                <SelectItem value="1">1 Bed</SelectItem>
+                <SelectItem value="2">2 Beds</SelectItem>
+                <SelectItem value="3">3 Beds</SelectItem>
+                <SelectItem value="4">4 Beds</SelectItem>
+                <SelectItem value="5">5+ Beds</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Baths Filter Dropdown */}
+            <Select value={bathsFilter} onValueChange={setBathsFilter}>
+              <SelectTrigger className={cn(
+                "h-8 w-[110px]",
+                bathsFilter !== 'all' && "border-purple-500 bg-purple-50"
+              )}>
+                <SelectValue placeholder="Baths" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any Baths</SelectItem>
+                <SelectItem value="1">1 Bath</SelectItem>
+                <SelectItem value="1.5">1.5 Baths</SelectItem>
+                <SelectItem value="2">2 Baths</SelectItem>
+                <SelectItem value="2.5">2.5 Baths</SelectItem>
+                <SelectItem value="3">3+ Baths</SelectItem>
+              </SelectContent>
+            </Select>
 
             {/* Clear All */}
             {hasActiveFilters && (
