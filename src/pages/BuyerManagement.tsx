@@ -54,7 +54,7 @@ export default function BuyerManagement() {
   // Filter and paginate buyers
   const { filteredBuyers, stats } = useMemo(() => {
     if (!buyersData?.buyers) {
-      return { filteredBuyers: [], stats: { total: 0, qualified: 0, missingCriteria: 0 } };
+      return { filteredBuyers: [], stats: { total: 0, qualified: 0, notQualified: 0, missingCriteria: 0 } };
     }
 
     let buyers = buyersData.buyers;
@@ -63,6 +63,7 @@ export default function BuyerManagement() {
     const stats = {
       total: buyers.length,
       qualified: buyers.filter(b => b.qualified).length,
+      notQualified: buyers.filter(b => !b.qualified).length,
       missingCriteria: buyers.filter(b => !hasBuyerCriteria(b)).length,
     };
 
@@ -199,6 +200,8 @@ export default function BuyerManagement() {
         <span>Found <strong className="text-foreground">{filteredBuyers.length}</strong> buyers</span>
         <span className="text-muted-foreground/50">•</span>
         <span><strong className="text-green-600">{stats.qualified}</strong> qualified</span>
+        <span className="text-muted-foreground/50">•</span>
+        <span><strong className="text-red-600">{stats.notQualified}</strong> not qualified</span>
         <span className="text-muted-foreground/50">•</span>
         <span><strong className="text-amber-600">{stats.missingCriteria}</strong> missing criteria</span>
       </div>

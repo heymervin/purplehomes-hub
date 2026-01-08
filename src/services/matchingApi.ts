@@ -851,7 +851,7 @@ export const usePropertyBuyers = (propertyCode: string | null) => {
  */
 export const useBuyersList = () => {
   return useQuery({
-    queryKey: ['buyers-list'],
+    queryKey: ['matching-buyers-list'],
     queryFn: async (): Promise<Array<{ recordId: string; contactId: string; firstName: string; lastName: string; email: string; qualified?: boolean; dateAdded?: string; totalMatches: number }>> => {
       console.log('[Matching API] Fetching buyers list');
 
