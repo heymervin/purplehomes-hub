@@ -26,6 +26,7 @@ import type { Deal } from '@/types/deals';
 import type { DealPipelineFilters } from '@/pages/DealPipeline';
 import type { MatchDealStage } from '@/types/associations';
 import { Home, Users, ChevronRight } from 'lucide-react';
+import { isToday } from 'date-fns';
 
 interface DealsByPropertyViewProps {
   filters?: DealPipelineFilters;
@@ -76,6 +77,14 @@ export function DealsByPropertyView({ filters, onViewDeal }: DealsByPropertyView
           filteredDeals = filteredDeals.filter((deal) => deal.isStale);
         }
 
+        // Filter by sent today
+        if (filters?.sentToday) {
+          filteredDeals = filteredDeals.filter((deal) => {
+            if (!deal.createdAt) return false;
+            return isToday(new Date(deal.createdAt));
+          });
+        }
+
         // Find the furthest stage among filtered deals
         const furthestStage = filteredDeals.reduce((maxStage, deal) => {
           const dealStageOrder = MATCH_DEAL_STAGES.indexOf(deal.status as MatchDealStage);
@@ -99,7 +108,8 @@ export function DealsByPropertyView({ filters, onViewDeal }: DealsByPropertyView
     filters.search !== '' ||
     filters.stage !== 'all' ||
     filters.minScore !== 'all' ||
-    filters.staleOnly
+    filters.staleOnly ||
+    filters.sentToday
   );
 
   // Loading state

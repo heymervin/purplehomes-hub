@@ -65,6 +65,7 @@ export interface DealPipelineFilters {
   stage: string;
   minScore: string;
   staleOnly: boolean;
+  sentToday: boolean;
 }
 
 export default function DealPipeline() {
@@ -74,12 +75,14 @@ export default function DealPipeline() {
   const [mainView, setMainView] = useState<MainView>('overview');
   const [dealsSubView, setDealsSubView] = useState<DealsSubView>('list');
 
-  // Filter state
+  // Filter state - check URL for initial sentToday filter
+  const initialSentToday = searchParams.get('filter') === 'today';
   const [filters, setFilters] = useState<DealPipelineFilters>({
     search: '',
     stage: 'all',
     minScore: 'all',
     staleOnly: false,
+    sentToday: initialSentToday,
   });
 
   // Check if any filters are active
@@ -88,7 +91,8 @@ export default function DealPipeline() {
       filters.search !== '' ||
       filters.stage !== 'all' ||
       filters.minScore !== 'all' ||
-      filters.staleOnly
+      filters.staleOnly ||
+      filters.sentToday
     );
   }, [filters]);
 
@@ -99,6 +103,7 @@ export default function DealPipeline() {
       stage: 'all',
       minScore: 'all',
       staleOnly: false,
+      sentToday: false,
     });
   };
 
@@ -131,6 +136,7 @@ export default function DealPipeline() {
   useEffect(() => {
     const dealId = searchParams.get('dealId');
     const buyerId = searchParams.get('buyerId');
+    const filterParam = searchParams.get('filter');
 
     if (dealId && deals) {
       const deal = deals.find((d) => d.id === dealId);
@@ -146,6 +152,12 @@ export default function DealPipeline() {
       setFilters((f) => ({ ...f, search: buyerId }));
       setMainView('deals');
       setDealsSubView('by-buyer');
+      // Clear the URL param after using it
+      setSearchParams({}, { replace: true });
+    } else if (filterParam === 'today') {
+      // Filter deals to show only sent today
+      setFilters((f) => ({ ...f, sentToday: true }));
+      setMainView('deals');
       // Clear the URL param after using it
       setSearchParams({}, { replace: true });
     }
@@ -208,6 +220,11 @@ export default function DealPipeline() {
             label="Stale Only"
             checked={filters.staleOnly}
             onChange={(checked) => setFilters((f) => ({ ...f, staleOnly: checked }))}
+          />
+          <FilterCheckbox
+            label="Sent Today"
+            checked={filters.sentToday}
+            onChange={(checked) => setFilters((f) => ({ ...f, sentToday: checked }))}
           />
         </FilterBar>
       )}

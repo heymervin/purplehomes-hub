@@ -30,7 +30,7 @@ import { NoDealsEmptyState, NoResultsEmptyState } from '../Shared/DealEmptyState
 import { MATCH_DEAL_STAGES } from '@/types/associations';
 import type { Deal, DealSortField, DealSortDirection } from '@/types/deals';
 import type { DealPipelineFilters } from '@/pages/DealPipeline';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isToday } from 'date-fns';
 
 interface DealsListViewProps {
   filters?: DealPipelineFilters;
@@ -85,6 +85,14 @@ export function DealsListView({
       filtered = filtered.filter((deal) => deal.isStale);
     }
 
+    // Apply sent today filter
+    if (filters?.sentToday) {
+      filtered = filtered.filter((deal) => {
+        if (!deal.createdAt) return false;
+        return isToday(new Date(deal.createdAt));
+      });
+    }
+
     // Sort filtered deals
     return filtered.sort((a, b) => {
       let comparison = 0;
@@ -134,7 +142,8 @@ export function DealsListView({
     filters.search !== '' ||
     filters.stage !== 'all' ||
     filters.minScore !== 'all' ||
-    filters.staleOnly
+    filters.staleOnly ||
+    filters.sentToday
   );
 
   // Handle sort click

@@ -76,23 +76,27 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
           </div>
         </Card>
 
-        {/* Sent Today */}
-        <Card className="relative overflow-hidden">
+        {/* Sent Today - Clickable */}
+        <Card
+          className="relative overflow-hidden cursor-pointer hover:shadow-md transition-shadow border-2 border-transparent hover:border-green-200"
+          onClick={() => navigate('/deals?filter=today')}
+        >
           <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-green-600/5" />
           <div className="relative p-6">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-lg bg-green-100">
                 <Send className="h-6 w-6 text-green-600" />
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-sm font-medium text-muted-foreground">Sent Today</p>
                 {loadingStats ? (
                   <Skeleton className="h-8 w-16 mt-1" />
                 ) : (
                   <p className="text-3xl font-bold text-foreground">{sentToday}</p>
                 )}
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  properties emailed
+                <p className="text-xs text-green-600 mt-0.5 flex items-center gap-1">
+                  View in Deal Pipeline
+                  <ArrowRight className="h-3 w-3" />
                 </p>
               </div>
             </div>

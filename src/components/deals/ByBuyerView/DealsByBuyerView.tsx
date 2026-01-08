@@ -24,6 +24,7 @@ import { formatPipelineValue } from '../Overview/MetricCard';
 import type { Deal, DealsByBuyer } from '@/types/deals';
 import type { DealPipelineFilters } from '@/pages/DealPipeline';
 import { Home, ChevronRight } from 'lucide-react';
+import { isToday } from 'date-fns';
 
 interface DealsByBuyerViewProps {
   filters?: DealPipelineFilters;
@@ -73,6 +74,14 @@ export function DealsByBuyerView({ filters, onViewDeal }: DealsByBuyerViewProps)
           filteredDeals = filteredDeals.filter((deal) => deal.isStale);
         }
 
+        // Filter by sent today
+        if (filters?.sentToday) {
+          filteredDeals = filteredDeals.filter((deal) => {
+            if (!deal.createdAt) return false;
+            return isToday(new Date(deal.createdAt));
+          });
+        }
+
         return {
           ...group,
           deals: filteredDeals,
@@ -88,7 +97,8 @@ export function DealsByBuyerView({ filters, onViewDeal }: DealsByBuyerViewProps)
     filters.search !== '' ||
     filters.stage !== 'all' ||
     filters.minScore !== 'all' ||
-    filters.staleOnly
+    filters.staleOnly ||
+    filters.sentToday
   );
 
   // Loading state

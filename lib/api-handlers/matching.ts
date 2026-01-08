@@ -41,6 +41,30 @@ function extractZipFromCity(city: string | undefined): string | undefined {
   return match ? match[0] : undefined;
 }
 
+// Helper to fetch all records from Airtable with pagination
+// Airtable returns max 100 records per page by default
+async function fetchAllRecords(baseUrl: string, headers: any): Promise<any[]> {
+  let allRecords: any[] = [];
+  let offset: string | undefined;
+
+  do {
+    const url = offset ? `${baseUrl}&offset=${offset}` : baseUrl;
+    const res = await fetch(url, { headers });
+    if (!res.ok) {
+      console.error(`[Airtable Pagination] Failed to fetch: ${res.status} ${res.statusText}`);
+      break;
+    }
+    const data = await res.json();
+    allRecords = allRecords.concat(data.records || []);
+    offset = data.offset;
+    if (offset) {
+      console.log(`[Airtable Pagination] Fetched ${allRecords.length} records, continuing...`);
+    }
+  } while (offset);
+
+  return allRecords;
+}
+
 export async function matchingHandler(req: VercelRequest, res: VercelResponse) {
   console.log('[Matching API] Request:', {
     method: req.method,
@@ -1456,9 +1480,8 @@ async function handleAggregatedBuyers(
 
   const matchesUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches?filterByFormula=${encodeURIComponent(matchesFormula)}`;
 
-  const matchesRes = await fetch(matchesUrl, { headers });
-  const matchesData = matchesRes.ok ? await matchesRes.json() : { records: [] };
-  const allMatches = matchesData.records || [];
+  // Use pagination to fetch ALL matches (Airtable returns max 100 per page)
+  const allMatches = await fetchAllRecords(matchesUrl, headers);
 
   console.log(`[Aggregated] Fetched ${allMatches.length} matches in ${Date.now() - startTime}ms`);
 
@@ -1477,13 +1500,11 @@ async function handleAggregatedBuyers(
     const propertiesFormula = `OR(${(propertyIds as string[]).map((id) => `RECORD_ID()="${id}"`).join(',')})`;
     const propertiesUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Properties?filterByFormula=${encodeURIComponent(propertiesFormula)}`;
 
-    const propertiesRes = await fetch(propertiesUrl, { headers });
-    if (propertiesRes.ok) {
-      const propertiesData = await propertiesRes.json();
-      propertiesMap = Object.fromEntries(
-        (propertiesData.records || []).map((p: any) => [p.id, p])
-      );
-    }
+    // Use pagination to fetch ALL properties (Airtable returns max 100 per page)
+    const allProperties = await fetchAllRecords(propertiesUrl, headers);
+    propertiesMap = Object.fromEntries(
+      allProperties.map((p: any) => [p.id, p])
+    );
   }
 
   console.log(`[Aggregated] Fetched ${Object.keys(propertiesMap).length} properties in ${Date.now() - startTime}ms`);
@@ -1681,9 +1702,8 @@ async function handleAggregatedProperties(
 
   const matchesUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches?filterByFormula=${encodeURIComponent(matchesFormula)}`;
 
-  const matchesRes = await fetch(matchesUrl, { headers });
-  const matchesData = matchesRes.ok ? await matchesRes.json() : { records: [] };
-  const allMatches = matchesData.records || [];
+  // Use pagination to fetch ALL matches (Airtable returns max 100 per page)
+  const allMatches = await fetchAllRecords(matchesUrl, headers);
 
   console.log(`[Aggregated] Fetched ${allMatches.length} matches in ${Date.now() - startTime}ms`);
 
@@ -1702,13 +1722,11 @@ async function handleAggregatedProperties(
     const buyersFormula = `OR(${(buyerContactIds as string[]).map((id) => `FIND("${id}", {Contact ID})`).join(',')})`;
     const buyersUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Buyers?filterByFormula=${encodeURIComponent(buyersFormula)}`;
 
-    const buyersRes = await fetch(buyersUrl, { headers });
-    if (buyersRes.ok) {
-      const buyersData = await buyersRes.json();
-      buyersMap = Object.fromEntries(
-        (buyersData.records || []).map((b: any) => [b.fields['Contact ID'], b])
-      );
-    }
+    // Use pagination to fetch ALL buyers (Airtable returns max 100 per page)
+    const allBuyers = await fetchAllRecords(buyersUrl, headers);
+    buyersMap = Object.fromEntries(
+      allBuyers.map((b: any) => [b.fields['Contact ID'], b])
+    );
   }
 
   console.log(`[Aggregated] Fetched ${Object.keys(buyersMap).length} buyers in ${Date.now() - startTime}ms`);

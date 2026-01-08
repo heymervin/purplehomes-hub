@@ -23,6 +23,7 @@ import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
+import { isToday } from 'date-fns';
 
 // Column colors matching stage colors
 const COLUMN_COLORS: Record<string, string> = {
@@ -92,6 +93,14 @@ export function PipelineBoard({ filters, onViewDeal }: PipelineBoardProps) {
         filteredDeals = filteredDeals.filter((deal) => deal.isStale);
       }
 
+      // Filter by sent today
+      if (filters?.sentToday) {
+        filteredDeals = filteredDeals.filter((deal) => {
+          if (!deal.createdAt) return false;
+          return isToday(new Date(deal.createdAt));
+        });
+      }
+
       filtered[stage] = filteredDeals;
     });
 
@@ -103,7 +112,8 @@ export function PipelineBoard({ filters, onViewDeal }: PipelineBoardProps) {
     filters.search !== '' ||
     filters.stage !== 'all' ||
     filters.minScore !== 'all' ||
-    filters.staleOnly
+    filters.staleOnly ||
+    filters.sentToday
   );
 
   // Handle drop - stage change
