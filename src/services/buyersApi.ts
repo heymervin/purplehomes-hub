@@ -30,6 +30,7 @@ export const useBuyersList = () => {
       return result;
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnMount: 'always', // Always refetch on navigation to ensure fresh data
   });
 };
 
