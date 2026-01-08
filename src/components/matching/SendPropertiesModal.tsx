@@ -596,10 +596,10 @@ export function SendPropertiesModal({
                 <div className="flex-1">
                   <label className="text-sm font-medium flex items-center gap-2 cursor-pointer">
                     <Mail className="h-4 w-4 text-blue-600" />
-                    Email with PDF
+                    Email
                   </label>
                   <p className="text-xs text-muted-foreground">
-                    {canSendEmail ? 'Includes detailed property PDF' : 'No email on file'}
+                    {canSendEmail ? 'Detailed property information' : 'No email on file'}
                   </p>
                 </div>
               </div>
