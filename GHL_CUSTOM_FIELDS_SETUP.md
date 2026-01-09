@@ -227,7 +227,7 @@ Ensure you have the following pipelines configured in GHL:
 | Pipeline | Pipeline ID | Usage |
 |----------|-------------|-------|
 | Seller Acquisitions | `zL3H2M1BdEKlVDa2YWao` | Property sourcing from sellers |
-| Buyer Acquisitions | `FRw9XPyTSnPv8ct0cWcm` | External buyer offers from public listings |
+| Buyer Dispositions | `cThFQOW6nkVKVxbBrDAV` | External buyer offers from public listings |
 | Deal Acquisitions | `2NeLTlKaeMyWOnLXdTCS` | Internal qualified buyer management |
 
 ---

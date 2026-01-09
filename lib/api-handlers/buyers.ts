@@ -316,7 +316,7 @@ async function handleUpdate(
     if (fields.preferredZipCodes !== undefined) airtableFields['Preferred Zip Codes'] = fields.preferredZipCodes;
     if (fields.city !== undefined) airtableFields['City'] = fields.city;
     if (fields.state !== undefined) airtableFields['State'] = fields.state;
-    if (fields.buyerType !== undefined) airtableFields['Buyer Type'] = fields.buyerType;
+    // Note: buyerType is not stored in Airtable, only synced to GHL
 
     // Parse currency fields
     if (fields.downPayment !== undefined) {
