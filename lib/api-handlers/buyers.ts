@@ -19,19 +19,19 @@ const GHL_API_KEY = process.env.GHL_API_KEY;
 const GHL_LOCATION_ID = process.env.GHL_LOCATION_ID;
 const GHL_API_URL = 'https://services.leadconnectorhq.com';
 
-// GHL Custom Field Keys for buyers (these are field keys, not IDs)
+// GHL Custom Field IDs for buyers (from contact Tl962hCGZxcASEBcVEny)
 const GHL_BUYER_FIELDS = {
-  desiredBeds: 'buyer_bedrooms',
-  desiredBaths: 'buyer_bathrooms',
-  preferredLocation: 'buyer_location',
-  preferredZipCodes: 'buyer_zip_codes',
-  buyerType: 'buyer_type',
-  downPayment: 'buyer_down_payment',
-  monthlyIncome: 'buyer_income',
-  monthlyLiabilities: 'buyer_liabilities',
-  qualified: 'qualified',
-  language: 'language',
-  budget: 'buyer_budget',
+  desiredBeds: 'fjWCPVStqMlJrLqStqsl',
+  desiredBaths: 'kHM9cDI6MQ3hJoh0Pf27',
+  preferredLocation: 'beRTMaIZDCYfquFH0fE4',
+  preferredZipCodes: 'be1MGJlmJ72ZZL4PB3S1', // "none" value in response
+  buyerType: '3rhpAE0UxnesZ78gMXZF',
+  downPayment: 'sGXl9nnRSjzeYVCxL71r',
+  monthlyIncome: 's4dUCp9shZAwSVLoKfXo',
+  monthlyLiabilities: 'Ct5FlL46K1Z7ge5LVWZI',
+  qualified: 'xf9gFTzt95ZZdwHSUnRG',
+  language: 'zFcHDP9DIWfpM1y4s0IG',
+  budget: '7P85U1FqHEcPCBHJeuLZ',
 };
 
 /**
@@ -370,38 +370,54 @@ async function handleUpdate(
         if (fields.email !== undefined) ghlPayload.email = fields.email;
         if (fields.phone !== undefined) ghlPayload.phone = fields.phone;
 
-        // Custom fields
-        const customFields: Array<{ key: string; value: any }> = [];
+        // Custom fields - GHL API expects { id, field_value } format
+        const customFields: Array<{ id: string; field_value: any }> = [];
 
-        if (fields.desiredBeds !== undefined) {
-          customFields.push({ key: GHL_BUYER_FIELDS.desiredBeds, value: fields.desiredBeds });
+        if (fields.desiredBeds !== undefined && fields.desiredBeds !== '') {
+          const bedsNum = parseInt(fields.desiredBeds);
+          if (!isNaN(bedsNum)) {
+            customFields.push({ id: GHL_BUYER_FIELDS.desiredBeds, field_value: bedsNum });
+          }
         }
-        if (fields.desiredBaths !== undefined) {
-          customFields.push({ key: GHL_BUYER_FIELDS.desiredBaths, value: fields.desiredBaths });
+        if (fields.desiredBaths !== undefined && fields.desiredBaths !== '') {
+          const bathsNum = parseFloat(fields.desiredBaths);
+          if (!isNaN(bathsNum)) {
+            customFields.push({ id: GHL_BUYER_FIELDS.desiredBaths, field_value: bathsNum });
+          }
         }
-        if (fields.preferredLocation !== undefined) {
-          customFields.push({ key: GHL_BUYER_FIELDS.preferredLocation, value: fields.preferredLocation });
+        if (fields.preferredLocation !== undefined && fields.preferredLocation !== '') {
+          customFields.push({ id: GHL_BUYER_FIELDS.preferredLocation, field_value: fields.preferredLocation });
         }
-        if (fields.preferredZipCodes !== undefined) {
-          customFields.push({ key: GHL_BUYER_FIELDS.preferredZipCodes, value: fields.preferredZipCodes });
+        if (fields.preferredZipCodes !== undefined && fields.preferredZipCodes !== '') {
+          customFields.push({ id: GHL_BUYER_FIELDS.preferredZipCodes, field_value: fields.preferredZipCodes });
         }
-        if (fields.buyerType !== undefined) {
-          customFields.push({ key: GHL_BUYER_FIELDS.buyerType, value: fields.buyerType });
+        if (fields.buyerType !== undefined && fields.buyerType !== '') {
+          customFields.push({ id: GHL_BUYER_FIELDS.buyerType, field_value: fields.buyerType });
         }
-        if (fields.downPayment !== undefined) {
-          customFields.push({ key: GHL_BUYER_FIELDS.downPayment, value: fields.downPayment });
+        // Parse currency fields - they come as "$20,000" format
+        if (fields.downPayment !== undefined && fields.downPayment !== '') {
+          const parsed = parseFloat(String(fields.downPayment).replace(/[^0-9.]/g, ''));
+          if (!isNaN(parsed)) {
+            customFields.push({ id: GHL_BUYER_FIELDS.downPayment, field_value: parsed });
+          }
         }
-        if (fields.monthlyIncome !== undefined) {
-          customFields.push({ key: GHL_BUYER_FIELDS.monthlyIncome, value: fields.monthlyIncome });
+        if (fields.monthlyIncome !== undefined && fields.monthlyIncome !== '') {
+          const parsed = parseFloat(String(fields.monthlyIncome).replace(/[^0-9.]/g, ''));
+          if (!isNaN(parsed)) {
+            customFields.push({ id: GHL_BUYER_FIELDS.monthlyIncome, field_value: parsed });
+          }
         }
-        if (fields.monthlyLiabilities !== undefined) {
-          customFields.push({ key: GHL_BUYER_FIELDS.monthlyLiabilities, value: fields.monthlyLiabilities });
+        if (fields.monthlyLiabilities !== undefined && fields.monthlyLiabilities !== '') {
+          const parsed = parseFloat(String(fields.monthlyLiabilities).replace(/[^0-9.]/g, ''));
+          if (!isNaN(parsed)) {
+            customFields.push({ id: GHL_BUYER_FIELDS.monthlyLiabilities, field_value: parsed });
+          }
         }
         if (fields.qualified !== undefined) {
-          customFields.push({ key: GHL_BUYER_FIELDS.qualified, value: fields.qualified ? 'Yes' : 'No' });
+          customFields.push({ id: GHL_BUYER_FIELDS.qualified, field_value: fields.qualified ? 'Yes' : 'No' });
         }
-        if (fields.language !== undefined) {
-          customFields.push({ key: GHL_BUYER_FIELDS.language, value: fields.language });
+        if (fields.language !== undefined && fields.language !== '') {
+          customFields.push({ id: GHL_BUYER_FIELDS.language, field_value: fields.language });
         }
 
         if (customFields.length > 0) {
