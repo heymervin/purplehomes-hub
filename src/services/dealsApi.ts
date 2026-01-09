@@ -123,6 +123,7 @@ function transformMatchToDeal(
     highlights: match.highlights || [],
     concerns: match.concerns || [],
     isPriority: match.isPriority || false,
+    isFinalProperty: match.isFinalProperty || false,
     status,
     activities,
     notes,
