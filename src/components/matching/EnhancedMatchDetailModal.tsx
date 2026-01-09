@@ -57,6 +57,8 @@ import {
 import { DealProgressKanban } from './DealProgressKanban';
 import { MatchNotesPanel, type NoteEntry } from './MatchNotesPanel';
 import { AIInsightCard } from './AIInsightCard';
+import { ConfirmFinalPropertyCard } from './ConfirmFinalPropertyCard';
+import { useConfirmFinalProperty, useRemoveFinalProperty } from '@/services/finalPropertyApi';
 import {
   PropertyMatch,
   PropertyDetails,
@@ -101,6 +103,10 @@ export function EnhancedMatchDetailModal({
   const [localStage, setLocalStage] = useState<MatchDealStage | null>(null);
   const [calculatorOpen, setCalculatorOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Final property mutation hooks
+  const confirmFinalProperty = useConfirmFinalProperty();
+  const removeFinalProperty = useRemoveFinalProperty();
 
   // Sync local stage with prop when match changes (e.g., opening a different deal)
   useEffect(() => {
@@ -155,6 +161,28 @@ export function EnhancedMatchDetailModal({
   const handleSendEmail = async () => {
     if (!onSendEmail) return;
     await onSendEmail(match.id);
+  };
+
+  // Final property handlers
+  const handleConfirmFinalProperty = async () => {
+    if (!match || !property || !buyer?.contactId) return;
+
+    await confirmFinalProperty.mutateAsync({
+      matchId: match.id,
+      contactId: buyer.contactId,
+      propertyAddress: property.address,
+      propertyOpportunityId: property.opportunityId || property.recordId || '',
+      propertyPrice: property.price || 0,
+    });
+  };
+
+  const handleRemoveFinalProperty = async () => {
+    if (!match || !buyer?.contactId) return;
+
+    await removeFinalProperty.mutateAsync({
+      matchId: match.id,
+      contactId: buyer.contactId,
+    });
   };
 
   // Format price
@@ -412,6 +440,21 @@ export function EnhancedMatchDetailModal({
                   />
                 </div>
 
+                {/* Confirm Final Property Card */}
+                {buyer && property && currentStage !== 'Not Interested' && (
+                  <ConfirmFinalPropertyCard
+                    currentStage={currentStage}
+                    isFinalProperty={match.isFinalProperty ?? false}
+                    propertyAddress={property.address}
+                    propertyPrice={property.price || 0}
+                    buyerName={`${buyer.firstName} ${buyer.lastName}`}
+                    onConfirm={handleConfirmFinalProperty}
+                    onRemove={handleRemoveFinalProperty}
+                    isConfirming={confirmFinalProperty.isPending}
+                    isRemoving={removeFinalProperty.isPending}
+                  />
+                )}
+
                 <Separator />
 
                 {/* Notes Panel */}
@@ -562,6 +605,21 @@ export function EnhancedMatchDetailModal({
                       isUpdating={isUpdating}
                     />
                   </div>
+
+                  {/* Confirm Final Property Card - Mobile */}
+                  {buyer && property && currentStage !== 'Not Interested' && (
+                    <ConfirmFinalPropertyCard
+                      currentStage={currentStage}
+                      isFinalProperty={match.isFinalProperty ?? false}
+                      propertyAddress={property.address}
+                      propertyPrice={property.price || 0}
+                      buyerName={`${buyer.firstName} ${buyer.lastName}`}
+                      onConfirm={handleConfirmFinalProperty}
+                      onRemove={handleRemoveFinalProperty}
+                      isConfirming={confirmFinalProperty.isPending}
+                      isRemoving={removeFinalProperty.isPending}
+                    />
+                  )}
                 </TabsContent>
 
                 <TabsContent value="activity" className="p-6 mt-0 space-y-4">

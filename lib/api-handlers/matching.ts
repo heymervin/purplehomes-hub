@@ -1556,6 +1556,7 @@ async function handleAggregatedBuyers(
           ghlRelationId: match.fields['GHL Relation ID'] || null,
           activities: match.fields['Activities'] || '[]',
           notes: match.fields['Notes'] || '[]',
+          isFinalProperty: match.fields['Is Final Property'] === true,
           createdAt: match.createdTime || null,
           dateSent: match.fields['Date Sent'] || null,
           property: property ? {
@@ -1780,6 +1781,7 @@ async function handleAggregatedProperties(
           ghlRelationId: match.fields['GHL Relation ID'] || null,
           activities: match.fields['Activities'] || '[]',
           notes: match.fields['Notes'] || '[]',
+          isFinalProperty: match.fields['Is Final Property'] === true,
           createdAt: match.createdTime || null,
           dateSent: match.fields['Date Sent'] || null,
           buyer: buyer ? {
@@ -2091,6 +2093,7 @@ async function handleBuyerProperties(
         matchId: existingMatch?.id || undefined,
         currentStage: existingMatch?.fields['Match Stage'] || undefined,
         dateSent: existingMatch?.fields['Date Sent'] || undefined,
+        isFinalProperty: existingMatch?.fields['Is Final Property'] === true,
       };
     });
 
@@ -2321,6 +2324,7 @@ async function handlePropertyBuyers(
         matchId: existingMatch?.id || undefined,
         currentStage: existingMatch?.fields['Match Stage'] || undefined,
         dateSent: existingMatch?.fields['Date Sent'] || undefined,
+        isFinalProperty: existingMatch?.fields['Is Final Property'] === true,
       };
     });
 

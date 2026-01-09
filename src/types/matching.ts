@@ -233,6 +233,7 @@ export interface PropertyMatch {
   status: MatchDealStage; // Updated to use GHL association labels
   activities?: MatchActivity[]; // Activity history stored in Airtable JSON field
   ghlRelationId?: string; // GHL relation ID for syncing
+  isFinalProperty?: boolean; // True if this is the buyer's confirmed final property choice
   createdAt?: string;
   updatedAt?: string;
   dateSent?: string; // ISO date when deal was sent to buyer
@@ -305,6 +306,7 @@ export interface ScoredProperty {
   currentStage?: string;  // Current deal stage
   matchId?: string;       // Reference to match record
   dateSent?: string;      // ISO date when property was sent to buyer
+  isFinalProperty?: boolean; // True if this is the buyer's confirmed final property choice
 }
 
 /**
@@ -331,6 +333,7 @@ export interface ScoredBuyer {
   currentStage?: string;  // Current deal stage
   matchId?: string;       // Reference to match record
   dateSent?: string;      // ISO date when property was sent to buyer
+  isFinalProperty?: boolean; // True if this is the buyer's confirmed final property choice
 }
 
 /**

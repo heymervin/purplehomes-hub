@@ -37,7 +37,7 @@ const GHL_API_V2 = process.env.GHL_API_V2;
 
 // Pipeline IDs
 const SELLER_ACQUISITION_PIPELINE_ID = process.env.GHL_SELLER_ACQUISITION_PIPELINE_ID || 'U4FANAMaB1gGddRaaD9x'; // Acquisition Seller pipeline
-const BUYER_ACQUISITION_PIPELINE_ID = process.env.GHL_BUYER_ACQUISITION_PIPELINE_ID || 'FRw9XPyTSnPv8ct0cWcm';
+const BUYER_DISPOSITION_PIPELINE_ID = process.env.GHL_BUYER_DISPOSITION_PIPELINE_ID || 'cThFQOW6nkVKVxbBrDAV';
 const DEAL_ACQUISITION_PIPELINE_ID = process.env.GHL_DEAL_ACQUISITION_PIPELINE_ID || '2NeLTlKaeMyWOnLXdTCS';
 
 // Google Sheets Auth Configuration
@@ -78,7 +78,7 @@ export async function ghlHandler(req: VercelRequest, res: VercelResponse) {
     OPENAI_API_KEY_exists: !!OPENAI_API_KEY,
     GOOGLE_SHEET_ID_exists: !!GOOGLE_SHEET_ID,
     SELLER_PIPELINE: SELLER_ACQUISITION_PIPELINE_ID,
-    BUYER_PIPELINE: BUYER_ACQUISITION_PIPELINE_ID,
+    BUYER_PIPELINE: BUYER_DISPOSITION_PIPELINE_ID,
     DEAL_PIPELINE: DEAL_ACQUISITION_PIPELINE_ID
   });
 
@@ -360,7 +360,10 @@ if (resource === 'opportunities') {
     const pipelineType = query.pipelineType as string;
     switch (pipelineType) {
       case 'buyer-acquisition':
-        pipelineId = BUYER_ACQUISITION_PIPELINE_ID;
+        pipelineId = BUYER_DISPOSITION_PIPELINE_ID;
+        break;
+      case 'buyer-disposition':
+        pipelineId = BUYER_DISPOSITION_PIPELINE_ID;
         break;
       case 'deal-acquisition':
         pipelineId = DEAL_ACQUISITION_PIPELINE_ID;
@@ -371,32 +374,38 @@ if (resource === 'opportunities') {
         break;
     }
   }
-  
+
   if (method === 'GET') {
     if (id) {
       const response = await fetch(`${GHL_API_URL}/opportunities/${id}`, { headers });
       return res.status(response.ok ? 200 : response.status).json(await response.json());
     }
-    
+
     const limit = parseInt((query.limit as string) || '100', 10);
     let allOpportunities: any[] = [];
     let page = 1;
     let hasMore = true;
-    
+
+    // Check if contactId filter is provided - use GET search with query params
+    const contactIdFilter = query.contactId as string;
+
     while (hasMore) {
-      const searchBody: Record<string, any> = {
-        locationId: GHL_LOCATION_ID,
-        limit,
-        page,
-      };
-      if (query.status) searchBody.status = query.status;
-      if (query.stageId) searchBody.stageId = query.stageId;
-      
-      const response = await fetch(`${GHL_API_URL}/opportunities/search`, { 
-        method: 'POST',
-        headers, 
-        body: JSON.stringify(searchBody)
-      });
+      // Build query parameters for the search endpoint (GET request)
+      const searchParams = new URLSearchParams();
+      searchParams.set('location_id', GHL_LOCATION_ID as string);
+      searchParams.set('limit', String(limit));
+      searchParams.set('page', String(page));
+
+      // Add optional filters
+      if (pipelineId) searchParams.set('pipeline_id', pipelineId);
+      if (query.status) searchParams.set('status', query.status as string);
+      if (query.stageId) searchParams.set('pipeline_stage_id', query.stageId as string);
+      if (contactIdFilter) searchParams.set('contact_id', contactIdFilter);
+
+      const response = await fetch(
+        `${GHL_API_URL}/opportunities/search?${searchParams.toString()}`,
+        { method: 'GET', headers }
+      );
       
       if (!response.ok) {
         const errorData = await response.json();
