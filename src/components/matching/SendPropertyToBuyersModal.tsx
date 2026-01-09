@@ -22,7 +22,7 @@ import { STAGE_ASSOCIATION_IDS } from '@/types/associations';
 import type { ScoredBuyer, PropertyDetails, MatchActivity, MatchActivityType } from '@/types/matching';
 
 const AIRTABLE_API_BASE = '/api/airtable';
-const GHL_PROPERTY_SENT_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/fJgopVh0YwOMQJtUeQRk/webhook-trigger/018b6284-9355-46df-ab33-b36662afb00c';
+const GHL_PROPERTY_SENT_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/fJgopVh0YwOMQJtUeQRk/webhook-trigger/ee28f7b1-eb36-45cb-a349-e855b2aa0c07';
 
 /**
  * Trigger GHL webhook when a property is sent to buyers
