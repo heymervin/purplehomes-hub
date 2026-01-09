@@ -24,9 +24,19 @@ import type { PropertyDetails, BuyerCriteria, MatchActivity, BuyerWithMatches } 
 
 const MATCHING_API_BASE = '/api/matching';
 const AIRTABLE_API_BASE = '/api/airtable';
+const GHL_API_BASE = '/api/ghl';
 
 // Constants
 const STALE_THRESHOLD_DAYS = 7;
+
+// GHL Buyer Disposition Pipeline Stage IDs
+// Maps our deal stages to the corresponding GHL pipeline stage IDs
+const GHL_BUYER_PIPELINE_STAGE_IDS: Partial<Record<MatchDealStage, string>> = {
+  'Underwriting': '305be21b-3c52-4fae-abdf-23c5477d05a5', // Underwriting / Checklist
+  'Contracts': '4377ef1f-a103-42e9-adfa-c7a78d22723a',    // Buyer Contract Signed
+  'Qualified': 'bc8d6c4b-4da3-4c5d-8aa0-eeb7feed3859',    // Qualification Phase
+  'Closed Deal / Won': '1caa0fe9-608d-4f55-82f9-d43f35bb5123', // Closed = Won
+};
 
 /**
  * Compute isStale and daysSinceActivity for a deal
@@ -795,6 +805,55 @@ export const useUpdateDealStage = () => {
           }
         } catch (ghlError) {
           console.error('[Deals API] GHL sync failed:', ghlError);
+          // Don't throw - Airtable update succeeded
+        }
+      }
+
+      // 4. Update GHL Buyer Disposition pipeline stage if we have a mapping for this stage
+      const ghlPipelineStageId = GHL_BUYER_PIPELINE_STAGE_IDS[toStage];
+      if (ghlPipelineStageId && contactId) {
+        try {
+          console.log('[Deals API] Updating GHL Buyer pipeline stage:', { toStage, ghlPipelineStageId, contactId });
+
+          // Find the buyer's opportunity in the Buyer Disposition pipeline
+          const searchResponse = await fetch(
+            `${GHL_API_BASE}?resource=opportunities&pipelineType=buyer-disposition&contactId=${encodeURIComponent(contactId)}`
+          );
+
+          if (searchResponse.ok) {
+            const data = await searchResponse.json();
+            const opportunities = data.opportunities || [];
+
+            if (opportunities.length > 0) {
+              const opportunity = opportunities[0];
+              console.log('[Deals API] Found buyer opportunity:', opportunity.id);
+
+              // Update the opportunity's pipeline stage
+              const updateResponse = await fetch(
+                `${GHL_API_BASE}?resource=opportunities&id=${opportunity.id}`,
+                {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    pipelineStageId: ghlPipelineStageId,
+                  }),
+                }
+              );
+
+              if (updateResponse.ok) {
+                console.log('[Deals API] GHL Buyer pipeline stage updated successfully');
+              } else {
+                const error = await updateResponse.json().catch(() => ({}));
+                console.error('[Deals API] Failed to update GHL pipeline stage:', error);
+              }
+            } else {
+              console.warn('[Deals API] No buyer opportunity found for contact:', contactId);
+            }
+          } else {
+            console.error('[Deals API] Failed to search for buyer opportunity');
+          }
+        } catch (pipelineError) {
+          console.error('[Deals API] GHL pipeline stage update failed:', pipelineError);
           // Don't throw - Airtable update succeeded
         }
       }
