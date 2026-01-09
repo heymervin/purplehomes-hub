@@ -128,6 +128,7 @@ export function BuyerEditModal({
       toast.success('Buyer saved & synced to GHL');
       setHasChanges(false);
       onSaved?.();
+      onOpenChange(false);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to save');
     }
@@ -151,6 +152,7 @@ export function BuyerEditModal({
       await rematchBuyer.mutateAsync(buyer.recordId);
       toast.success('Matching complete!');
       onSaved?.();
+      onOpenChange(false);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to save or re-match');
     }
