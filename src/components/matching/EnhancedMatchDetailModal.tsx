@@ -101,6 +101,8 @@ export function EnhancedMatchDetailModal({
   const [activeTab, setActiveTab] = useState<'property' | 'progress' | 'activity'>('property');
   // Local state for the stage to provide immediate UI feedback after updates
   const [localStage, setLocalStage] = useState<MatchDealStage | null>(null);
+  // Local state for isFinalProperty to provide immediate UI feedback after confirm/remove
+  const [localIsFinalProperty, setLocalIsFinalProperty] = useState<boolean | null>(null);
   const [calculatorOpen, setCalculatorOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -108,9 +110,10 @@ export function EnhancedMatchDetailModal({
   const confirmFinalProperty = useConfirmFinalProperty();
   const removeFinalProperty = useRemoveFinalProperty();
 
-  // Sync local stage with prop when match changes (e.g., opening a different deal)
+  // Sync local state with prop when match changes (e.g., opening a different deal)
   useEffect(() => {
     setLocalStage(null);
+    setLocalIsFinalProperty(null);
   }, [match?.id]);
 
   if (!match) return null;
@@ -118,6 +121,8 @@ export function EnhancedMatchDetailModal({
   const { property, buyer, activities = [], notes = [] } = match;
   // Use local stage if set (after an update), otherwise use the prop value
   const currentStage: MatchDealStage = localStage ?? match.status ?? 'Sent to Buyer';
+  // Use local isFinalProperty if set (after confirm/remove), otherwise use the prop value
+  const currentIsFinalProperty: boolean = localIsFinalProperty ?? match.isFinalProperty ?? false;
 
   // Cross-navigation handlers
   const handleViewInPipeline = () => {
@@ -174,6 +179,8 @@ export function EnhancedMatchDetailModal({
       propertyOpportunityId: property.opportunityId || property.recordId || '',
       propertyPrice: property.price || 0,
     });
+    // Update local state immediately to reflect the change in the UI
+    setLocalIsFinalProperty(true);
   };
 
   const handleRemoveFinalProperty = async () => {
@@ -183,6 +190,8 @@ export function EnhancedMatchDetailModal({
       matchId: match.id,
       contactId: buyer.contactId,
     });
+    // Update local state immediately to reflect the change in the UI
+    setLocalIsFinalProperty(false);
   };
 
   // Format price
@@ -444,7 +453,7 @@ export function EnhancedMatchDetailModal({
                 {buyer && property && currentStage !== 'Not Interested' && (
                   <ConfirmFinalPropertyCard
                     currentStage={currentStage}
-                    isFinalProperty={match.isFinalProperty ?? false}
+                    isFinalProperty={currentIsFinalProperty}
                     propertyAddress={property.address}
                     propertyPrice={property.price || 0}
                     buyerName={`${buyer.firstName} ${buyer.lastName}`}
@@ -610,7 +619,7 @@ export function EnhancedMatchDetailModal({
                   {buyer && property && currentStage !== 'Not Interested' && (
                     <ConfirmFinalPropertyCard
                       currentStage={currentStage}
-                      isFinalProperty={match.isFinalProperty ?? false}
+                      isFinalProperty={currentIsFinalProperty}
                       propertyAddress={property.address}
                       propertyPrice={property.price || 0}
                       buyerName={`${buyer.firstName} ${buyer.lastName}`}
