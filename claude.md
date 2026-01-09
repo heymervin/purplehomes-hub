@@ -639,11 +639,16 @@ Stores buyer information and preferences.
 | Last Name | Single line text | Buyer's last name |
 | Email | Email | Contact email |
 | Phone | Phone number | Contact phone |
-| Budget | Number | Maximum budget |
-| Bedrooms | Number | Desired bedrooms |
-| Bathrooms | Number | Desired bathrooms |
-| Location | Single line text | Preferred location (ZIP code or city) |
+| Monthly Income | Number | Buyer's monthly income (for affordability calc) |
+| Downpayment | Number | Available down payment amount |
+| No. of Bedrooms | Number | Desired bedrooms |
+| No. of Bath | Number | Desired bathrooms |
+| City | Single line text | Preferred city |
+| Preferred Location | Single line text | Alternative location preference |
+| Preferred Zip Codes | Single line text | Comma-separated preferred ZIP codes |
 | Property Types | Multiple select | Property types (Single Family, Condo, etc.) |
+| Lat | Number | Pre-geocoded latitude |
+| Lng | Number | Pre-geocoded longitude |
 | Status | Single select | Active, Inactive |
 | Created Date | Created time | Auto-generated |
 | Last Modified | Last modified time | Auto-generated |
@@ -657,15 +662,20 @@ Stores property listings.
 |-------|------|-------------|
 | Property Code | Single line text | Unique property identifier (primary key) |
 | Opportunity ID | Single line text | HighLevel opportunity ID |
+| Source | Single select | Property source: Inventory, Partnered, Acquisitions, Zillow |
 | Address | Single line text | Full address |
 | City | Single line text | City |
 | State | Single line text | State |
-| ZIP | Single line text | ZIP code |
-| Price | Number | Listing price |
-| Bedrooms | Number | Number of bedrooms |
-| Bathrooms | Number | Number of bathrooms |
+| Zip Code | Single line text | ZIP code |
+| Property Total Price | Number | Total property price |
+| Down Payment | Number | Required down payment amount |
+| Monthly Payment | Number | Monthly mortgage payment |
+| Beds | Number | Number of bedrooms |
+| Baths | Number | Number of bathrooms |
 | Square Feet | Number | Total square footage |
 | Property Type | Single select | Single Family, Condo, Townhouse, etc. |
+| Lat | Number | Pre-geocoded latitude |
+| Lng | Number | Pre-geocoded longitude |
 | Status | Single select | Available, Pending, Sold |
 | Images | Attachment | Property photos |
 | Description | Long text | Property description |
@@ -683,13 +693,15 @@ Stores match records between properties and buyers.
 | Contact ID | Link to Buyers | Linked buyer record |
 | Property Code | Link to Properties | Linked property record |
 | Match Score | Number | Calculated score (0-100) |
-| Is Priority | Checkbox | Priority flag (distance < 50 miles) |
+| Is Priority | Checkbox | Priority flag (within 50 miles OR in preferred ZIP) |
 | Distance (miles) | Number | Distance from buyer location |
-| Budget Match | Number | Budget alignment score (0-35) |
+| Down Payment Score | Number | Down payment comparison score (0-25) |
+| Monthly Affordability Score | Number | Monthly affordability score (0-25) |
+| Location Match | Number | Location match score (0-15) |
 | Bedroom Match | Number | Bedroom match score (0-15) |
 | Bathroom Match | Number | Bathroom match score (0-10) |
-| Location Match | Number | Location match score (0-25) |
-| Type Match | Number | Property type match score (0-15) |
+| Property Type Match | Number | Property type match score (0-10) |
+| Matching Mode | Single select | 'full' or 'simplified' based on property source |
 | Status | Single select | Active, Inactive |
 | Created Date | Created time | Auto-generated |
 | Last Modified | Last modified time | Auto-generated |
@@ -713,119 +725,149 @@ Stores cached data for performance optimization.
 
 ### Scoring System
 
-The matching algorithm calculates a score from 0-100 based on five factors:
+The matching algorithm calculates a score from 0-100 based on six factors, with **source-based matching** that adjusts criteria based on property source.
 
-#### 1. Budget Alignment (35 points max)
+#### Scoring Structure (100 pts total)
+```
+Down Payment:           25 pts (buyer DP vs property required DP)
+Monthly Affordability:  25 pts (property payment vs 50% of buyer income)
+Location:               15 pts (ZIP match or distance-based)
+Bedrooms:               15 pts (exact/close match)
+Bathrooms:              10 pts (meets requirement)
+Property Type:          10 pts (exact/partial match)
+─────────────────────────────────
+Total:                 100 pts
+```
+
+#### Source-Based Matching
+
+Different property sources use different matching criteria:
+
+| Property Source | Criteria Used | Reason |
+|-----------------|---------------|--------|
+| **Inventory** | All 6 criteria | All financial terms known |
+| **Partnered** | All 6 criteria | All financial terms known |
+| **Acquisitions** | Bed, Bath, Location only | Financial terms unknown |
+| **Leads** | Bed, Bath, Location only | Financial terms unknown |
+| **Zillow** | Bed, Bath, Location only | External source |
+
+For simplified matching (Acquisitions/Leads/Zillow), the base score (40 pts) is scaled to 100.
+
+---
+
+#### 1. Down Payment Score (25 points max)
+Direct comparison of buyer's available down payment vs property's required down payment.
+
 ```typescript
-if (propertyPrice <= buyerBudget) {
-  // Perfect match: property within budget
-  budgetScore = 35;
-} else if (propertyPrice <= buyerBudget * 1.1) {
-  // Slight overbudget (10% tolerance)
-  budgetScore = 20;
-} else if (propertyPrice <= buyerBudget * 1.2) {
-  // Moderate overbudget (20% tolerance)
-  budgetScore = 10;
-} else {
-  // Too expensive
-  budgetScore = 0;
-}
+if (buyerDP >= propertyDP) return 25;        // Can afford
+if (buyerDP >= propertyDP * 0.9) return 20;  // 10% short
+if (buyerDP >= propertyDP * 0.75) return 15; // 25% short
+if (buyerDP >= propertyDP * 0.5) return 10;  // 50% short
+return 5; // Significantly short
+
+// If either value missing: 12 pts (neutral)
 ```
 
 ---
 
-#### 2. Bedroom Match (15 points max)
+#### 2. Monthly Affordability Score (25 points max)
+Property monthly payment should be ≤ 50% of buyer's monthly income.
+
 ```typescript
-if (propertyBedrooms === buyerBedrooms) {
-  // Exact match
-  bedroomScore = 15;
-} else if (propertyBedrooms === buyerBedrooms + 1) {
-  // One more bedroom (acceptable)
-  bedroomScore = 10;
-} else if (propertyBedrooms === buyerBedrooms - 1) {
-  // One less bedroom (less ideal)
-  bedroomScore = 5;
-} else {
-  // Significant mismatch
-  bedroomScore = 0;
-}
+const maxAffordable = buyerMonthlyIncome * 0.5; // 50% rule
+
+if (propertyPayment <= maxAffordable) return 25;        // Perfect
+if (propertyPayment <= maxAffordable * 1.1) return 20;  // 10% over
+if (propertyPayment <= maxAffordable * 1.25) return 15; // 25% over
+if (propertyPayment <= maxAffordable * 1.5) return 10;  // 50% over
+return 5; // Significantly over
+
+// If either value missing: 12 pts (neutral)
+```
+
+**Example:**
+- Buyer monthly income: $5,000
+- Max affordable (50%): $2,500
+- Property payment $2,000 → 25 pts (within budget)
+- Property payment $2,750 → 20 pts (10% over)
+
+---
+
+#### 3. Location Score (15 points max)
+Uses ZIP code matching and haversine formula for distance calculation.
+
+```typescript
+if (zipMatch) return 15;           // In preferred ZIP
+if (distance <= 10) return 14;     // Within 10 miles
+if (distance <= 25) return 11;     // Within 25 miles
+if (distance <= 50) return 8;      // Within 50 miles
+if (distance <= 100) return 5;     // Within 100 miles
+return 2;                          // Beyond 100 miles
+
+// No location preference: 8 pts (neutral)
+```
+
+**Priority Flagging**: Matches within 50 miles OR in preferred ZIP are flagged as priority.
+
+---
+
+#### 4. Bedroom Match (15 points max)
+```typescript
+if (propertyBeds === desiredBeds) return 15;  // Exact match
+if (Math.abs(diff) === 1) return 10;          // Off by 1
+if (propertyBeds > desiredBeds) return 7;     // More than desired
+return 3;                                      // Fewer than desired
+
+// No preference: 8 pts (neutral)
 ```
 
 ---
 
-#### 3. Bathroom Match (10 points max)
+#### 5. Bathroom Match (10 points max)
 ```typescript
-if (propertyBathrooms === buyerBathrooms) {
-  // Exact match
-  bathroomScore = 10;
-} else if (propertyBathrooms >= buyerBathrooms - 0.5 &&
-           propertyBathrooms <= buyerBathrooms + 0.5) {
-  // Close match (half bath difference)
-  bathroomScore = 7;
-} else if (Math.abs(propertyBathrooms - buyerBathrooms) <= 1) {
-  // One bathroom difference
-  bathroomScore = 4;
-} else {
-  // Significant mismatch
-  bathroomScore = 0;
-}
+if (propertyBaths >= desiredBaths) return 10; // Meets/exceeds
+return 3;                                      // Fewer than desired
+
+// No preference: 5 pts (neutral)
 ```
 
 ---
 
-#### 4. Location Match (25 points max)
-Uses ZIP code coordinates and haversine formula to calculate distance.
-
+#### 6. Property Type Match (10 points max)
 ```typescript
-const distance = calculateDistance(
-  buyerZipCoordinates,
-  propertyZipCoordinates
-);
+if (exactMatch) return 10;     // Buyer wants this type
+if (partialMatch) return 5;    // Similar type (e.g., "single family" vs "sfh")
+return 2;                      // No match
 
-if (distance <= 10) {
-  // Within 10 miles
-  locationScore = 25;
-} else if (distance <= 25) {
-  // Within 25 miles
-  locationScore = 20;
-} else if (distance <= 50) {
-  // Within 50 miles
-  locationScore = 15;
-} else if (distance <= 100) {
-  // Within 100 miles
-  locationScore = 10;
-} else {
-  // Too far
-  locationScore = 0;
-}
-```
-
-**Priority Flagging**: Matches within 50 miles are flagged as priority.
-
----
-
-#### 5. Property Type Match (15 points max)
-```typescript
-if (buyerPropertyTypes.includes(propertyType)) {
-  // Buyer wants this type
-  typeScore = 15;
-} else {
-  // Buyer doesn't want this type
-  typeScore = 0;
-}
+// No preference: 5 pts (neutral)
 ```
 
 ---
 
 ### Final Score Calculation
+
 ```typescript
-const totalScore = budgetScore + bedroomScore + bathroomScore +
-                   locationScore + typeScore;
+// For Inventory/Partnered (full matching)
+const totalScore = downPaymentScore + monthlyAffordabilityScore +
+                   locationScore + bedsScore + bathsScore + propertyTypeScore;
+
+// For Acquisitions/Leads/Zillow (simplified matching)
+const baseScore = locationScore + bedsScore + bathsScore;
+const totalScore = Math.round((baseScore / 40) * 100);
 
 // Score ranges from 0-100
 // Default minimum score threshold: 30
 // Matches below threshold are not created
 ```
+
+### Handling Missing Data
+
+| Missing Data | Action |
+|--------------|--------|
+| Buyer missing monthly income | Monthly Affordability = 12 pts (neutral) |
+| Property missing monthly payment | Monthly Affordability = 12 pts (neutral) |
+| Buyer missing down payment | Down Payment = 12 pts (neutral) |
+| Property missing down payment | Down Payment = 12 pts (neutral) |
 
 ---
 
@@ -1632,6 +1674,16 @@ For questions or issues, check the README or contact the development team.
 
 ---
 
-**Last Updated**: 2025-12-18
-**Version**: 1.0
+**Last Updated**: 2026-01-09
+**Version**: 1.1
 **Maintained By**: Purple Homes Development Team
+
+### Changelog
+- **v1.1** (2026-01-09): Updated matching algorithm with new scoring structure
+  - Replaced Budget scoring with Down Payment (25 pts) and Monthly Affordability (25 pts)
+  - Reduced Location weight from 40 to 15 pts
+  - Reduced Bedrooms weight from 25 to 15 pts
+  - Reduced Bathrooms weight from 15 to 10 pts
+  - Added Property Type scoring (10 pts)
+  - Implemented source-based matching (full vs simplified)
+  - Added neutral scores (12 pts) for missing data

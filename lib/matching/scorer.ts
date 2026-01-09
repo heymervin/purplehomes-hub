@@ -13,30 +13,39 @@ import { getOrGeocodeLocation, extractCityFromAddress } from './geocache';
 
 export interface MatchScore {
   score: number;
-  locationScore: number;
-  bedsScore: number;
-  bathsScore: number;
-  budgetScore: number;
+  // New scoring breakdown (100 pts total)
+  downPaymentScore: number; // 0-25 points
+  monthlyAffordabilityScore: number; // 0-25 points
+  locationScore: number; // 0-15 points
+  bedsScore: number; // 0-15 points
+  bathsScore: number; // 0-10 points
+  propertyTypeScore: number; // 0-10 points
+  // Legacy field for backwards compatibility
+  budgetScore: number; // Sum of downPayment + monthlyAffordability (deprecated)
   reasoning: string;
   highlights: string[];
   concerns: string[];
   isPriority: boolean; // In preferred ZIP code OR within 50 miles
   distanceMiles: number | null;
   locationReason: string;
+  matchingMode: 'full' | 'simplified'; // 'full' for Inventory/Partnered, 'simplified' for others
 }
 
 /**
  * Generates a comprehensive match score between a buyer and property
  * Uses hybrid location matching: ZIP codes + distance-based scoring
  *
- * Location Scoring (0-40 points):
- * - ZIP match:      40 pts (isPriority = true)
- * - Within 5 mi:    38 pts (isPriority = true)
- * - Within 10 mi:   35 pts (isPriority = true)
- * - Within 25 mi:   28 pts (isPriority = true)
- * - Within 50 mi:   20 pts (isPriority = true)
- * - Beyond 50 mi:   5-15 pts (isPriority = false)
- * - No location:    20 pts (neutral)
+ * NEW SCORING STRUCTURE (100 pts total):
+ * - Down Payment:           25 pts (buyer DP vs property required DP)
+ * - Monthly Affordability:  25 pts (property payment vs 50% of buyer income)
+ * - Location:               15 pts (ZIP match or distance-based)
+ * - Bedrooms:               15 pts (exact/close match)
+ * - Bathrooms:              10 pts (meets requirement)
+ * - Property Type:          10 pts (exact/partial match)
+ *
+ * SOURCE-BASED MATCHING:
+ * - Inventory/Partnered: All 6 criteria (100 pts)
+ * - Leads/Acquisitions/Zillow: Only Bed, Bath, Location (40 pts scaled to 100)
  *
  * @param buyer - Buyer record from Airtable
  * @param property - Property record from Airtable
@@ -52,16 +61,24 @@ export function generateMatchScore(buyer: any, property: any): MatchScore {
   // Handle both string and array formats from Airtable
   let preferredZipCodes = buyerFields['Preferred Zip Codes'] || [];
   if (typeof preferredZipCodes === 'string') {
-    // Split by comma and trim, or wrap single value in array
     preferredZipCodes = preferredZipCodes.includes(',')
-      ? preferredZipCodes.split(',').map(z => z.trim())
+      ? preferredZipCodes.split(',').map((z: string) => z.trim())
       : [preferredZipCodes.trim()];
   }
 
   const desiredBeds = buyerFields['No. of Bedrooms'];
   const desiredBaths = buyerFields['No. of Bath'];
-  const downPayment = buyerFields['Downpayment'];
+  const buyerDownPayment = buyerFields['Downpayment'];
+  const buyerMonthlyIncome = buyerFields['Monthly Income'];
   const buyerCity = buyerFields['City'] || buyerFields['Preferred Location'] || '';
+
+  // Buyer property type preferences (handle array or comma-separated string)
+  let buyerPropertyTypes = buyerFields['Property Types'] || buyerFields['Preferred Property Types'] || [];
+  if (typeof buyerPropertyTypes === 'string') {
+    buyerPropertyTypes = buyerPropertyTypes.split(',').map((t: string) => t.trim().toLowerCase());
+  } else if (Array.isArray(buyerPropertyTypes)) {
+    buyerPropertyTypes = buyerPropertyTypes.map((t: string) => t.toLowerCase());
+  }
 
   // Buyer coordinates (from Airtable, pre-geocoded)
   const buyerLat = buyerFields['Lat'];
@@ -71,17 +88,28 @@ export function generateMatchScore(buyer: any, property: any): MatchScore {
   const propertyFields = property.fields;
   const propertyAddress = propertyFields['Address'] || '';
   const propertyCity = propertyFields['City'] || '';
-  const propertyPrice = propertyFields['Property Total Price'] || propertyFields['Price'];
   const propertyBeds = propertyFields['Beds'];
   const propertyBaths = propertyFields['Baths'];
   const propertyZipCode = propertyFields['Zip Code'] || propertyFields['ZIP Code'];
+  const propertyType = (propertyFields['Property Type'] || '').toLowerCase();
+
+  // NEW: Property financial fields for affordability matching
+  const propertyDownPayment = propertyFields['Down Payment'] || propertyFields['Downpayment'] || propertyFields['Required Down Payment'];
+  const propertyMonthlyPayment = propertyFields['Monthly Payment'] || propertyFields['Monthly Mortgage Payment'];
+
+  // NEW: Property source for source-based matching
+  const propertySource: string = propertyFields['Source'] || 'Inventory';
 
   // Property coordinates (from Airtable, pre-geocoded)
   const propertyLat = propertyFields['Lat'];
   const propertyLng = propertyFields['Lng'];
 
+  // Determine matching mode based on property source
+  const useFullMatching = propertySource === 'Inventory' || propertySource === 'Partnered';
+  const matchingMode: 'full' | 'simplified' = useFullMatching ? 'full' : 'simplified';
+
   // ====================
-  // HYBRID LOCATION SCORE (0-40 points)
+  // LOCATION SCORE (0-15 points) - Updated from 40
   // Priority: ZIP match > Distance-based > No location data
   // ====================
 
@@ -94,23 +122,19 @@ export function generateMatchScore(buyer: any, property: any): MatchScore {
   const hasCoordinates = isValidCoordinate(buyerLat) && isValidCoordinate(buyerLng) &&
                          isValidCoordinate(propertyLat) && isValidCoordinate(propertyLng);
 
-  // Check ZIP match - Use dedicated Zip Code field first, fallback to extracting from Address
   const inPreferredZip = hasZipCodes && matchPropertyZip(propertyZipCode, propertyAddress, preferredZipCodes);
 
-  // Calculate distance if coordinates are available
   if (hasCoordinates) {
     distanceMiles = calculateDistance(buyerLat, buyerLng, propertyLat, propertyLng);
   }
 
   if (inPreferredZip) {
-    // HIGHEST PRIORITY - Exact ZIP code match
-    locationScore = 40;
+    locationScore = 15; // Max score for ZIP match
     isPriority = true;
     locationReason = `In preferred ZIP ${propertyZipCode}`;
     highlights.push('In preferred ZIP code');
   } else if (distanceMiles !== null) {
-    // Distance-based scoring
-    const { score, reason, priority } = calculateDistanceScore(distanceMiles, buyerCity);
+    const { score, reason, priority } = calculateDistanceScoreNew(distanceMiles, buyerCity);
     locationScore = score;
     isPriority = priority;
     locationReason = reason;
@@ -121,102 +145,158 @@ export function generateMatchScore(buyer: any, property: any): MatchScore {
       concerns.push(reason);
     }
   } else if (hasZipCodes) {
-    // Has ZIP preference but no match and no coordinates
-    locationScore = 10;
+    locationScore = 5;
     isPriority = false;
     locationReason = 'Not in preferred ZIP codes';
     concerns.push('Not in preferred ZIP codes');
   } else {
-    // No location preference specified
-    locationScore = 20; // Neutral score
+    locationScore = 8; // Neutral score
     locationReason = 'No location preference specified';
   }
 
   // ====================
-  // BEDS MATCH (0-25 points)
+  // BEDS MATCH (0-15 points) - Updated from 25
   // ====================
 
   let bedsScore = 0;
 
   if (desiredBeds && propertyBeds) {
     if (propertyBeds === desiredBeds) {
-      bedsScore = 25;
+      bedsScore = 15;
       highlights.push(`Exact bed count: ${propertyBeds} beds`);
     } else if (Math.abs(propertyBeds - desiredBeds) === 1) {
-      bedsScore = 15;
+      bedsScore = 10;
       highlights.push(`Close bed count: ${propertyBeds} beds`);
     } else if (propertyBeds > desiredBeds) {
-      bedsScore = 10;
+      bedsScore = 7;
       highlights.push(`${propertyBeds} beds (more than desired)`);
     } else {
-      bedsScore = 5;
+      bedsScore = 3;
       concerns.push(`Fewer bedrooms: ${propertyBeds} vs ${desiredBeds} desired`);
     }
   } else if (propertyBeds) {
-    bedsScore = 12; // No preference specified
+    bedsScore = 8; // No preference specified
     highlights.push(`${propertyBeds} beds`);
   } else {
-    bedsScore = 12; // No data
+    bedsScore = 8; // No data
   }
 
   // ====================
-  // BATHS MATCH (0-15 points)
+  // BATHS MATCH (0-10 points) - Updated from 15
   // ====================
 
   let bathsScore = 0;
 
   if (desiredBaths && propertyBaths) {
     if (propertyBaths >= desiredBaths) {
-      bathsScore = 15;
+      bathsScore = 10;
       highlights.push(`${propertyBaths} baths`);
     } else {
-      bathsScore = 5;
+      bathsScore = 3;
       concerns.push(`Fewer bathrooms: ${propertyBaths} vs ${desiredBaths} desired`);
     }
   } else if (propertyBaths) {
-    bathsScore = 8; // No preference specified
+    bathsScore = 5; // No preference specified
     highlights.push(`${propertyBaths} baths`);
   } else {
-    bathsScore = 8; // No data
+    bathsScore = 5; // No data
   }
 
   // ====================
-  // BUDGET MATCH (0-20 points)
+  // DOWN PAYMENT SCORE (0-25 points) - NEW
+  // Direct comparison of buyer DP vs property required DP
   // ====================
 
-  let budgetScore = 0;
+  let downPaymentScore = 0;
 
-  if (downPayment && propertyPrice) {
-    const downPaymentRatio = (downPayment / propertyPrice) * 100;
+  if (useFullMatching) {
+    downPaymentScore = calculateDownPaymentScore(buyerDownPayment, propertyDownPayment);
 
-    if (downPaymentRatio >= 20) {
-      budgetScore = 20;
-      highlights.push(`Strong down payment: ${downPaymentRatio.toFixed(0)}% of price`);
-    } else if (downPaymentRatio >= 10) {
-      budgetScore = 15;
-      highlights.push(`Adequate down payment: ${downPaymentRatio.toFixed(0)}%`);
-    } else if (downPaymentRatio >= 5) {
-      budgetScore = 10;
-      highlights.push(`Down payment: ${downPaymentRatio.toFixed(0)}%`);
-    } else {
-      budgetScore = 5;
-      concerns.push(`Low down payment ratio: ${downPaymentRatio.toFixed(0)}%`);
+    if (buyerDownPayment && propertyDownPayment) {
+      if (buyerDownPayment >= propertyDownPayment) {
+        highlights.push(`Down payment covers requirement: $${buyerDownPayment.toLocaleString()} / $${propertyDownPayment.toLocaleString()}`);
+      } else {
+        const shortfall = propertyDownPayment - buyerDownPayment;
+        concerns.push(`Down payment short by $${shortfall.toLocaleString()}`);
+      }
     }
-  } else if (downPayment) {
-    budgetScore = 10; // Has budget but no property price
-  } else {
-    budgetScore = 10; // No budget data
   }
 
   // ====================
-  // TOTAL SCORE (0-100)
+  // MONTHLY AFFORDABILITY SCORE (0-25 points) - NEW
+  // Property payment should be <= 50% of buyer's monthly income
   // ====================
 
-  const totalScore = Math.min(100, locationScore + bedsScore + bathsScore + budgetScore);
+  let monthlyAffordabilityScore = 0;
+
+  if (useFullMatching) {
+    monthlyAffordabilityScore = calculateMonthlyAffordabilityScore(buyerMonthlyIncome, propertyMonthlyPayment);
+
+    if (buyerMonthlyIncome && propertyMonthlyPayment) {
+      const maxAffordable = buyerMonthlyIncome * 0.5;
+      if (propertyMonthlyPayment <= maxAffordable) {
+        highlights.push(`Monthly payment affordable: $${propertyMonthlyPayment.toLocaleString()}/mo (${((propertyMonthlyPayment / buyerMonthlyIncome) * 100).toFixed(0)}% of income)`);
+      } else {
+        const overPercent = ((propertyMonthlyPayment - maxAffordable) / maxAffordable * 100).toFixed(0);
+        concerns.push(`Monthly payment ${overPercent}% over 50% affordability threshold`);
+      }
+    }
+  }
 
   // ====================
-  // REASONING - Explain the score
+  // PROPERTY TYPE SCORE (0-10 points) - NEW
   // ====================
+
+  let propertyTypeScore = 0;
+
+  if (useFullMatching) {
+    propertyTypeScore = calculatePropertyTypeScore(buyerPropertyTypes, propertyType);
+
+    if (buyerPropertyTypes.length > 0 && propertyType) {
+      if (buyerPropertyTypes.includes(propertyType)) {
+        highlights.push(`Preferred property type: ${propertyType}`);
+      } else if (hasPartialPropertyTypeMatch(buyerPropertyTypes, propertyType)) {
+        highlights.push(`Similar property type: ${propertyType}`);
+      }
+    }
+  }
+
+  // ====================
+  // TOTAL SCORE CALCULATION
+  // ====================
+
+  let totalScore: number;
+  const scoreBreakdown: string[] = [];
+
+  if (useFullMatching) {
+    // Full matching: All 6 criteria (100 pts total)
+    totalScore = Math.min(100,
+      downPaymentScore +
+      monthlyAffordabilityScore +
+      locationScore +
+      bedsScore +
+      bathsScore +
+      propertyTypeScore
+    );
+
+    // Build score breakdown for full matching
+    scoreBreakdown.push(`Down Payment: ${downPaymentScore}/25 pts`);
+    scoreBreakdown.push(`Monthly Affordability: ${monthlyAffordabilityScore}/25 pts`);
+    scoreBreakdown.push(`Location: ${locationScore}/15 pts (${locationReason})`);
+    scoreBreakdown.push(`Beds: ${bedsScore}/15 pts`);
+    scoreBreakdown.push(`Baths: ${bathsScore}/10 pts`);
+    scoreBreakdown.push(`Property Type: ${propertyTypeScore}/10 pts`);
+  } else {
+    // Simplified matching: Only bed, bath, location (40 pts) scaled to 100
+    const baseScore = locationScore + bedsScore + bathsScore;
+    totalScore = Math.round((baseScore / 40) * 100);
+
+    // Build score breakdown for simplified matching
+    scoreBreakdown.push(`Location: ${locationScore}/15 pts (${locationReason})`);
+    scoreBreakdown.push(`Beds: ${bedsScore}/15 pts`);
+    scoreBreakdown.push(`Baths: ${bathsScore}/10 pts`);
+    scoreBreakdown.push(`[Simplified matching for ${propertySource} - financial criteria not scored]`);
+  }
 
   // Determine match quality label
   let matchQuality = '';
@@ -230,72 +310,33 @@ export function generateMatchScore(buyer: any, property: any): MatchScore {
     matchQuality = 'Limited Match';
   }
 
-  // Build score explanation
-  const scoreBreakdown: string[] = [];
-
-  // Location explanation
-  if (distanceMiles !== null) {
-    scoreBreakdown.push(`Location: ${locationScore}/40 pts (${locationReason})`);
-  } else if (isPriority) {
-    scoreBreakdown.push(`Location: ${locationScore}/40 pts (in preferred ZIP)`);
-  } else if (hasZipCodes) {
-    scoreBreakdown.push(`Location: ${locationScore}/40 pts (outside preferred ZIPs)`);
-  } else {
-    scoreBreakdown.push(`Location: ${locationScore}/40 pts (no location preference set)`);
-  }
-
-  // Beds explanation
-  if (desiredBeds && propertyBeds) {
-    if (propertyBeds === desiredBeds) {
-      scoreBreakdown.push(`Beds: ${bedsScore}/25 pts (exact match: ${propertyBeds} beds)`);
-    } else {
-      const diff = propertyBeds - desiredBeds;
-      scoreBreakdown.push(`Beds: ${bedsScore}/25 pts (${propertyBeds} beds, ${diff > 0 ? '+' : ''}${diff} vs desired)`);
-    }
-  } else {
-    scoreBreakdown.push(`Beds: ${bedsScore}/25 pts`);
-  }
-
-  // Baths explanation
-  if (desiredBaths && propertyBaths) {
-    if (propertyBaths >= desiredBaths) {
-      scoreBreakdown.push(`Baths: ${bathsScore}/15 pts (meets requirement: ${propertyBaths} baths)`);
-    } else {
-      scoreBreakdown.push(`Baths: ${bathsScore}/15 pts (${propertyBaths} baths, needs ${desiredBaths})`);
-    }
-  } else {
-    scoreBreakdown.push(`Baths: ${bathsScore}/15 pts`);
-  }
-
-  // Budget explanation
-  if (downPayment && propertyPrice) {
-    const ratio = ((downPayment / propertyPrice) * 100).toFixed(0);
-    scoreBreakdown.push(`Budget: ${budgetScore}/20 pts (${ratio}% down payment ratio)`);
-  } else {
-    scoreBreakdown.push(`Budget: ${budgetScore}/20 pts`);
-  }
-
   // Compose full reasoning
   let reasoning = `${matchQuality} (Score: ${Math.round(totalScore)}/100)\n\n`;
   reasoning += `Score Breakdown:\n${scoreBreakdown.map(s => `• ${s}`).join('\n')}`;
 
-  // Add priority flag
   if (isPriority) {
     reasoning = `[PRIORITY] ${reasoning}`;
   }
 
+  // Legacy budgetScore for backwards compatibility (sum of DP + affordability)
+  const budgetScore = downPaymentScore + monthlyAffordabilityScore;
+
   return {
     score: Math.round(totalScore),
+    downPaymentScore,
+    monthlyAffordabilityScore,
     locationScore,
     bedsScore,
     bathsScore,
-    budgetScore,
+    propertyTypeScore,
+    budgetScore, // Legacy field
     reasoning,
     highlights,
     concerns,
     isPriority,
     distanceMiles,
     locationReason,
+    matchingMode,
   };
 }
 
@@ -303,16 +344,159 @@ export function generateMatchScore(buyer: any, property: any): MatchScore {
  * Score breakdown helper for debugging
  */
 export function getScoreBreakdown(score: MatchScore): string {
+  const mode = score.matchingMode === 'simplified' ? ' [SIMPLIFIED]' : '';
   return `
-Total Score: ${score.score}/100 ${score.isPriority ? '(PRIORITY)' : ''}
-  - ZIP Code: ${score.locationScore}/40
-  - Beds: ${score.bedsScore}/25
-  - Baths: ${score.bathsScore}/15
-  - Budget: ${score.budgetScore}/20
+Total Score: ${score.score}/100 ${score.isPriority ? '(PRIORITY)' : ''}${mode}
+  - Down Payment: ${score.downPaymentScore}/25
+  - Monthly Affordability: ${score.monthlyAffordabilityScore}/25
+  - Location: ${score.locationScore}/15
+  - Beds: ${score.bedsScore}/15
+  - Baths: ${score.bathsScore}/10
+  - Property Type: ${score.propertyTypeScore}/10
 
 Highlights: ${score.highlights.join(', ')}
 ${score.concerns.length > 0 ? `Concerns: ${score.concerns.join(', ')}` : ''}
 `.trim();
+}
+
+/**
+ * Calculate Down Payment Score (0-25 points)
+ * Direct comparison of buyer's available DP vs property's required DP
+ */
+function calculateDownPaymentScore(
+  buyerDownPayment: number | undefined,
+  propertyDownPayment: number | undefined
+): number {
+  // If either is missing, return neutral score
+  if (!buyerDownPayment || !propertyDownPayment) return 12;
+
+  if (buyerDownPayment >= propertyDownPayment) return 25;        // Can afford
+  if (buyerDownPayment >= propertyDownPayment * 0.9) return 20;  // 10% short
+  if (buyerDownPayment >= propertyDownPayment * 0.75) return 15; // 25% short
+  if (buyerDownPayment >= propertyDownPayment * 0.5) return 10;  // 50% short
+  return 5; // Significantly short
+}
+
+/**
+ * Calculate Monthly Affordability Score (0-25 points)
+ * Property monthly payment should be <= 50% of buyer's monthly income
+ */
+function calculateMonthlyAffordabilityScore(
+  buyerMonthlyIncome: number | undefined,
+  propertyMonthlyPayment: number | undefined
+): number {
+  // If either is missing, return neutral score
+  if (!buyerMonthlyIncome || !propertyMonthlyPayment) return 12;
+
+  const maxAffordable = buyerMonthlyIncome * 0.5; // 50% rule
+
+  if (propertyMonthlyPayment <= maxAffordable) return 25;        // Perfect
+  if (propertyMonthlyPayment <= maxAffordable * 1.1) return 20;  // 10% over
+  if (propertyMonthlyPayment <= maxAffordable * 1.25) return 15; // 25% over
+  if (propertyMonthlyPayment <= maxAffordable * 1.5) return 10;  // 50% over
+  return 5; // Significantly over
+}
+
+/**
+ * Calculate Property Type Score (0-10 points)
+ */
+function calculatePropertyTypeScore(
+  buyerPropertyTypes: string[],
+  propertyType: string
+): number {
+  // If buyer has no preference or property has no type, neutral score
+  if (!buyerPropertyTypes || buyerPropertyTypes.length === 0 || !propertyType) return 5;
+
+  // Exact match
+  if (buyerPropertyTypes.includes(propertyType)) return 10;
+
+  // Partial match (e.g., "single family" matches "single family home")
+  if (hasPartialPropertyTypeMatch(buyerPropertyTypes, propertyType)) return 5;
+
+  // No match
+  return 2;
+}
+
+/**
+ * Check for partial property type matches
+ * Handles variations like "single family" vs "single family home"
+ */
+function hasPartialPropertyTypeMatch(buyerTypes: string[], propertyType: string): boolean {
+  // Common property type aliases
+  const aliases: Record<string, string[]> = {
+    'single family': ['single family home', 'sfh', 'house', 'detached'],
+    'condo': ['condominium', 'condo unit'],
+    'townhouse': ['townhome', 'town house', 'row house'],
+    'duplex': ['2-unit', 'two unit', 'multi family'],
+    'triplex': ['3-unit', 'three unit'],
+    'mobile home': ['manufactured home', 'mobile'],
+  };
+
+  for (const buyerType of buyerTypes) {
+    // Check if property type contains buyer type or vice versa
+    if (propertyType.includes(buyerType) || buyerType.includes(propertyType)) {
+      return true;
+    }
+
+    // Check aliases
+    const typeAliases = aliases[buyerType] || [];
+    if (typeAliases.some(alias => propertyType.includes(alias) || alias.includes(propertyType))) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Calculate location score based on distance (NEW - scaled to 15 pts max)
+ * Returns score, reason string, and priority flag
+ */
+function calculateDistanceScoreNew(distanceMiles: number, buyerCity: string): {
+  score: number;
+  reason: string;
+  priority: boolean;
+} {
+  const locationLabel = buyerCity || 'preferred area';
+
+  if (distanceMiles <= 10) {
+    return {
+      score: 14, // Was 25-38, now scaled to 15 max
+      reason: `${distanceMiles.toFixed(1)} mi from ${locationLabel}`,
+      priority: true,
+    };
+  }
+
+  if (distanceMiles <= 25) {
+    return {
+      score: 11, // Was 20-28
+      reason: `${distanceMiles.toFixed(1)} mi from ${locationLabel}`,
+      priority: true,
+    };
+  }
+
+  if (distanceMiles <= 50) {
+    return {
+      score: 8, // Was 15-20
+      reason: `${distanceMiles.toFixed(1)} mi from ${locationLabel}`,
+      priority: true,
+    };
+  }
+
+  if (distanceMiles <= 100) {
+    return {
+      score: 5, // Was 10
+      reason: `${distanceMiles.toFixed(0)} mi from ${locationLabel}`,
+      priority: false,
+    };
+  }
+
+  // Beyond 100 miles
+  return {
+    score: 2,
+    reason: `${distanceMiles.toFixed(0)} mi away`,
+    priority: false,
+  };
 }
 
 /**

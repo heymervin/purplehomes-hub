@@ -174,15 +174,26 @@ export interface MatchScore {
   score: number; // 0-100
   distance?: number; // Distance in miles (legacy, use distanceMiles)
   distanceMiles: number | null; // Distance in miles (null if no coordinates)
-  locationScore: number; // 0-40 points
-  bedsScore: number; // 0-25 points
-  bathsScore: number; // 0-15 points
-  budgetScore: number; // 0-20 points
+
+  // New scoring breakdown (100 pts total)
+  downPaymentScore: number; // 0-25 points - Buyer DP vs Property DP
+  monthlyAffordabilityScore: number; // 0-25 points - Property payment vs 50% of buyer income
+  locationScore: number; // 0-15 points
+  bedsScore: number; // 0-15 points
+  bathsScore: number; // 0-10 points
+  propertyTypeScore: number; // 0-10 points
+
+  // Legacy field for backwards compatibility (sum of downPayment + monthlyAffordability scores)
+  budgetScore: number; // 0-50 points (deprecated, kept for backwards compatibility)
+
   reasoning: string;
   locationReason: string; // Human-readable location explanation
   highlights: string[];
   concerns: string[];
   isPriority: boolean; // Within 50 miles OR in preferred ZIP
+
+  // Source-based matching metadata
+  matchingMode?: 'full' | 'simplified'; // 'full' for Inventory/Partnered, 'simplified' for Leads/Acquisitions/Zillow
 }
 
 /**
