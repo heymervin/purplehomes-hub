@@ -3,13 +3,12 @@
  *
  * Choose when to post:
  * - Now (immediate)
+ * - Add to Queue (auto-schedule based on queue settings)
  * - Staggered (start time + interval)
- * - Specific date/time for each (future)
  */
 
 import { useMemo } from 'react';
-import { Calendar, Clock, Zap, Layers } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Calendar, Clock, Zap, Layers, ListOrdered } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,8 +18,12 @@ import { cn } from '@/lib/utils';
 import { format, addHours, setHours, setMinutes } from 'date-fns';
 import type { Property } from '@/types';
 import type { BatchWizardState, ScheduleType } from '../types';
-import { useSocialAccounts } from '@/services/ghlApi';
+import { useSocialAccounts, useScheduledPosts } from '@/services/ghlApi';
 import { SocialAccountSelector } from '../../SocialAccountSelector';
+import { SchedulePreview } from '../../queue/SchedulePreview';
+import { useQueueSettings } from '@/hooks/useQueueSettings';
+import { allocatePropertiesToSlots, getSettingsSummary } from '@/lib/queue/calculateSlots';
+import type { PipelinePost } from '@/lib/queue/types';
 
 interface BatchScheduleStepProps {
   properties: Property[];
@@ -34,13 +37,42 @@ export default function BatchScheduleStep({
   updateState,
 }: BatchScheduleStepProps) {
   const { data: socialAccountsData } = useSocialAccounts();
+  const { data: scheduledPostsData } = useScheduledPosts();
+  const { settings } = useQueueSettings();
   const accounts = socialAccountsData?.accounts || [];
 
   const selectedProperties = properties.filter((p) =>
     state.selectedPropertyIds.includes(p.id)
   );
 
-  // Calculate scheduled times preview
+  // Transform existing posts to PipelinePost format for slot calculation
+  const existingPosts: PipelinePost[] = useMemo(() => {
+    const ghlPosts = scheduledPostsData?.posts || [];
+    return ghlPosts.map(post => ({
+      id: post.id,
+      content: post.summary || '',
+      imageUrl: post.media?.[0]?.url,
+      platforms: post.accountIds || [],
+      scheduledAt: new Date(post.scheduleDate || post.createdAt),
+      status: post.status === 'scheduled' ? 'scheduled' : post.status === 'published' ? 'published' : 'failed',
+      accountIds: post.accountIds || [],
+    }));
+  }, [scheduledPostsData]);
+
+  // Calculate queue allocations when "Add to Queue" is selected
+  const queueAllocations = useMemo(() => {
+    if (state.scheduleType !== 'queue') return [];
+
+    const propertiesToAllocate = selectedProperties.map((p) => ({
+      id: p.id,
+      propertyCode: p.propertyCode || p.id,
+      platforms: state.selectedAccounts,
+    }));
+
+    return allocatePropertiesToSlots(propertiesToAllocate, settings, existingPosts);
+  }, [selectedProperties, settings, state.scheduleType, state.selectedAccounts, existingPosts]);
+
+  // Calculate scheduled times preview for staggered
   const scheduledTimes = useMemo(() => {
     if (state.scheduleType !== 'staggered' || !state.staggerSettings.startDate) {
       return [];
@@ -48,7 +80,7 @@ export default function BatchScheduleStep({
 
     const startDate = new Date(state.staggerSettings.startDate);
     const [hours, minutes] = state.staggerSettings.startTime.split(':').map(Number);
-    let currentTime = setMinutes(setHours(startDate, hours), minutes);
+    const currentTime = setMinutes(setHours(startDate, hours), minutes);
 
     return selectedProperties.map((property, index) => {
       const time = addHours(currentTime, index * state.staggerSettings.intervalHours);
@@ -122,7 +154,7 @@ export default function BatchScheduleStep({
         <RadioGroup
           value={state.scheduleType}
           onValueChange={(v) => handleScheduleTypeChange(v as ScheduleType)}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3"
         >
           {/* Post Now */}
           <label
@@ -145,6 +177,27 @@ export default function BatchScheduleStep({
             </div>
           </label>
 
+          {/* Add to Queue */}
+          <label
+            className={cn(
+              'flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all',
+              state.scheduleType === 'queue'
+                ? 'border-purple-500 bg-purple-50 dark:bg-purple-950/20'
+                : 'border-muted hover:border-muted-foreground/30'
+            )}
+          >
+            <RadioGroupItem value="queue" className="mt-0.5" />
+            <div>
+              <div className="flex items-center gap-2">
+                <ListOrdered className="h-4 w-4 text-green-500" />
+                <span className="font-medium">Add to Queue</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Auto-schedule based on your queue settings
+              </p>
+            </div>
+          </label>
+
           {/* Staggered */}
           <label
             className={cn(
@@ -158,15 +211,28 @@ export default function BatchScheduleStep({
             <div>
               <div className="flex items-center gap-2">
                 <Layers className="h-4 w-4 text-blue-500" />
-                <span className="font-medium">Staggered Schedule</span>
+                <span className="font-medium">Staggered</span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Spread posts over time with intervals
+                Custom start time + interval
               </p>
             </div>
           </label>
         </RadioGroup>
       </div>
+
+      {/* Queue Settings Summary & Preview */}
+      {state.scheduleType === 'queue' && (
+        <div className="space-y-4">
+          <div className="p-3 bg-muted/50 rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium">Queue settings: </span>
+              {getSettingsSummary(settings)}
+            </p>
+          </div>
+          <SchedulePreview allocations={queueAllocations} showAdjustButton={false} />
+        </div>
+      )}
 
       {/* Stagger Settings */}
       {state.scheduleType === 'staggered' && (
@@ -235,7 +301,7 @@ export default function BatchScheduleStep({
         </div>
       )}
 
-      {/* Schedule Preview */}
+      {/* Schedule Preview for Staggered */}
       {state.scheduleType === 'staggered' && scheduledTimes.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">

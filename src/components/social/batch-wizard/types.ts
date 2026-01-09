@@ -89,7 +89,7 @@ export interface PropertyPostState {
 // ============================================
 // SCHEDULE OPTIONS
 // ============================================
-export type ScheduleType = 'now' | 'staggered' | 'specific';
+export type ScheduleType = 'now' | 'staggered' | 'queue' | 'specific';
 
 export interface StaggerSettings {
   startDate: Date | null;

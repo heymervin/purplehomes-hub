@@ -22,7 +22,9 @@ import {
 import { cn } from '@/lib/utils';
 import type { Property } from '@/types';
 import type { BatchWizardState, PropertyPostState } from '../types';
-import { POST_INTENTS, TONE_PRESETS, PostIntent, CaptionTone, Platform } from '../../create-wizard/types';
+import { POST_INTENTS, TONE_PRESETS, Platform } from '../../create-wizard/types';
+import { PresetSelector } from '../../presets';
+import type { Preset } from '@/lib/presets/types';
 
 interface BatchCaptionStepProps {
   properties: Property[];
@@ -44,6 +46,18 @@ export default function BatchCaptionStep({
   const [currentGeneratingId, setCurrentGeneratingId] = useState<string | null>(null);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [editCaption, setEditCaption] = useState('');
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
+
+  // Handle preset application
+  const handleApplyPreset = (preset: Preset) => {
+    setSelectedPresetId(preset.id);
+    updateState({
+      postIntent: preset.postIntent,
+      tone: preset.tone,
+      selectedHashtags: preset.hashtags,
+      selectedTemplateId: preset.templateId,
+    });
+  };
 
   const selectedProperties = properties.filter((p) =>
     state.selectedPropertyIds.includes(p.id)
@@ -158,13 +172,29 @@ export default function BatchCaptionStep({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-xl font-semibold">Generate Captions</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Choose your post intent and tone, then generate captions for all {selectedProperties.length}{' '}
-          properties
-        </p>
+      {/* Header with Preset Selector */}
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-semibold">Generate Captions</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Choose your post intent and tone, then generate captions for all {selectedProperties.length}{' '}
+            properties
+          </p>
+        </div>
+
+        {/* Preset Selector */}
+        <PresetSelector
+          currentValues={{
+            postIntent: state.postIntent,
+            tone: state.tone,
+            hashtags: state.selectedHashtags,
+            templateId: state.selectedTemplateId,
+            platforms: ['facebook', 'instagram'],
+          }}
+          onApply={handleApplyPreset}
+          selectedPresetId={selectedPresetId}
+          compact
+        />
       </div>
 
       {/* Intent Selection */}

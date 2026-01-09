@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Info } from 'lucide-react';
 import {
   Tooltip,
@@ -8,8 +8,10 @@ import {
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { PostIntentSubstep, ToneSubstep, EditCaptionSubstep } from './caption-substeps';
+import { PresetSelector } from '../../presets';
 import type { WizardState, CaptionSubstep } from '../types';
 import { CAPTION_SUBSTEPS, CAPTION_SUBSTEP_CONFIG } from '../types';
+import type { Preset } from '@/lib/presets/types';
 
 interface CaptionStepProps {
   state: WizardState;
@@ -18,6 +20,20 @@ interface CaptionStepProps {
 
 export default function CaptionStep({ state, updateState }: CaptionStepProps) {
   const currentSubstepIndex = CAPTION_SUBSTEPS.indexOf(state.captionSubstep);
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
+
+  // Handle preset application
+  const handleApplyPreset = (preset: Preset) => {
+    setSelectedPresetId(preset.id);
+    updateState({
+      postIntent: preset.postIntent,
+      tone: preset.tone,
+      selectedHashtags: preset.hashtags,
+      selectedTemplateId: preset.templateId,
+      // Skip to edit substep since intent and tone are set
+      captionSubstep: 'edit',
+    });
+  };
 
   const goToSubstep = (substep: CaptionSubstep) => {
     updateState({ captionSubstep: substep });
@@ -72,17 +88,34 @@ export default function CaptionStep({ state, updateState }: CaptionStepProps) {
   return (
     <TooltipProvider>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-2">
-          <h2 className="text-xl font-semibold">Caption</h2>
-          <Tooltip>
-            <TooltipTrigger>
-              <Info className="h-4 w-4 text-muted-foreground" />
-            </TooltipTrigger>
-            <TooltipContent>
-              Choose your post intent, tone, and write your caption
-            </TooltipContent>
-          </Tooltip>
+        {/* Header with Preset Selector */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-semibold">Caption</h2>
+            <Tooltip>
+              <TooltipTrigger>
+                <Info className="h-4 w-4 text-muted-foreground" />
+              </TooltipTrigger>
+              <TooltipContent>
+                Choose your post intent, tone, and write your caption
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          {/* Preset Selector */}
+          <PresetSelector
+            currentValues={{
+              postIntent: state.postIntent,
+              tone: state.tone,
+              hashtags: state.selectedHashtags,
+              templateId: state.selectedTemplateId,
+              platforms: state.selectedAccounts.length > 0
+                ? ['facebook', 'instagram'] // Default platforms
+                : ['facebook', 'instagram'],
+            }}
+            onApply={handleApplyPreset}
+            selectedPresetId={selectedPresetId}
+          />
         </div>
 
         {/* Sub-step Progress */}
