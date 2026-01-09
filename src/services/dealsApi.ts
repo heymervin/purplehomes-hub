@@ -29,13 +29,22 @@ const GHL_API_BASE = '/api/ghl';
 // Constants
 const STALE_THRESHOLD_DAYS = 7;
 
-// GHL Buyer Disposition Pipeline Stage IDs
-// Maps our deal stages to the corresponding GHL pipeline stage IDs
+// GHL Pipeline IDs
+const GHL_BUYER_DISPOSITION_PIPELINE_ID = 'cThFQOW6nkVKVxbBrDAV';
+
+// GHL Buyer Home Disposition (CAR) Pipeline Stage IDs
+// Pipeline ID: cThFQOW6nkVKVxbBrDAV
+// Maps PropertyPro deal stages to GHL pipeline stages
 const GHL_BUYER_PIPELINE_STAGE_IDS: Partial<Record<MatchDealStage, string>> = {
-  'Underwriting': '305be21b-3c52-4fae-abdf-23c5477d05a5', // Underwriting / Checklist
-  'Contracts': '4377ef1f-a103-42e9-adfa-c7a78d22723a',    // Buyer Contract Signed
-  'Qualified': 'bc8d6c4b-4da3-4c5d-8aa0-eeb7feed3859',    // Qualification Phase
-  'Closed Deal / Won': '1caa0fe9-608d-4f55-82f9-d43f35bb5123', // Closed = Won
+  'Sent to Buyer': '7dcbe688-43bb-4e22-baf4-304507a665bc',        // Matching
+  'Buyer Responded': '7dcbe688-43bb-4e22-baf4-304507a665bc',      // Matching
+  'Showing Scheduled': '7dcbe688-43bb-4e22-baf4-304507a665bc',    // Matching
+  'Property Viewed': '7dcbe688-43bb-4e22-baf4-304507a665bc',      // Matching
+  'Underwriting': 'e72229e9-024b-4fa8-8f69-f2eec888802a',         // Underwriting
+  'Contracts': 'fc212c8e-2160-4883-b415-809cec695447',            // Contract Signed
+  'Qualified': '2cf341fc-72e9-4d13-a4cd-8da514b412ad',            // RMLO Qualifying
+  'Closed Deal / Won': '3c6945d7-8213-4af9-b58c-01d729e09b21',    // Won
+  'Not Interested': 'c024c689-0463-44c5-83b0-76ba871f4d1a',       // Lost
 };
 
 /**
@@ -809,15 +818,15 @@ export const useUpdateDealStage = () => {
         }
       }
 
-      // 4. Update GHL Buyer Disposition pipeline stage if we have a mapping for this stage
+      // 4. Update GHL Buyer Home Disposition pipeline stage if we have a mapping for this stage
       const ghlPipelineStageId = GHL_BUYER_PIPELINE_STAGE_IDS[toStage];
       if (ghlPipelineStageId && contactId) {
         try {
           console.log('[Deals API] Updating GHL Buyer pipeline stage:', { toStage, ghlPipelineStageId, contactId });
 
-          // Find the buyer's opportunity in the Buyer Disposition pipeline
+          // Find the buyer's opportunity in the Buyer Home Disposition pipeline
           const searchResponse = await fetch(
-            `${GHL_API_BASE}?resource=opportunities&pipelineType=buyer-disposition&contactId=${encodeURIComponent(contactId)}`
+            `${GHL_API_BASE}?resource=opportunities&pipeline=${GHL_BUYER_DISPOSITION_PIPELINE_ID}&contactId=${encodeURIComponent(contactId)}`
           );
 
           if (searchResponse.ok) {
@@ -835,6 +844,7 @@ export const useUpdateDealStage = () => {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
+                    pipelineId: 'cThFQOW6nkVKVxbBrDAV',
                     pipelineStageId: ghlPipelineStageId,
                   }),
                 }
