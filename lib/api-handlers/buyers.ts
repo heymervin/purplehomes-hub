@@ -373,17 +373,12 @@ async function handleUpdate(
         // Custom fields - GHL API expects { id, field_value } format
         const customFields: Array<{ id: string; field_value: any }> = [];
 
+        // These fields are TEXT type in GHL - send as strings
         if (fields.desiredBeds !== undefined && fields.desiredBeds !== '') {
-          const bedsNum = parseInt(fields.desiredBeds);
-          if (!isNaN(bedsNum)) {
-            customFields.push({ id: GHL_BUYER_FIELDS.desiredBeds, field_value: bedsNum });
-          }
+          customFields.push({ id: GHL_BUYER_FIELDS.desiredBeds, field_value: fields.desiredBeds });
         }
         if (fields.desiredBaths !== undefined && fields.desiredBaths !== '') {
-          const bathsNum = parseFloat(fields.desiredBaths);
-          if (!isNaN(bathsNum)) {
-            customFields.push({ id: GHL_BUYER_FIELDS.desiredBaths, field_value: bathsNum });
-          }
+          customFields.push({ id: GHL_BUYER_FIELDS.desiredBaths, field_value: fields.desiredBaths });
         }
         if (fields.preferredLocation !== undefined && fields.preferredLocation !== '') {
           customFields.push({ id: GHL_BUYER_FIELDS.preferredLocation, field_value: fields.preferredLocation });
@@ -394,22 +389,22 @@ async function handleUpdate(
         if (fields.buyerType !== undefined && fields.buyerType !== '') {
           customFields.push({ id: GHL_BUYER_FIELDS.buyerType, field_value: fields.buyerType });
         }
-        // Parse currency fields - they come as "$20,000" format
+        // Currency fields are TEXT type - strip formatting and send as string
         if (fields.downPayment !== undefined && fields.downPayment !== '') {
-          const parsed = parseFloat(String(fields.downPayment).replace(/[^0-9.]/g, ''));
-          if (!isNaN(parsed)) {
+          const parsed = String(fields.downPayment).replace(/[^0-9.]/g, '');
+          if (parsed) {
             customFields.push({ id: GHL_BUYER_FIELDS.downPayment, field_value: parsed });
           }
         }
         if (fields.monthlyIncome !== undefined && fields.monthlyIncome !== '') {
-          const parsed = parseFloat(String(fields.monthlyIncome).replace(/[^0-9.]/g, ''));
-          if (!isNaN(parsed)) {
+          const parsed = String(fields.monthlyIncome).replace(/[^0-9.]/g, '');
+          if (parsed) {
             customFields.push({ id: GHL_BUYER_FIELDS.monthlyIncome, field_value: parsed });
           }
         }
         if (fields.monthlyLiabilities !== undefined && fields.monthlyLiabilities !== '') {
-          const parsed = parseFloat(String(fields.monthlyLiabilities).replace(/[^0-9.]/g, ''));
-          if (!isNaN(parsed)) {
+          const parsed = String(fields.monthlyLiabilities).replace(/[^0-9.]/g, '');
+          if (parsed) {
             customFields.push({ id: GHL_BUYER_FIELDS.monthlyLiabilities, field_value: parsed });
           }
         }
