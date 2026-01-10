@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Info, Upload, X, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import {
   Tooltip,
   TooltipContent,
