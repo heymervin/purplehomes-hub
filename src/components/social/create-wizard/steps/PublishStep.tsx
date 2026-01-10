@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 import { useSocialAccounts } from '@/services/ghlApi';
 import { renderImejisTemplate } from '@/services/imejis/api';
 import { getTemplateById } from '@/lib/templates/profiles';
-import { buildImejisPayload } from '@/lib/templates/imejisMapper';
+import { buildImejisPayload, resolveAllFields, preparePropertyForTemplate } from '@/lib/templates/fieldMapper';
 import PostPreview from '../components/PostPreview';
 import ExpandablePreview from '../components/ExpandablePreview';
 import type { WizardState, Platform } from '../types';
@@ -86,11 +86,11 @@ export default function PublishStep({ state, updateState }: PublishStepProps) {
         return;
       }
 
-      const payload = buildImejisPayload({
-        template,
-        property: state.selectedProperty || null,
-        userInputs: state.templateUserInputs || {},
-      });
+      const preparedProperty = state.selectedProperty
+        ? preparePropertyForTemplate(state.selectedProperty)
+        : null;
+      const resolvedFields = resolveAllFields(template, preparedProperty, state.templateUserInputs || {});
+      const payload = buildImejisPayload(template, resolvedFields);
 
       const result = await renderImejisTemplate(payload);
 
