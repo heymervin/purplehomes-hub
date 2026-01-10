@@ -129,6 +129,36 @@ export function useWizardState() {
     }
   }, [state]);
 
+  // Get validation message explaining why Next is disabled
+  const getValidationMessage = useCallback(() => {
+    if (canGoNext()) return undefined;
+
+    switch (state.currentStep) {
+      case 'source':
+        if (state.postType === 'property' && !state.selectedProperty) {
+          return 'Please select a property to continue.';
+        }
+        return undefined;
+      case 'caption':
+        if (state.captionSubstep === 'edit' && !Object.values(state.captions).some(c => c.length > 0)) {
+          return 'Please write at least one caption before proceeding.';
+        }
+        return undefined;
+      case 'image':
+        if (state.postType !== 'text-only') {
+          return 'Please select a template or upload a custom image.';
+        }
+        return undefined;
+      case 'publish':
+        if (state.selectedAccounts.length === 0) {
+          return 'Please select at least one social media account to publish to.';
+        }
+        return undefined;
+      default:
+        return undefined;
+    }
+  }, [state, canGoNext]);
+
   const canGoBack = state.currentStep !== 'source' ||
     (state.currentStep === 'caption' && state.captionSubstep !== 'intent');
 
@@ -140,6 +170,7 @@ export function useWizardState() {
     goBack,
     canGoNext: canGoNext(),
     canGoBack,
+    validationMessage: getValidationMessage(),
     resetWizard,
   };
 }

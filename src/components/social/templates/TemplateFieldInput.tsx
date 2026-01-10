@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import type { FieldConfig } from '@/lib/templates/types';
 
 interface TemplateFieldInputProps {
@@ -29,9 +29,63 @@ export function TemplateFieldInput({
   if (!inputConfig) return null;
 
   const hasError = !!error;
-  const [date, setDate] = useState<Date | undefined>(value ? new Date(value) : undefined);
-  const [startTime, setStartTime] = useState('14:00'); // 24-hour format for input
-  const [endTime, setEndTime] = useState('16:00'); // 24-hour format for input
+
+  // Parse existing value if it exists (format: "Saturday, Jan 15 • 2-4 PM")
+  const parseExistingDateTime = (val: string) => {
+    if (!val) return { date: undefined, startTime: '14:00', endTime: '16:00' };
+
+    try {
+      // Split by bullet point
+      const [datePart, timePart] = val.split('•').map(s => s.trim());
+
+      // Parse date part (e.g., "Saturday, Jan 15")
+      const parsedDate = parse(datePart, 'EEEE, MMM d', new Date());
+
+      // Parse time range (e.g., "2-4 PM" or "2 PM-4 PM")
+      if (timePart) {
+        const timeMatch = timePart.match(/(\d{1,2})\s*(AM|PM)?-(\d{1,2})\s*(AM|PM)/i);
+        if (timeMatch) {
+          const [, startHour, startPeriod, endHour, endPeriod] = timeMatch;
+
+          // Convert to 24-hour format
+          let startHour24 = parseInt(startHour);
+          let endHour24 = parseInt(endHour);
+
+          // Handle AM/PM conversion
+          const finalStartPeriod = startPeriod || endPeriod; // Use end period if start doesn't have one
+          const finalEndPeriod = endPeriod;
+
+          if (finalStartPeriod?.toUpperCase() === 'PM' && startHour24 !== 12) {
+            startHour24 += 12;
+          } else if (finalStartPeriod?.toUpperCase() === 'AM' && startHour24 === 12) {
+            startHour24 = 0;
+          }
+
+          if (finalEndPeriod?.toUpperCase() === 'PM' && endHour24 !== 12) {
+            endHour24 += 12;
+          } else if (finalEndPeriod?.toUpperCase() === 'AM' && endHour24 === 12) {
+            endHour24 = 0;
+          }
+
+          return {
+            date: parsedDate,
+            startTime: `${startHour24.toString().padStart(2, '0')}:00`,
+            endTime: `${endHour24.toString().padStart(2, '0')}:00`,
+          };
+        }
+      }
+
+      return { date: parsedDate, startTime: '14:00', endTime: '16:00' };
+    } catch (error) {
+      console.error('Error parsing datetime:', error);
+      return { date: undefined, startTime: '14:00', endTime: '16:00' };
+    }
+  };
+
+  const initialDateTime = parseExistingDateTime(value);
+  const [date, setDate] = useState<Date | undefined>(initialDateTime.date);
+  const [startTime, setStartTime] = useState(initialDateTime.startTime);
+  const [endTime, setEndTime] = useState(initialDateTime.endTime);
 
   // Convert 24-hour time (14:00) to 12-hour format (2 PM)
   const formatTime12Hour = (time24: string): string => {

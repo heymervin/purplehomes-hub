@@ -81,7 +81,11 @@ export function TemplateCard({
 
           {/* Input Badge */}
           <div className="absolute top-2 right-2">
-            {template.userInputCount === 0 ? (
+            {template.id === 'success-story' ? (
+              <Badge className="bg-amber-500 text-white text-xs">
+                ✏️ Manual Only
+              </Badge>
+            ) : template.userInputCount === 0 ? (
               <Badge className="bg-green-500 text-white text-xs">
                 <Sparkles className="h-3 w-3 mr-1" />
                 Auto-fill

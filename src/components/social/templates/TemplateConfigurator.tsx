@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { ChevronLeft, Loader2, Sparkles, Check, AlertCircle, Eye } from 'lucide-react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { ChevronLeft, Loader2, Sparkles, Check, AlertCircle, Eye, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +10,10 @@ import {
   areAllFieldsValid,
   getValidationErrors,
   preparePropertyForTemplate,
+  buildImejisPayload,
 } from '@/lib/templates/fieldMapper';
+import { renderImejisTemplate } from '@/services/imejis/api';
+import { extractTemplateFieldsFromCaption } from '@/services/openai/captionExtractor';
 import type { Property } from '@/types';
 import type { TemplateProfile } from '@/lib/templates/types';
 import { cn } from '@/lib/utils';
@@ -24,6 +27,10 @@ interface TemplateConfiguratorProps {
   onGenerate: () => void;
   isGenerating: boolean;
   generatedImageUrl?: string | null;
+  showLivePreview?: boolean; // New prop for Stage 3 preview
+  caption?: string; // Current caption for re-extraction
+  postContext?: string; // Context for re-extraction
+  onReExtract?: (fields: Record<string, string>) => void; // Callback for re-extraction
 }
 
 export function TemplateConfigurator({
@@ -35,7 +42,15 @@ export function TemplateConfigurator({
   onGenerate,
   isGenerating,
   generatedImageUrl,
+  showLivePreview = false,
+  caption,
+  postContext,
+  onReExtract,
 }: TemplateConfiguratorProps) {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [isReExtracting, setIsReExtracting] = useState(false);
+
   // Prepare property with computed fields
   const preparedProperty = property ? preparePropertyForTemplate(property) : null;
 
@@ -47,6 +62,67 @@ export function TemplateConfigurator({
   // Validation
   const isValid = areAllFieldsValid(resolvedFields);
   const errors = getValidationErrors(resolvedFields);
+
+  // Live preview generation - debounced
+  useEffect(() => {
+    if (!showLivePreview || !isValid) {
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      setIsLoadingPreview(true);
+
+      try {
+        const payload = buildImejisPayload(template, resolvedFields);
+        const result = await renderImejisTemplate(payload);
+
+        if (result.success && result.imageUrl) {
+          // Clean up old preview URL
+          if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+          }
+          setPreviewUrl(result.imageUrl);
+        }
+      } catch (error) {
+        console.error('Preview generation error:', error);
+      } finally {
+        setIsLoadingPreview(false);
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [showLivePreview, isValid, template, resolvedFields, userInputs]);
+
+  // Cleanup preview URL on unmount
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  // Re-extract fields from caption
+  const handleReExtract = async () => {
+    if (!caption || !onReExtract) return;
+
+    setIsReExtracting(true);
+    try {
+      const result = await extractTemplateFieldsFromCaption(
+        template.id,
+        caption,
+        postContext
+      );
+
+      if (result.success && result.data) {
+        onReExtract(result.data);
+      }
+    } catch (error) {
+      console.error('Re-extraction error:', error);
+    } finally {
+      setIsReExtracting(false);
+    }
+  };
 
   // Separate auto-filled and user-input fields
   const autoFilledFields = Object.entries(template.fields).filter(
@@ -99,7 +175,7 @@ export function TemplateConfigurator({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Configuration */}
-        <div className="space-y-6">
+        <div className="space-y-6 order-2 lg:order-1">
           {/* Auto-filled Section */}
           {autoFilledFields.length > 0 && (
             <Card>
@@ -133,12 +209,37 @@ export function TemplateConfigurator({
           {userInputFieldEntries.length > 0 && (
             <Card>
               <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-lg">✏️</span>
-                  <h3 className="font-medium">Your Input</h3>
-                  <Badge variant="secondary" className="text-xs">
-                    {userInputFieldEntries.length} field{userInputFieldEntries.length > 1 ? 's' : ''}
-                  </Badge>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">✏️</span>
+                    <h3 className="font-medium">Your Input</h3>
+                    <Badge variant="secondary" className="text-xs">
+                      {userInputFieldEntries.length} field{userInputFieldEntries.length > 1 ? 's' : ''}
+                    </Badge>
+                  </div>
+
+                  {/* Re-extract button */}
+                  {caption && onReExtract && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleReExtract}
+                      disabled={isReExtracting}
+                      className="text-xs"
+                    >
+                      {isReExtracting ? (
+                        <>
+                          <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                          Extracting...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="h-3 w-3 mr-1" />
+                          Re-extract from Caption
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
 
                 <div className="space-y-4">
@@ -258,6 +359,52 @@ export function TemplateConfigurator({
             </Card>
           )}
         </div>
+
+        {/* Right: Live Preview */}
+        {showLivePreview && (
+          <div className="space-y-4 order-1 lg:order-2">
+            <Card className="sticky top-4">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Eye className="h-4 w-4 text-purple-500" />
+                  <h3 className="font-medium">Live Preview</h3>
+                  {isLoadingPreview && (
+                    <Loader2 className="h-3 w-3 text-muted-foreground animate-spin" />
+                  )}
+                </div>
+
+                {/* Preview Image */}
+                {previewUrl ? (
+                  <div className="relative aspect-square rounded-lg overflow-hidden border border-purple-200 bg-purple-50/50">
+                    <img
+                      src={previewUrl}
+                      alt="Template preview"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted/20">
+                    <div className="text-center p-4">
+                      <Eye className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
+                      <p className="text-sm text-muted-foreground">
+                        {isValid ? 'Generating preview...' : 'Fill in all required fields to see preview'}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Preview Info */}
+                {previewUrl && (
+                  <div className="mt-3 p-2 rounded bg-purple-50 dark:bg-purple-950/20 border border-purple-200">
+                    <p className="text-xs text-purple-700 dark:text-purple-300">
+                      This is a live preview. Your final image will be generated when you publish.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );

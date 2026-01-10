@@ -78,6 +78,14 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
     });
   };
 
+  // Handle re-extraction of fields from caption
+  const handleReExtract = (extractedFields: Record<string, string>) => {
+    setUserInputs(extractedFields);
+    updateState({
+      templateUserInputs: extractedFields,
+    });
+  };
+
   // Handle back to template selector
   const handleBackToSelector = () => {
     setSelectedTemplate(null);
@@ -133,7 +141,11 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
             onBack={handleBackToSelector}
             onGenerate={() => {}} // No-op: generation happens at publish
             isGenerating={false}
-            generatedImageUrl={null} // Don't show preview in Stage 3
+            generatedImageUrl={null}
+            showLivePreview={true} // Enable live preview in Stage 3
+            caption={state.captions.facebook || state.captions.instagram || state.captions.linkedin}
+            postContext={state.postContext}
+            onReExtract={handleReExtract}
           />
         )}
       </TooltipProvider>
@@ -164,20 +176,30 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
         {/* Property Post: Show Template Selector */}
         {isPropertyPost && (
           <>
-            <TemplateSelector
-              selectedTemplateId={null}
-              onSelect={handleSelectTemplate}
-              hasProperty={!!state.selectedProperty}
-              propertyHasImages={!!(state.selectedProperty?.heroImage || state.selectedProperty?.images?.length)}
-            />
-
-            <div className="relative py-4">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+            <div className="p-4 rounded-lg border-2 border-purple-200 bg-purple-50/30 dark:bg-purple-950/10">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">✨</span>
+                <h3 className="font-medium">AI-Powered Templates</h3>
+                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-purple-600 text-white">Recommended</span>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or
+              <p className="text-sm text-muted-foreground mb-4">
+                Professional branded images auto-generated with your property data and caption details
+              </p>
+              <TemplateSelector
+                selectedTemplateId={null}
+                onSelect={handleSelectTemplate}
+                hasProperty={!!state.selectedProperty}
+                propertyHasImages={!!(state.selectedProperty?.heroImage || state.selectedProperty?.images?.length)}
+              />
+            </div>
+
+            <div className="relative py-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-dashed" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-background px-4 text-muted-foreground font-medium">
+                  OR UPLOAD YOUR OWN
                 </span>
               </div>
             </div>
@@ -185,10 +207,21 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
         )}
 
         {/* Upload Custom Image */}
-        <div>
-          <Label className="mb-2 block">
-            {isPropertyPost ? 'Upload custom image instead' : 'Upload Image'}
-          </Label>
+        <div className={cn(
+          "p-4 rounded-lg border-2",
+          isPropertyPost ? "border-gray-200 bg-gray-50/30 dark:bg-gray-900/10" : "border-purple-200 bg-purple-50/30 dark:bg-purple-950/10"
+        )}>
+          <div className="flex items-center gap-2 mb-3">
+            <Upload className="h-5 w-5" />
+            <Label className="font-medium text-base mb-0">
+              {isPropertyPost ? 'Custom Image Upload' : 'Upload Your Image'}
+            </Label>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            {isPropertyPost
+              ? 'Already have a designed image? Upload it here instead of using a template.'
+              : 'Upload your own image for this post'}
+          </p>
 
           {state.customImagePreview ? (
             <div className="relative">

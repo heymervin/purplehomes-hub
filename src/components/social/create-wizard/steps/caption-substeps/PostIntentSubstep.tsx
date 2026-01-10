@@ -26,20 +26,36 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
     <div className="space-y-6">
       {/* Context Input */}
       <div className="space-y-2">
-        <Label htmlFor="postContext">
-          Context & Key Points <span className="text-red-500">*</span>
-        </Label>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
+            <Label htmlFor="postContext" className="text-base">
+              Property Highlights & Details <span className="text-red-500">*</span>
+            </Label>
+            <p className="text-xs text-muted-foreground mt-1">
+              {state.selectedProperty
+                ? 'These details were auto-filled from your property. Edit if needed.'
+                : 'Describe what makes this property special and worth sharing.'}
+            </p>
+          </div>
+        </div>
         <Textarea
           id="postContext"
-          placeholder="E.g., 'Newly renovated kitchen with granite countertops' or 'Prime location near schools and shopping' or 'Investment property with 15% ROI potential'"
+          placeholder="E.g., 'Beautifully renovated 3-bed with new kitchen, granite countertops, stainless appliances. Great neighborhood near top schools and shopping. Move-in ready!'"
           value={state.postContext}
           onChange={(e) => updateState({ postContext: e.target.value })}
-          rows={3}
+          rows={4}
           className="resize-none"
         />
-        <p className="text-xs text-muted-foreground">
-          Describe property highlights, unique features, or selling points. AI will incorporate these details into your caption text and auto-fill template image fields.
-        </p>
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900">
+          <div className="text-blue-600 dark:text-blue-400 text-lg">💡</div>
+          <div className="flex-1 text-xs text-blue-700 dark:text-blue-300">
+            <p className="font-medium mb-1">This information is used in two ways:</p>
+            <ul className="space-y-0.5 list-disc list-inside">
+              <li>AI incorporates these details into your caption text</li>
+              <li>Template image fields are auto-filled (for templates like "Value Tips" and "Open House")</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
       <div>

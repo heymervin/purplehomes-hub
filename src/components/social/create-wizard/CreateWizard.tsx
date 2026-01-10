@@ -228,6 +228,7 @@ export default function CreateWizard() {
         onNext={handleNext}
         isLastStep={state.currentStep === 'publish'}
         isPublishing={isPublishing}
+        validationMessage={validationMessage}
       />
     </div>
   );

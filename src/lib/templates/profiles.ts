@@ -360,7 +360,7 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
 
     name: 'Success Story',
     icon: '⭐',
-    description: 'Share a client testimonial',
+    description: 'Client testimonial (manual entry required)',
     category: 'testimonial',
     previewImage: '/templates/success-story-preview.png',
 
