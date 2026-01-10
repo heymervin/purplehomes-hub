@@ -37,6 +37,7 @@ import { toast } from 'sonner';
 import { PropertyMap } from '@/components/listings/PropertyMap';
 import { MapCoachMarks } from '@/components/listings/MapCoachMarks';
 import { ProximityBadge } from '@/components/listings/ProximityBadge';
+import { PropertyImageGallery } from '@/components/properties/PropertyImageGallery';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSubmitForm } from '@/services/ghlApi';
@@ -937,56 +938,62 @@ export default function PublicListings() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
           {selectedProperty && (
             <>
-              <div className="relative h-72 sm:h-96">
-                <img 
-                  src={selectedProperty.heroImage} 
-                  alt={selectedProperty.address}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent image-overlay-purple" />
-                {getPropertyDistance(selectedProperty) !== null && getPropertyDistance(selectedProperty)! >= 0 && (
-                  <div className="absolute top-4 left-4 z-10">
-                    <ProximityBadge
-                      distance={getPropertyDistance(selectedProperty)!}
-                      variant="detailed"
-                      showCommute
-                      className="bg-white/95 backdrop-blur-sm shadow-lg fade-in-purple"
-                    />
-                  </div>
-                )}
-                <button
-                  onClick={() => setSelectedProperty(null)}
-                  className="absolute top-4 right-4 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 transition-colors scale-hover"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-                <button
-                  onClick={(e) => toggleSaved(selectedProperty.id, e)}
-                  className={cn(
-                    "absolute top-4 right-14 p-2 rounded-full transition-all scale-hover",
-                    savedProperties.has(selectedProperty.id)
-                      ? "bg-purple-500 text-white shadow-purple-md"
-                      : "bg-black/30 backdrop-blur-sm text-white hover:bg-black/50"
+              <div className="relative">
+                {/* Image Gallery with Carousel */}
+                <div className="relative">
+                  <PropertyImageGallery
+                    images={selectedProperty.images || [selectedProperty.heroImage]}
+                    heroImage={selectedProperty.heroImage}
+                    onImagesChange={() => {}} // Read-only for public view
+                    editable={false}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+
+                  {/* Overlays on top of gallery */}
+                  {getPropertyDistance(selectedProperty) !== null && getPropertyDistance(selectedProperty)! >= 0 && (
+                    <div className="absolute top-4 left-4 z-20">
+                      <ProximityBadge
+                        distance={getPropertyDistance(selectedProperty)!}
+                        variant="detailed"
+                        showCommute
+                        className="bg-white/95 backdrop-blur-sm shadow-lg fade-in-purple"
+                      />
+                    </div>
                   )}
-                >
-                  <Heart className={cn("h-5 w-5", savedProperties.has(selectedProperty.id) && "fill-current")} />
-                </button>
-                <div className="absolute bottom-0 left-0 right-0 p-6 slide-up-purple">
-                  <div className="flex items-baseline gap-3 mb-2">
-                    <p className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">
-                      ${selectedProperty.price.toLocaleString()}
-                    </p>
-                    {selectedProperty.monthlyPayment !== undefined && (
-                      <p className="text-lg sm:text-xl font-semibold text-purple-200">
-                        ${selectedProperty.monthlyPayment.toLocaleString()}/mo
-                      </p>
+                  <button
+                    onClick={() => setSelectedProperty(null)}
+                    className="absolute top-4 right-4 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 transition-colors scale-hover z-20"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={(e) => toggleSaved(selectedProperty.id, e)}
+                    className={cn(
+                      "absolute top-4 right-14 p-2 rounded-full transition-all scale-hover z-20",
+                      savedProperties.has(selectedProperty.id)
+                        ? "bg-purple-500 text-white shadow-purple-md"
+                        : "bg-black/30 backdrop-blur-sm text-white hover:bg-black/50"
                     )}
+                  >
+                    <Heart className={cn("h-5 w-5", savedProperties.has(selectedProperty.id) && "fill-current")} />
+                  </button>
+                  <div className="absolute bottom-0 left-0 right-0 p-6 slide-up-purple z-20 pointer-events-none">
+                    <div className="flex items-baseline gap-3 mb-2">
+                      <p className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">
+                        ${selectedProperty.price.toLocaleString()}
+                      </p>
+                      {selectedProperty.monthlyPayment !== undefined && (
+                        <p className="text-lg sm:text-xl font-semibold text-purple-200">
+                          ${selectedProperty.monthlyPayment.toLocaleString()}/mo
+                        </p>
+                      )}
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-semibold text-white purple-underline inline-block">{selectedProperty.address}</h2>
+                    <p className="text-purple-200 flex items-center gap-1 mt-2">
+                      <MapPin className="h-4 w-4" />
+                      {selectedProperty.city}
+                    </p>
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-semibold text-white purple-underline inline-block">{selectedProperty.address}</h2>
-                  <p className="text-purple-200 flex items-center gap-1 mt-2">
-                    <MapPin className="h-4 w-4" />
-                    {selectedProperty.city}
-                  </p>
                 </div>
               </div>
               
