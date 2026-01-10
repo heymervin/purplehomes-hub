@@ -1,6 +1,7 @@
 import { IMEJIS_TEMPLATES } from './templates';
 import type { Property } from '@/types';
 import type { GenerateImageParams, GenerateImageResult, ImejisTemplate } from './types';
+import type { ImejisRenderPayload } from '@/lib/templates/types';
 
 const IMEJIS_API_KEY = import.meta.env.VITE_IMEJIS_API_KEY || 'ysU0Hk6MVBSg6NVLDoPwx';
 const IMEJIS_BASE_URL = 'https://render.imejis.io/v1';
@@ -148,6 +149,62 @@ function buildImejisRequestBody(
   }
 
   return body;
+}
+
+/**
+ * Render an Imejis template with the new Template Profiles system
+ */
+export async function renderImejisTemplate(
+  payload: ImejisRenderPayload
+): Promise<{ success: boolean; imageUrl?: string; imageBlob?: Blob; error?: string }> {
+  try {
+    // Build request body from modifications
+    const requestBody: Record<string, any> = {};
+
+    payload.modifications.forEach(mod => {
+      if (mod.text !== undefined) {
+        requestBody[mod.name] = { text: mod.text };
+      } else if (mod.src !== undefined) {
+        requestBody[mod.name] = { image: mod.src, opacity: 1 };
+      } else if (mod.data !== undefined) {
+        requestBody[mod.name] = { data: mod.data };
+      }
+    });
+
+    const response = await fetch(`${IMEJIS_BASE_URL}/${payload.templateId}`, {
+      method: 'POST',
+      headers: {
+        'dma-api-key': IMEJIS_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Imejis API error:', errorText);
+      return {
+        success: false,
+        error: `Imejis API error: ${response.status}`,
+      };
+    }
+
+    // Response is binary image data
+    const blob = await response.blob();
+    const imageUrl = URL.createObjectURL(blob);
+
+    return {
+      success: true,
+      imageUrl,
+      imageBlob: blob,
+    };
+  } catch (error) {
+    console.error('Imejis render error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
 }
 
 /**

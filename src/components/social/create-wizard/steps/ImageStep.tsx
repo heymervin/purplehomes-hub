@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Info, Upload, AlertTriangle, X } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,9 +10,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import TemplateSelector from '../components/TemplateSelector';
-import TemplatePreview from '../components/TemplatePreview';
-import { useImejisGenerate } from '../hooks/useImejisGenerate';
+import { TemplateSelector, TemplateConfigurator } from '@/components/social/templates';
+import { getTemplateById } from '@/lib/templates/profiles';
+import { buildImejisPayload, resolveAllFields, preparePropertyForTemplate } from '@/lib/templates/fieldMapper';
+import { renderImejisTemplate } from '@/services/imejis/api';
+import type { TemplateProfile } from '@/lib/templates/types';
 import type { WizardState } from '../types';
 
 interface ImageStepProps {
@@ -21,8 +23,10 @@ interface ImageStepProps {
 }
 
 export default function ImageStep({ state, updateState }: ImageStepProps) {
-  const { generateImage } = useImejisGenerate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateProfile | null>(null);
+  const [userInputs, setUserInputs] = useState<Record<string, string>>({});
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const isPropertyPost = state.postType === 'property' && state.selectedProperty;
   const hasPropertyDescription = isPropertyPost && state.selectedProperty?.description;
@@ -36,21 +40,49 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
     }
   }, [isPropertyPost, hasPropertyDescription, state.postContext, state.selectedProperty?.description, updateState]);
 
-  // Handle template selection and image generation
-  const handleTemplateSelect = async (templateId: string) => {
-    updateState({ selectedTemplateId: templateId });
+  // Load selected template on mount if one was previously selected
+  useEffect(() => {
+    if (state.selectedTemplateId && !selectedTemplate) {
+      const template = getTemplateById(state.selectedTemplateId);
+      if (template) {
+        setSelectedTemplate(template);
+      }
+    }
+  }, [state.selectedTemplateId, selectedTemplate]);
 
-    if (state.selectedProperty) {
-      updateState({ isGeneratingImage: true });
+  // Handle template selection
+  const handleSelectTemplate = (template: TemplateProfile) => {
+    setSelectedTemplate(template);
+    setUserInputs({});
+    updateState({
+      selectedTemplateId: template.id,
+      generatedImageUrl: null,
+      generatedImageBlob: null,
+    });
+  };
 
-      const result = await generateImage({
-        templateId,
-        property: state.selectedProperty,
-      });
+  // Handle user input change
+  const handleUserInputChange = (field: string, value: string) => {
+    setUserInputs(prev => ({ ...prev, [field]: value }));
+  };
 
-      if (result.success) {
+  // Handle generate
+  const handleGenerate = async () => {
+    if (!selectedTemplate) return;
+
+    setIsGenerating(true);
+    updateState({ isGeneratingImage: true });
+
+    try {
+      const preparedProperty = state.selectedProperty ? preparePropertyForTemplate(state.selectedProperty) : null;
+      const resolvedFields = resolveAllFields(selectedTemplate, preparedProperty, userInputs);
+      const payload = buildImejisPayload(selectedTemplate, resolvedFields);
+
+      const result = await renderImejisTemplate(payload);
+
+      if (result.success && result.imageUrl) {
         updateState({
-          generatedImageUrl: result.imageUrl || null,
+          generatedImageUrl: result.imageUrl,
           generatedImageBlob: result.imageBlob || null,
           isGeneratingImage: false,
           // Clear custom image when using template
@@ -63,14 +95,23 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
           errors: { ...state.errors, image: result.error || 'Failed to generate image' }
         });
       }
+    } catch (error) {
+      console.error('Failed to generate image:', error);
+      updateState({
+        isGeneratingImage: false,
+        errors: { ...state.errors, image: 'Failed to generate image' }
+      });
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  // Handle regenerate
-  const handleRegenerate = async () => {
-    if (state.selectedTemplateId && state.selectedProperty) {
-      await handleTemplateSelect(state.selectedTemplateId);
-    }
+  // Handle back to template selector
+  const handleBackToSelector = () => {
+    setSelectedTemplate(null);
+    updateState({
+      selectedTemplateId: null,
+    });
   };
 
   // Handle custom image upload
@@ -86,6 +127,7 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
         generatedImageUrl: null,
         generatedImageBlob: null,
       });
+      setSelectedTemplate(null);
     }
   };
 
@@ -100,6 +142,56 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
     });
   };
 
+  // Show configurator if template selected
+  if (selectedTemplate) {
+    return (
+      <TooltipProvider>
+        <div className="space-y-6">
+          <TemplateConfigurator
+            template={selectedTemplate}
+            property={state.selectedProperty}
+            userInputs={userInputs}
+            onUserInputChange={handleUserInputChange}
+            onBack={handleBackToSelector}
+            onGenerate={handleGenerate}
+            isGenerating={isGenerating}
+          />
+
+          {/* Context for Caption AI - below configurator */}
+          <div>
+            <Label className="mb-2 block">Context for Caption AI</Label>
+
+            {/* Warning if property description missing */}
+            {isPropertyPost && !hasPropertyDescription && (
+              <Alert className="mb-2 border-amber-200 bg-amber-50 dark:bg-amber-950/20">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="text-amber-700 dark:text-amber-400">
+                  Property description is missing. Please add context below to help generate a better caption.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <Textarea
+              placeholder={
+                isPropertyPost
+                  ? "Add additional context about this property or what makes it special..."
+                  : "What is this post about? This helps AI generate a better caption."
+              }
+              value={state.postContext}
+              onChange={(e) => updateState({ postContext: e.target.value })}
+              rows={4}
+              className="resize-none"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              This context will be used to generate your caption in the next step.
+            </p>
+          </div>
+        </div>
+      </TooltipProvider>
+    );
+  }
+
+  // Show template selector
   return (
     <TooltipProvider>
       <div className="space-y-6">
@@ -120,129 +212,110 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
           </Tooltip>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Column: Template/Upload Selection */}
-          <div className="space-y-4">
-            {/* Property Post: Show Imejis Templates */}
-            {isPropertyPost && (
-              <>
-                <Label>Choose Template</Label>
-                <TemplateSelector
-                  selectedTemplateId={state.selectedTemplateId}
-                  onSelect={handleTemplateSelect}
-                />
+        {/* Property Post: Show Template Selector */}
+        {isPropertyPost && (
+          <>
+            <TemplateSelector
+              selectedTemplateId={null}
+              onSelect={handleSelectTemplate}
+              hasProperty={!!state.selectedProperty}
+              propertyHasImages={!!(state.selectedProperty?.heroImage || state.selectedProperty?.images?.length)}
+            />
 
-                <div className="relative py-4">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      Or
-                    </span>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Upload Custom Image */}
-            <div>
-              <Label className="mb-2 block">
-                {isPropertyPost ? 'Upload custom image instead' : 'Upload Image'}
-              </Label>
-
-              {state.customImagePreview ? (
-                <div className="relative">
-                  <img
-                    src={state.customImagePreview}
-                    alt="Custom upload"
-                    className="w-full h-48 object-cover rounded-lg border"
-                  />
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-2 right-2"
-                    onClick={handleClearCustomImage}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-purple-400 hover:bg-muted/50 transition-colors"
-                >
-                  <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">
-                    Click to upload or drag and drop
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    PNG, JPG up to 10MB
-                  </p>
-                </div>
-              )}
-
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileSelect}
-              />
-            </div>
-
-            {/* Skip option for text-only */}
-            {state.postType === 'text-only' && (
-              <p className="text-sm text-muted-foreground">
-                You can skip this step for a text-only post.
-              </p>
-            )}
-          </div>
-
-          {/* Right Column: Preview + Context */}
-          <div className="space-y-4">
-            {/* Image Preview */}
-            {isPropertyPost && (
-              <div>
-                <Label className="mb-2 block">Preview</Label>
-                <TemplatePreview
-                  imageUrl={state.generatedImageUrl}
-                  isLoading={state.isGeneratingImage}
-                  onRegenerate={handleRegenerate}
-                />
+            <div className="relative py-4">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
               </div>
-            )}
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or
+                </span>
+              </div>
+            </div>
+          </>
+        )}
 
-            {/* Context for Caption AI */}
-            <div>
-              <Label className="mb-2 block">Context for Caption AI</Label>
+        {/* Upload Custom Image */}
+        <div>
+          <Label className="mb-2 block">
+            {isPropertyPost ? 'Upload custom image instead' : 'Upload Image'}
+          </Label>
 
-              {/* Warning if property description missing */}
-              {isPropertyPost && !hasPropertyDescription && (
-                <Alert className="mb-2 border-amber-200 bg-amber-50 dark:bg-amber-950/20">
-                  <AlertTriangle className="h-4 w-4 text-amber-600" />
-                  <AlertDescription className="text-amber-700 dark:text-amber-400">
-                    Property description is missing. Please add context below to help generate a better caption.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              <Textarea
-                placeholder={
-                  isPropertyPost
-                    ? "Add additional context about this property or what makes it special..."
-                    : "What is this post about? This helps AI generate a better caption."
-                }
-                value={state.postContext}
-                onChange={(e) => updateState({ postContext: e.target.value })}
-                rows={4}
-                className="resize-none"
+          {state.customImagePreview ? (
+            <div className="relative">
+              <img
+                src={state.customImagePreview}
+                alt="Custom upload"
+                className="w-full h-48 object-cover rounded-lg border"
               />
+              <Button
+                variant="destructive"
+                size="icon"
+                className="absolute top-2 right-2"
+                onClick={handleClearCustomImage}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-purple-400 hover:bg-muted/50 transition-colors"
+            >
+              <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                Click to upload or drag and drop
+              </p>
               <p className="text-xs text-muted-foreground mt-1">
-                This context will be used to generate your caption in the next step.
+                PNG, JPG up to 10MB
               </p>
             </div>
-          </div>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileSelect}
+          />
+        </div>
+
+        {/* Skip option for text-only */}
+        {state.postType === 'text-only' && (
+          <p className="text-sm text-muted-foreground">
+            You can skip this step for a text-only post.
+          </p>
+        )}
+
+        {/* Context for Caption AI */}
+        <div>
+          <Label className="mb-2 block">Context for Caption AI</Label>
+
+          {/* Warning if property description missing */}
+          {isPropertyPost && !hasPropertyDescription && (
+            <Alert className="mb-2 border-amber-200 bg-amber-50 dark:bg-amber-950/20">
+              <AlertTriangle className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-amber-700 dark:text-amber-400">
+                Property description is missing. Please add context below to help generate a better caption.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <Textarea
+            placeholder={
+              isPropertyPost
+                ? "Add additional context about this property or what makes it special..."
+                : "What is this post about? This helps AI generate a better caption."
+            }
+            value={state.postContext}
+            onChange={(e) => updateState({ postContext: e.target.value })}
+            rows={4}
+            className="resize-none"
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            This context will be used to generate your caption in the next step.
+          </p>
         </div>
       </div>
     </TooltipProvider>
