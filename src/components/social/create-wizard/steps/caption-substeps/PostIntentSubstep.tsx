@@ -1,6 +1,8 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WizardState, PostIntent } from '../../types';
@@ -19,6 +21,22 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
 
   return (
     <div className="space-y-6">
+      {/* Context Input */}
+      <div className="space-y-2">
+        <Label htmlFor="postContext">Context & Key Points (Optional)</Label>
+        <Textarea
+          id="postContext"
+          placeholder="E.g., 'Highlight the mountain views and chef's kitchen' or 'Focus on ROI - 15% returns expected'"
+          value={state.postContext}
+          onChange={(e) => updateState({ postContext: e.target.value })}
+          rows={3}
+          className="resize-none"
+        />
+        <p className="text-xs text-muted-foreground">
+          Provide talking points you want emphasized in your caption and image. The AI will use this to generate better content.
+        </p>
+      </div>
+
       <div>
         <h3 className="text-lg font-medium mb-1">What are you announcing?</h3>
         <p className="text-sm text-muted-foreground">

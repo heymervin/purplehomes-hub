@@ -15,7 +15,7 @@ const openai = apiKey ? new OpenAI({
 /**
  * Extract structured data from caption for Value Tips template
  */
-export async function extractValueTips(caption: string): Promise<{
+export async function extractValueTips(caption: string, context?: string): Promise<{
   success: boolean;
   data?: {
     header: string;
@@ -33,6 +33,11 @@ export async function extractValueTips(caption: string): Promise<{
   }
 
   try {
+    // Build user message with context if provided
+    const userMessage = context
+      ? `Context: ${context}\n\nCaption: ${caption}`
+      : caption;
+
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -47,11 +52,11 @@ Requirements:
   - tipXHeader: Tip title (max 25 chars)
   - tipXBody: Tip description (max 120 chars)
 
-If the caption doesn't contain clear tips, generate relevant real estate tips based on the context.`,
+If the caption doesn't contain clear tips, generate relevant real estate tips based on the context and caption provided.`,
         },
         {
           role: 'user',
-          content: caption,
+          content: userMessage,
         },
       ],
       response_format: {
@@ -114,7 +119,7 @@ If the caption doesn't contain clear tips, generate relevant real estate tips ba
 /**
  * Extract event details from caption for Open House template
  */
-export async function extractOpenHouseDetails(caption: string): Promise<{
+export async function extractOpenHouseDetails(caption: string, context?: string): Promise<{
   success: boolean;
   data?: {
     dateTime: string;
@@ -126,6 +131,11 @@ export async function extractOpenHouseDetails(caption: string): Promise<{
   }
 
   try {
+    // Build user message with context if provided
+    const userMessage = context
+      ? `Context: ${context}\n\nCaption: ${caption}`
+      : caption;
+
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -135,11 +145,11 @@ export async function extractOpenHouseDetails(caption: string): Promise<{
 Extract the open house date and time and format it as: "Day, Month Date • Time"
 Example: "Saturday, Jan 15 • 2-4 PM"
 
-If no date/time is found in the caption, return an empty string for dateTime.`,
+If no date/time is found in the caption or context, return an empty string for dateTime.`,
         },
         {
           role: 'user',
-          content: caption,
+          content: userMessage,
         },
       ],
       response_format: {
@@ -180,7 +190,8 @@ If no date/time is found in the caption, return an empty string for dateTime.`,
  */
 export async function extractTemplateFieldsFromCaption(
   templateId: string,
-  caption: string
+  caption: string,
+  context?: string
 ): Promise<{
   success: boolean;
   data?: Record<string, string>;
@@ -193,9 +204,9 @@ export async function extractTemplateFieldsFromCaption(
 
   switch (templateId) {
     case 'personal-value':
-      return extractValueTips(caption);
+      return extractValueTips(caption, context);
     case 'open-house':
-      return extractOpenHouseDetails(caption);
+      return extractOpenHouseDetails(caption, context);
     default:
       // No extraction needed for other templates
       return { success: false, error: 'No extraction available for this template' };

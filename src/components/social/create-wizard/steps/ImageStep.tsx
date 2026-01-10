@@ -47,7 +47,11 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
     // Try to extract fields from caption using OpenAI
     let extractedFields: Record<string, string> = {};
     if (caption && caption.length > 0) {
-      const result = await extractTemplateFieldsFromCaption(template.id, caption);
+      const result = await extractTemplateFieldsFromCaption(
+        template.id,
+        caption,
+        state.postContext // Pass the context from Stage 2
+      );
       if (result.success && result.data) {
         extractedFields = result.data;
       }
