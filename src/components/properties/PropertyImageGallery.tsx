@@ -175,8 +175,8 @@ export function PropertyImageGallery({
           }}
         />
 
-        {/* Hero Badge */}
-        {isCurrentHero && (
+        {/* Hero Badge - Only show in editable mode */}
+        {editable && isCurrentHero && (
           <div className="absolute top-3 left-3">
             <Badge className="bg-yellow-500 text-yellow-950 gap-1">
               <Star className="h-3 w-3 fill-current" />

@@ -1080,9 +1080,9 @@ export default function PublicListings() {
                       Make an Offer
                     </Button>
                     <Button variant="outline" size="lg" className="flex-1 scale-hover" asChild>
-                      <a href="tel:+1234567890">
+                      <a href="sms:+1234567890">
                         <Phone className="h-4 w-4 mr-2" />
-                        Call Us
+                        Text Us
                       </a>
                     </Button>
                   </div>
