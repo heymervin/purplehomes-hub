@@ -218,9 +218,9 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         inputConfig: {
           label: 'Main Header',
           placeholder: '3 Tips for First-Time Homebuyers',
-          helpText: 'The main title of your tips post',
+          helpText: 'Keep it concise - this is the main title',
           required: true,
-          maxLength: 60,
+          maxLength: 45,
         },
       },
       tip1Image: {
@@ -241,8 +241,9 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         inputConfig: {
           label: 'Tip 1 Title',
           placeholder: 'Get Pre-Approved First',
+          helpText: 'Short and punchy - max 3-4 words',
           required: true,
-          maxLength: 40,
+          maxLength: 25,
         },
       },
       tip1Body: {
@@ -252,8 +253,9 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         inputConfig: {
           label: 'Tip 1 Description',
           placeholder: 'Know your budget before you start looking...',
+          helpText: 'Keep it brief - about 2-3 short sentences',
           required: true,
-          maxLength: 150,
+          maxLength: 120,
           rows: 2,
         },
       },
@@ -275,8 +277,9 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         inputConfig: {
           label: 'Tip 2 Title',
           placeholder: 'Research the Neighborhood',
+          helpText: 'Short and punchy - max 3-4 words',
           required: true,
-          maxLength: 40,
+          maxLength: 25,
         },
       },
       tip2Body: {
@@ -286,8 +289,9 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         inputConfig: {
           label: 'Tip 2 Description',
           placeholder: 'Visit at different times of day...',
+          helpText: 'Keep it brief - about 2-3 short sentences',
           required: true,
-          maxLength: 150,
+          maxLength: 120,
           rows: 2,
         },
       },
@@ -309,8 +313,9 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         inputConfig: {
           label: 'Tip 3 Title',
           placeholder: "Don't Skip the Inspection",
+          helpText: 'Short and punchy - max 3-4 words',
           required: true,
-          maxLength: 40,
+          maxLength: 25,
         },
       },
       tip3Body: {
@@ -320,8 +325,9 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         inputConfig: {
           label: 'Tip 3 Description',
           placeholder: 'A home inspection can save you thousands...',
+          helpText: 'Keep it brief - about 2-3 short sentences',
           required: true,
-          maxLength: 150,
+          maxLength: 120,
           rows: 2,
         },
       },

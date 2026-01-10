@@ -76,7 +76,16 @@ export function TemplateFieldInput({
 
       {/* Character count for text inputs */}
       {inputConfig.maxLength && (
-        <p className="text-xs text-muted-foreground text-right">
+        <p
+          className={cn(
+            "text-xs text-right font-medium",
+            value.length >= inputConfig.maxLength
+              ? "text-red-600"
+              : value.length >= inputConfig.maxLength * 0.9
+              ? "text-amber-600"
+              : "text-muted-foreground"
+          )}
+        >
           {value.length}/{inputConfig.maxLength}
         </p>
       )}
