@@ -109,8 +109,9 @@ export function useWizardState() {
         // Can always proceed for custom/text-only
         return true;
       case 'image':
-        // Can proceed if has image OR is text-only
+        // Can proceed if has image, template selected, OR is text-only
         return state.postType === 'text-only' ||
+          !!state.selectedTemplateId ||
           !!state.generatedImageUrl ||
           !!state.customImagePreview;
       case 'caption':
