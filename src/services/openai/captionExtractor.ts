@@ -1,9 +1,16 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+// Check if API key is available
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+
+if (!apiKey) {
+  console.warn('VITE_OPENAI_API_KEY not found. AI field extraction will be disabled.');
+}
+
+const openai = apiKey ? new OpenAI({
+  apiKey,
   dangerouslyAllowBrowser: true, // Note: In production, proxy through backend
-});
+}) : null;
 
 /**
  * Extract structured data from caption for Value Tips template
@@ -21,6 +28,10 @@ export async function extractValueTips(caption: string): Promise<{
   };
   error?: string;
 }> {
+  if (!openai) {
+    return { success: false, error: 'OpenAI API key not configured' };
+  }
+
   try {
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -110,6 +121,10 @@ export async function extractOpenHouseDetails(caption: string): Promise<{
   };
   error?: string;
 }> {
+  if (!openai) {
+    return { success: false, error: 'OpenAI API key not configured' };
+  }
+
   try {
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
