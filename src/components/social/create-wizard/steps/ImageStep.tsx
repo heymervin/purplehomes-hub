@@ -25,8 +25,7 @@ interface ImageStepProps {
 export default function ImageStep({ state, updateState }: ImageStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateProfile | null>(null);
-  const [userInputs, setUserInputs] = useState<Record<string, string>>({});
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [userInputs, setUserInputs] = useState<Record<string, string>>(state.templateUserInputs || {});
 
   const isPropertyPost = state.postType === 'property' && state.selectedProperty;
   const hasPropertyDescription = isPropertyPost && state.selectedProperty?.description;
@@ -61,49 +60,13 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
     });
   };
 
-  // Handle user input change
+  // Handle user input change - save to state for later use during publish
   const handleUserInputChange = (field: string, value: string) => {
     setUserInputs(prev => ({ ...prev, [field]: value }));
-  };
-
-  // Handle generate
-  const handleGenerate = async () => {
-    if (!selectedTemplate) return;
-
-    setIsGenerating(true);
-    updateState({ isGeneratingImage: true });
-
-    try {
-      const preparedProperty = state.selectedProperty ? preparePropertyForTemplate(state.selectedProperty) : null;
-      const resolvedFields = resolveAllFields(selectedTemplate, preparedProperty, userInputs);
-      const payload = buildImejisPayload(selectedTemplate, resolvedFields);
-
-      const result = await renderImejisTemplate(payload);
-
-      if (result.success && result.imageUrl) {
-        updateState({
-          generatedImageUrl: result.imageUrl,
-          generatedImageBlob: result.imageBlob || null,
-          isGeneratingImage: false,
-          // Clear custom image when using template
-          customImageFile: null,
-          customImagePreview: null,
-        });
-      } else {
-        updateState({
-          isGeneratingImage: false,
-          errors: { ...state.errors, image: result.error || 'Failed to generate image' }
-        });
-      }
-    } catch (error) {
-      console.error('Failed to generate image:', error);
-      updateState({
-        isGeneratingImage: false,
-        errors: { ...state.errors, image: 'Failed to generate image' }
-      });
-    } finally {
-      setIsGenerating(false);
-    }
+    // Save to wizard state so it's available when publishing
+    updateState({
+      templateUserInputs: { ...userInputs, [field]: value },
+    });
   };
 
   // Handle back to template selector
@@ -153,9 +116,9 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
             userInputs={userInputs}
             onUserInputChange={handleUserInputChange}
             onBack={handleBackToSelector}
-            onGenerate={handleGenerate}
-            isGenerating={isGenerating}
-            generatedImageUrl={state.generatedImageUrl}
+            onGenerate={() => {}} // No-op: generation happens at publish
+            isGenerating={false}
+            generatedImageUrl={null} // Don't show preview in Stage 2
           />
 
           {/* Context for Caption AI - below configurator */}

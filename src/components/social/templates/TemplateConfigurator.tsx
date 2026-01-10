@@ -251,7 +251,7 @@ export function TemplateConfigurator({
                 <AlertCircle className="h-4 w-4 text-red-500 mt-0.5" />
                 <div>
                   <p className="font-medium text-red-800 dark:text-red-200 text-sm">
-                    Please fix the following:
+                    Please fix the following before continuing:
                   </p>
                   <ul className="text-sm text-red-600 dark:text-red-400 mt-1 list-disc list-inside">
                     {errors.map((error, i) => (
@@ -263,60 +263,26 @@ export function TemplateConfigurator({
             </div>
           )}
 
-          {/* Generate Button */}
-          <Button
-            onClick={onGenerate}
-            disabled={!isValid || isGenerating}
-            className="w-full"
-            size="lg"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4 mr-2" />
-                Generate Image
-              </>
-            )}
-          </Button>
-        </div>
-
-        {/* Right: Preview */}
-        <div className="lg:sticky lg:top-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Eye className="h-4 w-4" />
-                Preview
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {generatedImageUrl ? (
-                <div className="space-y-2">
-                  <img
-                    src={generatedImageUrl}
-                    alt="Generated template preview"
-                    className="w-full rounded-lg border"
-                  />
-                  <p className="text-xs text-muted-foreground text-center">
-                    Generated image preview
-                  </p>
-                </div>
-              ) : (
-                <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <span className="text-4xl mb-2 block">{template.icon}</span>
-                    <p className="text-sm text-muted-foreground">
-                      {isValid ? 'Click Generate to create your image' : 'Fill in required fields to generate'}
+          {/* Ready message */}
+          {isValid && (
+            <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                    <Check className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-green-800 dark:text-green-200">
+                      Template Configured!
+                    </p>
+                    <p className="text-sm text-green-600 dark:text-green-400">
+                      Your image will be generated when you publish the post.
                     </p>
                   </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

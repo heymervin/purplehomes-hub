@@ -222,6 +222,7 @@ export interface WizardState {
 
   // Step 2: Image + Context
   selectedTemplateId: string | null;
+  templateUserInputs: Record<string, string>; // User inputs for template fields
   generatedImageUrl: string | null;
   generatedImageBlob: Blob | null;
   customImageFile: File | null;
@@ -262,6 +263,7 @@ export const INITIAL_WIZARD_STATE: WizardState = {
 
   // Step 2
   selectedTemplateId: null,
+  templateUserInputs: {},
   generatedImageUrl: null,
   generatedImageBlob: null,
   customImageFile: null,

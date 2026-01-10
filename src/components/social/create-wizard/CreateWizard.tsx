@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { useCreateSocialPost } from '@/services/ghlApi';
+import { useCreateSocialPost, useUploadMedia } from '@/services/ghlApi';
+import { renderImejisTemplate } from '@/services/imejis/api';
+import { getTemplateById } from '@/lib/templates/profiles';
+import { buildImejisPayload, resolveAllFields, preparePropertyForTemplate } from '@/lib/templates/fieldMapper';
 import WizardProgress from './WizardProgress';
 import WizardNavigation from './WizardNavigation';
 import { ContentSourceStep, ImageStep, CaptionStep, HashtagsStep, PublishStep } from './steps';
@@ -11,6 +14,7 @@ import { WIZARD_STEPS } from './types';
 export default function CreateWizard() {
   const { toast } = useToast();
   const createPost = useCreateSocialPost();
+  const uploadMedia = useUploadMedia();
   const [isPublishing, setIsPublishing] = useState(false);
 
   const {
@@ -81,9 +85,6 @@ export default function CreateWizard() {
     setIsPublishing(true);
 
     try {
-      // Get image URL (either generated or custom)
-      const imageUrl = state.generatedImageUrl || state.customImagePreview;
-
       // Build full caption with hashtags per platform
       const buildCaption = (platform: 'facebook' | 'instagram' | 'linkedin') => {
         let caption = state.captions[platform];
@@ -111,13 +112,66 @@ export default function CreateWizard() {
         scheduleDate = date.toISOString();
       }
 
+      // Handle image upload or generation
+      let mediaUrl: string | undefined;
+
+      if (state.customImageFile) {
+        // Upload custom image file
+        const uploadResult = await uploadMedia.mutateAsync({
+          file: state.customImageFile,
+          name: `social-post-${Date.now()}.${state.customImageFile.name.split('.').pop()}`,
+        });
+        mediaUrl = uploadResult.url;
+      } else if (state.selectedTemplateId) {
+        // Generate image from template
+        const template = getTemplateById(state.selectedTemplateId);
+        if (template) {
+          const preparedProperty = state.selectedProperty ? preparePropertyForTemplate(state.selectedProperty) : null;
+          const resolvedFields = resolveAllFields(template, preparedProperty, state.templateUserInputs);
+          const payload = buildImejisPayload(template, resolvedFields);
+
+          const result = await renderImejisTemplate(payload);
+
+          if (result.success && result.imageBlob) {
+            // Upload generated image
+            const file = new File([result.imageBlob], `generated-${Date.now()}.png`, {
+              type: 'image/png',
+            });
+            const uploadResult = await uploadMedia.mutateAsync({
+              file,
+              name: `social-post-generated-${Date.now()}.png`,
+            });
+            mediaUrl = uploadResult.url;
+          } else {
+            throw new Error(result.error || 'Failed to generate image from template');
+          }
+        }
+      } else if (state.generatedImageBlob) {
+        // Upload previously generated blob
+        const file = new File([state.generatedImageBlob], `generated-${Date.now()}.png`, {
+          type: 'image/png',
+        });
+        const uploadResult = await uploadMedia.mutateAsync({
+          file,
+          name: `social-post-generated-${Date.now()}.png`,
+        });
+        mediaUrl = uploadResult.url;
+      } else if (state.generatedImageUrl?.startsWith('http')) {
+        // Already a valid HTTP URL
+        mediaUrl = state.generatedImageUrl;
+      } else if (state.customImagePreview?.startsWith('http')) {
+        // Already a valid HTTP URL
+        mediaUrl = state.customImagePreview;
+      }
+
       // Create the post via GHL API
       await createPost.mutateAsync({
         accountIds: state.selectedAccounts,
         summary: primaryCaption,
-        media: imageUrl ? [{ url: imageUrl, type: 'image/png' }] : undefined,
+        media: mediaUrl ? [{ url: mediaUrl, type: 'image/png' }] : undefined,
         scheduleDate,
         status: state.scheduleType === 'now' ? 'published' : 'scheduled',
+        type: 'post', // Required field - default to 'post'
       });
 
       toast({
