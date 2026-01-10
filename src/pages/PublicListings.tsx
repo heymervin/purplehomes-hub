@@ -1061,6 +1061,17 @@ export default function PublicListings() {
                       </div>
                     </div>
                   )}
+                  {selectedProperty.monthlyPayment !== undefined && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
+                        <DollarSign className="h-6 w-6 text-purple-500" />
+                      </div>
+                      <div>
+                        <p className="text-lg font-bold">${selectedProperty.monthlyPayment.toLocaleString()}/mo</p>
+                        <p className="text-sm text-gray-600">Monthly Payment</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {selectedProperty.description && (
