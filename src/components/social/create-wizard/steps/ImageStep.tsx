@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Info, Upload, X } from 'lucide-react';
+import { Info, Upload, X, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/tooltip';
 import { TemplateSelector, TemplateConfigurator } from '@/components/social/templates';
 import { getTemplateById } from '@/lib/templates/profiles';
+import { extractTemplateFieldsFromCaption } from '@/services/openai/captionExtractor';
 import type { TemplateProfile } from '@/lib/templates/types';
 import type { WizardState } from '../types';
 
@@ -21,6 +22,7 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateProfile | null>(null);
   const [userInputs, setUserInputs] = useState<Record<string, string>>(state.templateUserInputs || {});
+  const [isExtractingFields, setIsExtractingFields] = useState(false);
 
   const isPropertyPost = state.postType === 'property' && state.selectedProperty;
 
@@ -34,12 +36,29 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
     }
   }, [state.selectedTemplateId, selectedTemplate]);
 
-  // Handle template selection
-  const handleSelectTemplate = (template: TemplateProfile) => {
+  // Handle template selection with AI field extraction
+  const handleSelectTemplate = async (template: TemplateProfile) => {
     setSelectedTemplate(template);
-    setUserInputs({});
+    setIsExtractingFields(true);
+
+    // Get the caption (use Facebook caption as primary)
+    const caption = state.captions.facebook || state.captions.instagram || state.captions.linkedin;
+
+    // Try to extract fields from caption using OpenAI
+    let extractedFields: Record<string, string> = {};
+    if (caption && caption.length > 0) {
+      const result = await extractTemplateFieldsFromCaption(template.id, caption);
+      if (result.success && result.data) {
+        extractedFields = result.data;
+      }
+    }
+
+    setUserInputs(extractedFields);
+    setIsExtractingFields(false);
+
     updateState({
       selectedTemplateId: template.id,
+      templateUserInputs: extractedFields,
       generatedImageUrl: null,
       generatedImageBlob: null,
     });
@@ -94,16 +113,24 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
   if (selectedTemplate) {
     return (
       <TooltipProvider>
-        <TemplateConfigurator
-          template={selectedTemplate}
-          property={state.selectedProperty}
-          userInputs={userInputs}
-          onUserInputChange={handleUserInputChange}
-          onBack={handleBackToSelector}
-          onGenerate={() => {}} // No-op: generation happens at publish
-          isGenerating={false}
-          generatedImageUrl={null} // Don't show preview in Stage 3
-        />
+        {isExtractingFields ? (
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <Sparkles className="h-12 w-12 text-purple-500 animate-pulse" />
+            <p className="text-lg font-medium">Extracting fields from your caption...</p>
+            <p className="text-sm text-muted-foreground">Using AI to pre-fill template fields</p>
+          </div>
+        ) : (
+          <TemplateConfigurator
+            template={selectedTemplate}
+            property={state.selectedProperty}
+            userInputs={userInputs}
+            onUserInputChange={handleUserInputChange}
+            onBack={handleBackToSelector}
+            onGenerate={() => {}} // No-op: generation happens at publish
+            isGenerating={false}
+            generatedImageUrl={null} // Don't show preview in Stage 3
+          />
+        )}
       </TooltipProvider>
     );
   }
