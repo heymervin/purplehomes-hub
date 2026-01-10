@@ -27,8 +27,8 @@ export function TemplateFieldInput({
   const hasError = !!error;
 
   return (
-    <div className="space-y-2">
-      <Label htmlFor={fieldKey} className="flex items-center gap-1">
+    <div className="space-y-1.5">
+      <Label htmlFor={fieldKey} className="flex items-center gap-1 text-sm">
         {inputConfig.label}
         {inputConfig.required && <span className="text-red-500">*</span>}
       </Label>
@@ -40,8 +40,8 @@ export function TemplateFieldInput({
           onChange={(e) => onChange(e.target.value)}
           placeholder={inputConfig.placeholder}
           maxLength={inputConfig.maxLength}
-          rows={inputConfig.rows || 3}
-          className={cn(hasError && "border-red-500")}
+          rows={inputConfig.rows || 2}
+          className={cn("resize-none", hasError && "border-red-500")}
         />
       ) : fieldConfig.dataType === 'image' ? (
         <Input
