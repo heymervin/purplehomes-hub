@@ -82,6 +82,7 @@ export interface PostIntentConfig {
 }
 
 export const POST_INTENTS: PostIntentConfig[] = [
+  // Templates with matching image templates (shown first)
   {
     id: 'just-listed',
     label: 'Just Listed',
@@ -97,6 +98,28 @@ export const POST_INTENTS: PostIntentConfig[] = [
     keywords: ['sold', 'closed', 'new owners', 'another happy buyer'],
   },
   {
+    id: 'open-house',
+    label: 'Open House',
+    icon: '🚪',
+    description: 'Invite people to visit',
+    keywords: ['open house', 'come see', 'tour', 'showing', 'visit'],
+  },
+  {
+    id: 'personal-value',
+    label: 'Personal Value',
+    icon: '💡',
+    description: 'Share tips and expertise',
+    keywords: ['tips', 'advice', 'homebuying tips', 'real estate tips', 'pro tip'],
+  },
+  {
+    id: 'success-story',
+    label: 'Success Story',
+    icon: '⭐',
+    description: 'Highlight client testimonials',
+    keywords: ['testimonial', 'success story', 'happy client', 'client review'],
+  },
+  // Other intents (no matching templates)
+  {
     id: 'under-contract',
     label: 'Under Contract',
     icon: '📝',
@@ -109,13 +132,6 @@ export const POST_INTENTS: PostIntentConfig[] = [
     icon: '💰',
     description: 'Announce a price reduction',
     keywords: ['price reduced', 'new price', 'price drop', 'reduced'],
-  },
-  {
-    id: 'open-house',
-    label: 'Open House',
-    icon: '🚪',
-    description: 'Invite people to visit',
-    keywords: ['open house', 'come see', 'tour', 'showing', 'visit'],
   },
   {
     id: 'coming-soon',
@@ -137,20 +153,6 @@ export const POST_INTENTS: PostIntentConfig[] = [
     icon: '📊',
     description: 'Share market insights',
     keywords: ['market update', 'market trends', 'market report'],
-  },
-  {
-    id: 'personal-value',
-    label: 'Personal Value',
-    icon: '💡',
-    description: 'Share tips and expertise',
-    keywords: ['tips', 'advice', 'homebuying tips', 'real estate tips', 'pro tip'],
-  },
-  {
-    id: 'success-story',
-    label: 'Success Story',
-    icon: '⭐',
-    description: 'Highlight client testimonials',
-    keywords: ['testimonial', 'success story', 'happy client', 'client review'],
   },
   {
     id: 'general',
