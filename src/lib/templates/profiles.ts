@@ -397,6 +397,17 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
           maxLength: 50,
         },
       },
+      clientImage: {
+        imejisFieldId: 'image_comp_1767868583746_4cv72hznl',
+        source: 'user-input',
+        dataType: 'image',
+        inputConfig: {
+          label: 'Image of Client',
+          placeholder: 'Paste image URL...',
+          helpText: 'Photo of the client or property they purchased',
+          required: false,
+        },
+      },
       qrCode: {
         imejisFieldId: 'qr_comp_1767866776342_d5w4goubo',
         source: 'auto-constant',
@@ -405,8 +416,8 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
       },
     },
 
-    userInputFields: ['testimonial', 'clientNameLocation'],
-    userInputCount: 2,
+    userInputFields: ['testimonial', 'clientNameLocation', 'clientImage'],
+    userInputCount: 3,
     requiresProperty: false,
     requiresImages: false,
   },

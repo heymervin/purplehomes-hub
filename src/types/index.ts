@@ -29,6 +29,7 @@ export interface Property {
   lat?: number;
   lng?: number;
   description?: string;
+  socialMediaPropertyDescription?: string; // Dedicated field for social media captions
   heroImage: string;
   images: string[];
   status: PropertyStatus;

@@ -25,6 +25,7 @@ export function convertPropertyDetailsToProperty(details: PropertyDetails): Prop
     lat: details.propertyLat,
     lng: details.propertyLng,
     description: details.notes,
+    socialMediaPropertyDescription: details.socialMediaPropertyDescription,
     ghlOpportunityId: details.opportunityId,
     // Fields not available in PropertyDetails - use defaults
     condition: undefined,

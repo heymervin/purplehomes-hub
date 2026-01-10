@@ -944,6 +944,7 @@ export default function PublicListings() {
                   <PropertyImageGallery
                     images={selectedProperty.images || [selectedProperty.heroImage]}
                     heroImage={selectedProperty.heroImage}
+                    onHeroChange={() => {}} // No-op for public view
                     onImagesChange={() => {}} // Read-only for public view
                     editable={false}
                   />

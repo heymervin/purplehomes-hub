@@ -62,6 +62,7 @@ export default function ContentSourceStep({ state, updateState }: ContentSourceS
       status: 'pending' as const,
       createdAt: p.createdAt || new Date().toISOString(),
       description: p.notes,
+      socialMediaPropertyDescription: p.socialMediaPropertyDescription,
       condition: p.condition as Property['condition'],
       propertyType: p.propertyType as Property['propertyType'],
     }));
@@ -155,7 +156,10 @@ export default function ContentSourceStep({ state, updateState }: ContentSourceS
                   {filteredProperties.map((property) => (
                     <div
                       key={property.id}
-                      onClick={() => updateState({ selectedProperty: property })}
+                      onClick={() => updateState({
+                        selectedProperty: property,
+                        postContext: property.socialMediaPropertyDescription || '',
+                      })}
                       className={cn(
                         "p-3 cursor-pointer hover:bg-muted/50 flex items-center gap-3",
                         state.selectedProperty?.id === property.id && "bg-purple-50 dark:bg-purple-950/20"

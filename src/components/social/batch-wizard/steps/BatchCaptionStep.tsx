@@ -102,7 +102,7 @@ export default function BatchCaptionStep({
               baths: property.baths,
               sqft: property.sqft,
               propertyType: property.propertyType,
-              description: property.description,
+              description: property.socialMediaPropertyDescription,
             },
             context: '',
             postIntent: state.postIntent,

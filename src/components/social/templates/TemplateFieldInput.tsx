@@ -30,8 +30,16 @@ export function TemplateFieldInput({
 
   const hasError = !!error;
   const [date, setDate] = useState<Date | undefined>(value ? new Date(value) : undefined);
-  const [startTime, setStartTime] = useState('2:00 PM');
-  const [endTime, setEndTime] = useState('4:00 PM');
+  const [startTime, setStartTime] = useState('14:00'); // 24-hour format for input
+  const [endTime, setEndTime] = useState('16:00'); // 24-hour format for input
+
+  // Convert 24-hour time (14:00) to 12-hour format (2 PM)
+  const formatTime12Hour = (time24: string): string => {
+    const [hours, minutes] = time24.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const hours12 = hours % 12 || 12;
+    return `${hours12} ${period}`;
+  };
 
   const handleDateTimeChange = (selectedDate: Date | undefined) => {
     if (!selectedDate) return;
@@ -40,7 +48,9 @@ export function TemplateFieldInput({
 
     // Format as "Saturday, Jan 15 • 2-4 PM"
     const formattedDate = format(selectedDate, 'EEEE, MMM d');
-    const formattedDateTime = `${formattedDate} • ${startTime}-${endTime}`;
+    const formattedStart = formatTime12Hour(startTime);
+    const formattedEnd = formatTime12Hour(endTime);
+    const formattedDateTime = `${formattedDate} • ${formattedStart}-${formattedEnd}`;
     onChange(formattedDateTime);
   };
 
@@ -50,7 +60,9 @@ export function TemplateFieldInput({
 
     if (date) {
       const formattedDate = format(date, 'EEEE, MMM d');
-      const formattedDateTime = `${formattedDate} • ${newStartTime}-${newEndTime}`;
+      const formattedStart = formatTime12Hour(newStartTime);
+      const formattedEnd = formatTime12Hour(newEndTime);
+      const formattedDateTime = `${formattedDate} • ${formattedStart}-${formattedEnd}`;
       onChange(formattedDateTime);
     }
   };
@@ -85,21 +97,23 @@ export function TemplateFieldInput({
                 onSelect={handleDateTimeChange}
                 initialFocus
               />
-              <div className="p-3 border-t">
-                <Label className="text-xs font-medium mb-2 block">Time Range</Label>
-                <div className="flex items-center gap-2">
+              <div className="p-3 border-t space-y-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium">Start Time</Label>
                   <Input
                     type="time"
                     value={startTime}
                     onChange={(e) => handleTimeChange(e.target.value, endTime)}
-                    className="flex-1"
+                    className="w-full"
                   />
-                  <span className="text-sm text-muted-foreground">to</span>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-medium">End Time</Label>
                   <Input
                     type="time"
                     value={endTime}
                     onChange={(e) => handleTimeChange(startTime, e.target.value)}
-                    className="flex-1"
+                    className="w-full"
                   />
                 </div>
               </div>

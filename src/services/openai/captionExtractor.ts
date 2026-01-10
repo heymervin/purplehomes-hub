@@ -97,14 +97,18 @@ If the caption doesn't contain clear tips, generate relevant real estate tips ba
 
     const data = JSON.parse(result);
 
-    // Enforce character limits
-    data.header = data.header.substring(0, 45);
-    data.tip1Header = data.tip1Header.substring(0, 25);
-    data.tip1Body = data.tip1Body.substring(0, 120);
-    data.tip2Header = data.tip2Header.substring(0, 25);
-    data.tip2Body = data.tip2Body.substring(0, 120);
-    data.tip3Header = data.tip3Header.substring(0, 25);
-    data.tip3Body = data.tip3Body.substring(0, 120);
+    // Sanitize text: trim whitespace and collapse multiple spaces/newlines
+    // This prevents alignment issues in Imejis templates
+    const sanitize = (text: string) => text.trim().replace(/\s+/g, ' ');
+
+    // Enforce character limits with sanitization
+    data.header = sanitize(data.header).substring(0, 45);
+    data.tip1Header = sanitize(data.tip1Header).substring(0, 25);
+    data.tip1Body = sanitize(data.tip1Body).substring(0, 120);
+    data.tip2Header = sanitize(data.tip2Header).substring(0, 25);
+    data.tip2Body = sanitize(data.tip2Body).substring(0, 120);
+    data.tip3Header = sanitize(data.tip3Header).substring(0, 25);
+    data.tip3Body = sanitize(data.tip3Body).substring(0, 120);
 
     return { success: true, data };
   } catch (error) {

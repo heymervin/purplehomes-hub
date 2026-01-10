@@ -147,6 +147,7 @@ export interface PropertyDetails {
   stage?: string;
   heroImage?: string;
   notes?: string;
+  socialMediaPropertyDescription?: string; // Dedicated field for social media captions
   propertyLat?: number; // Geocoded latitude
   propertyLng?: number; // Geocoded longitude
 
