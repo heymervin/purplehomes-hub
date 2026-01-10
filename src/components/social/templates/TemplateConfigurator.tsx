@@ -1,11 +1,10 @@
 import React, { useMemo } from 'react';
-import { ChevronLeft, Loader2, Sparkles, Check, AlertCircle } from 'lucide-react';
+import { ChevronLeft, Loader2, Sparkles, Check, AlertCircle, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TemplateFieldInput } from './TemplateFieldInput';
 import { AutoFilledField } from './AutoFilledField';
-import { TemplatePreview } from './TemplatePreview';
 import {
   resolveAllFields,
   areAllFieldsValid,
@@ -23,6 +22,7 @@ interface TemplateConfiguratorProps {
   onBack: () => void;
   onGenerate: () => void;
   isGenerating: boolean;
+  generatedImageUrl?: string | null;
 }
 
 export function TemplateConfigurator({
@@ -33,6 +33,7 @@ export function TemplateConfigurator({
   onBack,
   onGenerate,
   isGenerating,
+  generatedImageUrl,
 }: TemplateConfiguratorProps) {
   // Prepare property with computed fields
   const preparedProperty = property ? preparePropertyForTemplate(property) : null;
@@ -193,10 +194,37 @@ export function TemplateConfigurator({
 
         {/* Right: Preview */}
         <div className="lg:sticky lg:top-4">
-          <TemplatePreview
-            template={template}
-            resolvedFields={resolvedFields}
-          />
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Eye className="h-4 w-4" />
+                Preview
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {generatedImageUrl ? (
+                <div className="space-y-2">
+                  <img
+                    src={generatedImageUrl}
+                    alt="Generated template preview"
+                    className="w-full rounded-lg border"
+                  />
+                  <p className="text-xs text-muted-foreground text-center">
+                    Generated image preview
+                  </p>
+                </div>
+              ) : (
+                <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
+                  <div className="text-center p-6">
+                    <span className="text-4xl mb-2 block">{template.icon}</span>
+                    <p className="text-sm text-muted-foreground">
+                      {isValid ? 'Click Generate to create your image' : 'Fill in required fields to generate'}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

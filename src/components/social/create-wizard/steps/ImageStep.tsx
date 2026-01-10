@@ -155,6 +155,7 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
             onBack={handleBackToSelector}
             onGenerate={handleGenerate}
             isGenerating={isGenerating}
+            generatedImageUrl={state.generatedImageUrl}
           />
 
           {/* Context for Caption AI - below configurator */}

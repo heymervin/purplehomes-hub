@@ -44,6 +44,18 @@ export function TemplateCard({
               src={template.previewImage}
               alt={template.name}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback to icon if image fails to load
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent) {
+                  const fallback = document.createElement('div');
+                  fallback.className = 'w-full h-full flex items-center justify-center';
+                  fallback.innerHTML = `<span class="text-4xl">${template.icon}</span>`;
+                  parent.appendChild(fallback);
+                }
+              }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
