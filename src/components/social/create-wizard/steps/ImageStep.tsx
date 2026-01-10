@@ -109,46 +109,51 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
   if (selectedTemplate) {
     return (
       <TooltipProvider>
-        <div className="space-y-6">
-          <TemplateConfigurator
-            template={selectedTemplate}
-            property={state.selectedProperty}
-            userInputs={userInputs}
-            onUserInputChange={handleUserInputChange}
-            onBack={handleBackToSelector}
-            onGenerate={() => {}} // No-op: generation happens at publish
-            isGenerating={false}
-            generatedImageUrl={null} // Don't show preview in Stage 2
-          />
-
-          {/* Context for Caption AI - below configurator */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Column: Template Configurator */}
           <div>
-            <Label className="mb-2 block">Context for Caption AI</Label>
-
-            {/* Warning if property description missing */}
-            {isPropertyPost && !hasPropertyDescription && (
-              <Alert className="mb-2 border-amber-200 bg-amber-50 dark:bg-amber-950/20">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
-                <AlertDescription className="text-amber-700 dark:text-amber-400">
-                  Property description is missing. Please add context below to help generate a better caption.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <Textarea
-              placeholder={
-                isPropertyPost
-                  ? "Add additional context about this property or what makes it special..."
-                  : "What is this post about? This helps AI generate a better caption."
-              }
-              value={state.postContext}
-              onChange={(e) => updateState({ postContext: e.target.value })}
-              rows={4}
-              className="resize-none"
+            <TemplateConfigurator
+              template={selectedTemplate}
+              property={state.selectedProperty}
+              userInputs={userInputs}
+              onUserInputChange={handleUserInputChange}
+              onBack={handleBackToSelector}
+              onGenerate={() => {}} // No-op: generation happens at publish
+              isGenerating={false}
+              generatedImageUrl={null} // Don't show preview in Stage 2
             />
-            <p className="text-xs text-muted-foreground mt-1">
-              This context will be used to generate your caption in the next step.
-            </p>
+          </div>
+
+          {/* Right Column: Context for Caption AI */}
+          <div>
+            <div className="sticky top-6">
+              <Label className="mb-2 block">Context for Caption AI</Label>
+
+              {/* Warning if property description missing */}
+              {isPropertyPost && !hasPropertyDescription && (
+                <Alert className="mb-2 border-amber-200 bg-amber-50 dark:bg-amber-950/20">
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-amber-700 dark:text-amber-400">
+                    Property description is missing. Please add context below to help generate a better caption.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <Textarea
+                placeholder={
+                  isPropertyPost
+                    ? "Add additional context about this property or what makes it special..."
+                    : "What is this post about? This helps AI generate a better caption."
+                }
+                value={state.postContext}
+                onChange={(e) => updateState({ postContext: e.target.value })}
+                rows={12}
+                className="resize-none"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                This context will be used to generate your caption in the next step.
+              </p>
+            </div>
           </div>
         </div>
       </TooltipProvider>
