@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Wand2, Zap } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { TemplateCard } from './TemplateCard';
 import {
   getAllTemplates,
@@ -19,11 +19,8 @@ export function TemplateSelector({
   hasProperty,
   propertyHasImages,
 }: TemplateSelectorProps) {
-  // Templates with AI field extraction support (user inputs + AI)
+  // Templates with AI field extraction support (shown first)
   const aiSupportedTemplateIds = ['personal-value', 'open-house'];
-
-  // Auto-filled templates (no user input needed)
-  const autoFilledTemplateIds = ['just-listed', 'just-sold'];
 
   // Check if template is available
   const isTemplateAvailable = (template: TemplateProfile): boolean => {
@@ -43,134 +40,40 @@ export function TemplateSelector({
     return null;
   };
 
-  // Split templates into categories
+  // Sort templates: AI-supported first, then others
   const allTemplates = getAllTemplates();
-  const aiSupportedTemplates = allTemplates.filter(t => aiSupportedTemplateIds.includes(t.id));
-  const autoFilledTemplates = allTemplates.filter(t => autoFilledTemplateIds.includes(t.id));
-  const manualTemplates = allTemplates.filter(t =>
-    !aiSupportedTemplateIds.includes(t.id) && !autoFilledTemplateIds.includes(t.id)
-  );
+  const sortedTemplates = [
+    ...allTemplates.filter(t => aiSupportedTemplateIds.includes(t.id)),
+    ...allTemplates.filter(t => !aiSupportedTemplateIds.includes(t.id)),
+  ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-purple-500" />
-        <h2 className="text-lg font-semibold">Choose a Template</h2>
+        <h2 className="text-lg font-semibold">Branded Image Templates</h2>
       </div>
 
-      {/* AI-Supported Templates */}
-      {aiSupportedTemplates.length > 0 && (
-        <div className="space-y-4">
-          {/* AI Section Header */}
-          <div className="flex items-center gap-2">
-            <Wand2 className="h-4 w-4 text-purple-500" />
-            <div>
-              <h3 className="font-medium text-sm">AI-Powered Templates</h3>
-              <p className="text-xs text-muted-foreground">
-                Fields auto-filled from your caption and context
-              </p>
-            </div>
-          </div>
+      {/* All Templates in One Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {sortedTemplates.map((template) => {
+          const isSelected = selectedTemplateId === template.id;
+          const isAvailable = isTemplateAvailable(template);
+          const unavailableReason = getUnavailableReason(template);
 
-          {/* Template Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {aiSupportedTemplates.map((template) => {
-              const isSelected = selectedTemplateId === template.id;
-              const isAvailable = isTemplateAvailable(template);
-              const unavailableReason = getUnavailableReason(template);
-
-              return (
-                <TemplateCard
-                  key={template.id}
-                  template={template}
-                  isSelected={isSelected}
-                  isAvailable={isAvailable}
-                  unavailableReason={unavailableReason}
-                  onSelect={() => isAvailable && onSelect(template)}
-                />
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Auto-Filled Templates */}
-      {autoFilledTemplates.length > 0 && (
-        <div className="space-y-4">
-          {/* Auto-Fill Section Header */}
-          <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-amber-500" />
-            <div>
-              <h3 className="font-medium text-sm">Quick Templates</h3>
-              <p className="text-xs text-muted-foreground">
-                Auto-filled from property data - no input needed
-              </p>
-            </div>
-          </div>
-
-          {/* Template Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {autoFilledTemplates.map((template) => {
-              const isSelected = selectedTemplateId === template.id;
-              const isAvailable = isTemplateAvailable(template);
-              const unavailableReason = getUnavailableReason(template);
-
-              return (
-                <TemplateCard
-                  key={template.id}
-                  template={template}
-                  isSelected={isSelected}
-                  isAvailable={isAvailable}
-                  unavailableReason={unavailableReason}
-                  onSelect={() => isAvailable && onSelect(template)}
-                />
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Manual Templates */}
-      {manualTemplates.length > 0 && (
-        <>
-          {/* Separator */}
-          {(aiSupportedTemplates.length > 0 || autoFilledTemplates.length > 0) && (
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Other Templates
-                </span>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            {/* Template Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {manualTemplates.map((template) => {
-                const isSelected = selectedTemplateId === template.id;
-                const isAvailable = isTemplateAvailable(template);
-                const unavailableReason = getUnavailableReason(template);
-
-                return (
-                  <TemplateCard
-                    key={template.id}
-                    template={template}
-                    isSelected={isSelected}
-                    isAvailable={isAvailable}
-                    unavailableReason={unavailableReason}
-                    onSelect={() => isAvailable && onSelect(template)}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        </>
-      )}
+          return (
+            <TemplateCard
+              key={template.id}
+              template={template}
+              isSelected={isSelected}
+              isAvailable={isAvailable}
+              unavailableReason={unavailableReason}
+              onSelect={() => isAvailable && onSelect(template)}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
