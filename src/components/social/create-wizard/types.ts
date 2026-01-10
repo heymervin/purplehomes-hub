@@ -69,6 +69,8 @@ export type PostIntent =
   | 'coming-soon'
   | 'investment'
   | 'market-update'
+  | 'personal-value'
+  | 'success-story'
   | 'general';
 
 export interface PostIntentConfig {
@@ -135,6 +137,20 @@ export const POST_INTENTS: PostIntentConfig[] = [
     icon: '📊',
     description: 'Share market insights',
     keywords: ['market update', 'market trends', 'market report'],
+  },
+  {
+    id: 'personal-value',
+    label: 'Personal Value',
+    icon: '💡',
+    description: 'Share tips and expertise',
+    keywords: ['tips', 'advice', 'homebuying tips', 'real estate tips', 'pro tip'],
+  },
+  {
+    id: 'success-story',
+    label: 'Success Story',
+    icon: '⭐',
+    description: 'Highlight client testimonials',
+    keywords: ['testimonial', 'success story', 'happy client', 'client review'],
   },
   {
     id: 'general',
