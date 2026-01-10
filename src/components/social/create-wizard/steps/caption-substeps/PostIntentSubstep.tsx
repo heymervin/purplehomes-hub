@@ -23,17 +23,19 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
     <div className="space-y-6">
       {/* Context Input */}
       <div className="space-y-2">
-        <Label htmlFor="postContext">Context & Key Points (Optional)</Label>
+        <Label htmlFor="postContext">
+          Context & Key Points <span className="text-red-500">*</span>
+        </Label>
         <Textarea
           id="postContext"
-          placeholder="E.g., 'Highlight the mountain views and chef's kitchen' or 'Focus on ROI - 15% returns expected'"
+          placeholder="E.g., 'Newly renovated kitchen with granite countertops' or 'Prime location near schools and shopping' or 'Investment property with 15% ROI potential'"
           value={state.postContext}
           onChange={(e) => updateState({ postContext: e.target.value })}
           rows={3}
           className="resize-none"
         />
         <p className="text-xs text-muted-foreground">
-          Provide talking points you want emphasized in your caption and image. The AI will use this to generate better content.
+          Describe property highlights, unique features, or selling points. AI will incorporate these details into your caption text and auto-fill template image fields.
         </p>
       </div>
 
@@ -95,7 +97,7 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
       <div className="flex justify-end">
         <Button
           onClick={onNext}
-          disabled={!state.postIntent}
+          disabled={!state.postIntent || !state.postContext || state.postContext.trim().length === 0}
           className="gap-2 bg-purple-600 hover:bg-purple-700"
         >
           Next: Choose Tone

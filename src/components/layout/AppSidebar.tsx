@@ -28,14 +28,13 @@ import { Button } from '@/components/ui/button';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Properties', href: '/properties', icon: Building2 },
-  { name: 'Public Listings', href: '/listings', icon: Globe },
-  { name: 'Property Pipeline', href: '/seller-acquisitions', icon: Home },
-  { name: 'Buyer Acquisitions', href: '/acquisitions', icon: UserPlus },
-  { name: 'Buyer Management', href: '/buyer-management', icon: UserCog },
-  // { name: 'Buyers Pipeline', href: '/buyers', icon: Users }, // Hidden for now
   { name: 'Property Matching', href: '/matching', icon: Target },
+  { name: 'Properties', href: '/properties', icon: Building2 },
+  { name: 'Buyers', href: '/buyer-management', icon: UserCog },
+  { name: 'Property Pipeline', href: '/seller-acquisitions', icon: Home },
+  { name: 'Buyer Dispositions', href: '/acquisitions', icon: UserPlus },
   { name: 'Deal Pipeline', href: '/deals', icon: Kanban },
+  { name: 'Public Listings', href: '/listings', icon: Globe },
   { name: 'Contacts', href: '/contacts', icon: UsersRound },
   { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Social Hub', href: '/social', icon: Share2 },

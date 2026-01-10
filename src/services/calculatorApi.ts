@@ -10,6 +10,12 @@ import type {
   SavedCalculation,
   CalculationsListResponse,
 } from '@/types/calculator';
+import type {
+  SavedCalculatorScenario,
+  ScenarioSet,
+  ScenarioNumber,
+  ScenarioFieldName,
+} from '@/types/calculatorScenario';
 import { calculateAll, createDefaultInputs } from '@/lib/calculatorEngine';
 
 const CALCULATOR_API_BASE = '/api/calculator';
@@ -304,3 +310,156 @@ export const usePrefetchPropertyCalculations = () => {
     );
   };
 };
+
+// ============ SCENARIO MANAGEMENT ============
+
+const AIRTABLE_API_BASE = '/api/airtable';
+
+/**
+ * Helper to get scenario field name from scenario number
+ */
+function getScenarioFieldName(scenarioNumber: ScenarioNumber): ScenarioFieldName {
+  return `Calculator Scenario ${scenarioNumber}`;
+}
+
+/**
+ * Save a scenario to a Property record
+ */
+export async function savePropertyScenario(
+  propertyRecordId: string,
+  scenarioNumber: ScenarioNumber,
+  scenario: SavedCalculatorScenario | null
+): Promise<{ success: boolean; error?: string }> {
+  const fieldName = getScenarioFieldName(scenarioNumber);
+  const value = scenario ? JSON.stringify(scenario) : null;
+
+  try {
+    const response = await fetch(
+      `${AIRTABLE_API_BASE}?table=Properties&recordId=${propertyRecordId}`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fields: { [fieldName]: value },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Failed to save scenario' }));
+      return { success: false, error: error.error || 'Failed to save scenario' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to save scenario',
+    };
+  }
+}
+
+/**
+ * Get all scenarios for a Property
+ */
+export async function getPropertyScenarios(
+  propertyRecordId: string
+): Promise<ScenarioSet> {
+  try {
+    const response = await fetch(
+      `${AIRTABLE_API_BASE}?table=Properties&recordId=${propertyRecordId}`
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch property scenarios');
+    }
+
+    const data = await response.json();
+    const record = data.record || data;
+
+    return {
+      scenario1: record['Calculator Scenario 1']
+        ? JSON.parse(record['Calculator Scenario 1'])
+        : null,
+      scenario2: record['Calculator Scenario 2']
+        ? JSON.parse(record['Calculator Scenario 2'])
+        : null,
+      scenario3: record['Calculator Scenario 3']
+        ? JSON.parse(record['Calculator Scenario 3'])
+        : null,
+    };
+  } catch (error) {
+    console.error('Error fetching property scenarios:', error);
+    return { scenario1: null, scenario2: null, scenario3: null };
+  }
+}
+
+/**
+ * Save a scenario to a Match record
+ */
+export async function saveMatchScenario(
+  matchRecordId: string,
+  scenarioNumber: ScenarioNumber,
+  scenario: SavedCalculatorScenario | null
+): Promise<{ success: boolean; error?: string }> {
+  const fieldName = getScenarioFieldName(scenarioNumber);
+  const value = scenario ? JSON.stringify(scenario) : null;
+
+  try {
+    const response = await fetch(
+      `${AIRTABLE_API_BASE}?table=Property-Buyer Matches&recordId=${matchRecordId}`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fields: { [fieldName]: value },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Failed to save scenario' }));
+      return { success: false, error: error.error || 'Failed to save scenario' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to save scenario',
+    };
+  }
+}
+
+/**
+ * Get all scenarios for a Match
+ */
+export async function getMatchScenarios(matchRecordId: string): Promise<ScenarioSet> {
+  try {
+    const response = await fetch(
+      `${AIRTABLE_API_BASE}?table=Property-Buyer Matches&recordId=${matchRecordId}`
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch match scenarios');
+    }
+
+    const data = await response.json();
+    const record = data.record || data;
+
+    return {
+      scenario1: record['Calculator Scenario 1']
+        ? JSON.parse(record['Calculator Scenario 1'])
+        : null,
+      scenario2: record['Calculator Scenario 2']
+        ? JSON.parse(record['Calculator Scenario 2'])
+        : null,
+      scenario3: record['Calculator Scenario 3']
+        ? JSON.parse(record['Calculator Scenario 3'])
+        : null,
+    };
+  } catch (error) {
+    console.error('Error fetching match scenarios:', error);
+    return { scenario1: null, scenario2: null, scenario3: null };
+  }
+}
