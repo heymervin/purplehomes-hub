@@ -1,6 +1,9 @@
 import type { TemplateProfile } from './types';
 import { COMPANY_CONSTANTS } from './constants';
 
+// Re-export TEMPLATE_CATEGORIES for convenience
+export { TEMPLATE_CATEGORIES } from './types';
+
 // ============================================
 // TEMPLATE PROFILES
 // ============================================
