@@ -1,9 +1,8 @@
-import React, { useMemo, useState } from 'react';
-import { ChevronLeft, Loader2, Sparkles, Check, AlertCircle, Eye, ChevronDown } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { ChevronLeft, Loader2, Sparkles, Check, AlertCircle, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { TemplateFieldInput } from './TemplateFieldInput';
 import { AutoFilledField } from './AutoFilledField';
 import {
@@ -57,7 +56,7 @@ export function TemplateConfigurator({
     ([, config]) => config.source === 'user-input'
   );
 
-  // Group user input fields by prefixes (for accordion pattern)
+  // Group user input fields by prefixes (for visual grouping)
   const groupedUserInputs = useMemo(() => {
     const groups: Record<string, Array<[string, any]>> = {};
 
@@ -81,18 +80,6 @@ export function TemplateConfigurator({
   }, [userInputFieldEntries]);
 
   const hasGroupedFields = Object.keys(groupedUserInputs).some(key => key !== '_ungrouped');
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
-    // Open first group by default
-    const firstGroup = Object.keys(groupedUserInputs).find(k => k !== '_ungrouped');
-    return firstGroup ? { [firstGroup]: true } : {};
-  });
-
-  const toggleGroup = (groupKey: string) => {
-    setOpenGroups(prev => ({
-      ...prev,
-      [groupKey]: !prev[groupKey]
-    }));
-  };
 
   return (
     <div className="space-y-6">
@@ -154,7 +141,7 @@ export function TemplateConfigurator({
                   </Badge>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   {/* Ungrouped fields first */}
                   {groupedUserInputs['_ungrouped']?.map(([fieldKey, fieldConfig]) => (
                     <TemplateFieldInput
@@ -167,43 +154,30 @@ export function TemplateConfigurator({
                     />
                   ))}
 
-                  {/* Grouped fields in accordion */}
+                  {/* Grouped fields with visual separators */}
                   {hasGroupedFields && Object.entries(groupedUserInputs)
                     .filter(([key]) => key !== '_ungrouped')
                     .map(([groupKey, fields]) => {
                       const groupNumber = groupKey.replace('tip', '');
-                      const isOpen = openGroups[groupKey];
                       const hasErrors = fields.some(([fieldKey]) => resolvedFields.get(fieldKey)?.error);
 
                       return (
-                        <Collapsible
-                          key={groupKey}
-                          open={isOpen}
-                          onOpenChange={() => toggleGroup(groupKey)}
-                        >
-                          <CollapsibleTrigger asChild>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full justify-between hover:bg-muted/50",
-                                hasErrors && "border-red-300 bg-red-50 dark:bg-red-950/20"
-                              )}
-                            >
-                              <span className="font-medium">
-                                Tip {groupNumber}
-                                {hasErrors && (
-                                  <AlertCircle className="inline h-3 w-3 ml-1 text-red-500" />
-                                )}
-                              </span>
-                              <ChevronDown
-                                className={cn(
-                                  "h-4 w-4 transition-transform",
-                                  isOpen && "rotate-180"
-                                )}
-                              />
-                            </Button>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent className="pt-2 space-y-2">
+                        <div key={groupKey} className="space-y-3">
+                          {/* Group header */}
+                          <div className={cn(
+                            "flex items-center gap-2 pt-3 border-t",
+                            hasErrors && "border-red-200"
+                          )}>
+                            <h4 className="font-medium text-sm">
+                              Tip {groupNumber}
+                            </h4>
+                            {hasErrors && (
+                              <AlertCircle className="h-3 w-3 text-red-500" />
+                            )}
+                          </div>
+
+                          {/* Group fields */}
+                          <div className="space-y-3 pl-3">
                             {fields.map(([fieldKey, fieldConfig]) => (
                               <TemplateFieldInput
                                 key={fieldKey}
@@ -214,8 +188,8 @@ export function TemplateConfigurator({
                                 error={resolvedFields.get(fieldKey)?.error}
                               />
                             ))}
-                          </CollapsibleContent>
-                        </Collapsible>
+                          </div>
+                        </div>
                       );
                     })}
                 </div>
