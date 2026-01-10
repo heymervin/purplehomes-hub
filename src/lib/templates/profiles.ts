@@ -140,13 +140,14 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
       dateTime: {
         imejisFieldId: 'text_comp_1768034851051_5mwmr3vmx',
         source: 'user-input',
-        dataType: 'text',
+        dataType: 'datetime',
+        format: 'datetime',
         inputConfig: {
           label: 'Event Date & Time',
           placeholder: 'Saturday, Jan 15 • 2-4 PM',
-          helpText: 'Enter the date and time of your open house',
+          helpText: 'Select the date and time of your open house',
           required: true,
-          maxLength: 50,
+          dateFormat: 'EEEE, MMM d • h-h a',
         },
       },
       heroImage: {

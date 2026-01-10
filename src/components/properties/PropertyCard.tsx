@@ -141,13 +141,22 @@ export function PropertyCard({
           <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
             {formatPrice(property.price)}
           </p>
-          {property.downPayment !== undefined && (
-            <div className="inline-flex items-center gap-1 mt-2 px-2 py-1 rounded-full bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200">
-              <span className="text-xs font-semibold text-green-700">
-                ✨ Only {formatPrice(property.downPayment)} down!
-              </span>
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {property.downPayment !== undefined && (
+              <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200">
+                <span className="text-xs font-semibold text-green-700">
+                  ✨ {formatPrice(property.downPayment)} down
+                </span>
+              </div>
+            )}
+            {property.monthlyPayment !== undefined && (
+              <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-r from-purple-50 to-purple-50 border border-purple-200">
+                <span className="text-xs font-semibold text-purple-700">
+                  {formatPrice(property.monthlyPayment)}/mo
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Property details row */}

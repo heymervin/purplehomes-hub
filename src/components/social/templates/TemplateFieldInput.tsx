@@ -1,9 +1,13 @@
-import React from 'react';
-import { AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlertCircle, Calendar } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 import type { FieldConfig } from '@/lib/templates/types';
 
 interface TemplateFieldInputProps {
@@ -25,6 +29,31 @@ export function TemplateFieldInput({
   if (!inputConfig) return null;
 
   const hasError = !!error;
+  const [date, setDate] = useState<Date | undefined>(value ? new Date(value) : undefined);
+  const [startTime, setStartTime] = useState('2:00 PM');
+  const [endTime, setEndTime] = useState('4:00 PM');
+
+  const handleDateTimeChange = (selectedDate: Date | undefined) => {
+    if (!selectedDate) return;
+
+    setDate(selectedDate);
+
+    // Format as "Saturday, Jan 15 • 2-4 PM"
+    const formattedDate = format(selectedDate, 'EEEE, MMM d');
+    const formattedDateTime = `${formattedDate} • ${startTime}-${endTime}`;
+    onChange(formattedDateTime);
+  };
+
+  const handleTimeChange = (newStartTime: string, newEndTime: string) => {
+    setStartTime(newStartTime);
+    setEndTime(newEndTime);
+
+    if (date) {
+      const formattedDate = format(date, 'EEEE, MMM d');
+      const formattedDateTime = `${formattedDate} • ${newStartTime}-${newEndTime}`;
+      onChange(formattedDateTime);
+    }
+  };
 
   return (
     <div className="space-y-1.5">
@@ -33,7 +62,51 @@ export function TemplateFieldInput({
         {inputConfig.required && <span className="text-red-500">*</span>}
       </Label>
 
-      {fieldConfig.dataType === 'textarea' ? (
+      {fieldConfig.dataType === 'datetime' ? (
+        <div className="space-y-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !value && "text-muted-foreground",
+                  hasError && "border-red-500"
+                )}
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {value || inputConfig.placeholder}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={date}
+                onSelect={handleDateTimeChange}
+                initialFocus
+              />
+              <div className="p-3 border-t">
+                <Label className="text-xs font-medium mb-2 block">Time Range</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => handleTimeChange(e.target.value, endTime)}
+                    className="flex-1"
+                  />
+                  <span className="text-sm text-muted-foreground">to</span>
+                  <Input
+                    type="time"
+                    value={endTime}
+                    onChange={(e) => handleTimeChange(startTime, e.target.value)}
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      ) : fieldConfig.dataType === 'textarea' ? (
         <Textarea
           id={fieldKey}
           value={value}
