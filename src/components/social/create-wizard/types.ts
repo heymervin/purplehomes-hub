@@ -11,7 +11,7 @@ export type PostType = 'property' | 'custom' | 'text-only';
 export type WizardStep = 'source' | 'image' | 'caption' | 'hashtags' | 'publish';
 export type CaptionSubstep = 'intent' | 'tone' | 'edit';
 
-export const WIZARD_STEPS: WizardStep[] = ['source', 'image', 'caption', 'hashtags', 'publish'];
+export const WIZARD_STEPS: WizardStep[] = ['source', 'caption', 'image', 'hashtags', 'publish'];
 export const CAPTION_SUBSTEPS: CaptionSubstep[] = ['intent', 'tone', 'edit'];
 
 export const STEP_CONFIG: Record<WizardStep, { number: number; title: string; tooltip: string }> = {
@@ -20,15 +20,15 @@ export const STEP_CONFIG: Record<WizardStep, { number: number; title: string; to
     title: 'Source',
     tooltip: 'Choose what type of post you want to create',
   },
-  image: {
-    number: 2,
-    title: 'Image',
-    tooltip: 'Create a branded image or upload your own',
-  },
   caption: {
-    number: 3,
+    number: 2,
     title: 'Caption',
     tooltip: 'Choose your post intent, tone, and write your caption',
+  },
+  image: {
+    number: 3,
+    title: 'Image',
+    tooltip: 'Create a branded image or upload your own',
   },
   hashtags: {
     number: 4,
@@ -220,22 +220,22 @@ export interface WizardState {
   postType: PostType;
   selectedProperty: Property | null;
 
-  // Step 2: Image + Context
-  selectedTemplateId: string | null;
-  templateUserInputs: Record<string, string>; // User inputs for template fields
-  generatedImageUrl: string | null;
-  generatedImageBlob: Blob | null;
-  customImageFile: File | null;
-  customImagePreview: string | null;
+  // Step 2: Caption (Mini-Wizard)
   postContext: string;
-
-  // Step 3: Caption (Mini-Wizard)
   captionSubstep: CaptionSubstep;
   postIntent: PostIntent;
   tone: CaptionTone;
   captions: Record<Platform, string>;
   useSameCaptionForAll: boolean;
   selectedCaptionTemplate: string | null;
+
+  // Step 3: Image
+  selectedTemplateId: string | null;
+  templateUserInputs: Record<string, string>; // User inputs for template fields
+  generatedImageUrl: string | null;
+  generatedImageBlob: Blob | null;
+  customImageFile: File | null;
+  customImagePreview: string | null;
 
   // Step 4: Hashtags
   suggestedHashtags: string[];

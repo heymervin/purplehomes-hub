@@ -108,16 +108,16 @@ export function useWizardState() {
         }
         // Can always proceed for custom/text-only
         return true;
+      case 'caption':
+        // Must complete all substeps - only allow "Next" from main wizard when on edit substep
+        if (state.captionSubstep !== 'edit') return true;
+        return Object.values(state.captions).some(c => c.length > 0);
       case 'image':
         // Can proceed if has image, template selected, OR is text-only
         return state.postType === 'text-only' ||
           !!state.selectedTemplateId ||
           !!state.generatedImageUrl ||
           !!state.customImagePreview;
-      case 'caption':
-        // Must complete all substeps - only allow "Next" from main wizard when on edit substep
-        if (state.captionSubstep !== 'edit') return true;
-        return Object.values(state.captions).some(c => c.length > 0);
       case 'hashtags':
         // Can always proceed
         return true;

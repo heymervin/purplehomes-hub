@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Info, Upload, AlertTriangle, X } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Info, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Tooltip,
   TooltipContent,
@@ -12,8 +9,6 @@ import {
 } from '@/components/ui/tooltip';
 import { TemplateSelector, TemplateConfigurator } from '@/components/social/templates';
 import { getTemplateById } from '@/lib/templates/profiles';
-import { buildImejisPayload, resolveAllFields, preparePropertyForTemplate } from '@/lib/templates/fieldMapper';
-import { renderImejisTemplate } from '@/services/imejis/api';
 import type { TemplateProfile } from '@/lib/templates/types';
 import type { WizardState } from '../types';
 
@@ -28,16 +23,6 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
   const [userInputs, setUserInputs] = useState<Record<string, string>>(state.templateUserInputs || {});
 
   const isPropertyPost = state.postType === 'property' && state.selectedProperty;
-  const hasPropertyDescription = isPropertyPost && state.selectedProperty?.description;
-
-  // Auto-populate context from property description
-  useEffect(() => {
-    if (isPropertyPost && hasPropertyDescription && !state.postContext) {
-      updateState({
-        postContext: state.selectedProperty?.description || '',
-      });
-    }
-  }, [isPropertyPost, hasPropertyDescription, state.postContext, state.selectedProperty?.description, updateState]);
 
   // Load selected template on mount if one was previously selected
   useEffect(() => {
@@ -109,53 +94,16 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
   if (selectedTemplate) {
     return (
       <TooltipProvider>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Column: Template Configurator */}
-          <div>
-            <TemplateConfigurator
-              template={selectedTemplate}
-              property={state.selectedProperty}
-              userInputs={userInputs}
-              onUserInputChange={handleUserInputChange}
-              onBack={handleBackToSelector}
-              onGenerate={() => {}} // No-op: generation happens at publish
-              isGenerating={false}
-              generatedImageUrl={null} // Don't show preview in Stage 2
-            />
-          </div>
-
-          {/* Right Column: Context for Caption AI */}
-          <div>
-            <div className="sticky top-6">
-              <Label className="mb-2 block">Context for Caption AI</Label>
-
-              {/* Warning if property description missing */}
-              {isPropertyPost && !hasPropertyDescription && (
-                <Alert className="mb-2 border-amber-200 bg-amber-50 dark:bg-amber-950/20">
-                  <AlertTriangle className="h-4 w-4 text-amber-600" />
-                  <AlertDescription className="text-amber-700 dark:text-amber-400">
-                    Property description is missing. Please add context below to help generate a better caption.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              <Textarea
-                placeholder={
-                  isPropertyPost
-                    ? "Add additional context about this property or what makes it special..."
-                    : "What is this post about? This helps AI generate a better caption."
-                }
-                value={state.postContext}
-                onChange={(e) => updateState({ postContext: e.target.value })}
-                rows={12}
-                className="resize-none"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                This context will be used to generate your caption in the next step.
-              </p>
-            </div>
-          </div>
-        </div>
+        <TemplateConfigurator
+          template={selectedTemplate}
+          property={state.selectedProperty}
+          userInputs={userInputs}
+          onUserInputChange={handleUserInputChange}
+          onBack={handleBackToSelector}
+          onGenerate={() => {}} // No-op: generation happens at publish
+          isGenerating={false}
+          generatedImageUrl={null} // Don't show preview in Stage 3
+        />
       </TooltipProvider>
     );
   }
@@ -256,36 +204,6 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
             You can skip this step for a text-only post.
           </p>
         )}
-
-        {/* Context for Caption AI */}
-        <div>
-          <Label className="mb-2 block">Context for Caption AI</Label>
-
-          {/* Warning if property description missing */}
-          {isPropertyPost && !hasPropertyDescription && (
-            <Alert className="mb-2 border-amber-200 bg-amber-50 dark:bg-amber-950/20">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
-              <AlertDescription className="text-amber-700 dark:text-amber-400">
-                Property description is missing. Please add context below to help generate a better caption.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <Textarea
-            placeholder={
-              isPropertyPost
-                ? "Add additional context about this property or what makes it special..."
-                : "What is this post about? This helps AI generate a better caption."
-            }
-            value={state.postContext}
-            onChange={(e) => updateState({ postContext: e.target.value })}
-            rows={4}
-            className="resize-none"
-          />
-          <p className="text-xs text-muted-foreground mt-1">
-            This context will be used to generate your caption in the next step.
-          </p>
-        </div>
       </div>
     </TooltipProvider>
   );
