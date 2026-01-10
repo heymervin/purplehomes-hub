@@ -19,6 +19,9 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
     updateState({ postIntent: intentId });
   };
 
+  // Intents that have matching image templates
+  const templateLinkedIntents = ['just-listed', 'sold', 'open-house', 'personal-value', 'success-story'];
+
   return (
     <div className="space-y-6">
       {/* Context Input */}
@@ -48,28 +51,34 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
 
       {/* Intent Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {POST_INTENTS.map((intent) => (
-          <Card
-            key={intent.id}
-            onClick={() => handleSelect(intent.id)}
-            className={cn(
-              "cursor-pointer transition-all hover:border-purple-400",
-              state.postIntent === intent.id && "border-purple-600 ring-2 ring-purple-200 bg-purple-50 dark:bg-purple-950/20"
-            )}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">{intent.icon}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm">{intent.label}</p>
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {intent.description}
-                  </p>
+        {POST_INTENTS.map((intent) => {
+          const hasTemplate = templateLinkedIntents.includes(intent.id);
+          const isSelected = state.postIntent === intent.id;
+
+          return (
+            <Card
+              key={intent.id}
+              onClick={() => handleSelect(intent.id)}
+              className={cn(
+                "cursor-pointer transition-all hover:border-purple-400",
+                hasTemplate && !isSelected && "bg-purple-50/50 dark:bg-purple-950/10 border-purple-200/50",
+                isSelected && "border-purple-600 ring-2 ring-purple-200 bg-purple-50 dark:bg-purple-950/20"
+              )}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{intent.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm">{intent.label}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {intent.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Selected Intent Preview */}
