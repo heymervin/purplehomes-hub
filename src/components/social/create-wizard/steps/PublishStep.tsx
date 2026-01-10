@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Info, Expand, Calendar, Clock, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Info, Expand, Calendar, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -19,9 +19,13 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { useSocialAccounts } from '@/services/ghlApi';
+import { renderImejisTemplate } from '@/services/imejis/api';
+import { getTemplateById } from '@/lib/templates/profiles';
+import { buildImejisPayload } from '@/lib/templates/imejisMapper';
 import PostPreview from '../components/PostPreview';
 import ExpandablePreview from '../components/ExpandablePreview';
 import type { WizardState, Platform } from '../types';
+import { toast } from 'sonner';
 
 interface PublishStepProps {
   state: WizardState;
@@ -48,12 +52,63 @@ const PLATFORM_ICONS: Record<string, string> = {
 
 export default function PublishStep({ state, updateState }: PublishStepProps) {
   const [activePlatform, setActivePlatform] = useState<Platform>('facebook');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   // Fetch connected accounts from GHL
   const { data: accountsData, isLoading: isLoadingAccounts } = useSocialAccounts();
 
   // Use connected accounts or fallback to demo
   const connectedAccounts = accountsData?.accounts?.length ? accountsData.accounts : DEMO_ACCOUNTS;
+
+  // Auto-generate image when entering publish step if template selected but no image generated
+  useEffect(() => {
+    const shouldGenerate =
+      state.selectedTemplateId &&
+      !state.generatedImageUrl &&
+      !state.customImagePreview &&
+      !isGenerating;
+
+    if (shouldGenerate) {
+      generateTemplateImage();
+    }
+  }, [state.selectedTemplateId]);
+
+  const generateTemplateImage = async () => {
+    if (!state.selectedTemplateId) return;
+
+    setIsGenerating(true);
+
+    try {
+      const template = getTemplateById(state.selectedTemplateId);
+      if (!template) {
+        toast.error('Template not found');
+        setIsGenerating(false);
+        return;
+      }
+
+      const payload = buildImejisPayload({
+        template,
+        property: state.selectedProperty || null,
+        userInputs: state.templateUserInputs || {},
+      });
+
+      const result = await renderImejisTemplate(payload);
+
+      if (result.success && result.imageUrl && result.imageBlob) {
+        updateState({
+          generatedImageUrl: result.imageUrl,
+          generatedImageBlob: result.imageBlob,
+        });
+      } else {
+        toast.error(result.error || 'Failed to generate image');
+      }
+    } catch (error) {
+      console.error('Error generating image:', error);
+      toast.error('Failed to generate image');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   // Toggle account selection
   const toggleAccount = (accountId: string) => {
@@ -104,6 +159,16 @@ export default function PublishStep({ state, updateState }: PublishStepProps) {
                 <Card>
                   <CardContent className="p-4">
                     <div className="relative">
+                      {/* Loading overlay when generating image */}
+                      {isGenerating && (
+                        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
+                          <div className="text-center space-y-2">
+                            <Loader2 className="h-8 w-8 animate-spin text-purple-500 mx-auto" />
+                            <p className="text-sm font-medium">Generating image preview...</p>
+                          </div>
+                        </div>
+                      )}
+
                       <PostPreview
                         platform={platform}
                         imageUrl={imageUrl}
