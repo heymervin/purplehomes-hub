@@ -26,6 +26,13 @@ const DEFAULT_HASHTAGS = [
   '#Investment',
   '#RealtorLife',
   '#HouseHunting',
+  // Spanish/Latino community hashtags
+  '#DuenoADueno',
+  '#CompraTuCasa',
+  '#HogaresParaFamilias',
+  '#PathToHomeownership',
+  '#HelpingFamiliesBuyHomes',
+  '#HomeownershipJourney',
 ];
 
 interface HashtagsStepProps {
