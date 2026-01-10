@@ -1,10 +1,10 @@
 import OpenAI from 'openai';
 
-// Check if API key is available
-const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+// Check if API key is available (try both VITE_ prefixed and non-prefixed)
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.OPENAI_API_KEY;
 
 if (!apiKey) {
-  console.warn('VITE_OPENAI_API_KEY not found. AI field extraction will be disabled.');
+  console.warn('OPENAI_API_KEY or VITE_OPENAI_API_KEY not found. AI field extraction will be disabled.');
 }
 
 const openai = apiKey ? new OpenAI({
