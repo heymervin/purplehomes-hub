@@ -25,6 +25,7 @@ export default function CreateWizard() {
     goBack,
     canGoNext,
     canGoBack,
+    validationMessage,
     resetWizard,
   } = useWizardState();
 

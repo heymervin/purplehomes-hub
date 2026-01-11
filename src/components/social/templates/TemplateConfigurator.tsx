@@ -63,35 +63,37 @@ export function TemplateConfigurator({
   const isValid = areAllFieldsValid(resolvedFields);
   const errors = getValidationErrors(resolvedFields);
 
-  // Live preview generation - debounced
-  useEffect(() => {
-    if (!showLivePreview || !isValid) {
-      return;
-    }
+  // Generate preview on demand (not automatically)
+  const handleGeneratePreview = async () => {
+    if (!isValid) return;
 
-    const timeoutId = setTimeout(async () => {
-      setIsLoadingPreview(true);
+    setIsLoadingPreview(true);
+    try {
+      const payload = buildImejisPayload(template, resolvedFields);
+      const result = await renderImejisTemplate(payload);
 
-      try {
-        const payload = buildImejisPayload(template, resolvedFields);
-        const result = await renderImejisTemplate(payload);
-
-        if (result.success && result.imageUrl) {
-          // Clean up old preview URL
-          if (previewUrl) {
-            URL.revokeObjectURL(previewUrl);
-          }
-          setPreviewUrl(result.imageUrl);
+      if (result.success && result.imageUrl) {
+        // Clean up old preview URL
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl);
         }
-      } catch (error) {
-        console.error('Preview generation error:', error);
-      } finally {
-        setIsLoadingPreview(false);
+        setPreviewUrl(result.imageUrl);
       }
-    }, 500); // 500ms debounce
+    } catch (error) {
+      console.error('Preview generation error:', error);
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  };
 
-    return () => clearTimeout(timeoutId);
-  }, [showLivePreview, isValid, template, resolvedFields, userInputs]);
+  // Auto-generate preview once when all fields are valid (initial load only)
+  const [hasGeneratedInitialPreview, setHasGeneratedInitialPreview] = useState(false);
+  useEffect(() => {
+    if (showLivePreview && isValid && !hasGeneratedInitialPreview && !previewUrl) {
+      setHasGeneratedInitialPreview(true);
+      handleGeneratePreview();
+    }
+  }, [showLivePreview, isValid, hasGeneratedInitialPreview, previewUrl]);
 
   // Cleanup preview URL on unmount
   useEffect(() => {
@@ -365,12 +367,30 @@ export function TemplateConfigurator({
           <div className="space-y-4 order-1 lg:order-2">
             <Card className="sticky top-4">
               <CardContent className="p-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <Eye className="h-4 w-4 text-purple-500" />
-                  <h3 className="font-medium">Live Preview</h3>
-                  {isLoadingPreview && (
-                    <Loader2 className="h-3 w-3 text-muted-foreground animate-spin" />
-                  )}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-purple-500" />
+                    <h3 className="font-medium">Preview</h3>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGeneratePreview}
+                    disabled={isLoadingPreview || !isValid}
+                    className="text-xs"
+                  >
+                    {isLoadingPreview ? (
+                      <>
+                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        Refresh
+                      </>
+                    )}
+                  </Button>
                 </div>
 
                 {/* Preview Image */}
@@ -397,7 +417,7 @@ export function TemplateConfigurator({
                 {previewUrl && (
                   <div className="mt-3 p-2 rounded bg-purple-50 dark:bg-purple-950/20 border border-purple-200">
                     <p className="text-xs text-purple-700 dark:text-purple-300">
-                      This is a live preview. Your final image will be generated when you publish.
+                      Click "Refresh" after editing fields to update preview.
                     </p>
                   </div>
                 )}
