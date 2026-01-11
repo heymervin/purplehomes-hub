@@ -586,7 +586,10 @@ export const transformOpportunityToProperty = (opp: GHLOpportunity): Property =>
     getCustomField(GHL_OPPORTUNITY_FIELDS.supporting_image_10_upload),
   ].filter(Boolean); // Remove empty values
 
-  const images = supportingImages.length > 0 ? supportingImages : [];
+  // Combine hero image with supporting images for the images array
+  // This ensures all property images are available in the carousel
+  const allImages = [heroImage, ...supportingImages].filter(Boolean);
+  const images = allImages.length > 0 ? allImages : [];
   
   // Parse status from custom field (SM-Pending, SM-Posted, etc.)
   const socialStatus = getCustomField(PROPERTY_CUSTOM_FIELDS.status);
@@ -617,7 +620,7 @@ export const transformOpportunityToProperty = (opp: GHLOpportunity): Property =>
     propertyType: (getCustomField(PROPERTY_CUSTOM_FIELDS.propertyType) as PropertyType) || undefined,
     description: getCustomField(PROPERTY_CUSTOM_FIELDS.description),
     heroImage: heroImage || '/placeholder.svg',
-    images: images.length > 0 ? images : [heroImage || '/placeholder.svg'],
+    images,
     status,
     caption: getCustomField(PROPERTY_CUSTOM_FIELDS.caption),
     brandedImage: getCustomField(PROPERTY_CUSTOM_FIELDS.brandedImage),
