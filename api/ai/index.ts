@@ -321,7 +321,7 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        temperature: 0.7,
+        temperature: 0.3,
         max_tokens: 500,
       }),
     });
@@ -348,18 +348,21 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
 }
 
 function buildCaptionSystemPrompt(): string {
-  return `You are a real estate social media copywriter. You create structured, scannable captions.
+  return `You are a real estate social media copywriter. You create STRUCTURED, SCANNABLE captions with emojis and bullet points.
 
-YOUR RULES:
-1. ALWAYS follow the exact structure template provided
-2. Fill in placeholders with actual property data
-3. Write body copy that matches the specified TONE (2-4 sentences only)
-4. Choose ONE CTA from the provided options
-5. Never change the structure or add extra sections
-6. Never copy-paste context verbatim
-7. Never include hashtags
+CRITICAL RULES - MUST FOLLOW EXACTLY:
+1. PRESERVE THE EXACT STRUCTURE from the template - every line, every emoji, every bullet point
+2. DO NOT write prose paragraphs - use the template's line-by-line format
+3. KEEP all emojis exactly as shown in the template (🏠 📍 💰 🏡 etc.)
+4. KEEP the bullet point format (Beds • Baths • SF)
+5. Replace ONLY the {placeholders} with property data
+6. Write body copy = 2-4 SHORT sentences matching the tone
+7. Choose ONE CTA from provided options
+8. NEVER add extra sections or change the layout
+9. NEVER write formal prose - keep it punchy and structured
+10. NEVER include hashtags
 
-OUTPUT: Only the caption text. No explanations.`;
+OUTPUT FORMAT: Copy the template structure EXACTLY, just fill in the blanks. No explanations, no extra text.`;
 }
 
 function buildCaptionUserPrompt(params: CaptionRequest): string {
@@ -390,10 +393,10 @@ ADDITIONAL CONTEXT (inform body copy, don't copy):
 ${context}`
     : '';
 
-  return `Generate a ${platform} caption using this EXACT structure:
+  return `COPY THIS EXACT STRUCTURE (preserve all emojis, line breaks, bullet points):
 
 ═══════════════════════════════════════════════════════════════
-STRUCTURE TEMPLATE:
+TEMPLATE TO COPY:
 ═══════════════════════════════════════════════════════════════
 ${structureTemplate}
 ═══════════════════════════════════════════════════════════════
@@ -401,22 +404,24 @@ ${structureTemplate}
 ${propertyContext}
 ${additionalContext}
 
-═══════════════════════════════════════════════════════════════
-BODY COPY TONE: ${tone.toUpperCase()}
+TONE FOR BODY COPY: ${tone.toUpperCase()}
 ${toneInstructions}
-═══════════════════════════════════════════════════════════════
 
-CTA OPTIONS (choose one):
+CTA OPTIONS (pick one):
 ${ctaOptions.map((cta) => `- "${cta}"`).join('\n')}
 
-RULES:
-1. Replace {placeholders} with property data
-2. Body copy = 2-4 sentences in ${tone} tone
-3. Pick ONE CTA
-4. Keep exact structure and emojis
-5. NO hashtags
+═══════════════════════════════════════════════════════════════
+CRITICAL INSTRUCTIONS:
+═══════════════════════════════════════════════════════════════
+1. COPY the template line-by-line with ALL emojis and formatting
+2. Replace {address} with actual address, {price} with actual price, etc.
+3. Replace {body_copy} with 2-4 SHORT sentences in ${tone} tone
+4. Replace {cta} with ONE option from the CTA list above
+5. DO NOT write paragraphs - keep the structured bullet format
+6. DO NOT add "New to market:" or prose intros - start with the emoji header
+7. Output ONLY the filled template - no explanations
 
-Generate now:`;
+NOW OUTPUT THE FILLED TEMPLATE:`;
 }
 
 function getCaptionStructureTemplate(intent: string, property: Property | null): string {

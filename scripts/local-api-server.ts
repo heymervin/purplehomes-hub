@@ -48,6 +48,7 @@ app.all('/api/ghl', (req, res) => handleApiRequest(req, res, 'ghl'));
 app.all('/api/airtable', (req, res) => handleApiRequest(req, res, 'airtable'));
 app.all('/api/cache', (req, res) => handleApiRequest(req, res, 'cache'));
 app.all('/api/proxy-image', (req, res) => handleApiRequest(req, res, 'proxy-image'));
+app.all('/api/ai', (req, res) => handleApiRequest(req, res, 'ai'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -61,6 +62,7 @@ app.listen(PORT, () => {
   console.log(`  - GET/POST /api/ghl`);
   console.log(`  - GET/POST /api/airtable`);
   console.log(`  - GET/POST /api/cache`);
+  console.log(`  - GET/POST /api/ai`);
   console.log(`  - GET     /api/health`);
   console.log(`\nMake sure you have .env.local with your API keys configured.`);
 });
