@@ -127,6 +127,13 @@ interface QuickPostFormState {
   scheduleTime: string; // "HH:mm" format or empty
   dateInput: string; // User's date input text
   timeInput: string; // User's time input text
+  // Open House date/time (for open-house intent)
+  openHouseDate: string; // ISO date string or empty
+  openHouseStartTime: string; // "HH:mm" format or empty
+  openHouseEndTime: string; // "HH:mm" format or empty
+  openHouseDateInput: string; // User's date input text
+  openHouseStartTimeInput: string; // User's time input text
+  openHouseEndTimeInput: string; // User's time input text
   intent: string; // Dynamic based on postType
   tone: CaptionTone;
   templateId: string | null;
@@ -153,6 +160,12 @@ const INITIAL_STATE: QuickPostFormState = {
   scheduleTime: '',
   dateInput: '',
   timeInput: '',
+  openHouseDate: '',
+  openHouseStartTime: '',
+  openHouseEndTime: '',
+  openHouseDateInput: '',
+  openHouseStartTimeInput: '',
+  openHouseEndTimeInput: '',
   intent: 'just-listed',
   tone: 'professional',
   templateId: null,
@@ -182,6 +195,17 @@ export function QuickPostForm() {
   const [showTimeSuggestions, setShowTimeSuggestions] = useState(false);
   const dateDropdownRef = React.useRef<HTMLDivElement>(null);
   const timeDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  // Open House date/time autocomplete state
+  const [openHouseDateSuggestions, setOpenHouseDateSuggestions] = useState<DateSuggestion[]>([]);
+  const [openHouseStartTimeSuggestions, setOpenHouseStartTimeSuggestions] = useState<TimeSuggestion[]>([]);
+  const [openHouseEndTimeSuggestions, setOpenHouseEndTimeSuggestions] = useState<TimeSuggestion[]>([]);
+  const [showOpenHouseDateSuggestions, setShowOpenHouseDateSuggestions] = useState(false);
+  const [showOpenHouseStartTimeSuggestions, setShowOpenHouseStartTimeSuggestions] = useState(false);
+  const [showOpenHouseEndTimeSuggestions, setShowOpenHouseEndTimeSuggestions] = useState(false);
+  const openHouseDateDropdownRef = React.useRef<HTMLDivElement>(null);
+  const openHouseStartTimeDropdownRef = React.useRef<HTMLDivElement>(null);
+  const openHouseEndTimeDropdownRef = React.useRef<HTMLDivElement>(null);
 
   // QR Code links from localStorage
   const [savedQRLinks, setSavedQRLinks] = useState<QRCodeLink[]>([]);
@@ -271,6 +295,16 @@ export function QuickPostForm() {
       }
       if (timeDropdownRef.current && !timeDropdownRef.current.contains(event.target as Node)) {
         setShowTimeSuggestions(false);
+      }
+      // Open House dropdowns
+      if (openHouseDateDropdownRef.current && !openHouseDateDropdownRef.current.contains(event.target as Node)) {
+        setShowOpenHouseDateSuggestions(false);
+      }
+      if (openHouseStartTimeDropdownRef.current && !openHouseStartTimeDropdownRef.current.contains(event.target as Node)) {
+        setShowOpenHouseStartTimeSuggestions(false);
+      }
+      if (openHouseEndTimeDropdownRef.current && !openHouseEndTimeDropdownRef.current.contains(event.target as Node)) {
+        setShowOpenHouseEndTimeSuggestions(false);
       }
     };
 
@@ -374,10 +408,17 @@ export function QuickPostForm() {
 
     try {
       // 1. Generate caption
+      // Add open house info to context if it's an open house post
+      let contextWithOpenHouse = state.context;
+      if (state.intent === 'open-house' && state.openHouseDate && state.openHouseStartTime && state.openHouseEndTime) {
+        const openHouseInfo = `\n\nOpen House: ${state.openHouseDateInput} from ${state.openHouseStartTimeInput} to ${state.openHouseEndTimeInput}`;
+        contextWithOpenHouse = state.context + openHouseInfo;
+      }
+
       // Build params object - only include postIntent for property posts
       const baseParams = {
         property: state.selectedProperty,
-        context: state.context,
+        context: contextWithOpenHouse,
         tone: state.tone,
         platform: 'all' as const,
       };
@@ -1365,6 +1406,175 @@ export function QuickPostForm() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Open House Date & Time Section */}
+      {state.postType === 'property' && state.intent === 'open-house' && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+              <label className="font-medium text-sm">
+                Open House Date & Time
+                <span className="text-red-500 ml-1">*</span>
+              </label>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 text-base leading-relaxed">
+              <span className="text-muted-foreground text-sm">Open House on</span>
+
+              {/* Open House Date Input */}
+              <div className="relative" ref={openHouseDateDropdownRef}>
+                <Input
+                  type="text"
+                  placeholder="Saturday, Jan 15"
+                  value={state.openHouseDateInput}
+                  onChange={(e) => {
+                    setState(prev => ({ ...prev, openHouseDateInput: e.target.value }));
+                    const suggestions = getDateSuggestions(e.target.value);
+                    setOpenHouseDateSuggestions(suggestions);
+                    setShowOpenHouseDateSuggestions(suggestions.length > 0);
+                  }}
+                  onFocus={() => {
+                    const suggestions = getDateSuggestions(state.openHouseDateInput);
+                    setOpenHouseDateSuggestions(suggestions);
+                    setShowOpenHouseDateSuggestions(suggestions.length > 0);
+                  }}
+                  className="w-[180px] h-auto py-1.5 px-3"
+                />
+                {showOpenHouseDateSuggestions && openHouseDateSuggestions.length > 0 && (
+                  <div className="absolute z-50 top-full mt-1 w-[240px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-[200px] overflow-y-auto">
+                    {openHouseDateSuggestions.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setState(prev => ({
+                            ...prev,
+                            openHouseDate: suggestion.isoDate,
+                            openHouseDateInput: suggestion.label,
+                          }));
+                          setShowOpenHouseDateSuggestions(false);
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-colors border-b last:border-b-0 border-gray-100 dark:border-gray-800"
+                      >
+                        {suggestion.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <span className="text-muted-foreground text-sm">from</span>
+
+              {/* Start Time Input */}
+              <div className="relative" ref={openHouseStartTimeDropdownRef}>
+                <Input
+                  type="text"
+                  placeholder="2:00 PM"
+                  value={state.openHouseStartTimeInput}
+                  onChange={(e) => {
+                    setState(prev => ({ ...prev, openHouseStartTimeInput: e.target.value }));
+                    const suggestions = getTimeSuggestions(e.target.value);
+                    setOpenHouseStartTimeSuggestions(suggestions);
+                    setShowOpenHouseStartTimeSuggestions(suggestions.length > 0);
+                  }}
+                  onFocus={() => {
+                    const suggestions = getTimeSuggestions(state.openHouseStartTimeInput);
+                    setOpenHouseStartTimeSuggestions(suggestions);
+                    setShowOpenHouseStartTimeSuggestions(suggestions.length > 0);
+                  }}
+                  className="w-[120px] h-auto py-1.5 px-3"
+                />
+                {showOpenHouseStartTimeSuggestions && openHouseStartTimeSuggestions.length > 0 && (
+                  <div className="absolute z-50 top-full mt-1 w-[160px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-[200px] overflow-y-auto">
+                    {openHouseStartTimeSuggestions.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setState(prev => ({
+                            ...prev,
+                            openHouseStartTime: suggestion.time24h,
+                            openHouseStartTimeInput: suggestion.label,
+                          }));
+                          setShowOpenHouseStartTimeSuggestions(false);
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-colors border-b last:border-b-0 border-gray-100 dark:border-gray-800"
+                      >
+                        {suggestion.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <span className="text-muted-foreground text-sm">to</span>
+
+              {/* End Time Input */}
+              <div className="relative" ref={openHouseEndTimeDropdownRef}>
+                <Input
+                  type="text"
+                  placeholder="4:00 PM"
+                  value={state.openHouseEndTimeInput}
+                  onChange={(e) => {
+                    setState(prev => ({ ...prev, openHouseEndTimeInput: e.target.value }));
+                    const suggestions = getTimeSuggestions(e.target.value);
+                    setOpenHouseEndTimeSuggestions(suggestions);
+                    setShowOpenHouseEndTimeSuggestions(suggestions.length > 0);
+                  }}
+                  onFocus={() => {
+                    const suggestions = getTimeSuggestions(state.openHouseEndTimeInput);
+                    setOpenHouseEndTimeSuggestions(suggestions);
+                    setShowOpenHouseEndTimeSuggestions(suggestions.length > 0);
+                  }}
+                  className="w-[120px] h-auto py-1.5 px-3"
+                />
+                {showOpenHouseEndTimeSuggestions && openHouseEndTimeSuggestions.length > 0 && (
+                  <div className="absolute z-50 top-full mt-1 w-[160px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-[200px] overflow-y-auto">
+                    {openHouseEndTimeSuggestions.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          setState(prev => ({
+                            ...prev,
+                            openHouseEndTime: suggestion.time24h,
+                            openHouseEndTimeInput: suggestion.label,
+                          }));
+                          setShowOpenHouseEndTimeSuggestions(false);
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-orange-50 dark:hover:bg-orange-950/30 transition-colors border-b last:border-b-0 border-gray-100 dark:border-gray-800"
+                      >
+                        {suggestion.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Preview Badge */}
+            {state.openHouseDate && state.openHouseStartTime && state.openHouseEndTime && (
+              <div className="mt-3 flex items-center gap-2 px-4 py-2.5 rounded-lg bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800">
+                <Calendar className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                <span className="text-sm font-medium text-orange-900 dark:text-orange-100">
+                  Open House:
+                </span>
+                <Badge variant="secondary" className="bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 font-semibold">
+                  {state.openHouseDateInput} ● {state.openHouseStartTimeInput}-{state.openHouseEndTimeInput}
+                </Badge>
+              </div>
+            )}
+
+            <p className="text-xs text-muted-foreground mt-2">
+              This will be included in your caption (e.g., "Saturday, Jan 15 ● 2-4 PM")
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Generate Button */}
       <div className="space-y-3">
