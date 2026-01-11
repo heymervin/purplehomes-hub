@@ -1218,6 +1218,34 @@ export function QuickPostForm() {
               </div>
             )}
 
+            {/* Hero Image Display */}
+            {state.postType === 'property' && state.selectedProperty && state.selectedProperty.heroImage && (
+              <div className="mt-4 p-4 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800">
+                <div className="flex items-center gap-2 mb-3">
+                  <ImageIcon className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <span className="font-medium text-sm">Hero Image</span>
+                  <span className="text-xs text-muted-foreground">Main image for your template</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="relative">
+                    <img
+                      src={state.selectedProperty.heroImage}
+                      alt="Hero"
+                      className="h-32 w-32 object-cover rounded-lg border-2 border-amber-300 dark:border-amber-700 shadow-sm"
+                    />
+                    <div className="absolute -top-2 -right-2 bg-amber-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                      ★
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground">
+                      This is the primary image that will be displayed prominently in your template. It's automatically included from your property listing.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Supporting Images Selection - Interactive Carousel */}
             {state.postType === 'property' && state.selectedProperty && state.selectedProperty.images && state.selectedProperty.images.length > 0 && (() => {
               // Filter out hero image from carousel - it's already used in the template
