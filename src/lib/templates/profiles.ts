@@ -35,6 +35,12 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         dataType: 'image',
         constantValue: COMPANY_CONSTANTS.logo,
       },
+      heroImage: {
+        imejisFieldId: 'image_comp_1767862725425_2jgk7k965',
+        source: 'auto-property',
+        dataType: 'image',
+        propertyPath: 'heroImage',
+      },
       address: {
         imejisFieldId: 'text_comp_1767864783352_5o7fpiht0',
         source: 'auto-property',
