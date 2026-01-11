@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Image as ImageIcon, Send, Calendar, List,
-  ChevronLeft, ChevronRight, Layers, BarChart3
+  ChevronLeft, ChevronRight, Layers, BarChart3, Sparkles, ListOrdered
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +12,7 @@ import { useScheduledPosts } from '@/services/ghlApi';
 import { SocialAnalytics } from '@/components/social/SocialAnalytics';
 import { CreateWizard } from '@/components/social/create-wizard';
 import { BatchWizard } from '@/components/social/batch-wizard';
+import { QuickPostForm } from '@/components/social/quick-post';
 import { PipelineView } from '@/components/social/queue';
 import { cn } from '@/lib/utils';
 import type { ScheduleViewMode, PipelinePost } from '@/lib/queue/types';
@@ -34,6 +35,7 @@ export default function SocialMedia() {
   };
 
   const [mainTab, setMainTab] = useState<MainTab>(getInitialTab());
+  const [createMode, setCreateMode] = useState<'quick' | 'wizard'>('quick');
 
   // Schedule/Calendar state
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -144,9 +146,45 @@ export default function SocialMedia() {
           </TabsTrigger>
         </TabsList>
 
-        {/* CREATE TAB - Step-by-Step Wizard */}
+        {/* CREATE TAB - Quick Form or Wizard */}
         <TabsContent value="create" className="mt-6">
-          <CreateWizard />
+          {/* Mode Toggle */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Button
+                variant={createMode === 'quick' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setCreateMode('quick')}
+                className={cn(
+                  "gap-2",
+                  createMode === 'quick' && "bg-purple-600 hover:bg-purple-700"
+                )}
+              >
+                <Sparkles className="h-4 w-4" />
+                Quick Post
+              </Button>
+              <Button
+                variant={createMode === 'wizard' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setCreateMode('wizard')}
+                className={cn(
+                  "gap-2",
+                  createMode === 'wizard' && "bg-purple-600 hover:bg-purple-700"
+                )}
+              >
+                <ListOrdered className="h-4 w-4" />
+                Step-by-Step
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {createMode === 'quick'
+                ? 'Fill in the blanks to create a post quickly'
+                : 'Use the guided wizard for more control'}
+            </p>
+          </div>
+
+          {/* Content based on mode */}
+          {createMode === 'quick' ? <QuickPostForm /> : <CreateWizard />}
         </TabsContent>
 
         {/* BATCH TAB - Step-by-Step Wizard */}
