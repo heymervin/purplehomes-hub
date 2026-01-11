@@ -133,11 +133,6 @@ interface QuickPostFormState {
   context: string;
   customImage: File | null;
   customImagePreview: string | null;
-  // Supporting images for Just Listed
-  supportingImage1: File | null;
-  supportingImage1Preview: string | null;
-  supportingImage2: File | null;
-  supportingImage2Preview: string | null;
   // Generated content
   generatedCaption: string;
   generatedImageUrl: string | null;
@@ -160,10 +155,6 @@ const INITIAL_STATE: QuickPostFormState = {
   context: '',
   customImage: null,
   customImagePreview: null,
-  supportingImage1: null,
-  supportingImage1Preview: null,
-  supportingImage2: null,
-  supportingImage2Preview: null,
   generatedCaption: '',
   generatedImageUrl: null,
   generatedImageBlob: null,
@@ -1148,120 +1139,24 @@ export function QuickPostForm() {
               </div>
             )}
 
-            {/* Supporting Images for Just Listed */}
-            {state.postType === 'property' && state.intent === 'just-listed' && (
+            {/* Supporting Images from Property - Display Only */}
+            {state.postType === 'property' && state.selectedProperty && state.selectedProperty.images && state.selectedProperty.images.length > 0 && (
               <div className="mt-4 p-4 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800">
                 <div className="flex items-center gap-2 mb-3">
                   <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                  <span className="font-medium text-sm">Supporting Images (Optional)</span>
-                  <span className="text-xs text-muted-foreground">Add 2 interior/detail photos</span>
+                  <span className="font-medium text-sm">Supporting Images</span>
+                  <span className="text-xs text-muted-foreground">{state.selectedProperty.images.length} available</span>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Supporting Image 1 */}
-                  <div>
-                    {state.supportingImage1Preview ? (
-                      <div className="relative">
-                        <img
-                          src={state.supportingImage1Preview}
-                          alt="Supporting 1"
-                          className="h-24 w-full object-cover rounded-lg border"
-                        />
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="absolute -top-2 -right-2 h-6 w-6"
-                          onClick={() => {
-                            if (state.supportingImage1Preview) {
-                              URL.revokeObjectURL(state.supportingImage1Preview);
-                            }
-                            setState(prev => ({
-                              ...prev,
-                              supportingImage1: null,
-                              supportingImage1Preview: null,
-                            }));
-                          }}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <label className="flex items-center justify-center h-24 border-2 border-dashed border-purple-300 dark:border-purple-700 rounded-lg cursor-pointer hover:border-purple-500 transition-colors">
-                        <div className="text-center">
-                          <ImageIcon className="h-5 w-5 mx-auto mb-1 text-purple-400" />
-                          <span className="text-xs text-muted-foreground">Image 1</span>
-                        </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const preview = URL.createObjectURL(file);
-                              setState(prev => ({
-                                ...prev,
-                                supportingImage1: file,
-                                supportingImage1Preview: preview,
-                              }));
-                            }
-                          }}
-                        />
-                      </label>
-                    )}
-                  </div>
-
-                  {/* Supporting Image 2 */}
-                  <div>
-                    {state.supportingImage2Preview ? (
-                      <div className="relative">
-                        <img
-                          src={state.supportingImage2Preview}
-                          alt="Supporting 2"
-                          className="h-24 w-full object-cover rounded-lg border"
-                        />
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          className="absolute -top-2 -right-2 h-6 w-6"
-                          onClick={() => {
-                            if (state.supportingImage2Preview) {
-                              URL.revokeObjectURL(state.supportingImage2Preview);
-                            }
-                            setState(prev => ({
-                              ...prev,
-                              supportingImage2: null,
-                              supportingImage2Preview: null,
-                            }));
-                          }}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <label className="flex items-center justify-center h-24 border-2 border-dashed border-purple-300 dark:border-purple-700 rounded-lg cursor-pointer hover:border-purple-500 transition-colors">
-                        <div className="text-center">
-                          <ImageIcon className="h-5 w-5 mx-auto mb-1 text-purple-400" />
-                          <span className="text-xs text-muted-foreground">Image 2</span>
-                        </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              const preview = URL.createObjectURL(file);
-                              setState(prev => ({
-                                ...prev,
-                                supportingImage2: file,
-                                supportingImage2Preview: preview,
-                              }));
-                            }
-                          }}
-                        />
-                      </label>
-                    )}
-                  </div>
+                <div className="grid grid-cols-5 gap-2">
+                  {state.selectedProperty.images.slice(0, 10).map((imageUrl, idx) => (
+                    <div key={idx} className="relative">
+                      <img
+                        src={imageUrl}
+                        alt={`Supporting ${idx + 1}`}
+                        className="h-16 w-full object-cover rounded-lg border border-purple-200 dark:border-purple-700"
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
