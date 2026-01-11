@@ -1219,14 +1219,22 @@ export function QuickPostForm() {
             )}
 
             {/* Supporting Images Selection - Interactive Carousel */}
-            {state.postType === 'property' && state.selectedProperty && state.selectedProperty.images && state.selectedProperty.images.length > 0 && (
+            {state.postType === 'property' && state.selectedProperty && state.selectedProperty.images && state.selectedProperty.images.length > 0 && (() => {
+              // Filter out hero image from carousel - it's already used in the template
+              const supportingImagesOnly = state.selectedProperty.images.filter(
+                img => img !== state.selectedProperty.heroImage
+              );
+
+              if (supportingImagesOnly.length === 0) return null;
+
+              return (
               <div className="mt-4 p-4 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                     <span className="font-medium text-sm">Supporting Images</span>
                     <span className="text-xs text-muted-foreground">
-                      {state.selectedSupportingImages.length}/2 selected from {state.selectedProperty.images.length} available
+                      {state.selectedSupportingImages.length}/2 selected from {supportingImagesOnly.length} available
                     </span>
                   </div>
                   {state.selectedSupportingImages.length > 0 && (
@@ -1279,7 +1287,7 @@ export function QuickPostForm() {
                 <div className="relative">
                   <div className="overflow-x-auto">
                     <div className="flex gap-2 pb-2">
-                      {state.selectedProperty.images.map((imageUrl, idx) => {
+                      {supportingImagesOnly.map((imageUrl, idx) => {
                         const isSelected = state.selectedSupportingImages.includes(imageUrl);
                         const selectedIndex = state.selectedSupportingImages.indexOf(imageUrl);
 
@@ -1312,7 +1320,7 @@ export function QuickPostForm() {
                           >
                             <img
                               src={imageUrl}
-                              alt={`Available ${idx + 1}`}
+                              alt={`Supporting ${idx + 1}`}
                               className="w-full h-full object-cover rounded-lg"
                             />
                             {isSelected && (
@@ -1328,11 +1336,12 @@ export function QuickPostForm() {
                     </div>
                   </div>
                   <div className="text-xs text-center text-muted-foreground mt-1">
-                    Click images to select up to 2 for your template
+                    Click images to select up to 2 for your template (hero image is already included)
                   </div>
                 </div>
               </div>
-            )}
+              );
+            })()}
 
             {/* QR Code URL Input */}
             {state.postType === 'property' && state.selectedProperty && (
