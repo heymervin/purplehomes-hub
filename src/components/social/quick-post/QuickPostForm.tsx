@@ -33,6 +33,7 @@ import { renderImejisTemplate } from '@/services/imejis/api';
 import { useCaptionGenerate } from '../create-wizard/hooks/useCaptionGenerate';
 import { TONE_PRESETS, type CaptionTone, type PostIntent } from '../create-wizard/types';
 import { getDateSuggestions, getTimeSuggestions, combineDateAndTime, formatScheduleDateTime, type DateSuggestion, type TimeSuggestion } from '@/lib/utils/dateTimeSuggestions';
+import { getQRCodeLinks, type QRCodeLink } from '@/lib/utils/qrCodeLinks';
 import type { Property } from '@/types';
 import { toast } from 'sonner';
 
@@ -181,6 +182,14 @@ export function QuickPostForm() {
   const [showTimeSuggestions, setShowTimeSuggestions] = useState(false);
   const dateDropdownRef = React.useRef<HTMLDivElement>(null);
   const timeDropdownRef = React.useRef<HTMLDivElement>(null);
+
+  // QR Code links from localStorage
+  const [savedQRLinks, setSavedQRLinks] = useState<QRCodeLink[]>([]);
+
+  // Load QR links on mount
+  useEffect(() => {
+    setSavedQRLinks(getQRCodeLinks());
+  }, []);
 
   // Use the actual Property Pipeline (not Seller Acquisition which has contacts too)
   const { data: propertiesData } = useProperties('U4FANAMaB1gGddRaaD9x');
@@ -1292,6 +1301,30 @@ export function QuickPostForm() {
                   <span className="font-medium text-sm">QR Code URL (Optional)</span>
                   <span className="text-xs text-muted-foreground">For templates with QR code</span>
                 </div>
+
+                {/* Saved Links Dropdown */}
+                {savedQRLinks.length > 0 && (
+                  <Select
+                    value=""
+                    onValueChange={(url) => setState(prev => ({ ...prev, qrCodeUrl: url }))}
+                  >
+                    <SelectTrigger className="w-full mb-2 bg-white dark:bg-gray-900">
+                      <SelectValue placeholder="Select a saved link..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {savedQRLinks.map((link) => (
+                        <SelectItem key={link.id} value={link.url}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{link.label}</span>
+                            <span className="text-xs text-muted-foreground truncate max-w-[300px]">{link.url}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+
+                {/* Manual Input */}
                 <Input
                   type="url"
                   placeholder="https://example.com/property-details"
@@ -1300,7 +1333,9 @@ export function QuickPostForm() {
                   className="bg-white dark:bg-gray-900"
                 />
                 <p className="text-xs text-muted-foreground mt-2">
-                  This URL will be encoded as a QR code in templates that support it
+                  {savedQRLinks.length > 0
+                    ? 'Select from saved links above or type a custom URL'
+                    : 'This URL will be encoded as a QR code in templates that support it'}
                 </p>
               </div>
             )}

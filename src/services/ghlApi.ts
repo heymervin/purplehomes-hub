@@ -571,8 +571,22 @@ export const transformOpportunityToProperty = (opp: GHLOpportunity): Property =>
   };
 
   const heroImage = getCustomField(PROPERTY_CUSTOM_FIELDS.heroImage);
-  const imagesField = getCustomField(PROPERTY_CUSTOM_FIELDS.images);
-  const images = imagesField ? imagesField.split(',').map(url => url.trim()).filter(Boolean) : [];
+
+  // Collect all supporting images from the 10 individual fields
+  const supportingImages = [
+    getCustomField(GHL_OPPORTUNITY_FIELDS.supporting_image_1_upload),
+    getCustomField(GHL_OPPORTUNITY_FIELDS.supporting_image_2_upload),
+    getCustomField(GHL_OPPORTUNITY_FIELDS.supporting_image_3_upload),
+    getCustomField(GHL_OPPORTUNITY_FIELDS.supporting_image_4_upload),
+    getCustomField(GHL_OPPORTUNITY_FIELDS.supporting_image_5_upload),
+    getCustomField(GHL_OPPORTUNITY_FIELDS.supporting_image_6_upload),
+    getCustomField(GHL_OPPORTUNITY_FIELDS.supporting_image_7_upload),
+    getCustomField(GHL_OPPORTUNITY_FIELDS.supporting_image_8_upload),
+    getCustomField(GHL_OPPORTUNITY_FIELDS.supporting_image_9_upload),
+    getCustomField(GHL_OPPORTUNITY_FIELDS.supporting_image_10_upload),
+  ].filter(Boolean); // Remove empty values
+
+  const images = supportingImages.length > 0 ? supportingImages : [];
   
   // Parse status from custom field (SM-Pending, SM-Posted, etc.)
   const socialStatus = getCustomField(PROPERTY_CUSTOM_FIELDS.status);
