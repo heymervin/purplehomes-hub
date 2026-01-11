@@ -1451,7 +1451,7 @@ export function QuickPostForm() {
                           e.preventDefault();
                           setState(prev => ({
                             ...prev,
-                            openHouseDate: suggestion.isoDate,
+                            openHouseDate: suggestion.value,
                             openHouseDateInput: suggestion.label,
                           }));
                           setShowOpenHouseDateSuggestions(false);
@@ -1496,7 +1496,7 @@ export function QuickPostForm() {
                           e.preventDefault();
                           setState(prev => ({
                             ...prev,
-                            openHouseStartTime: suggestion.time24h,
+                            openHouseStartTime: suggestion.value,
                             openHouseStartTimeInput: suggestion.label,
                           }));
                           setShowOpenHouseStartTimeSuggestions(false);
@@ -1541,7 +1541,7 @@ export function QuickPostForm() {
                           e.preventDefault();
                           setState(prev => ({
                             ...prev,
-                            openHouseEndTime: suggestion.time24h,
+                            openHouseEndTime: suggestion.value,
                             openHouseEndTimeInput: suggestion.label,
                           }));
                           setShowOpenHouseEndTimeSuggestions(false);
