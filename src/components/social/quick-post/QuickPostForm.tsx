@@ -101,12 +101,16 @@ const PROPERTY_TEMPLATES = [
   { id: 'just-listed', label: 'Just Listed', icon: '🏷️' },
   { id: 'just-sold', label: 'Just Sold', icon: '🎉' },
   { id: 'open-house', label: 'Open House', icon: '🚪' },
+  { id: 'personal-value', label: 'Value Tips', icon: '💡' },
+  { id: 'success-story', label: 'Success Story', icon: '⭐' },
   { id: 'custom', label: 'Custom Image', icon: '📷' },
   { id: 'none', label: 'No Image', icon: '📝' },
 ];
 
 // Generic templates for non-property posts
 const GENERIC_TEMPLATES = [
+  { id: 'personal-value', label: 'Value Tips', icon: '💡' },
+  { id: 'success-story', label: 'Success Story', icon: '⭐' },
   { id: 'custom', label: 'Upload Image', icon: '📷' },
   { id: 'none', label: 'Text Only', icon: '📝' },
 ];

@@ -378,6 +378,18 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
     ],
 
     fields: {
+      backgroundImage: {
+        imejisFieldId: 'image_comp_1767862725425_2jgk7k965',
+        source: 'user-input',
+        dataType: 'image',
+        inputConfig: {
+          label: 'Background Image',
+          placeholder: 'Paste image URL...',
+          helpText: 'Choose a background image for this testimonial',
+          required: false,
+        },
+        optional: true,
+      },
       testimonial: {
         imejisFieldId: 'text_comp_1767864783352_5o7fpiht0',
         source: 'user-input',
@@ -422,8 +434,8 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
       },
     },
 
-    userInputFields: ['testimonial', 'clientNameLocation', 'clientImage'],
-    userInputCount: 3,
+    userInputFields: ['backgroundImage', 'testimonial', 'clientNameLocation', 'clientImage'],
+    userInputCount: 4,
     requiresProperty: false,
     requiresImages: false,
   },
