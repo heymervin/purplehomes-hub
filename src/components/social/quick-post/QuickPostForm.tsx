@@ -1039,82 +1039,90 @@ export function QuickPostForm() {
               </div>
             )}
 
-            {/* Row 2: Intent (property only) + Tone */}
-            <div className="flex flex-wrap items-center gap-2 text-base leading-relaxed">
-              {state.postType === 'property' && (
-                <>
-                  <span className="text-muted-foreground">announcing</span>
+            {/* Caption Settings Section */}
+            <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border border-blue-200 dark:border-blue-800">
+              <div className="flex items-center gap-2 mb-2">
+                <MessageSquare className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <span className="font-semibold text-sm text-blue-900 dark:text-blue-100">Caption Settings</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-base leading-relaxed">
+                {state.postType === 'property' && (
+                  <>
+                    <span className="text-muted-foreground">Write caption for</span>
 
-                  {/* Intent Selector (property) */}
-                  <Select value={state.intent} onValueChange={handleIntentChange}>
-                    <SelectTrigger className="w-[180px] h-auto py-1.5">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableIntents.map((intent) => (
-                        <SelectItem key={intent.id} value={intent.id}>
-                          <span className="flex items-center gap-2">
-                            <span>{intent.icon}</span>
-                            <span>{intent.label}</span>
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </>
-              )}
+                    {/* Intent Selector (property) */}
+                    <Select value={state.intent} onValueChange={handleIntentChange}>
+                      <SelectTrigger className="w-[180px] h-auto py-1.5">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableIntents.map((intent) => (
+                          <SelectItem key={intent.id} value={intent.id}>
+                            <span className="flex items-center gap-2">
+                              <span>{intent.icon}</span>
+                              <span>{intent.label}</span>
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </>
+                )}
 
-              <span className="text-muted-foreground">in a</span>
+                <span className="text-muted-foreground">in a</span>
 
-              {/* Tone Selector */}
-              <Select value={state.tone} onValueChange={(v) => setState(prev => ({ ...prev, tone: v as CaptionTone }))}>
-                <SelectTrigger className="w-[150px] h-auto py-1.5">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {TONE_PRESETS.map((tone) => (
-                    <SelectItem key={tone.id} value={tone.id}>
-                      <span className="flex items-center gap-2">
-                        <span>{tone.icon}</span>
-                        <span>{tone.label}</span>
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {/* Tone Selector */}
+                <Select value={state.tone} onValueChange={(v) => setState(prev => ({ ...prev, tone: v as CaptionTone }))}>
+                  <SelectTrigger className="w-[150px] h-auto py-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TONE_PRESETS.map((tone) => (
+                      <SelectItem key={tone.id} value={tone.id}>
+                        <span className="flex items-center gap-2">
+                          <span>{tone.icon}</span>
+                          <span>{tone.label}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-              <span className="text-muted-foreground">tone.</span>
+                <span className="text-muted-foreground">tone</span>
+              </div>
             </div>
 
-            {/* Row 3: Template/Image Selection */}
-            <div className="flex flex-wrap items-center gap-2 text-base leading-relaxed">
-              <span className="text-muted-foreground">
-                {state.postType === 'property' ? 'Using the' : 'With'}
-              </span>
+            {/* Image Template Section */}
+            <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-200 dark:border-purple-800">
+              <div className="flex items-center gap-2 mb-2">
+                <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <span className="font-semibold text-sm text-purple-900 dark:text-purple-100">Image Template</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-base leading-relaxed">
+                <span className="text-muted-foreground">Generate image using</span>
 
-              {/* Template Selector */}
-              <Select
-                value={state.templateId || ''}
-                onValueChange={handleTemplateChange}
-              >
-                <SelectTrigger className="w-[180px] h-auto py-1.5">
-                  <SelectValue placeholder={state.postType === 'property' ? 'Select template...' : 'Add image?'} />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableTemplates.map((template) => (
-                    <SelectItem key={template.id} value={template.id}>
-                      <span className="flex items-center gap-2">
-                        <span>{template.icon}</span>
-                        <span>{template.label}</span>
-                      </span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                {/* Template Selector */}
+                <Select
+                  value={state.templateId || ''}
+                  onValueChange={handleTemplateChange}
+                >
+                  <SelectTrigger className="w-[180px] h-auto py-1.5">
+                    <SelectValue placeholder="Select template..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableTemplates.map((template) => (
+                      <SelectItem key={template.id} value={template.id}>
+                        <span className="flex items-center gap-2">
+                          <span>{template.icon}</span>
+                          <span>{template.label}</span>
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-              <span className="text-muted-foreground">
-                {state.postType === 'property' ? 'template.' : ''}
-              </span>
+                <span className="text-muted-foreground">template</span>
+              </div>
             </div>
 
             {/* Template-specific fields (inline expansion) - property only */}
