@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, ChevronDown, Check, Sparkles, Building2, Image as ImageIcon, Upload, X, ArrowLeft, Eye, Rocket, RefreshCw, Edit2, User, TrendingUp, MessageSquare, MapPin, Calendar, Clock } from 'lucide-react';
+import { Loader2, ChevronDown, ChevronLeft, ChevronRight, Check, Sparkles, Building2, Image as ImageIcon, Upload, X, ArrowLeft, Eye, Rocket, RefreshCw, Edit2, User, TrendingUp, MessageSquare, MapPin, Calendar, Clock, Link as LinkIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProperties, useSocialAccounts, useCreateSocialPost } from '@/services/ghlApi';
 import { getTemplateById } from '@/lib/templates/profiles';
@@ -133,6 +133,10 @@ interface QuickPostFormState {
   context: string;
   customImage: File | null;
   customImagePreview: string | null;
+  // Supporting images selection (for image_comp templates)
+  selectedSupportingImages: string[]; // Up to 2 image URLs
+  // QR code URL (for qrcode_comp templates)
+  qrCodeUrl: string;
   // Generated content
   generatedCaption: string;
   generatedImageUrl: string | null;
@@ -155,6 +159,8 @@ const INITIAL_STATE: QuickPostFormState = {
   context: '',
   customImage: null,
   customImagePreview: null,
+  selectedSupportingImages: [],
+  qrCodeUrl: '',
   generatedCaption: '',
   generatedImageUrl: null,
   generatedImageBlob: null,
@@ -382,7 +388,22 @@ export function QuickPostForm() {
         const preparedProperty = state.selectedProperty
           ? preparePropertyForTemplate(state.selectedProperty)
           : null;
-        const resolvedFields = resolveAllFields(selectedTemplate, preparedProperty, state.templateUserInputs);
+
+        // Merge supporting images and QR code URL into user inputs
+        const enhancedUserInputs = {
+          ...state.templateUserInputs,
+          // Add selected supporting images if available
+          ...(state.selectedSupportingImages.length > 0 && {
+            image_comp_1: state.selectedSupportingImages[0] || '',
+            image_comp_2: state.selectedSupportingImages[1] || '',
+          }),
+          // Add QR code URL if provided
+          ...(state.qrCodeUrl && {
+            qrcode_comp: state.qrCodeUrl,
+          }),
+        };
+
+        const resolvedFields = resolveAllFields(selectedTemplate, preparedProperty, enhancedUserInputs);
         const payload = buildImejisPayload(selectedTemplate, resolvedFields);
 
         const imageResult = await renderImejisTemplate(payload);
@@ -1139,25 +1160,140 @@ export function QuickPostForm() {
               </div>
             )}
 
-            {/* Supporting Images from Property - Display Only */}
+            {/* Supporting Images Selection - Interactive Carousel */}
             {state.postType === 'property' && state.selectedProperty && state.selectedProperty.images && state.selectedProperty.images.length > 0 && (
               <div className="mt-4 p-4 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800">
-                <div className="flex items-center gap-2 mb-3">
-                  <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                  <span className="font-medium text-sm">Supporting Images</span>
-                  <span className="text-xs text-muted-foreground">{state.selectedProperty.images.length} available</span>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                    <span className="font-medium text-sm">Supporting Images</span>
+                    <span className="text-xs text-muted-foreground">
+                      {state.selectedSupportingImages.length}/2 selected from {state.selectedProperty.images.length} available
+                    </span>
+                  </div>
+                  {state.selectedSupportingImages.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setState(prev => ({ ...prev, selectedSupportingImages: [] }))}
+                      className="h-6 text-xs"
+                    >
+                      Clear
+                    </Button>
+                  )}
                 </div>
-                <div className="grid grid-cols-5 gap-2">
-                  {state.selectedProperty.images.slice(0, 10).map((imageUrl, idx) => (
-                    <div key={idx} className="relative">
-                      <img
-                        src={imageUrl}
-                        alt={`Supporting ${idx + 1}`}
-                        className="h-16 w-full object-cover rounded-lg border border-purple-200 dark:border-purple-700"
-                      />
+
+                {/* Selected Images Preview */}
+                {state.selectedSupportingImages.length > 0 && (
+                  <div className="mb-3 p-2 bg-white dark:bg-gray-900 rounded-lg border border-purple-300 dark:border-purple-700">
+                    <div className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-2">Selected for template:</div>
+                    <div className="flex gap-2">
+                      {state.selectedSupportingImages.map((imageUrl, idx) => (
+                        <div key={idx} className="relative">
+                          <img
+                            src={imageUrl}
+                            alt={`Selected ${idx + 1}`}
+                            className="h-20 w-20 object-cover rounded-lg border-2 border-purple-500"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute -top-2 -right-2 h-5 w-5"
+                            onClick={() => {
+                              setState(prev => ({
+                                ...prev,
+                                selectedSupportingImages: prev.selectedSupportingImages.filter((_, i) => i !== idx),
+                              }));
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                          <div className="absolute bottom-0 left-0 right-0 bg-purple-600 text-white text-xs text-center py-0.5 rounded-b-lg">
+                            #{idx + 1}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                )}
+
+                {/* Image Gallery with Carousel */}
+                <div className="relative">
+                  <div className="overflow-x-auto">
+                    <div className="flex gap-2 pb-2">
+                      {state.selectedProperty.images.map((imageUrl, idx) => {
+                        const isSelected = state.selectedSupportingImages.includes(imageUrl);
+                        const selectedIndex = state.selectedSupportingImages.indexOf(imageUrl);
+
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              if (isSelected) {
+                                // Deselect
+                                setState(prev => ({
+                                  ...prev,
+                                  selectedSupportingImages: prev.selectedSupportingImages.filter(img => img !== imageUrl),
+                                }));
+                              } else if (state.selectedSupportingImages.length < 2) {
+                                // Select (max 2)
+                                setState(prev => ({
+                                  ...prev,
+                                  selectedSupportingImages: [...prev.selectedSupportingImages, imageUrl],
+                                }));
+                              } else {
+                                toast.error('Maximum 2 supporting images allowed');
+                              }
+                            }}
+                            className={cn(
+                              "relative flex-shrink-0 w-24 h-24 rounded-lg border-2 transition-all",
+                              isSelected
+                                ? "border-purple-500 ring-2 ring-purple-300 dark:ring-purple-700"
+                                : "border-purple-200 dark:border-purple-700 hover:border-purple-400"
+                            )}
+                          >
+                            <img
+                              src={imageUrl}
+                              alt={`Available ${idx + 1}`}
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                            {isSelected && (
+                              <div className="absolute inset-0 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                <div className="bg-purple-600 text-white text-sm font-bold rounded-full h-8 w-8 flex items-center justify-center">
+                                  #{selectedIndex + 1}
+                                </div>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="text-xs text-center text-muted-foreground mt-1">
+                    Click images to select up to 2 for your template
+                  </div>
                 </div>
+              </div>
+            )}
+
+            {/* QR Code URL Input */}
+            {state.postType === 'property' && state.selectedProperty && (
+              <div className="mt-4 p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center gap-2 mb-3">
+                  <LinkIcon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <span className="font-medium text-sm">QR Code URL (Optional)</span>
+                  <span className="text-xs text-muted-foreground">For templates with QR code</span>
+                </div>
+                <Input
+                  type="url"
+                  placeholder="https://example.com/property-details"
+                  value={state.qrCodeUrl}
+                  onChange={(e) => setState(prev => ({ ...prev, qrCodeUrl: e.target.value }))}
+                  className="bg-white dark:bg-gray-900"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  This URL will be encoded as a QR code in templates that support it
+                </p>
               </div>
             )}
           </div>
