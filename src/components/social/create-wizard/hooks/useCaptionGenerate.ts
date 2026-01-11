@@ -105,6 +105,8 @@ Purple Homes | Your Trusted Real Estate Partner`;
     'coming-soon': `👀 COMING SOON in ${city || 'your area'}!`,
     investment: `📈 INVESTMENT OPPORTUNITY in ${city || 'your area'}!`,
     'market-update': `📊 MARKET UPDATE: ${city || 'Your Area'}`,
+    'personal-value': `💭 A Quick Thought`,
+    'success-story': `⭐ SUCCESS STORY`,
     general: '🏠 New Opportunity!',
   };
 
@@ -134,6 +136,8 @@ Purple Homes | Your Trusted Real Estate Partner`;
     'coming-soon': 'Want first access? DM to get on the list.',
     investment: 'Serious inquiries only. DM for the full breakdown.',
     'market-update': "Questions about the market? Let's chat.",
+    'personal-value': "What do you think? Let's connect.",
+    'success-story': "Ready to write your own success story? Let's talk.",
     general: 'DM us anytime.',
   };
 
