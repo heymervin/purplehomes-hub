@@ -24,8 +24,8 @@ export function useCaptionGenerate() {
     setIsGenerating(true);
 
     try {
-      // Use the new structured caption API v2
-      const response = await fetch('/api/social/generate-caption', {
+      // Use the AI caption API
+      const response = await fetch('/api/ai?action=caption', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
