@@ -136,3 +136,35 @@ export interface CaptionGenerationInput {
     features?: string[];
   };
 }
+
+// ============ BATCH TYPES ============
+
+/**
+ * A single batch item with its own intent, tone, template, and context.
+ * This enables "Create × N" behavior where each post can be different.
+ */
+export interface BatchItem {
+  id: string;
+  propertyId: string;
+  intentId: IntentId;
+  toneId: ToneId;
+  templateId: ImageTemplateId;
+  context: Record<string, string>;
+  // Generation state
+  status: 'pending' | 'generating' | 'ready' | 'failed';
+  caption?: string;
+  imageUrl?: string;
+  error?: string;
+  scheduledAt?: Date;
+}
+
+/**
+ * Batch form state for managing multiple posts at once.
+ */
+export interface BatchFormState {
+  items: BatchItem[];
+  sharedContext: string;
+  startTime: string;
+  intervalHours: number;
+  selectedAccounts: string[];
+}
