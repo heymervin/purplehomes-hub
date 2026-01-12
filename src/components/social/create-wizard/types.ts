@@ -61,14 +61,28 @@ export const CAPTION_SUBSTEP_CONFIG: Record<CaptionSubstep, { title: string; des
 // POST INTENT (What type of announcement)
 // ============================================
 export type PostIntent =
+  // Property intents
   | 'just-listed'
   | 'sold'
   | 'under-contract'
   | 'price-reduced'
+  | 'price-drop'
   | 'open-house'
   | 'coming-soon'
   | 'investment'
+  // Personal intents
+  | 'life-update'
+  | 'milestone'
+  | 'lesson-insight'
+  | 'behind-the-scenes'
+  // Professional intents
   | 'market-update'
+  | 'buyer-tips'
+  | 'seller-tips'
+  | 'investment-insight'
+  | 'client-success-story'
+  | 'community-spotlight'
+  // Legacy intents (for backward compatibility)
   | 'personal-value'
   | 'success-story'
   | 'general';

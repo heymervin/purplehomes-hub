@@ -97,14 +97,28 @@ Purple Homes | Your Trusted Real Estate Partner`;
 
   // Intent-specific headers
   const intentHeaders: Record<PostIntent, string> = {
+    // Property intents
     'just-listed': `🏠 JUST LISTED in ${city || 'your area'}!`,
     sold: `🎉 SOLD in ${city || 'your area'}!`,
     'under-contract': `📝 UNDER CONTRACT in ${city || 'your area'}!`,
     'price-reduced': `💰 PRICE REDUCED in ${city || 'your area'}!`,
+    'price-drop': `💰 PRICE DROP in ${city || 'your area'}!`,
     'open-house': `🚪 OPEN HOUSE in ${city || 'your area'}!`,
     'coming-soon': `👀 COMING SOON in ${city || 'your area'}!`,
     investment: `📈 INVESTMENT OPPORTUNITY in ${city || 'your area'}!`,
+    // Personal intents
+    'life-update': `🌟 A little update from me...`,
+    milestone: `🏆 Milestone achieved!`,
+    'lesson-insight': `💡 Something I learned recently...`,
+    'behind-the-scenes': `🎬 Behind the scenes...`,
+    // Professional intents
     'market-update': `📊 MARKET UPDATE: ${city || 'Your Area'}`,
+    'buyer-tips': `🏡 Buyer Tip`,
+    'seller-tips': `🏷️ Seller Tip`,
+    'investment-insight': `💹 Investment Insight`,
+    'client-success-story': `⭐ Client Success Story`,
+    'community-spotlight': `🏘️ Community Spotlight`,
+    // Legacy intents
     'personal-value': `💭 A Quick Thought`,
     'success-story': `⭐ SUCCESS STORY`,
     general: '🏠 New Opportunity!',
@@ -128,14 +142,28 @@ Purple Homes | Your Trusted Real Estate Partner`;
 
   // Intent-specific CTAs
   const intentCTAs: Record<PostIntent, string> = {
+    // Property intents
     'just-listed': 'Interested? DM us to schedule your private showing.',
     sold: "Thinking of selling? Let's chat about your goals.",
     'under-contract': 'Missed this one? More coming soon. DM to be first.',
     'price-reduced': "Better price, same amazing home. Let's talk.",
+    'price-drop': "Don't miss this opportunity. DM for details.",
     'open-house': 'Stop by — no appointment needed!',
     'coming-soon': 'Want first access? DM to get on the list.',
     investment: 'Serious inquiries only. DM for the full breakdown.',
+    // Personal intents
+    'life-update': "What's new with you? Let me know in the comments!",
+    milestone: 'Thank you for being part of this journey!',
+    'lesson-insight': 'What do you think? Let me know below.',
+    'behind-the-scenes': 'Any questions about what I do? Ask away!',
+    // Professional intents
     'market-update': "Questions about the market? Let's chat.",
+    'buyer-tips': 'Thinking of buying? DM me your questions.',
+    'seller-tips': 'Thinking of selling? DM me your questions.',
+    'investment-insight': 'Want to talk numbers? DM me.',
+    'client-success-story': "Ready to write your own success story? Let's talk.",
+    'community-spotlight': 'Know another local gem? Tag them below!',
+    // Legacy intents
     'personal-value': "What do you think? Let's connect.",
     'success-story': "Ready to write your own success story? Let's talk.",
     general: 'DM us anytime.',

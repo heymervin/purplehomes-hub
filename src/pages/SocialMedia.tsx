@@ -12,7 +12,7 @@ import { useScheduledPosts } from '@/services/ghlApi';
 import { SocialAnalytics } from '@/components/social/SocialAnalytics';
 import { CreateWizard } from '@/components/social/create-wizard';
 import { BatchWizard } from '@/components/social/batch-wizard';
-import { QuickPostForm } from '@/components/social/quick-post';
+import { QuickPostFormV2 } from '@/components/social/quick-post';
 import { QuickBatchForm } from '@/components/social/quick-batch';
 import { PipelineView } from '@/components/social/queue';
 import { cn } from '@/lib/utils';
@@ -186,7 +186,7 @@ export default function SocialMedia() {
           </div>
 
           {/* Content based on mode */}
-          {createMode === 'quick' ? <QuickPostForm /> : <CreateWizard />}
+          {createMode === 'quick' ? <QuickPostFormV2 /> : <CreateWizard />}
         </TabsContent>
 
         {/* BATCH TAB - Quick Form or Step-by-Step Wizard */}
