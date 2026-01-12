@@ -109,7 +109,8 @@ export function QuickBatchForm() {
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishProgress, setPublishProgress] = useState(0);
 
-  const { data: propertiesData } = useProperties();
+  // Use same location ID as Create tab to pull the same properties
+  const { data: propertiesData } = useProperties('U4FANAMaB1gGddRaaD9x');
   const properties = propertiesData?.properties || [];
 
   const { data: accountsData } = useSocialAccounts();
