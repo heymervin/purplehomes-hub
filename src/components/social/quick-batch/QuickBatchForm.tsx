@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import {
   Popover,
@@ -27,39 +26,63 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Loader2, ChevronDown, Check, Sparkles, Building2, Rocket,
-  ArrowLeft, Eye, Clock, X, CheckCircle2, AlertCircle
+  Loader2,
+  ChevronDown,
+  Check,
+  Sparkles,
+  Building2,
+  Rocket,
+  ArrowLeft,
+  Eye,
+  Clock,
+  X,
+  CheckCircle2,
+  AlertCircle,
+  Plus,
+  User,
+  Briefcase,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProperties, useSocialAccounts, useCreateSocialPost } from '@/services/ghlApi';
 import { getTemplateById } from '@/lib/templates/profiles';
-import { buildImejisPayload, resolveAllFields, preparePropertyForTemplate } from '@/lib/templates/fieldMapper';
+import {
+  buildImejisPayload,
+  resolveAllFields,
+  preparePropertyForTemplate,
+} from '@/lib/templates/fieldMapper';
 import { renderImejisTemplate } from '@/services/imejis/api';
 import { useCaptionGenerate } from '../create-wizard/hooks/useCaptionGenerate';
 import { getDatePreview, parseDateTimeString } from '@/lib/utils/dateParser';
-import { addHours } from 'date-fns';
+import { addHours, format } from 'date-fns';
 import type { Property } from '@/types';
 import { toast } from 'sonner';
 
 // Import from socialHub module
 import {
+  type SocialTabId,
   type IntentId,
   type ToneId,
   type ImageTemplateId,
   type BatchItem,
+  type BatchDefaults,
+  TABS,
   INTENTS,
   TONES,
-  TEMPLATES,
   getIntent,
   getDefaultTone,
   getPrimaryTemplate,
+  getDefaultIntent,
+  getIntentsByTab,
 } from '@/lib/socialHub';
 
-// Import BatchItemRow component
-import { BatchItemRow } from './BatchItemRow';
+// Import pill-based editor component
+import { BatchPostEditor } from './BatchPostEditor';
 
 // Interval options
 const INTERVAL_OPTIONS = [
+  { value: '0', label: 'No interval' },
   { value: '1', label: '1 hour' },
   { value: '2', label: '2 hours' },
   { value: '4', label: '4 hours' },
@@ -71,33 +94,92 @@ const INTERVAL_OPTIONS = [
 
 type FormStep = 'form' | 'generating' | 'preview';
 
+// Initial defaults
+const INITIAL_DEFAULTS: BatchDefaults = {
+  tab: 'property',
+  intentId: 'just-listed',
+  toneId: 'urgent',
+  templateId: 'just-listed',
+  startTime: 'now',
+  intervalHours: 2,
+};
+
 interface QuickBatchFormState {
   items: BatchItem[];
+  defaults: BatchDefaults;
   sharedContext: string;
-  startTime: string;
-  intervalHours: string;
   selectedAccounts: string[];
 }
 
 const INITIAL_STATE: QuickBatchFormState = {
   items: [],
+  defaults: INITIAL_DEFAULTS,
   sharedContext: '',
-  startTime: 'now',
-  intervalHours: '2',
   selectedAccounts: [],
 };
 
-// Create a new batch item with defaults
-function createBatchItem(property: Property): BatchItem {
-  const defaultIntent: IntentId = 'just-listed';
+// Generate unique ID
+let batchItemCounter = 0;
+function generateItemId(): string {
+  return `batch-item-${Date.now()}-${++batchItemCounter}`;
+}
+
+// Create a new batch item from a property (property tab)
+function createPropertyBatchItem(
+  property: Property,
+  defaults: BatchDefaults,
+  scheduledDate: string,
+  scheduledTime: string
+): BatchItem {
   return {
-    id: `batch-${property.id}-${Date.now()}`,
+    id: generateItemId(),
+    tab: 'property',
     propertyId: property.id,
-    intentId: defaultIntent,
-    toneId: getDefaultTone(defaultIntent),
-    templateId: getPrimaryTemplate(defaultIntent),
+    intentId: defaults.intentId,
+    toneId: defaults.toneId,
+    templateId: defaults.templateId,
     context: {},
+    scheduledDate,
+    scheduledTime,
+    hasCustomSchedule: false,
     status: 'pending',
+  };
+}
+
+// Create a new batch item for non-property posts (personal/professional)
+function createNonPropertyBatchItem(
+  tab: SocialTabId,
+  scheduledDate: string,
+  scheduledTime: string
+): BatchItem {
+  const defaultIntent = getDefaultIntent(tab);
+  return {
+    id: generateItemId(),
+    tab,
+    intentId: defaultIntent.id,
+    toneId: getDefaultTone(defaultIntent.id),
+    templateId: getPrimaryTemplate(defaultIntent.id),
+    context: {},
+    scheduledDate,
+    scheduledTime,
+    hasCustomSchedule: false,
+    status: 'pending',
+  };
+}
+
+// Calculate scheduled date/time based on start time and interval
+function calculateSchedule(
+  startTime: string,
+  intervalHours: number,
+  index: number
+): { date: string; time: string } {
+  const parsed = parseDateTimeString(startTime);
+  const startDate = parsed?.date || new Date();
+  const scheduledDate = addHours(startDate, index * intervalHours);
+
+  return {
+    date: format(scheduledDate, 'yyyy-MM-dd'),
+    time: format(scheduledDate, 'HH:mm'),
   };
 }
 
@@ -108,6 +190,8 @@ export function QuickBatchForm() {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishProgress, setPublishProgress] = useState(0);
+  // Pill-based navigation: track active post being edited
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
   // Use same location ID as Create tab to pull the same properties
   const { data: propertiesData } = useProperties('U4FANAMaB1gGddRaaD9x');
@@ -128,36 +212,118 @@ export function QuickBatchForm() {
     return map;
   }, [properties]);
 
+  // Recalculate schedules for items without custom schedules
+  const recalculateSchedules = useCallback(
+    (items: BatchItem[], defaults: BatchDefaults): BatchItem[] => {
+      let autoIndex = 0;
+      return items.map((item) => {
+        if (item.hasCustomSchedule) {
+          return item;
+        }
+        const schedule = calculateSchedule(defaults.startTime, defaults.intervalHours, autoIndex);
+        autoIndex++;
+        return {
+          ...item,
+          scheduledDate: schedule.date,
+          scheduledTime: schedule.time,
+        };
+      });
+    },
+    []
+  );
+
   // Toggle property selection (adds/removes from batch items)
-  const toggleProperty = useCallback((property: Property) => {
-    setState((prev) => {
-      const existingIndex = prev.items.findIndex((item) => item.propertyId === property.id);
-      if (existingIndex >= 0) {
-        // Remove
+  const toggleProperty = useCallback(
+    (property: Property) => {
+      setState((prev) => {
+        const existingIndex = prev.items.findIndex(
+          (item) => item.tab === 'property' && item.propertyId === property.id
+        );
+        if (existingIndex >= 0) {
+          // Remove
+          const newItems = prev.items.filter(
+            (item) => !(item.tab === 'property' && item.propertyId === property.id)
+          );
+          // If we removed the active item, select the first remaining or null
+          const removedItem = prev.items[existingIndex];
+          if (removedItem.id === activeItemId) {
+            setActiveItemId(newItems.length > 0 ? newItems[0].id : null);
+          }
+          return {
+            ...prev,
+            items: recalculateSchedules(newItems, prev.defaults),
+          };
+        } else {
+          // Add new item with defaults
+          const schedule = calculateSchedule(
+            prev.defaults.startTime,
+            prev.defaults.intervalHours,
+            prev.items.length
+          );
+          const newItem = createPropertyBatchItem(
+            property,
+            prev.defaults,
+            schedule.date,
+            schedule.time
+          );
+          // Auto-select the newly added item
+          setActiveItemId(newItem.id);
+          return {
+            ...prev,
+            items: [...prev.items, newItem],
+          };
+        }
+      });
+    },
+    [recalculateSchedules, activeItemId]
+  );
+
+  // Add a non-property post (personal or professional)
+  const addNonPropertyPost = useCallback(
+    (tab: SocialTabId) => {
+      setState((prev) => {
+        const schedule = calculateSchedule(
+          prev.defaults.startTime,
+          prev.defaults.intervalHours,
+          prev.items.length
+        );
+        const newItem = createNonPropertyBatchItem(tab, schedule.date, schedule.time);
+        // Auto-select the newly added item
+        setActiveItemId(newItem.id);
         return {
           ...prev,
-          items: prev.items.filter((item) => item.propertyId !== property.id),
+          items: [...prev.items, newItem],
         };
-      } else {
-        // Add new item with defaults
-        return {
-          ...prev,
-          items: [...prev.items, createBatchItem(property)],
-        };
-      }
-    });
-  }, []);
+      });
+    },
+    []
+  );
 
   // Select all properties
   const handleSelectAll = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      items: properties.map((p) => createBatchItem(p)),
-    }));
+    setState((prev) => {
+      const newItems = properties.map((p, index) => {
+        const schedule = calculateSchedule(
+          prev.defaults.startTime,
+          prev.defaults.intervalHours,
+          index
+        );
+        return createPropertyBatchItem(p, prev.defaults, schedule.date, schedule.time);
+      });
+      // Select first item
+      if (newItems.length > 0) {
+        setActiveItemId(newItems[0].id);
+      }
+      return {
+        ...prev,
+        items: newItems,
+      };
+    });
   }, [properties]);
 
   // Deselect all
   const handleDeselectAll = useCallback(() => {
+    setActiveItemId(null);
     setState((prev) => ({
       ...prev,
       items: [],
@@ -168,22 +334,45 @@ export function QuickBatchForm() {
   const updateItem = useCallback((itemId: string, updates: Partial<BatchItem>) => {
     setState((prev) => ({
       ...prev,
-      items: prev.items.map((item) =>
-        item.id === itemId ? { ...item, ...updates } : item
-      ),
+      items: prev.items.map((item) => (item.id === itemId ? { ...item, ...updates } : item)),
     }));
   }, []);
 
-  // Calculate scheduled times for each item
-  const calculateScheduledTimes = (): Date[] => {
-    const parsed = parseDateTimeString(state.startTime);
-    const startDate = parsed?.date || new Date();
-    const interval = parseInt(state.intervalHours, 10);
-    return state.items.map((_, index) => addHours(startDate, index * interval));
-  };
+  // Remove a single item
+  const removeItem = useCallback(
+    (itemId: string) => {
+      setState((prev) => {
+        const newItems = prev.items.filter((item) => item.id !== itemId);
+        // If we removed the active item, select the first remaining or null
+        if (itemId === activeItemId) {
+          setActiveItemId(newItems.length > 0 ? newItems[0].id : null);
+        }
+        return {
+          ...prev,
+          items: recalculateSchedules(newItems, prev.defaults),
+        };
+      });
+    },
+    [recalculateSchedules, activeItemId]
+  );
+
+  // Update defaults and recalculate schedules
+  const updateDefaults = useCallback(
+    (updates: Partial<BatchDefaults>) => {
+      setState((prev) => {
+        const newDefaults = { ...prev.defaults, ...updates };
+        return {
+          ...prev,
+          defaults: newDefaults,
+          items: recalculateSchedules(prev.items, newDefaults),
+        };
+      });
+    },
+    [recalculateSchedules]
+  );
 
   // Build context string for caption generation
-  const buildContextString = (item: BatchItem, property: Property): string => {
+  const buildContextString = (item: BatchItem, property?: Property): string => {
     const parts: string[] = [];
 
     // Add intent-specific context fields
@@ -200,38 +389,46 @@ export function QuickBatchForm() {
       parts.push(`Additional context: ${state.sharedContext}`);
     }
 
-    // Fallback property description
-    if (parts.length === 0) {
+    // Fallback property description (only for property posts)
+    if (parts.length === 0 && property) {
       parts.push(`${property.beds} bed, ${property.baths} bath property in ${property.city}`);
     }
 
     return parts.join('\n');
   };
 
+  // Get scheduled Date object from item
+  const getScheduledAt = (item: BatchItem): Date | undefined => {
+    if (!item.scheduledDate && !item.scheduledTime) return undefined;
+    const dateStr = item.scheduledDate || format(new Date(), 'yyyy-MM-dd');
+    const timeStr = item.scheduledTime || '09:00';
+    return new Date(`${dateStr}T${timeStr}`);
+  };
+
   // Generate content for all items
   const handleGenerate = async () => {
     if (state.items.length === 0) {
-      toast.error('Please select at least one property');
+      toast.error('Please add at least one post');
       return;
     }
 
     setStep('generating');
     setGenerationProgress(0);
 
-    const scheduledTimes = calculateScheduledTimes();
     const total = state.items.length;
     const updatedItems: BatchItem[] = [];
 
     for (let i = 0; i < total; i++) {
       const item = state.items[i];
-      const property = propertyMap[item.propertyId];
+      const property = item.propertyId ? propertyMap[item.propertyId] : undefined;
 
-      if (!property) {
+      // Check if property is required but missing
+      const intent = getIntent(item.intentId);
+      if (intent.requiresProperty && !property) {
         updatedItems.push({
           ...item,
           status: 'failed',
-          error: 'Property not found',
-          scheduledAt: scheduledTimes[i],
+          error: 'Property required for this intent',
         });
         continue;
       }
@@ -244,7 +441,7 @@ export function QuickBatchForm() {
 
         // Generate caption using the item's intent and tone
         const captionResult = await generateCaption({
-          property,
+          property: property || null,
           context: contextString,
           tone: item.toneId as any,
           platform: 'all',
@@ -256,7 +453,7 @@ export function QuickBatchForm() {
         // Generate image if template is not 'none' or 'custom'
         if (item.templateId !== 'none' && item.templateId !== 'custom') {
           const template = getTemplateById(item.templateId);
-          if (template) {
+          if (template && property) {
             const preparedProperty = preparePropertyForTemplate(property);
             const resolvedFields = resolveAllFields(template, preparedProperty, item.context);
             const payload = buildImejisPayload(template, resolvedFields);
@@ -273,15 +470,13 @@ export function QuickBatchForm() {
           caption: captionResult.caption,
           imageUrl,
           status: 'ready',
-          scheduledAt: scheduledTimes[i],
         });
       } catch (error) {
-        console.error(`Error generating for ${property.address}:`, error);
+        console.error(`Error generating post:`, error);
         updatedItems.push({
           ...item,
           status: 'failed',
           error: 'Generation failed',
-          scheduledAt: scheduledTimes[i],
         });
       }
 
@@ -318,11 +513,13 @@ export function QuickBatchForm() {
     setIsPublishing(true);
     setPublishProgress(0);
 
-    const isNow = state.startTime.toLowerCase().trim() === 'now';
     let successCount = 0;
 
     for (let i = 0; i < readyItems.length; i++) {
       const item = readyItems[i];
+      const scheduledAt = getScheduledAt(item);
+      const isNow = !scheduledAt || scheduledAt <= new Date();
+
       setPublishProgress(Math.round(((i + 0.5) / readyItems.length) * 100));
 
       try {
@@ -330,7 +527,7 @@ export function QuickBatchForm() {
           accountIds: state.selectedAccounts,
           summary: item.caption || '',
           media: item.imageUrl ? [{ url: item.imageUrl, type: 'image/png' }] : undefined,
-          scheduleDate: isNow ? undefined : item.scheduledAt?.toISOString(),
+          scheduleDate: isNow ? undefined : scheduledAt?.toISOString(),
           status: isNow ? 'published' : 'scheduled',
         });
         successCount++;
@@ -365,6 +562,59 @@ export function QuickBatchForm() {
   // Count ready and failed items
   const readyCount = state.items.filter((item) => item.status === 'ready').length;
   const failedCount = state.items.filter((item) => item.status === 'failed').length;
+  const propertyPostCount = state.items.filter((item) => item.tab === 'property').length;
+
+  // Get the active item for editing
+  const activeItem = useMemo(() => {
+    if (!activeItemId) return null;
+    return state.items.find((item) => item.id === activeItemId) || null;
+  }, [activeItemId, state.items]);
+
+  // Get property for active item
+  const activeProperty = useMemo(() => {
+    if (!activeItem?.propertyId) return undefined;
+    return propertyMap[activeItem.propertyId];
+  }, [activeItem, propertyMap]);
+
+  // Get current active item index
+  const activeItemIndex = useMemo(() => {
+    if (!activeItemId) return -1;
+    return state.items.findIndex((item) => item.id === activeItemId);
+  }, [activeItemId, state.items]);
+
+  // Navigate to previous/next item
+  const navigateToPrevious = useCallback(() => {
+    if (activeItemIndex > 0) {
+      setActiveItemId(state.items[activeItemIndex - 1].id);
+    }
+  }, [activeItemIndex, state.items]);
+
+  const navigateToNext = useCallback(() => {
+    if (activeItemIndex < state.items.length - 1) {
+      setActiveItemId(state.items[activeItemIndex + 1].id);
+    }
+  }, [activeItemIndex, state.items]);
+
+  // Get display label for a batch item (for pill)
+  const getItemLabel = useCallback(
+    (item: BatchItem): string => {
+      if (item.tab === 'property' && item.propertyId) {
+        const property = propertyMap[item.propertyId];
+        if (property) {
+          // Show street number + street name only (truncate if needed)
+          const parts = property.address.split(' ');
+          if (parts.length >= 2) {
+            return `${parts[0]} ${parts[1]}`;
+          }
+          return property.address.substring(0, 15);
+        }
+        return 'Property';
+      }
+      const intent = getIntent(item.intentId);
+      return intent.label;
+    },
+    [propertyMap]
+  );
 
   // ============ GENERATING STEP ============
   if (step === 'generating') {
@@ -411,8 +661,9 @@ export function QuickBatchForm() {
           <div className="lg:col-span-2 space-y-4">
             <div className="max-h-[500px] overflow-y-auto space-y-3">
               {state.items.map((item, index) => {
-                const property = propertyMap[item.propertyId];
+                const property = item.propertyId ? propertyMap[item.propertyId] : undefined;
                 const intent = getIntent(item.intentId);
+                const scheduledAt = getScheduledAt(item);
                 return (
                   <Card
                     key={item.id}
@@ -437,7 +688,7 @@ export function QuickBatchForm() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="font-medium text-sm truncate">
-                              {property?.address || 'Unknown'}
+                              {property?.address || `${intent.label} Post`}
                             </span>
                             {item.status === 'ready' ? (
                               <CheckCircle2 className="h-4 w-4 text-green-500 flex-shrink-0" />
@@ -453,10 +704,10 @@ export function QuickBatchForm() {
                           <p className="text-xs text-muted-foreground line-clamp-2">
                             {item.caption?.substring(0, 100)}...
                           </p>
-                          {item.scheduledAt && state.startTime.toLowerCase() !== 'now' && (
+                          {scheduledAt && (
                             <div className="flex items-center gap-1 mt-2 text-xs text-purple-600">
                               <Clock className="h-3 w-3" />
-                              {item.scheduledAt.toLocaleString()}
+                              {scheduledAt.toLocaleString()}
                             </div>
                           )}
                         </div>
@@ -524,7 +775,7 @@ export function QuickBatchForm() {
                 <ul className="space-y-1 text-sm">
                   <li className="flex items-center gap-2">
                     <span className="text-green-500">✓</span>
-                    {state.items.length} properties
+                    {state.items.length} total posts
                   </li>
                   <li className="flex items-center gap-2">
                     <span className={readyCount > 0 ? 'text-green-500' : 'text-amber-500'}>
@@ -562,9 +813,7 @@ export function QuickBatchForm() {
                 onClick={handlePublish}
               >
                 <Rocket className="h-4 w-4" />
-                {state.startTime.toLowerCase().trim() === 'now'
-                  ? `Publish ${readyCount} Posts Now`
-                  : `Schedule ${readyCount} Posts`}
+                Publish {readyCount} Posts
               </Button>
             )}
           </div>
@@ -576,117 +825,30 @@ export function QuickBatchForm() {
   // ============ FORM STEP ============
   return (
     <div className="space-y-6">
-      {/* Batch Setup Card */}
-      <Card className="border-2 border-purple-200 dark:border-purple-800">
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            {/* Row 1: Property selector + start time */}
-            <div className="flex flex-wrap items-center gap-2 text-base leading-relaxed">
-              <span className="text-muted-foreground">Create</span>
-
-              {/* Property Selector */}
-              <Popover open={propertySelectOpen} onOpenChange={setPropertySelectOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    className={cn(
-                      'justify-between min-w-[200px] h-auto py-1.5 px-3',
-                      state.items.length > 0
-                        ? 'border-purple-400 bg-purple-50 dark:bg-purple-950/30'
-                        : 'border-dashed'
-                    )}
-                  >
-                    {state.items.length > 0 ? (
-                      <span className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-purple-600" />
-                        <span>{state.items.length} posts</span>
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">Select properties...</span>
-                    )}
-                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[400px] p-0" align="start">
-                  <Command>
-                    <div className="flex items-center justify-between px-3 py-2 border-b">
-                      <CommandInput placeholder="Search properties..." className="border-0" />
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" onClick={handleSelectAll}>
-                          All
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={handleDeselectAll}>
-                          None
-                        </Button>
-                      </div>
-                    </div>
-                    <CommandList className="max-h-[300px]">
-                      <CommandEmpty>No properties found.</CommandEmpty>
-                      <CommandGroup>
-                        {properties.map((property) => {
-                          const isSelected = state.items.some(
-                            (item) => item.propertyId === property.id
-                          );
-                          return (
-                            <CommandItem
-                              key={property.id}
-                              value={`${property.address} ${property.city}`}
-                              onSelect={() => toggleProperty(property)}
-                            >
-                              <div
-                                className={cn(
-                                  'w-4 h-4 mr-2 rounded border flex items-center justify-center',
-                                  isSelected
-                                    ? 'bg-purple-600 border-purple-600'
-                                    : 'border-muted-foreground/30'
-                                )}
-                              >
-                                {isSelected && <Check className="h-3 w-3 text-white" />}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium truncate">{property.address}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {property.city}, {property.state}
-                                </p>
-                              </div>
-                            </CommandItem>
-                          );
-                        })}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-
-              <span className="text-muted-foreground">starting</span>
-
-              {/* Start Time */}
+      {/* Defaults Card - Compact */}
+      <Card className="border-purple-200 dark:border-purple-800">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-purple-500" />
+              <span className="text-sm text-muted-foreground">Start</span>
               <div className="relative">
                 <Input
                   type="text"
                   placeholder="now"
-                  value={state.startTime}
-                  onChange={(e) => setState((prev) => ({ ...prev, startTime: e.target.value }))}
-                  className="w-[180px] h-auto py-1.5 px-3 text-center"
+                  value={state.defaults.startTime}
+                  onChange={(e) => updateDefaults({ startTime: e.target.value })}
+                  className="w-[140px] h-8 text-sm text-center"
                 />
-                {state.startTime && getDatePreview(state.startTime) && (
-                  <div className="absolute top-full mt-1 left-0 right-0 text-xs text-center text-purple-600 dark:text-purple-400">
-                    {getDatePreview(state.startTime)}
-                  </div>
-                )}
               </div>
             </div>
-
-            {/* Row 2: Interval */}
-            <div className="flex flex-wrap items-center gap-2 text-base leading-relaxed">
-              <span className="text-muted-foreground">with</span>
-
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Interval</span>
               <Select
-                value={state.intervalHours}
-                onValueChange={(v) => setState((prev) => ({ ...prev, intervalHours: v }))}
+                value={String(state.defaults.intervalHours)}
+                onValueChange={(v) => updateDefaults({ intervalHours: parseInt(v, 10) })}
               >
-                <SelectTrigger className="w-[130px] h-auto py-1.5">
+                <SelectTrigger className="w-[110px] h-8">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -697,76 +859,259 @@ export function QuickBatchForm() {
                   ))}
                 </SelectContent>
               </Select>
-
-              <span className="text-muted-foreground">between each post.</span>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Shared Context (applies to all) */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="h-4 w-4 text-purple-500" />
-            <label className="font-medium text-sm">
-              Shared Context <span className="text-muted-foreground">(optional)</span>
-            </label>
-          </div>
-          <Textarea
-            placeholder="Add context that applies to all posts... (e.g., 'All properties are move-in ready')"
-            value={state.sharedContext}
-            onChange={(e) => setState((prev) => ({ ...prev, sharedContext: e.target.value }))}
-            rows={2}
-            className="resize-none"
-          />
-          <p className="text-xs text-muted-foreground mt-2">
-            This context will be combined with each post's specific context for caption generation.
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Batch Items (Per-Post Configuration) */}
-      {state.items.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium text-sm">
-              Posts ({state.items.length})
-              <span className="text-muted-foreground font-normal ml-2">
-                Click to customize each post
+            {state.defaults.startTime && getDatePreview(state.defaults.startTime) && (
+              <span className="text-xs text-purple-600 dark:text-purple-400">
+                {getDatePreview(state.defaults.startTime)}
               </span>
-            </h3>
-            <Button variant="ghost" size="sm" onClick={handleDeselectAll}>
-              <X className="h-3 w-3 mr-1" />
-              Clear All
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Pill Bar - Horizontal scrolling list of posts */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="font-medium text-sm">Posts</h3>
+            <Badge variant="secondary">{state.items.length}</Badge>
+          </div>
+          <div className="flex gap-2">
+            {/* Add Property Posts */}
+            <Popover open={propertySelectOpen} onOpenChange={setPropertySelectOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5 h-8">
+                  <Building2 className="h-3.5 w-3.5" />
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[400px] p-0" align="end">
+                <Command>
+                  <div className="flex items-center justify-between px-3 py-2 border-b">
+                    <CommandInput placeholder="Search properties..." className="border-0" />
+                    <div className="flex gap-2">
+                      <Button variant="ghost" size="sm" onClick={handleSelectAll}>
+                        All
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={handleDeselectAll}>
+                        None
+                      </Button>
+                    </div>
+                  </div>
+                  <CommandList className="max-h-[300px]">
+                    <CommandEmpty>No properties found.</CommandEmpty>
+                    <CommandGroup>
+                      {properties.map((property) => {
+                        const isSelected = state.items.some(
+                          (item) => item.tab === 'property' && item.propertyId === property.id
+                        );
+                        return (
+                          <CommandItem
+                            key={property.id}
+                            value={`${property.address} ${property.city}`}
+                            onSelect={() => toggleProperty(property)}
+                          >
+                            <div
+                              className={cn(
+                                'w-4 h-4 mr-2 rounded border flex items-center justify-center',
+                                isSelected
+                                  ? 'bg-purple-600 border-purple-600'
+                                  : 'border-muted-foreground/30'
+                              )}
+                            >
+                              {isSelected && <Check className="h-3 w-3 text-white" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium truncate">{property.address}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {property.city}, {property.state}
+                              </p>
+                            </div>
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+
+            {/* Add Personal Post */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 h-8"
+              onClick={() => addNonPropertyPost('personal')}
+            >
+              <User className="h-3.5 w-3.5" />
+              <Plus className="h-3 w-3" />
+            </Button>
+
+            {/* Add Professional Post */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 h-8"
+              onClick={() => addNonPropertyPost('professional')}
+            >
+              <Briefcase className="h-3.5 w-3.5" />
+              <Plus className="h-3 w-3" />
             </Button>
           </div>
-
-          <div className="space-y-2 max-h-[400px] overflow-y-auto">
-            {state.items.map((item, index) => {
-              const property = propertyMap[item.propertyId];
-              if (!property) return null;
-              return (
-                <BatchItemRow
-                  key={item.id}
-                  item={item}
-                  property={property}
-                  index={index}
-                  onChange={(updates) => updateItem(item.id, updates)}
-                />
-              );
-            })}
-          </div>
         </div>
+
+        {/* Pill Navigation Bar */}
+        {state.items.length > 0 && (
+          <div className="flex items-center gap-2">
+            {/* Previous Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 flex-shrink-0"
+              onClick={navigateToPrevious}
+              disabled={activeItemIndex <= 0}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            {/* Pills */}
+            <div className="flex-1 overflow-x-auto">
+              <div className="flex gap-2 pb-1">
+                {state.items.map((item, index) => {
+                  const isActive = item.id === activeItemId;
+                  const tabIcon =
+                    item.tab === 'property' ? (
+                      <Building2 className="h-3 w-3" />
+                    ) : item.tab === 'personal' ? (
+                      <User className="h-3 w-3" />
+                    ) : (
+                      <Briefcase className="h-3 w-3" />
+                    );
+
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveItemId(item.id)}
+                      className={cn(
+                        'flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm whitespace-nowrap transition-all',
+                        isActive
+                          ? 'border-purple-600 bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 ring-2 ring-purple-200 dark:ring-purple-800'
+                          : 'border-muted hover:bg-muted/50 text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      {tabIcon}
+                      <span className="font-medium">{getItemLabel(item)}</span>
+                      {item.status === 'ready' && (
+                        <CheckCircle2 className="h-3 w-3 text-green-500" />
+                      )}
+                      {item.status === 'failed' && (
+                        <AlertCircle className="h-3 w-3 text-red-500" />
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeItem(item.id);
+                        }}
+                        className="ml-1 hover:text-red-500"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Next Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 flex-shrink-0"
+              onClick={navigateToNext}
+              disabled={activeItemIndex >= state.items.length - 1}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {state.items.length === 0 && (
+          <Card className="border-dashed">
+            <CardContent className="p-8 text-center">
+              <Plus className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">
+                Add property posts or create personal/professional content
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Active Item Editor - Single Create Experience */}
+        {activeItem && (
+          <Card className="border-2 border-purple-200 dark:border-purple-800">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="font-mono">
+                    {activeItemIndex + 1} / {state.items.length}
+                  </Badge>
+                  <span className="text-sm text-muted-foreground">
+                    Editing: <span className="font-medium text-foreground">{getItemLabel(activeItem)}</span>
+                  </span>
+                </div>
+                {activeItem.hasCustomSchedule && (
+                  <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                    Custom Schedule
+                  </Badge>
+                )}
+              </div>
+
+              {/* BatchPostEditor - Same Create experience */}
+              <BatchPostEditor
+                item={activeItem}
+                property={activeProperty}
+                onChange={(updates) => updateItem(activeItem.id, updates)}
+              />
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Shared Context (collapsible) */}
+      {state.items.length > 0 && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="h-4 w-4 text-purple-500" />
+              <label className="font-medium text-sm">
+                Shared Context <span className="text-muted-foreground text-xs">(applies to all posts)</span>
+              </label>
+            </div>
+            <Textarea
+              placeholder="Add context that applies to all posts... (e.g., 'All properties are move-in ready')"
+              value={state.sharedContext}
+              onChange={(e) => setState((prev) => ({ ...prev, sharedContext: e.target.value }))}
+              rows={2}
+              className="resize-none"
+            />
+          </CardContent>
+        </Card>
       )}
 
       {/* Generate Button */}
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        {state.items.length > 0 && (
+          <Button variant="ghost" size="sm" onClick={handleDeselectAll}>
+            <X className="h-3 w-3 mr-1" />
+            Clear All
+          </Button>
+        )}
         <Button
           size="lg"
           disabled={!isValid}
           onClick={handleGenerate}
-          className="gap-2 bg-purple-600 hover:bg-purple-700"
+          className="gap-2 bg-purple-600 hover:bg-purple-700 ml-auto"
         >
           <Sparkles className="h-4 w-4" />
           Generate {state.items.length} Posts

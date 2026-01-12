@@ -140,22 +140,50 @@ export interface CaptionGenerationInput {
 // ============ BATCH TYPES ============
 
 /**
- * A single batch item with its own intent, tone, template, and context.
- * This enables "Create × N" behavior where each post can be different.
+ * A single batch item with its own intent, tone, template, context, and schedule.
+ * This enables "Create × N" behavior where each post can be fully customized.
+ *
+ * Batch = Create Post × N
+ * Each item is independent and can override all defaults.
  */
 export interface BatchItem {
   id: string;
-  propertyId: string;
+
+  // Tab determines which intents are available
+  tab: SocialTabId;
+
+  // Property (optional - only required for property tab intents)
+  propertyId?: string;
+
+  // Caption settings (same as Create)
   intentId: IntentId;
   toneId: ToneId;
   templateId: ImageTemplateId;
   context: Record<string, string>;
+
+  // Scheduling (per-post override)
+  scheduledDate: string; // YYYY-MM-DD or empty for "now"
+  scheduledTime: string; // HH:mm or empty
+  hasCustomSchedule: boolean; // true if user manually edited date/time
+
   // Generation state
   status: 'pending' | 'generating' | 'ready' | 'failed';
   caption?: string;
   imageUrl?: string;
   error?: string;
-  scheduledAt?: Date;
+}
+
+/**
+ * Batch defaults - these are initial values that can be overridden per-post.
+ * They are conveniences, not restrictions.
+ */
+export interface BatchDefaults {
+  tab: SocialTabId;
+  intentId: IntentId;
+  toneId: ToneId;
+  templateId: ImageTemplateId;
+  startTime: string; // Natural language like "now", "tomorrow 9am"
+  intervalHours: number;
 }
 
 /**
@@ -163,8 +191,7 @@ export interface BatchItem {
  */
 export interface BatchFormState {
   items: BatchItem[];
+  defaults: BatchDefaults;
   sharedContext: string;
-  startTime: string;
-  intervalHours: number;
   selectedAccounts: string[];
 }
