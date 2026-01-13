@@ -191,6 +191,8 @@ export const useDeals = (filters?: DealFilters) => {
           lastName: buyerData.lastName || '',
           email: buyerData.email || '',
           qualified: buyerData.qualified || false,
+          downPayment: buyerData.downPayment,
+          monthlyIncome: buyerData.monthlyIncome,
         };
 
         for (const match of buyerData.matches || []) {
@@ -274,6 +276,8 @@ export const usePipelineStats = () => {
           lastName: buyerData.lastName || '',
           email: buyerData.email || '',
           qualified: buyerData.qualified || false,
+          downPayment: buyerData.downPayment,
+          monthlyIncome: buyerData.monthlyIncome,
         };
 
         for (const match of buyerData.matches || []) {
@@ -376,6 +380,8 @@ export const useDealsByStage = () => {
           lastName: buyerData.lastName || '',
           email: buyerData.email || '',
           qualified: buyerData.qualified || false,
+          downPayment: buyerData.downPayment,
+          monthlyIncome: buyerData.monthlyIncome,
         };
 
         for (const match of buyerData.matches || []) {
@@ -449,6 +455,8 @@ export const useDealsByBuyer = () => {
           lastName: buyerData.lastName || '',
           email: buyerData.email || '',
           qualified: buyerData.qualified || false,
+          downPayment: buyerData.downPayment,
+          monthlyIncome: buyerData.monthlyIncome,
         };
 
         const deals: Deal[] = [];
@@ -533,6 +541,8 @@ export const useDealsByProperty = () => {
           lastName: buyerData.lastName || '',
           email: buyerData.email || '',
           qualified: buyerData.qualified || false,
+          downPayment: buyerData.downPayment,
+          monthlyIncome: buyerData.monthlyIncome,
         };
 
         for (const match of buyerData.matches || []) {
@@ -610,6 +620,8 @@ export const useStaleDeals = (limit: number = 5) => {
           lastName: buyerData.lastName || '',
           email: buyerData.email || '',
           qualified: buyerData.qualified || false,
+          downPayment: buyerData.downPayment,
+          monthlyIncome: buyerData.monthlyIncome,
         };
 
         for (const match of buyerData.matches || []) {
@@ -671,6 +683,8 @@ export const useUpcomingShowings = (limit: number = 5) => {
           lastName: buyerData.lastName || '',
           email: buyerData.email || '',
           qualified: buyerData.qualified || false,
+          downPayment: buyerData.downPayment,
+          monthlyIncome: buyerData.monthlyIncome,
         };
 
         for (const match of buyerData.matches || []) {
