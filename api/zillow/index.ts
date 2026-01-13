@@ -267,13 +267,11 @@ async function handleSave(req: VercelRequest, res: VercelResponse) {
     listing,
     buyerId,
     stage,
-    notes,
     zillowType,
   }: {
     listing: ZillowListing;
     buyerId: string;
     stage: string;
-    notes?: string;
     zillowType: ZillowSearchType;
   } = req.body;
 
@@ -327,7 +325,6 @@ async function handleSave(req: VercelRequest, res: VercelResponse) {
           Sqft: listing.sqft,
           Stage: stage,
           'Hero Image': listing.images[0] || '',
-          Notes: notes || listing.description || '',
           Source: 'Zillow',
           'Zillow Type': zillowType,
           'Zillow ZPID': listing.zpid,
