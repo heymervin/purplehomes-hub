@@ -67,7 +67,7 @@ import {
 } from '@/types/matching';
 import { MatchDealStage } from '@/types/associations';
 import type { Deal } from '@/types/deals';
-import { DealCalculatorModal } from '@/components/calculator';
+import { DealCalculatorEnhanced } from '@/components/calculator';
 
 export interface EnhancedMatchWithDetails extends PropertyMatch {
   property?: PropertyDetails;
@@ -725,24 +725,30 @@ export function EnhancedMatchDetailModal({
       </DialogContent>
     </Dialog>
 
-    {/* Deal Calculator Modal */}
-    <DealCalculatorModal
-      open={calculatorOpen}
-      onOpenChange={setCalculatorOpen}
-      property={property ? {
-        price: property.price,
-        beds: property.beds,
-        baths: property.baths,
-        sqft: property.sqft,
-        address: property.address,
-        propertyCode: property.propertyCode,
-        recordId: property.recordId,  // Airtable record ID for saving scenarios
-        calculatorScenario1: property.calculatorScenario1,
-        calculatorScenario2: property.calculatorScenario2,
-        calculatorScenario3: property.calculatorScenario3,
-      } : undefined}
-      buyerContactId={buyer?.contactId}
-    />
+    {/* Deal Calculator Modal - saves scenarios to Match record */}
+    {property && buyer && (
+      <DealCalculatorEnhanced
+        open={calculatorOpen}
+        onOpenChange={setCalculatorOpen}
+        match={{
+          matchId: match.id,
+          property: {
+            recordId: property.recordId,
+            address: property.address || '',
+            listingPrice: property.price,
+            downPayment: property.downPayment,
+            monthlyPayment: property.monthlyPayment,
+          },
+          buyer: {
+            recordId: buyer.recordId || buyer.contactId,
+            firstName: buyer.firstName,
+            lastName: buyer.lastName,
+            downPayment: buyer.downPayment,
+            monthlyIncome: buyer.monthlyIncome,
+          },
+        }}
+      />
+    )}
   </>
   );
 }
