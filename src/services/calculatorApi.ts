@@ -335,7 +335,7 @@ export async function savePropertyScenario(
 
   try {
     const response = await fetch(
-      `${AIRTABLE_API_BASE}?table=Properties&recordId=${propertyRecordId}`,
+      `${AIRTABLE_API_BASE}?action=update-record&table=Properties&recordId=${propertyRecordId}`,
       {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -367,7 +367,7 @@ export async function getPropertyScenarios(
 ): Promise<ScenarioSet> {
   try {
     const response = await fetch(
-      `${AIRTABLE_API_BASE}?table=Properties&recordId=${propertyRecordId}`
+      `${AIRTABLE_API_BASE}?action=get-record&table=Properties&recordId=${propertyRecordId}`
     );
 
     if (!response.ok) {
@@ -407,7 +407,7 @@ export async function saveMatchScenario(
 
   try {
     const response = await fetch(
-      `${AIRTABLE_API_BASE}?table=Property-Buyer Matches&recordId=${matchRecordId}`,
+      `${AIRTABLE_API_BASE}?action=update-record&table=Property-Buyer Matches&recordId=${matchRecordId}`,
       {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -437,7 +437,7 @@ export async function saveMatchScenario(
 export async function getMatchScenarios(matchRecordId: string): Promise<ScenarioSet> {
   try {
     const response = await fetch(
-      `${AIRTABLE_API_BASE}?table=Property-Buyer Matches&recordId=${matchRecordId}`
+      `${AIRTABLE_API_BASE}?action=get-record&table=Property-Buyer Matches&recordId=${matchRecordId}`
     );
 
     if (!response.ok) {
