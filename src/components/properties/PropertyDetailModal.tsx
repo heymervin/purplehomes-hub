@@ -47,7 +47,7 @@ import { toast } from 'sonner';
 import type { Property, PropertyCondition, PropertyType, PropertyStatus } from '@/types';
 import { useUpdateProperty, useProperty, PROPERTY_CUSTOM_FIELDS } from '@/services/ghlApi';
 import { useUpdateAirtableProperty } from '@/services/matchingApi';
-import { DealCalculatorModal } from '@/components/calculator';
+import { PropertyCalculator } from '@/components/calculator';
 
 interface PropertyDetailModalProps {
   property: Property | null;
@@ -719,27 +719,20 @@ export function PropertyDetailModal({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Deal Calculator Modal */}
-      <DealCalculatorModal
-        open={calculatorOpen}
-        onOpenChange={setCalculatorOpen}
-        property={{
-          price: formData.price,
-          beds: formData.beds,
-          baths: formData.baths,
-          sqft: formData.sqft,
-          address: formData.address,
-          propertyCode: formData.propertyCode,
-          recordId: initialProperty?.id,  // Use Airtable record ID, not GHL ID
-          calculatorScenario1: initialProperty?.calculatorScenario1,
-          calculatorScenario2: initialProperty?.calculatorScenario2,
-          calculatorScenario3: initialProperty?.calculatorScenario3,
-        }}
-        onSaved={() => {
-          // Optionally refetch property data
-          onSaved?.();
-        }}
-      />
+      {/* Deal Calculator Modal - saves to Properties table */}
+      {initialProperty?.id && (
+        <PropertyCalculator
+          open={calculatorOpen}
+          onOpenChange={setCalculatorOpen}
+          property={{
+            recordId: initialProperty.id,
+            address: formData.address || '',
+            listingPrice: formData.price,
+            downPayment: formData.downPayment,
+            monthlyPayment: formData.monthlyPayment,
+          }}
+        />
+      )}
     </Dialog>
   );
 }
