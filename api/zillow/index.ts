@@ -323,7 +323,7 @@ async function handleSave(req: VercelRequest, res: VercelResponse) {
           Sqft: listing.sqft,
           'Hero Image': listing.images[0] || '',
           Source: 'Zillow',
-          'Zillow ZPID': listing.zpid,
+          'Zillow ZPID': String(listing.zpid),
           Lat: listing.lat,
           Lng: listing.lng,
           // Supporting images (images 2-10)
