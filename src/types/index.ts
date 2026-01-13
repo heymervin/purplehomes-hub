@@ -45,6 +45,10 @@ export interface Property {
   source?: 'Inventory' | 'Lead' | 'Zillow';
   zillowUrl?: string;
   daysOnMarket?: number;
+  // Calculator scenarios (stored as JSON strings)
+  calculatorScenario1?: string;
+  calculatorScenario2?: string;
+  calculatorScenario3?: string;
 }
 
 // Buyer Home Acquisition Pipeline (interested buyers who submit offers)

@@ -736,6 +736,10 @@ export function EnhancedMatchDetailModal({
         sqft: property.sqft,
         address: property.address,
         propertyCode: property.propertyCode,
+        recordId: property.recordId,  // Airtable record ID for saving scenarios
+        calculatorScenario1: property.calculatorScenario1,
+        calculatorScenario2: property.calculatorScenario2,
+        calculatorScenario3: property.calculatorScenario3,
       } : undefined}
       buyerContactId={buyer?.contactId}
     />

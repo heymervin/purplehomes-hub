@@ -1,18 +1,15 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  Save, Loader2, Home, Bed, Bath, Square, MapPin, DollarSign,
+  Save, Loader2, Home, Bed, Bath, Square, DollarSign,
   Image as ImageIcon, Tag, Calendar, RefreshCw, Calculator,
-  Search, Filter, ExternalLink, Settings, Share2, MessageSquare, CheckCircle
+  ExternalLink, Share2, MessageSquare, CheckCircle
 } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
-import { CustomFieldFolder } from './CustomFieldFolder';
-import { CustomFieldInput } from './CustomFieldInput';
 import { QuickStatsBar } from './QuickStatsBar';
 import { LocationFields } from './LocationFields';
 import { FieldSection } from './FieldSection';
 import { AICaptionGenerator } from '@/components/social/AICaptionGenerator';
-import { groupFieldsByFolder, filterFields, calculateCompletionStats } from '@/lib/customFieldsUtils';
-import type { GHLCustomField } from '@/types/customFields';
+import { getGhlOpportunityUrl } from '@/lib/ghlUrls';
 import {
   Dialog,
   DialogContent,
@@ -35,7 +32,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
@@ -49,7 +45,7 @@ import { SocialStatusBadge } from '@/components/ui/social-status-badge';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { toast } from 'sonner';
 import type { Property, PropertyCondition, PropertyType, PropertyStatus } from '@/types';
-import { useUpdateProperty, useCustomFields, useProperty, PROPERTY_CUSTOM_FIELDS, extractCustomFieldValue } from '@/services/ghlApi';
+import { useUpdateProperty, useProperty, PROPERTY_CUSTOM_FIELDS } from '@/services/ghlApi';
 import { useUpdateAirtableProperty } from '@/services/matchingApi';
 import { DealCalculatorModal } from '@/components/calculator';
 
@@ -111,25 +107,16 @@ export function PropertyDetailModal({
   const updateProperty = useUpdateProperty();
   const updateAirtableProperty = useUpdateAirtableProperty();
 
-  // Fetch custom field definitions for the folders/inputs (opportunity fields only)
-  const { data: customFieldsData, refetch: refetchCustomFields, isLoading: isLoadingCustomFields, error: customFieldsError } = useCustomFields('opportunity');
-
   // Fetch raw opportunity data to get current custom field values
   const { data: opportunityData } = useProperty(initialProperty?.ghlOpportunityId || '');
 
   // Local form state
   const [formData, setFormData] = useState<Partial<Property>>({});
   const [locationData, setLocationData] = useState({ city: '', state: '', zip: '' });
-  const [customFieldValues, setCustomFieldValues] = useState<Record<string, string>>({});
   const [hasChanges, setHasChanges] = useState(false);
   const [isLoading] = useState(false);
   const [calculatorOpen, setCalculatorOpen] = useState(false);
   const [showCloseWarning, setShowCloseWarning] = useState(false);
-
-  // Custom fields tab state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showEmptyOnly, setShowEmptyOnly] = useState(false);
-  const [modelFilter, setModelFilter] = useState<'all' | 'opportunity' | 'contact'>('all');
 
   // Populate form when property changes
   useEffect(() => {
@@ -157,52 +144,6 @@ export function PropertyDetailModal({
     }
   }, [initialProperty]);
 
-  // Populate custom field values from the raw opportunity data
-  useEffect(() => {
-    console.log('[PropertyDetailModal] Opportunity data:', {
-      hasOpportunityData: !!opportunityData,
-      opportunityId: initialProperty?.ghlOpportunityId,
-      customFieldsCount: opportunityData?.opportunity?.customFields?.length || 0
-    });
-
-    if (opportunityData?.opportunity?.customFields) {
-      const values: Record<string, string> = {};
-      for (const cf of opportunityData.opportunity.customFields) {
-        const value = extractCustomFieldValue(cf);
-        if (value) {
-          values[cf.id] = value;
-        }
-      }
-      console.log('[PropertyDetailModal] Loaded custom field values:', {
-        totalFields: opportunityData.opportunity.customFields.length,
-        filledFields: Object.keys(values).length,
-        sampleValues: Object.entries(values).slice(0, 3)
-      });
-      setCustomFieldValues(values);
-    }
-  }, [opportunityData, initialProperty?.ghlOpportunityId]);
-
-  // Debug: Log custom fields data
-  useEffect(() => {
-    console.log('[PropertyDetailModal] Custom fields data:', {
-      isLoading: isLoadingCustomFields,
-      hasError: !!customFieldsError,
-      error: customFieldsError,
-      hasData: !!customFieldsData,
-      fieldCount: customFieldsData?.customFields?.length || 0,
-      fields: customFieldsData?.customFields?.slice(0, 3).map(f => ({
-        id: f.id,
-        name: f.name,
-        isFolder: f.isFolder,
-        parentId: f.parentId,
-        model: f.model
-      })),
-      folderCount: customFieldsData?.customFields?.filter(f => f.isFolder).length || 0,
-      opportunityFieldCount: customFieldsData?.customFields?.filter(f => f.model === 'opportunity').length || 0,
-      contactFieldCount: customFieldsData?.customFields?.filter(f => f.model === 'contact').length || 0,
-    });
-  }, [customFieldsData, isLoadingCustomFields, customFieldsError]);
-
   const handleFieldChange = (field: keyof Property, value: string | number | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setHasChanges(true);
@@ -210,11 +151,6 @@ export function PropertyDetailModal({
 
   const handleLocationChange = (field: 'city' | 'state' | 'zip', value: string) => {
     setLocationData(prev => ({ ...prev, [field]: value }));
-    setHasChanges(true);
-  };
-
-  const handleCustomFieldChange = (fieldId: string, value: string) => {
-    setCustomFieldValues(prev => ({ ...prev, [fieldId]: value }));
     setHasChanges(true);
   };
 
@@ -279,13 +215,6 @@ export function PropertyDetailModal({
         customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.status] = statusMap[formData.status];
       }
 
-      // Include any other custom field values
-      Object.entries(customFieldValues).forEach(([key, value]) => {
-        if (!Object.values(PROPERTY_CUSTOM_FIELDS).includes(key)) {
-          customFieldsUpdate[key] = value;
-        }
-      });
-
       // Save to GHL (source of truth)
       const ghlPayload = {
         id: initialProperty.ghlOpportunityId,
@@ -337,56 +266,6 @@ export function PropertyDetailModal({
       toast.error(error instanceof Error ? error.message : 'Failed to save');
     }
   };
-
-  // Group and filter custom fields by folder
-  const { folders, ungroupedFields } = useMemo(() => {
-    const allFields: GHLCustomField[] = (customFieldsData?.customFields || []).map(cf => ({
-      id: cf.id,
-      name: cf.name,
-      fieldKey: cf.fieldKey,
-      dataType: cf.dataType,
-      placeholder: cf.placeholder,
-      position: cf.position,
-      parentId: cf.parentId,
-      isFolder: cf.isFolder,
-      // Map GHL's model values to our types ('all' -> 'both')
-      model: (cf.model === 'all' ? 'both' : cf.model) as 'contact' | 'opportunity' | 'both' | undefined,
-      // GHL returns options as 'picklistOptions'
-      options: cf.picklistOptions,
-      // Mark as required if field name contains "Required" in parent folder
-      required: false, // Will be determined by folder name
-    }));
-    const result = groupFieldsByFolder(allFields, modelFilter);
-    console.log('[PropertyDetailModal] After grouping:', {
-      totalFields: allFields.length,
-      foldersCount: result.folders.length,
-      ungroupedCount: result.ungroupedFields.length,
-      modelFilter,
-      folderFields: allFields.filter(f => f.isFolder).length,
-      nonFolderFields: allFields.filter(f => !f.isFolder).length,
-      sampleFolder: result.folders[0],
-      sampleUngrouped: result.ungroupedFields.slice(0, 3)
-    });
-    return result;
-  }, [customFieldsData, modelFilter]);
-
-  // Apply search and empty filter
-  const filteredFolders = useMemo(() => {
-    return folders.map(folder => ({
-      ...folder,
-      fields: filterFields(folder.fields, searchQuery).filter(f => {
-        if (showEmptyOnly) {
-          return !customFieldValues[f.id];
-        }
-        return true;
-      }),
-    })).filter(folder => folder.fields.length > 0 || (!searchQuery && !showEmptyOnly));
-  }, [folders, searchQuery, showEmptyOnly, customFieldValues]);
-
-  // Calculate completion stats
-  const completionStats = useMemo(() => {
-    return calculateCompletionStats(folders, ungroupedFields, customFieldValues);
-  }, [folders, ungroupedFields, customFieldValues]);
 
   const property = formData;
 
@@ -443,7 +322,7 @@ export function PropertyDetailModal({
               />
 
               <Tabs defaultValue="details" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 bg-purple-50/50 p-1 rounded-lg">
+                <TabsList className="grid w-full grid-cols-2 bg-purple-50/50 p-1 rounded-lg">
                   <TabsTrigger
                     value="details"
                     className="data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm rounded-md transition-all"
@@ -457,13 +336,6 @@ export function PropertyDetailModal({
                   >
                     <Share2 className="h-4 w-4 mr-2" aria-hidden="true" />
                     Social Media
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="custom"
-                    className="data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm rounded-md transition-all"
-                  >
-                    <Settings className="h-4 w-4 mr-2" aria-hidden="true" />
-                    Custom Fields
                   </TabsTrigger>
                 </TabsList>
 
@@ -755,155 +627,6 @@ export function PropertyDetailModal({
                     </div>
                   </FieldSection>
                 </TabsContent>
-
-                {/* Custom Fields Tab */}
-                <TabsContent value="custom" className="mt-4 space-y-4">
-                  {/* Header with Progress */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Settings className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">GHL Custom Fields</span>
-                      <span className="text-sm text-muted-foreground">
-                        {completionStats.filledFields}/{completionStats.totalFields} completed
-                      </span>
-                    </div>
-                    <Progress value={completionStats.completionPercent} className="w-32 h-2" />
-                  </div>
-
-                  {/* Toolbar */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                    {/* Search */}
-                    <div className="relative flex-1 w-full sm:max-w-xs">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search fields..."
-                        className="pl-9"
-                      />
-                    </div>
-
-                    {/* Model Filter Toggle */}
-                    <div className="flex items-center border rounded-lg overflow-hidden text-sm">
-                      {(['all', 'opportunity', 'contact'] as const).map((model) => (
-                        <button
-                          key={model}
-                          onClick={() => setModelFilter(model)}
-                          className={`px-3 py-1.5 transition-colors capitalize ${
-                            model !== 'all' ? 'border-l' : ''
-                          } ${
-                            modelFilter === model
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-background text-muted-foreground hover:bg-muted'
-                          }`}
-                        >
-                          {model === 'all' ? 'All' : model === 'opportunity' ? 'Opportunity' : 'Contact'}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Empty Only Filter */}
-                    <Button
-                      variant={showEmptyOnly ? 'secondary' : 'outline'}
-                      size="sm"
-                      onClick={() => setShowEmptyOnly(!showEmptyOnly)}
-                    >
-                      <Filter className="h-4 w-4 mr-2" />
-                      Empty Only
-                    </Button>
-
-                    {/* Refresh */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => refetchCustomFields()}
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {/* Folders */}
-                  <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
-                    {filteredFolders.map((folder, index) => (
-                      <CustomFieldFolder
-                        key={folder.id}
-                        folder={folder}
-                        values={customFieldValues}
-                        onChange={handleCustomFieldChange}
-                        defaultOpen={index === 0}
-                      />
-                    ))}
-
-                    {/* Ungrouped Fields */}
-                    {ungroupedFields.length > 0 && (
-                      <div className="rounded-xl border p-4 space-y-4">
-                        <h4 className="font-medium text-sm text-muted-foreground">Other Fields</h4>
-                        {ungroupedFields.map((field) => (
-                          <CustomFieldInput
-                            key={field.id}
-                            field={field}
-                            value={customFieldValues[field.id] || ''}
-                            onChange={handleCustomFieldChange}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Loading State */}
-                    {isLoadingCustomFields && (
-                      <div className="text-center py-12">
-                        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-3" />
-                        <p className="text-muted-foreground font-medium">Loading custom fields...</p>
-                      </div>
-                    )}
-
-                    {/* Error State */}
-                    {customFieldsError && !isLoadingCustomFields && (
-                      <div className="text-center py-12">
-                        <Tag className="h-12 w-12 mx-auto text-destructive/30 mb-3" />
-                        <p className="text-destructive font-medium">Failed to load custom fields</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {customFieldsError instanceof Error ? customFieldsError.message : 'An error occurred'}
-                        </p>
-                        <button
-                          onClick={() => refetchCustomFields()}
-                          className="mt-4 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-                        >
-                          Retry
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Empty State */}
-                    {!isLoadingCustomFields && !customFieldsError && filteredFolders.length === 0 && ungroupedFields.length === 0 && (
-                      <div className="text-center py-12">
-                        <Tag className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
-                        <p className="text-muted-foreground font-medium">
-                          {searchQuery ? 'No fields match your search' : 'No custom fields found'}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {searchQuery ? 'Try a different search term' : 'Custom fields from GHL will appear here'}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Footer */}
-                  <div className="pt-4 border-t flex items-center justify-between">
-                    <p className="text-xs text-muted-foreground">
-                      Fields synced from GoHighLevel
-                    </p>
-                    <a
-                      href="https://app.gohighlevel.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-primary hover:underline flex items-center gap-1"
-                    >
-                      Manage in GHL
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </div>
-                </TabsContent>
               </Tabs>
             </div>
           </ScrollArea>
@@ -922,6 +645,18 @@ export function PropertyDetailModal({
               <Calculator className="h-4 w-4 mr-2" />
               Deal Calculator
             </Button>
+
+            {initialProperty?.ghlOpportunityId && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => window.open(getGhlOpportunityUrl(initialProperty.ghlOpportunityId!), '_blank')}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Edit in CRM
+              </Button>
+            )}
 
             {/* Unsaved Changes Indicator */}
             {hasChanges && (
@@ -995,10 +730,14 @@ export function PropertyDetailModal({
           sqft: formData.sqft,
           address: formData.address,
           propertyCode: formData.propertyCode,
-          recordId: initialProperty?.ghlOpportunityId,
+          recordId: initialProperty?.id,  // Use Airtable record ID, not GHL ID
+          calculatorScenario1: initialProperty?.calculatorScenario1,
+          calculatorScenario2: initialProperty?.calculatorScenario2,
+          calculatorScenario3: initialProperty?.calculatorScenario3,
         }}
         onSaved={() => {
-          // Optionally refresh data
+          // Optionally refetch property data
+          onSaved?.();
         }}
       />
     </Dialog>

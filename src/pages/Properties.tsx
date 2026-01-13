@@ -83,6 +83,10 @@ export default function Properties() {
         daysOnMarket: p.daysOnMarket,
         createdAt: p.createdAt,
         isDemo: false,
+        // Calculator scenarios
+        calculatorScenario1: p.calculatorScenario1,
+        calculatorScenario2: p.calculatorScenario2,
+        calculatorScenario3: p.calculatorScenario3,
       };
       // Debug log for first property
       if (p.recordId === 'rec1uiQ50sMDLjFVY') {

@@ -169,6 +169,11 @@ export interface PropertyDetails {
   zillowUrl?: string; // Link to original Zillow listing
   daysOnMarket?: number; // Days on market (primarily for Zillow properties)
   createdAt?: string; // Created timestamp for sorting
+
+  // Calculator scenarios (stored as JSON strings)
+  calculatorScenario1?: string;
+  calculatorScenario2?: string;
+  calculatorScenario3?: string;
 }
 
 export interface MatchScore {

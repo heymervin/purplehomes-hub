@@ -51,6 +51,14 @@ export default function Settings() {
   const [ghlLocationId, setGhlLocationId] = useState('');
   const [showApiKey, setShowApiKey] = useState(false);
   const [configSaved, setConfigSaved] = useState(false);
+
+  // GHL Domain Configuration (for whitelabeled CRM instances)
+  const [ghlDomain, setGhlDomain] = useState(() => {
+    return localStorage.getItem('ghl_domain') || 'app.gohighlevel.com';
+  });
+  const [ghlLocationIdLocal, setGhlLocationIdLocal] = useState(() => {
+    return localStorage.getItem('ghl_location_id') || import.meta.env.VITE_GHL_LOCATION_ID || '';
+  });
   
   const testConnection = useTestConnection();
   const testAssociationsApi = useTestAssociationsApi();
@@ -213,6 +221,16 @@ export default function Settings() {
     setConfigSaved(true);
     toast.success('GHL API configuration saved');
     setTimeout(() => setConfigSaved(false), 2000);
+  };
+
+  const handleSaveGhlDomain = () => {
+    localStorage.setItem('ghl_domain', ghlDomain);
+    toast.success('CRM domain saved!');
+  };
+
+  const handleSaveGhlLocationIdLocal = () => {
+    localStorage.setItem('ghl_location_id', ghlLocationIdLocal);
+    toast.success('Location ID saved!');
   };
 
   const handleTestGhlConnection = async () => {
@@ -517,6 +535,61 @@ export default function Settings() {
                   add <code className="bg-muted px-1 rounded">GHL_API_KEY</code> and{' '}
                   <code className="bg-muted px-1 rounded">GHL_LOCATION_ID</code> as environment variables 
                   for secure server-side API calls.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* CRM Domain Configuration */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ExternalLink className="h-5 w-5 text-primary" />
+                CRM Domain Settings
+              </CardTitle>
+              <CardDescription>
+                Configure your CRM domain for the "Edit in CRM" links. Use this if you have a whitelabeled GoHighLevel instance.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="ghl-domain">CRM Domain</Label>
+                <p className="text-sm text-muted-foreground">
+                  If you use a whitelabeled CRM, enter your custom domain (e.g., app.reireply.com)
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    id="ghl-domain"
+                    value={ghlDomain}
+                    onChange={(e) => setGhlDomain(e.target.value)}
+                    placeholder="app.gohighlevel.com"
+                  />
+                  <Button onClick={handleSaveGhlDomain}>Save</Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ghl-location-id-local">CRM Location ID</Label>
+                <p className="text-sm text-muted-foreground">
+                  Your GoHighLevel location ID (found in your CRM URL). This is used for direct links to opportunities.
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    id="ghl-location-id-local"
+                    value={ghlLocationIdLocal}
+                    onChange={(e) => setGhlLocationIdLocal(e.target.value)}
+                    placeholder="abc123..."
+                  />
+                  <Button onClick={handleSaveGhlLocationIdLocal}>Save</Button>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                <p className="text-sm text-muted-foreground">
+                  <strong className="text-foreground">Preview URL:</strong>{' '}
+                  <code className="text-xs bg-background px-1 rounded">
+                    https://{ghlDomain}/v2/location/{ghlLocationIdLocal || '[location-id]'}/opportunities/[id]
+                  </code>
                 </p>
               </div>
             </CardContent>

@@ -1833,6 +1833,10 @@ async function handleAggregatedProperties(
       zillowUrl: property.fields['Zillow URL'] || property.fields['Zillow Link'],
       daysOnMarket: property.fields['Days on Market'],
       createdAt: property.fields['Created At'] || property.createdTime,
+      // Calculator scenarios (stored as JSON strings)
+      calculatorScenario1: property.fields['Calculator Scenario 1'],
+      calculatorScenario2: property.fields['Calculator Scenario 2'],
+      calculatorScenario3: property.fields['Calculator Scenario 3'],
       matches: propertyMatches,
       totalMatches: propertyMatches.length,
     };
@@ -2077,6 +2081,10 @@ async function handleBuyerProperties(
           zillowUrl: property.fields['Zillow URL'] || property.fields['Zillow Link'],
           daysOnMarket: property.fields['Days on Market'],
           createdAt: property.fields['Created At'] || property.createdTime,
+          // Calculator scenarios (stored as JSON strings)
+          calculatorScenario1: property.fields['Calculator Scenario 1'],
+          calculatorScenario2: property.fields['Calculator Scenario 2'],
+          calculatorScenario3: property.fields['Calculator Scenario 3'],
         },
         score: {
           score: score.score,
@@ -2369,6 +2377,10 @@ async function handlePropertyBuyers(
       zillowUrl: property.fields['Zillow URL'] || property.fields['Zillow Link'],
       daysOnMarket: property.fields['Days on Market'],
       createdAt: property.fields['Created At'] || property.createdTime,
+      // Calculator scenarios (stored as JSON strings)
+      calculatorScenario1: property.fields['Calculator Scenario 1'],
+      calculatorScenario2: property.fields['Calculator Scenario 2'],
+      calculatorScenario3: property.fields['Calculator Scenario 3'],
     };
 
     const totalTime = Date.now() - startTime;

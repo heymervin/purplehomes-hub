@@ -937,6 +937,10 @@ export const useAirtableProperties = (pageSize: number = 100) => {
         zillowUrl: item.zillowUrl,
         daysOnMarket: item.daysOnMarket,
         createdAt: item.createdAt,
+        // Calculator scenarios
+        calculatorScenario1: item.calculatorScenario1,
+        calculatorScenario2: item.calculatorScenario2,
+        calculatorScenario3: item.calculatorScenario3,
       }));
 
       console.log('[Matching API] Airtable properties fetched:', properties.length);
