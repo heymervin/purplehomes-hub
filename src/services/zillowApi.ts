@@ -56,11 +56,9 @@ export const useSaveZillowProperty = () => {
     mutationFn: async (params: {
       listing: ZillowListing;
       buyerId: string;
-      stage: string;
-      notes?: string;
       zillowType: ZillowSearchType;
     }): Promise<SaveZillowPropertyResponse> => {
-      const response = await fetch('/api/properties/save-from-zillow', {
+      const response = await fetch('/api/zillow?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params),

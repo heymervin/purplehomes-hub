@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -7,15 +6,6 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Building2, Loader2, MapPin, Bed, Bath, Square, DollarSign } from 'lucide-react';
 import { useSaveZillowProperty } from '@/services/zillowApi';
 import type { ZillowListing, ZillowSearchType } from '@/types/zillow';
@@ -34,9 +24,7 @@ interface SaveZillowModalProps {
  *
  * Allows the user to:
  * - Preview the property details
- * - Set initial stage
- * - Add notes
- * - Save to Airtable (and optionally GHL)
+ * - Save to Airtable
  */
 export function SaveZillowModal({
   listing,
@@ -45,8 +33,6 @@ export function SaveZillowModal({
   open,
   onOpenChange,
 }: SaveZillowModalProps) {
-  const [stage, setStage] = useState('Lead');
-  const [notes, setNotes] = useState('');
   const { mutate: saveProperty, isPending } = useSaveZillowProperty();
 
   const handleSave = () => {
@@ -56,17 +42,12 @@ export function SaveZillowModal({
       {
         listing,
         buyerId,
-        stage,
-        notes,
         zillowType,
       },
       {
         onSuccess: () => {
           toast.success('Property saved to Property Pro!');
           onOpenChange(false);
-          // Reset form
-          setStage('Lead');
-          setNotes('');
         },
         onError: (error) => {
           toast.error(error.message || 'Failed to save property');
@@ -144,39 +125,6 @@ export function SaveZillowModal({
               <li>• Enable match stage tracking</li>
               <li>• Make property available for matching with buyers</li>
             </ul>
-          </div>
-
-          {/* Stage Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="stage">Initial Stage *</Label>
-            <Select value={stage} onValueChange={setStage}>
-              <SelectTrigger id="stage">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Lead">Lead</SelectItem>
-                <SelectItem value="Prospecting">Prospecting</SelectItem>
-                <SelectItem value="Qualified">Qualified</SelectItem>
-                <SelectItem value="Contract">Contract</SelectItem>
-                <SelectItem value="Closed">Closed</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Select the initial pipeline stage for this property
-            </p>
-          </div>
-
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes (Optional)</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add any notes about this property..."
-              rows={3}
-              className="resize-none"
-            />
           </div>
 
           {/* Metadata Display */}
