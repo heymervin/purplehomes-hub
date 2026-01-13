@@ -328,7 +328,12 @@ const INTENT_DOMAINS: Record<string, IntentDomain> = {
 };
 
 function getIntentDomain(intent: string): IntentDomain {
-  return INTENT_DOMAINS[intent] || 'professional';
+  const domain = INTENT_DOMAINS[intent];
+  if (!domain) {
+    console.error(`[AI API] CRITICAL: Unknown intent "${intent}" - no domain mapping exists`);
+    throw new Error(`Unknown intent: ${intent}. No domain fallback allowed. This is a configuration error.`);
+  }
+  return domain;
 }
 
 // ============================================================================
@@ -476,6 +481,294 @@ function parseContextFields(contextString: string): Record<string, string> {
 }
 
 // ============================================================================
+// DOMAIN GUARDRAILS - Post-Generation Validators (Phase 2)
+// ============================================================================
+
+interface DomainViolation {
+  rule: string;
+  matched: string;
+  severity: 'error' | 'warning';
+}
+
+interface ValidationResult {
+  valid: boolean;
+  violations: DomainViolation[];
+}
+
+/**
+ * PROPERTY DOMAIN INVARIANTS
+ * - MUST be third-person or neutral (no "I", "my", "we")
+ * - MUST NOT use emotional/transformation language
+ * - MUST NOT use identity framing
+ */
+function validatePropertyOutput(caption: string): ValidationResult {
+  const violations: DomainViolation[] = [];
+  const lowerCaption = caption.toLowerCase();
+
+  // First-person pronouns (Property must be third-person/neutral)
+  const firstPersonPatterns = [
+    /\bi\s+(?:am|was|have|had|will|would|could|should|can|did|do|feel|think|believe|love|remember)\b/gi,
+    /\bmy\s+(?:journey|story|experience|life|dream|heart|family|home)\b/gi,
+    /\bwe\s+(?:are|were|have|had|will|would|love|believe)\b/gi,
+  ];
+
+  for (const pattern of firstPersonPatterns) {
+    const matches = caption.match(pattern);
+    if (matches) {
+      violations.push({
+        rule: 'PROPERTY_NO_FIRST_PERSON',
+        matched: matches[0],
+        severity: 'error',
+      });
+    }
+  }
+
+  // Emotional storytelling phrases
+  const emotionalPhrases = [
+    'imagine waking up',
+    'picture yourself',
+    'dream home',
+    'your forever home',
+    'where memories are made',
+    'fall in love',
+    'feels like home',
+    'transform your life',
+    'start your journey',
+    'write your story',
+    'begin a new chapter',
+    'this is where',
+    'imagine coming home',
+  ];
+
+  for (const phrase of emotionalPhrases) {
+    if (lowerCaption.includes(phrase)) {
+      violations.push({
+        rule: 'PROPERTY_NO_EMOTIONAL_STORYTELLING',
+        matched: phrase,
+        severity: 'error',
+      });
+    }
+  }
+
+  // Identity framing
+  const identityPhrases = [
+    'could be yours',
+    'waiting for you',
+    'meant for you',
+    'perfect for your family',
+    'your next chapter',
+    'deserves this',
+  ];
+
+  for (const phrase of identityPhrases) {
+    if (lowerCaption.includes(phrase)) {
+      violations.push({
+        rule: 'PROPERTY_NO_IDENTITY_FRAMING',
+        matched: phrase,
+        severity: 'error',
+      });
+    }
+  }
+
+  return {
+    valid: violations.filter((v) => v.severity === 'error').length === 0,
+    violations,
+  };
+}
+
+/**
+ * PERSONAL DOMAIN INVARIANTS
+ * - MUST be first-person ("I", "my")
+ * - MUST NOT mention property specifics (beds, baths, price, sqft)
+ * - MUST NOT sound promotional
+ */
+function validatePersonalOutput(caption: string): ValidationResult {
+  const violations: DomainViolation[] = [];
+  const lowerCaption = caption.toLowerCase();
+
+  // Must contain first-person (at least one "I" or "my")
+  const hasFirstPerson = /\b(i\s+|i'[a-z]+|my\s+|me\s+|myself)\b/i.test(caption);
+  if (!hasFirstPerson) {
+    violations.push({
+      rule: 'PERSONAL_REQUIRES_FIRST_PERSON',
+      matched: '(missing first-person pronouns)',
+      severity: 'error',
+    });
+  }
+
+  // Property-specific language (forbidden)
+  const propertyTerms = [
+    /\b\d+\s*bed/i,
+    /\b\d+\s*bath/i,
+    /\b\d+\s*sq\s*ft/i,
+    /\bsquare\s*feet\b/i,
+    /\bjust\s+listed\b/i,
+    /\bjust\s+sold\b/i,
+    /\bopen\s+house\b/i,
+    /\bprice\s+reduced\b/i,
+    /\bunder\s+contract\b/i,
+    /\$\d{2,3},?\d{3}/i, // Price patterns like $215,000
+    /\basking\s+price\b/i,
+    /\blist\s+price\b/i,
+  ];
+
+  for (const pattern of propertyTerms) {
+    const matches = caption.match(pattern);
+    if (matches) {
+      violations.push({
+        rule: 'PERSONAL_NO_PROPERTY_LANGUAGE',
+        matched: matches[0],
+        severity: 'error',
+      });
+    }
+  }
+
+  // Promotional phrases (forbidden in personal)
+  const promotionalPhrases = [
+    'dm for details',
+    'dm to schedule',
+    'schedule a showing',
+    'serious inquiries',
+    'contact me for',
+    'call me to',
+    'reach out for',
+  ];
+
+  for (const phrase of promotionalPhrases) {
+    if (lowerCaption.includes(phrase)) {
+      violations.push({
+        rule: 'PERSONAL_NO_PROMOTIONAL_LANGUAGE',
+        matched: phrase,
+        severity: 'warning',
+      });
+    }
+  }
+
+  return {
+    valid: violations.filter((v) => v.severity === 'error').length === 0,
+    violations,
+  };
+}
+
+/**
+ * PROFESSIONAL DOMAIN INVARIANTS
+ * - MUST sound educational/advisory
+ * - MUST NOT use personal life narratives
+ * - MUST NOT use emotional vulnerability language
+ */
+function validateProfessionalOutput(caption: string): ValidationResult {
+  const violations: DomainViolation[] = [];
+  const lowerCaption = caption.toLowerCase();
+
+  // Personal life narrative phrases (forbidden)
+  const personalNarratives = [
+    'my journey',
+    'my story',
+    'when i was',
+    'growing up',
+    'my childhood',
+    'my family',
+    'my kids',
+    'my spouse',
+    'my wife',
+    'my husband',
+    'personal life',
+    'at home with',
+    'my weekend',
+    'my vacation',
+  ];
+
+  for (const phrase of personalNarratives) {
+    if (lowerCaption.includes(phrase)) {
+      violations.push({
+        rule: 'PROFESSIONAL_NO_PERSONAL_NARRATIVE',
+        matched: phrase,
+        severity: 'error',
+      });
+    }
+  }
+
+  // Emotional vulnerability (forbidden)
+  const vulnerabilityPhrases = [
+    'i was scared',
+    'i was afraid',
+    'i struggled with',
+    'i cried',
+    'broke down',
+    'hit rock bottom',
+    'my darkest',
+    'feeling lost',
+    'i was devastated',
+  ];
+
+  for (const phrase of vulnerabilityPhrases) {
+    if (lowerCaption.includes(phrase)) {
+      violations.push({
+        rule: 'PROFESSIONAL_NO_EMOTIONAL_VULNERABILITY',
+        matched: phrase,
+        severity: 'error',
+      });
+    }
+  }
+
+  return {
+    valid: violations.filter((v) => v.severity === 'error').length === 0,
+    violations,
+  };
+}
+
+/**
+ * Master validator - routes to domain-specific validator
+ */
+function validateCaptionOutput(caption: string, domain: IntentDomain, intent: string): ValidationResult {
+  let result: ValidationResult;
+
+  switch (domain) {
+    case 'property':
+      result = validatePropertyOutput(caption);
+      break;
+    case 'personal':
+      result = validatePersonalOutput(caption);
+      break;
+    case 'professional':
+      result = validateProfessionalOutput(caption);
+      break;
+    default:
+      throw new Error(`Unknown domain: ${domain}`);
+  }
+
+  // Log violations for monitoring
+  if (result.violations.length > 0) {
+    console.warn(`[AI API] Domain violations detected:`, {
+      intent,
+      domain,
+      violationCount: result.violations.length,
+      violations: result.violations.map((v) => `${v.rule}: "${v.matched}"`),
+    });
+  }
+
+  return result;
+}
+
+/**
+ * Build stricter system prompt for regeneration after violation
+ */
+function buildStricterSystemPrompt(domain: IntentDomain, violations: DomainViolation[]): string {
+  const basePrompt = buildCaptionSystemPrompt(domain);
+  const violationWarnings = violations
+    .map((v) => `- DO NOT use: "${v.matched}" (violates ${v.rule})`)
+    .join('\n');
+
+  return `${basePrompt}
+
+⚠️ CRITICAL: YOUR PREVIOUS OUTPUT VIOLATED DOMAIN RULES.
+You MUST avoid these specific violations:
+${violationWarnings}
+
+REGENERATE THE CAPTION FOLLOWING ALL DOMAIN CONSTRAINTS.`;
+}
+
+// ============================================================================
 // CAPTION HANDLER
 // ============================================================================
 
@@ -493,37 +786,45 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
 
   try {
     const domain = getIntentDomain(postIntent);
-    const systemPrompt = buildCaptionSystemPrompt(domain);
     const userPrompt = buildCaptionUserPrompt({ property, context, postIntent, tone, platform });
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        temperature: 0.4,
-        max_tokens: 600,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[AI API] OpenAI error:', errorText);
-      return res.status(500).json({ error: 'Failed to generate caption' });
-    }
-
-    const data = await response.json();
-    const caption = data.choices?.[0]?.message?.content?.trim() || '';
+    // First generation attempt
+    let systemPrompt = buildCaptionSystemPrompt(domain);
+    let caption = await generateCaption(systemPrompt, userPrompt);
 
     if (!caption) {
       return res.status(500).json({ error: 'Empty response from OpenAI' });
+    }
+
+    // Phase 2: Post-generation validation
+    let validation = validateCaptionOutput(caption, domain, postIntent);
+
+    // If violations detected, attempt ONE regeneration with stricter prompt
+    if (!validation.valid) {
+      console.warn(`[AI API] First generation failed validation for ${postIntent}. Regenerating...`);
+
+      const stricterPrompt = buildStricterSystemPrompt(domain, validation.violations);
+      caption = await generateCaption(stricterPrompt, userPrompt);
+
+      if (!caption) {
+        return res.status(500).json({ error: 'Empty response from OpenAI on retry' });
+      }
+
+      // Re-validate
+      validation = validateCaptionOutput(caption, domain, postIntent);
+
+      // If still failing, fail hard
+      if (!validation.valid) {
+        console.error(`[AI API] CRITICAL: Caption still violates domain rules after retry`, {
+          intent: postIntent,
+          domain,
+          violations: validation.violations,
+        });
+        return res.status(500).json({
+          error: 'Caption generation failed domain validation',
+          details: validation.violations.map((v) => v.rule),
+        });
+      }
     }
 
     const result: CaptionResponse = { caption, platform };
@@ -532,6 +833,37 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
     console.error('[AI API] Error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
+}
+
+/**
+ * Helper: Generate caption via OpenAI
+ */
+async function generateCaption(systemPrompt: string, userPrompt: string): Promise<string> {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.4,
+      max_tokens: 600,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[AI API] OpenAI error:', errorText);
+    throw new Error(`OpenAI API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content?.trim() || '';
 }
 
 // ============================================================================
@@ -551,29 +883,45 @@ CRITICAL RULES:
 
   const domainRules: Record<IntentDomain, string> = {
     property: `
-DOMAIN: PROPERTY POSTS
-- You are writing about a specific property listing
-- Include property details (address, price, beds, baths, sqft)
-- Use real estate marketing language
-- Focus on features, value, and urgency`,
+DOMAIN: PROPERTY POSTS (Factual Only)
+- You are writing a transactional property announcement
+- Include property details (address, price, beds, baths, sqft) exactly as provided
+- Be specific, clear, and scannable
+- Light, factual urgency is allowed ("won't last long", "generating interest")
+
+PROPERTY DOMAIN CONSTRAINTS (STRICTLY ENFORCED):
+- NO emotional storytelling
+- NO identity framing ("this could be your dream home")
+- NO life transformation language ("imagine waking up here")
+- NO persuasion frameworks or psychological triggers
+- NO personal reflection or vulnerability
+- Keep language transactional and compliance-safe`,
 
     personal: `
-DOMAIN: PERSONAL POSTS
-- You are writing as the real estate agent sharing personal content
+DOMAIN: PERSONAL POSTS (Story & Reflection)
 - Write in FIRST PERSON ("I", "me", "my")
-- Be authentic, vulnerable, relatable
-- NEVER mention property listings, prices, or real estate transactions
+- Be authentic, reflective, and relatable
+- Focus on personal moments, growth, and human connection
+- Use story-driven, emotionally resonant language
+
+PERSONAL DOMAIN CONSTRAINTS (STRICTLY ENFORCED):
+- NEVER mention property listings, prices, or transactions
 - NEVER use property-specific language (beds, baths, sqft, just listed, etc.)
-- Focus on life moments, personal growth, and human connection`,
+- NEVER sound promotional or sales-driven
+- This is about the person, not the business`,
 
     professional: `
-DOMAIN: PROFESSIONAL POSTS
-- You are writing educational/authority content
+DOMAIN: PROFESSIONAL POSTS (Education & Authority)
 - Position the agent as a trusted expert
 - Share market insights, tips, or client success stories
-- NEVER use personal/casual life language
-- NEVER mention specific property listings unless in a success story context
-- Focus on value, expertise, and credibility`,
+- Focus on value, expertise, and credibility
+- Use educational, authoritative language
+
+PROFESSIONAL DOMAIN CONSTRAINTS (STRICTLY ENFORCED):
+- NEVER use personal life narratives or casual vulnerability
+- NEVER include specific property listings unless in client success context
+- Keep tone informative, not emotional
+- This is about expertise, not personality`,
   };
 
   return `${baseRules}
