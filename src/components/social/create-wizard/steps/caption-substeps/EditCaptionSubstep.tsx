@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, RefreshCw, Loader2, Copy, Check } from 'lucide-react';
+import { ChevronLeft, RefreshCw, Loader2, Copy, Check, Hash } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCaptionGenerate } from '../../hooks/useCaptionGenerate';
 import type { WizardState, Platform } from '../../types';
 import { POST_INTENTS, TONE_PRESETS } from '../../types';
+import { PLATFORM_HASHTAG_RULES } from '@/lib/socialHub';
 
 interface EditCaptionSubstepProps {
   state: WizardState;
@@ -24,6 +25,25 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
 
   const selectedIntent = POST_INTENTS.find(i => i.id === state.postIntent);
   const selectedTone = TONE_PRESETS.find(t => t.id === state.tone);
+
+  // Get platform-specific hashtags respecting limits
+  const getHashtagsForPlatform = (platform: Platform): string => {
+    const settings = state.platformHashtagSettings[platform];
+    if (!settings?.enabled) return '';
+
+    const rules = PLATFORM_HASHTAG_RULES[platform];
+    const maxTags = rules?.maxHashtags || 5;
+    const hashtags = state.selectedHashtags.slice(0, maxTags);
+
+    return hashtags.length > 0 ? '\n\n' + hashtags.join(' ') : '';
+  };
+
+  // Compute hashtag preview per platform
+  const hashtagsPerPlatform = useMemo(() => ({
+    facebook: getHashtagsForPlatform('facebook'),
+    instagram: getHashtagsForPlatform('instagram'),
+    linkedin: getHashtagsForPlatform('linkedin'),
+  }), [state.selectedHashtags, state.platformHashtagSettings]);
 
   // Auto-generate caption when this substep loads
   useEffect(() => {
@@ -123,9 +143,16 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
     }
   };
 
-  // Copy caption
+  // Get full caption with hashtags for a platform
+  const getFullCaption = (platform: Platform): string => {
+    const caption = state.captions[platform];
+    const hashtags = hashtagsPerPlatform[platform];
+    return caption + hashtags;
+  };
+
+  // Copy caption with hashtags
   const handleCopy = async (platform: Platform) => {
-    await navigator.clipboard.writeText(state.captions[platform]);
+    await navigator.clipboard.writeText(getFullCaption(platform));
     setCopiedPlatform(platform);
     setTimeout(() => setCopiedPlatform(null), 2000);
   };
@@ -193,77 +220,97 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
           </TabsTrigger>
         </TabsList>
 
-        {(['facebook', 'instagram', 'linkedin'] as Platform[]).map((platform) => (
-          <TabsContent key={platform} value={platform} className="mt-4 space-y-3">
-            <div className="relative">
-              <Textarea
-                value={state.captions[platform]}
-                onChange={(e) => handleCaptionChange(platform, e.target.value)}
-                placeholder="Your caption will appear here..."
-                rows={10}
-                className="resize-none font-sans"
-                disabled={isGenerating}
-              />
+        {(['facebook', 'instagram', 'linkedin'] as Platform[]).map((platform) => {
+          const platformHashtags = hashtagsPerPlatform[platform];
+          const hashtagCount = platformHashtags ? state.selectedHashtags.slice(0, PLATFORM_HASHTAG_RULES[platform]?.maxHashtags || 5).length : 0;
 
-              {isGenerating && (
-                <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-md">
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-5 w-5 animate-spin text-purple-600" />
-                    <span className="text-sm text-muted-foreground">Generating caption...</span>
+          return (
+            <TabsContent key={platform} value={platform} className="mt-4 space-y-3">
+              <div className="relative">
+                <Textarea
+                  value={state.captions[platform]}
+                  onChange={(e) => handleCaptionChange(platform, e.target.value)}
+                  placeholder="Your caption will appear here..."
+                  rows={8}
+                  className="resize-none font-sans"
+                  disabled={isGenerating}
+                />
+
+                {isGenerating && (
+                  <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-md">
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-5 w-5 animate-spin text-purple-600" />
+                      <span className="text-sm text-muted-foreground">Generating caption...</span>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-
-            {/* Caption Footer */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">
-                {state.captions[platform].length} characters
-              </span>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleCopy(platform)}
-                  className="gap-1 h-8"
-                >
-                  {copiedPlatform === platform ? (
-                    <>
-                      <Check className="h-3 w-3" />
-                      Copied
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-3 w-3" />
-                      Copy
-                    </>
-                  )}
-                </Button>
-
-                {!state.useSameCaptionForAll && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleGenerate(platform)}
-                    disabled={isGenerating}
-                    className="gap-1 h-8"
-                  >
-                    <RefreshCw className={cn("h-3 w-3", isGenerating && "animate-spin")} />
-                    Regenerate
-                  </Button>
                 )}
               </div>
-            </div>
-          </TabsContent>
-        ))}
+
+              {/* Hashtag Preview */}
+              {platformHashtags && state.platformHashtagSettings[platform]?.enabled && (
+                <div className="bg-muted/50 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Hash className="h-3.5 w-3.5 text-purple-500" />
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {hashtagCount} hashtag{hashtagCount !== 1 ? 's' : ''} will be added
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground break-words">
+                    {platformHashtags.trim()}
+                  </p>
+                </div>
+              )}
+
+              {/* Caption Footer */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">
+                  {getFullCaption(platform).length} characters (with hashtags)
+                </span>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleCopy(platform)}
+                    className="gap-1 h-8"
+                  >
+                    {copiedPlatform === platform ? (
+                      <>
+                        <Check className="h-3 w-3" />
+                        Copied
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3 w-3" />
+                        Copy
+                      </>
+                    )}
+                  </Button>
+
+                  {!state.useSameCaptionForAll && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleGenerate(platform)}
+                      disabled={isGenerating}
+                      className="gap-1 h-8"
+                    >
+                      <RefreshCw className={cn("h-3 w-3", isGenerating && "animate-spin")} />
+                      Regenerate
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+          );
+        })}
       </Tabs>
 
       {/* Back Button */}
       <div className="flex justify-start pt-4 border-t">
         <Button variant="outline" onClick={onBack} className="gap-2">
           <ChevronLeft className="h-4 w-4" />
-          Change Intent/Tone
+          Change Hashtags
         </Button>
       </div>
     </div>

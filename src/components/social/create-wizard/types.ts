@@ -9,10 +9,10 @@ export type PostType = 'property' | 'custom' | 'text-only';
 // WIZARD STEPS
 // ============================================
 export type WizardStep = 'source' | 'image' | 'caption' | 'hashtags' | 'publish';
-export type CaptionSubstep = 'intent' | 'tone' | 'edit';
+export type CaptionSubstep = 'intent' | 'tone' | 'hashtags' | 'edit';
 
 export const WIZARD_STEPS: WizardStep[] = ['source', 'caption', 'image', 'hashtags', 'publish'];
-export const CAPTION_SUBSTEPS: CaptionSubstep[] = ['intent', 'tone', 'edit'];
+export const CAPTION_SUBSTEPS: CaptionSubstep[] = ['intent', 'tone', 'hashtags', 'edit'];
 
 export const STEP_CONFIG: Record<WizardStep, { number: number; title: string; tooltip: string }> = {
   source: {
@@ -50,6 +50,10 @@ export const CAPTION_SUBSTEP_CONFIG: Record<CaptionSubstep, { title: string; des
   tone: {
     title: 'Tone',
     description: 'How should it sound?',
+  },
+  hashtags: {
+    title: 'Hashtags',
+    description: 'Which hashtags to include?',
   },
   edit: {
     title: 'Edit Caption',

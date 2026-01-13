@@ -161,16 +161,21 @@ export interface BatchItem {
   templateId: ImageTemplateId;
   context: Record<string, string>;
 
+  // Hashtags (auto-initialized based on intent, can be customized)
+  selectedHashtags: string[];
+
   // Scheduling (per-post override)
   scheduledDate: string; // YYYY-MM-DD or empty for "now"
   scheduledTime: string; // HH:mm or empty
   hasCustomSchedule: boolean; // true if user manually edited date/time
 
   // Generation state
-  status: 'pending' | 'generating' | 'ready' | 'failed';
+  status: 'draft' | 'pending' | 'generating' | 'ready' | 'failed';
   caption?: string;
   imageUrl?: string;
   error?: string;
+  // Validation errors (Phase 2 guardrails)
+  validationErrors?: Array<{ rule: string; message: string }>;
 }
 
 /**
@@ -188,10 +193,13 @@ export interface BatchDefaults {
 
 /**
  * Batch form state for managing multiple posts at once.
+ *
+ * Phase 3: No shared context. Each item is independent.
  */
 export interface BatchFormState {
   items: BatchItem[];
   defaults: BatchDefaults;
-  sharedContext: string;
   selectedAccounts: string[];
+  // Active item for pill-based navigation
+  activeItemId: string | null;
 }

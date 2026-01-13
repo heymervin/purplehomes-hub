@@ -15,6 +15,13 @@ export {
   INTENTS,
   INTENT_HOOKS,
   INTENT_CTAS,
+  // Hashtag exports
+  PLATFORM_HASHTAG_RULES,
+  INTENT_HASHTAGS,
+  BASE_HASHTAGS,
+  PREFERRED_HASHTAGS,
+  generateLocationHashtags,
+  generateHashtagsForIntent,
 } from './catalog';
 
 // Rule helpers

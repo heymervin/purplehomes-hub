@@ -40,6 +40,7 @@ Thumbs.db
 
 # Testing
 coverage
+docs/caption-stress-test-results.md
 
 # Temporary files
 *.tmp

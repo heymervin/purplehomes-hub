@@ -75,6 +75,11 @@ import {
   getPrimaryTemplate,
   getDefaultIntent,
   getIntentsByTab,
+  BASE_HASHTAGS,
+  PREFERRED_HASHTAGS,
+  INTENT_HASHTAGS,
+  generateLocationHashtags,
+  PLATFORM_HASHTAG_RULES,
 } from '@/lib/socialHub';
 
 // Import pill-based editor component
@@ -107,14 +112,13 @@ const INITIAL_DEFAULTS: BatchDefaults = {
 interface QuickBatchFormState {
   items: BatchItem[];
   defaults: BatchDefaults;
-  sharedContext: string;
   selectedAccounts: string[];
+  // Phase 3: No shared context - each item is independent
 }
 
 const INITIAL_STATE: QuickBatchFormState = {
   items: [],
   defaults: INITIAL_DEFAULTS,
-  sharedContext: '',
   selectedAccounts: [],
 };
 
@@ -122,6 +126,21 @@ const INITIAL_STATE: QuickBatchFormState = {
 let batchItemCounter = 0;
 function generateItemId(): string {
   return `batch-item-${Date.now()}-${++batchItemCounter}`;
+}
+
+// Generate default hashtags for an intent and optional property
+function generateDefaultHashtags(intentId: IntentId, property?: Property): string[] {
+  const hashtags: string[] = [];
+  hashtags.push(...BASE_HASHTAGS);
+  hashtags.push(...PREFERRED_HASHTAGS);
+  const intentHashtags = INTENT_HASHTAGS[intentId] || [];
+  hashtags.push(...intentHashtags);
+  if (property) {
+    const locationHashtags = generateLocationHashtags(property.city, property.state);
+    hashtags.push(...locationHashtags);
+  }
+  // Return first 7 unique hashtags as default selection
+  return [...new Set(hashtags)].slice(0, 7);
 }
 
 // Create a new batch item from a property (property tab)
@@ -139,10 +158,11 @@ function createPropertyBatchItem(
     toneId: defaults.toneId,
     templateId: defaults.templateId,
     context: {},
+    selectedHashtags: generateDefaultHashtags(defaults.intentId, property),
     scheduledDate,
     scheduledTime,
     hasCustomSchedule: false,
-    status: 'pending',
+    status: 'draft', // Phase 3: Items start as draft until validated
   };
 }
 
@@ -160,10 +180,11 @@ function createNonPropertyBatchItem(
     toneId: getDefaultTone(defaultIntent.id),
     templateId: getPrimaryTemplate(defaultIntent.id),
     context: {},
+    selectedHashtags: generateDefaultHashtags(defaultIntent.id),
     scheduledDate,
     scheduledTime,
     hasCustomSchedule: false,
-    status: 'pending',
+    status: 'draft', // Phase 3: Items start as draft until validated
   };
 }
 
@@ -371,22 +392,17 @@ export function QuickBatchForm() {
     [recalculateSchedules]
   );
 
-  // Build context string for caption generation
+  // Build context string for caption generation (per-item only, no shared context)
   const buildContextString = (item: BatchItem, property?: Property): string => {
     const parts: string[] = [];
 
-    // Add intent-specific context fields
+    // Add intent-specific context fields (Phase 3: per-item only)
     const intent = getIntent(item.intentId);
     for (const field of intent.fields) {
       const value = item.context[field.key];
       if (value) {
         parts.push(`${field.label}: ${value}`);
       }
-    }
-
-    // Add shared context
-    if (state.sharedContext.trim()) {
-      parts.push(`Additional context: ${state.sharedContext}`);
     }
 
     // Fallback property description (only for property posts)
@@ -396,6 +412,40 @@ export function QuickBatchForm() {
 
     return parts.join('\n');
   };
+
+  // Check if an item has all required fields filled (for draft/pending detection)
+  const isItemComplete = useCallback(
+    (item: BatchItem): boolean => {
+      const intent = getIntent(item.intentId);
+
+      // Property tab requires a property
+      if (intent.requiresProperty && !item.propertyId) {
+        return false;
+      }
+
+      // Check required context fields
+      for (const field of intent.fields) {
+        if (field.required && !item.context[field.key]) {
+          return false;
+        }
+      }
+
+      return true;
+    },
+    []
+  );
+
+  // Get computed status for display (draft if incomplete, otherwise use item.status)
+  const getDisplayStatus = useCallback(
+    (item: BatchItem): 'draft' | 'pending' | 'generating' | 'ready' | 'failed' => {
+      if (item.status === 'ready' || item.status === 'failed' || item.status === 'generating') {
+        return item.status;
+      }
+      // For draft/pending, check if item is complete
+      return isItemComplete(item) ? 'pending' : 'draft';
+    },
+    [isItemComplete]
+  );
 
   // Get scheduled Date object from item
   const getScheduledAt = (item: BatchItem): Date | undefined => {
@@ -523,9 +573,16 @@ export function QuickBatchForm() {
       setPublishProgress(Math.round(((i + 0.5) / readyItems.length) * 100));
 
       try {
+        // Append hashtags to caption (use Facebook limit as default for batch)
+        const maxHashtags = PLATFORM_HASHTAG_RULES.facebook?.maxHashtags || 5;
+        const hashtagString = item.selectedHashtags.slice(0, maxHashtags).join(' ');
+        const fullCaption = hashtagString
+          ? `${item.caption || ''}\n\n${hashtagString}`
+          : item.caption || '';
+
         await createPost.mutateAsync({
           accountIds: state.selectedAccounts,
-          summary: item.caption || '',
+          summary: fullCaption,
           media: item.imageUrl ? [{ url: item.imageUrl, type: 'image/png' }] : undefined,
           scheduleDate: isNow ? undefined : scheduledAt?.toISOString(),
           status: isNow ? 'published' : 'scheduled',
@@ -559,10 +616,113 @@ export function QuickBatchForm() {
     return state.items.length > 0;
   }, [state.items.length]);
 
-  // Count ready and failed items
-  const readyCount = state.items.filter((item) => item.status === 'ready').length;
-  const failedCount = state.items.filter((item) => item.status === 'failed').length;
+  // Count items by status (using computed display status)
+  const statusCounts = useMemo(() => {
+    let draft = 0;
+    let pending = 0;
+    let ready = 0;
+    let failed = 0;
+
+    for (const item of state.items) {
+      const status = getDisplayStatus(item);
+      if (status === 'draft') draft++;
+      else if (status === 'pending') pending++;
+      else if (status === 'ready') ready++;
+      else if (status === 'failed') failed++;
+    }
+
+    return { draft, pending, ready, failed, total: state.items.length };
+  }, [state.items, getDisplayStatus]);
+
+  // Legacy aliases for readyCount/failedCount
+  const readyCount = statusCounts.ready;
+  const failedCount = statusCounts.failed;
+  const draftCount = statusCounts.draft;
   const propertyPostCount = state.items.filter((item) => item.tab === 'property').length;
+
+  // STRICT POLICY: Batch is only schedulable when ALL items are ready
+  const allItemsReady = statusCounts.ready === statusCounts.total && statusCounts.total > 0;
+  const hasFailedItems = statusCounts.failed > 0;
+  const hasDraftItems = statusCounts.draft > 0;
+
+  // Retry failed items handler
+  const handleRetryFailed = useCallback(async () => {
+    const failedItems = state.items.filter((item) => getDisplayStatus(item) === 'failed');
+    if (failedItems.length === 0) return;
+
+    setStep('generating');
+    setGenerationProgress(0);
+
+    const updatedItems = [...state.items];
+    let processedCount = 0;
+
+    for (const failedItem of failedItems) {
+      const itemIndex = updatedItems.findIndex((i) => i.id === failedItem.id);
+      if (itemIndex === -1) continue;
+
+      const property = failedItem.propertyId ? propertyMap[failedItem.propertyId] : undefined;
+      const intent = getIntent(failedItem.intentId);
+
+      setGenerationProgress(Math.round(((processedCount + 0.5) / failedItems.length) * 100));
+
+      try {
+        // Skip if property required but missing
+        if (intent.requiresProperty && !property) {
+          updatedItems[itemIndex] = {
+            ...failedItem,
+            status: 'failed',
+            error: 'Property required for this intent',
+          };
+          processedCount++;
+          continue;
+        }
+
+        const contextString = buildContextString(failedItem, property);
+        const captionResult = await generateCaption({
+          property: property || null,
+          context: contextString,
+          tone: failedItem.toneId as any,
+          platform: 'all',
+          postIntent: failedItem.intentId as any,
+        });
+
+        let imageUrl: string | null = null;
+        if (failedItem.templateId !== 'none' && failedItem.templateId !== 'custom') {
+          const template = getTemplateById(failedItem.templateId);
+          if (template && property) {
+            const preparedProperty = preparePropertyForTemplate(property);
+            const resolvedFields = resolveAllFields(template, preparedProperty, failedItem.context);
+            const payload = buildImejisPayload(template, resolvedFields);
+            const imageResult = await renderImejisTemplate(payload);
+            if (imageResult.success && imageResult.imageUrl) {
+              imageUrl = imageResult.imageUrl;
+            }
+          }
+        }
+
+        updatedItems[itemIndex] = {
+          ...failedItem,
+          caption: captionResult.caption,
+          imageUrl,
+          status: 'ready',
+          error: undefined,
+        };
+      } catch (error) {
+        console.error('Retry failed:', error);
+        updatedItems[itemIndex] = {
+          ...failedItem,
+          status: 'failed',
+          error: 'Retry failed',
+        };
+      }
+
+      processedCount++;
+      setGenerationProgress(Math.round((processedCount / failedItems.length) * 100));
+    }
+
+    setState((prev) => ({ ...prev, items: updatedItems }));
+    setStep('preview');
+  }, [state.items, propertyMap, generateCaption, getDisplayStatus, buildContextString]);
 
   // Get the active item for editing
   const activeItem = useMemo(() => {
@@ -768,7 +928,7 @@ export function QuickBatchForm() {
               </CardContent>
             </Card>
 
-            {/* Summary */}
+            {/* Summary with Strict Policy */}
             <Card className="bg-muted/30">
               <CardContent className="p-4">
                 <h3 className="font-medium mb-2">Batch Summary</h3>
@@ -778,11 +938,17 @@ export function QuickBatchForm() {
                     {state.items.length} total posts
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className={readyCount > 0 ? 'text-green-500' : 'text-amber-500'}>
-                      {readyCount > 0 ? '✓' : '○'}
+                    <span className={allItemsReady ? 'text-green-500' : 'text-amber-500'}>
+                      {allItemsReady ? '✓' : '○'}
                     </span>
                     {readyCount} posts ready
                   </li>
+                  {failedCount > 0 && (
+                    <li className="flex items-center gap-2">
+                      <span className="text-red-500">✗</span>
+                      {failedCount} posts failed
+                    </li>
+                  )}
                   <li className="flex items-center gap-2">
                     <span
                       className={
@@ -794,10 +960,36 @@ export function QuickBatchForm() {
                     {state.selectedAccounts.length} account(s) selected
                   </li>
                 </ul>
+
+                {/* STRICT POLICY: Show blockers */}
+                {!allItemsReady && (
+                  <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <p className="text-xs text-amber-700 dark:text-amber-300 font-medium mb-1">
+                      Scheduling Blocked
+                    </p>
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      {failedCount > 0 && `${failedCount} failed post${failedCount > 1 ? 's' : ''} must be fixed. `}
+                      {!allItemsReady && failedCount === 0 && 'All posts must be ready before scheduling.'}
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            {/* Publish Button */}
+            {/* Retry Failed Button */}
+            {failedCount > 0 && !isPublishing && (
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full gap-2 border-amber-500 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+                onClick={handleRetryFailed}
+              >
+                <Loader2 className="h-4 w-4" />
+                Retry {failedCount} Failed Post{failedCount > 1 ? 's' : ''}
+              </Button>
+            )}
+
+            {/* Publish Button - STRICT POLICY: Only enabled when ALL items ready */}
             {isPublishing ? (
               <div className="space-y-2">
                 <Progress value={publishProgress} />
@@ -809,11 +1001,11 @@ export function QuickBatchForm() {
               <Button
                 size="lg"
                 className="w-full gap-2 bg-purple-600 hover:bg-purple-700"
-                disabled={state.selectedAccounts.length === 0 || readyCount === 0}
+                disabled={!allItemsReady || state.selectedAccounts.length === 0}
                 onClick={handlePublish}
               >
                 <Rocket className="h-4 w-4" />
-                Publish {readyCount} Posts
+                {allItemsReady ? `Publish ${readyCount} Posts` : 'Fix All Posts to Publish'}
               </Button>
             )}
           </div>
@@ -974,11 +1166,12 @@ export function QuickBatchForm() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            {/* Pills */}
+            {/* Pills with status indicators */}
             <div className="flex-1 overflow-x-auto">
               <div className="flex gap-2 pb-1">
                 {state.items.map((item, index) => {
                   const isActive = item.id === activeItemId;
+                  const displayStatus = getDisplayStatus(item);
                   const tabIcon =
                     item.tab === 'property' ? (
                       <Building2 className="h-3 w-3" />
@@ -988,6 +1181,15 @@ export function QuickBatchForm() {
                       <Briefcase className="h-3 w-3" />
                     );
 
+                  // Status-based styling
+                  const statusStyles = {
+                    draft: 'border-amber-300 dark:border-amber-700',
+                    pending: 'border-muted',
+                    ready: 'border-green-300 dark:border-green-700',
+                    failed: 'border-red-300 dark:border-red-700',
+                    generating: 'border-blue-300 dark:border-blue-700',
+                  };
+
                   return (
                     <button
                       key={item.id}
@@ -996,16 +1198,26 @@ export function QuickBatchForm() {
                         'flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm whitespace-nowrap transition-all',
                         isActive
                           ? 'border-purple-600 bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 ring-2 ring-purple-200 dark:ring-purple-800'
-                          : 'border-muted hover:bg-muted/50 text-muted-foreground hover:text-foreground'
+                          : cn('hover:bg-muted/50 text-muted-foreground hover:text-foreground', statusStyles[displayStatus])
                       )}
                     >
                       {tabIcon}
                       <span className="font-medium">{getItemLabel(item)}</span>
-                      {item.status === 'ready' && (
+                      {/* Status indicator */}
+                      {displayStatus === 'draft' && (
+                        <span className="w-2 h-2 rounded-full bg-amber-400" title="Draft - incomplete fields" />
+                      )}
+                      {displayStatus === 'pending' && (
+                        <span className="w-2 h-2 rounded-full bg-gray-400" title="Pending generation" />
+                      )}
+                      {displayStatus === 'ready' && (
                         <CheckCircle2 className="h-3 w-3 text-green-500" />
                       )}
-                      {item.status === 'failed' && (
+                      {displayStatus === 'failed' && (
                         <AlertCircle className="h-3 w-3 text-red-500" />
+                      )}
+                      {displayStatus === 'generating' && (
+                        <Loader2 className="h-3 w-3 text-blue-500 animate-spin" />
                       )}
                       <button
                         onClick={(e) => {
@@ -1078,25 +1290,30 @@ export function QuickBatchForm() {
         )}
       </div>
 
-      {/* Shared Context (collapsible) */}
-      {state.items.length > 0 && (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="h-4 w-4 text-purple-500" />
-              <label className="font-medium text-sm">
-                Shared Context <span className="text-muted-foreground text-xs">(applies to all posts)</span>
-              </label>
-            </div>
-            <Textarea
-              placeholder="Add context that applies to all posts... (e.g., 'All properties are move-in ready')"
-              value={state.sharedContext}
-              onChange={(e) => setState((prev) => ({ ...prev, sharedContext: e.target.value }))}
-              rows={2}
-              className="resize-none"
-            />
-          </CardContent>
-        </Card>
+      {/* Phase 3: Shared context removed - each item has independent context */}
+
+      {/* Status Summary */}
+      {state.items.length > 0 && (draftCount > 0 || failedCount > 0) && (
+        <div className="flex items-center gap-4 text-sm">
+          {draftCount > 0 && (
+            <span className="flex items-center gap-1 text-amber-600">
+              <span className="w-2 h-2 rounded-full bg-amber-400" />
+              {draftCount} draft
+            </span>
+          )}
+          {failedCount > 0 && (
+            <span className="flex items-center gap-1 text-red-600">
+              <AlertCircle className="h-3 w-3" />
+              {failedCount} failed
+            </span>
+          )}
+          {readyCount > 0 && (
+            <span className="flex items-center gap-1 text-green-600">
+              <CheckCircle2 className="h-3 w-3" />
+              {readyCount} ready
+            </span>
+          )}
+        </div>
       )}
 
       {/* Generate Button */}

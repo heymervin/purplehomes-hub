@@ -4,6 +4,7 @@
  * Routes:
  * - action=insights (POST) - Generate match insights
  * - action=caption (POST) - Generate social media captions
+ * - action=health (GET) - Internal monitoring endpoint
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
@@ -31,11 +32,51 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return handleInsights(req, res);
     case 'caption':
       return handleCaption(req, res);
+    case 'health':
+      return handleHealth(req, res);
     default:
       return res.status(400).json({
         error: 'Unknown action',
-        validActions: ['insights', 'caption'],
+        validActions: ['insights', 'caption', 'health'],
       });
+  }
+}
+
+// ============================================================================
+// HEALTH ENDPOINT (Phase 4 - Internal Monitoring)
+// ============================================================================
+
+async function handleHealth(_req: VercelRequest, res: VercelResponse) {
+  try {
+    const health = calculateHealthSignal();
+    const metrics = getAIMetricsSnapshot();
+
+    return res.status(200).json({
+      status: health.status,
+      integrity: {
+        passed: integrityResult.passed,
+        expectedIntents: integrityResult.expectedIntents,
+        foundIntents: integrityResult.foundIntents,
+        missingIntents: integrityResult.missingIntents,
+      },
+      metrics: {
+        totalGenerations: metrics.totalGenerations,
+        successfulGenerations: metrics.successfulGenerations,
+        failedGenerations: metrics.failedGenerations,
+        regenerations: metrics.regenerations,
+        failHards: metrics.failHards,
+        failHardRate: `${(health.failHardRate * 100).toFixed(1)}%`,
+        regenerationRate: `${(health.regenerationRate * 100).toFixed(1)}%`,
+      },
+      byDomain: metrics.byDomain,
+      topViolations: health.topViolations,
+      warnings: health.warnings,
+      sessionStarted: metrics.sessionStarted,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('[AI API] Health check error:', error);
+    return res.status(500).json({ error: 'Health check failed' });
   }
 }
 
@@ -769,11 +810,215 @@ REGENERATE THE CAPTION FOLLOWING ALL DOMAIN CONSTRAINTS.`;
 }
 
 // ============================================================================
+// OBSERVABILITY - Phase 4 Instrumentation
+// ============================================================================
+
+// Import observability utilities (inline to avoid module resolution issues in Vercel)
+// These are fire-and-forget, non-blocking, and never throw
+
+type ViolationSeverity = 'warning' | 'error';
+
+interface ViolationRecord {
+  ruleId: string;
+  domain: 'property' | 'personal' | 'professional';
+  severity: ViolationSeverity;
+  matchedPhrase: string;
+  message: string;
+  generationAttempt: number;
+}
+
+interface AIMetricsState {
+  totalGenerations: number;
+  successfulGenerations: number;
+  failedGenerations: number;
+  regenerations: number;
+  failHards: number;
+  byDomain: Record<string, { total: number; passed: number; failed: number; regenerated: number; failHard: number }>;
+  violationsByRule: Record<string, number>;
+  sessionStarted: string;
+}
+
+// In-memory metrics (reset on cold start)
+const aiMetrics: AIMetricsState = {
+  totalGenerations: 0,
+  successfulGenerations: 0,
+  failedGenerations: 0,
+  regenerations: 0,
+  failHards: 0,
+  byDomain: {
+    property: { total: 0, passed: 0, failed: 0, regenerated: 0, failHard: 0 },
+    personal: { total: 0, passed: 0, failed: 0, regenerated: 0, failHard: 0 },
+    professional: { total: 0, passed: 0, failed: 0, regenerated: 0, failHard: 0 },
+  },
+  violationsByRule: {},
+  sessionStarted: new Date().toISOString(),
+};
+
+const LOG_PREFIX = '[AI-OBS]';
+const ENABLE_OBS_LOGGING = process.env.NODE_ENV !== 'production';
+
+/**
+ * Convert DomainViolation to ViolationRecord for observability
+ */
+function toViolationRecord(
+  v: DomainViolation,
+  domain: IntentDomain,
+  attempt: number
+): ViolationRecord {
+  return {
+    ruleId: v.rule,
+    domain,
+    severity: v.severity,
+    matchedPhrase: v.matched,
+    message: `${v.rule}: ${v.matched}`,
+    generationAttempt: attempt,
+  };
+}
+
+/**
+ * Log generation_started event (non-blocking)
+ */
+function obsLogGenerationStarted(params: {
+  intentId: string;
+  domain: IntentDomain;
+  toneId: string;
+  hasProperty: boolean;
+  batchItemId?: string | null;
+  isBatch?: boolean;
+}): void {
+  try {
+    aiMetrics.totalGenerations++;
+    aiMetrics.byDomain[params.domain].total++;
+    if (ENABLE_OBS_LOGGING) {
+      console.log(
+        `${LOG_PREFIX} ▶️ generation_started [${params.domain}/${params.intentId}]`,
+        `tone=${params.toneId} hasProperty=${params.hasProperty}`
+      );
+    }
+  } catch {
+    // Never throw from observability
+  }
+}
+
+/**
+ * Log generation_passed event (non-blocking)
+ */
+function obsLogGenerationPassed(params: {
+  intentId: string;
+  domain: IntentDomain;
+  captionLength: number;
+  attemptNumber: number;
+  durationMs: number;
+}): void {
+  try {
+    aiMetrics.successfulGenerations++;
+    aiMetrics.byDomain[params.domain].passed++;
+    if (ENABLE_OBS_LOGGING) {
+      console.log(
+        `${LOG_PREFIX} ✅ generation_passed [${params.domain}/${params.intentId}]`,
+        `attempt=${params.attemptNumber} length=${params.captionLength} duration=${params.durationMs}ms`
+      );
+    }
+  } catch {
+    // Never throw from observability
+  }
+}
+
+/**
+ * Log generation_failed event (non-blocking)
+ */
+function obsLogGenerationFailed(params: {
+  intentId: string;
+  domain: IntentDomain;
+  violations: ViolationRecord[];
+  attemptNumber: number;
+  willRetry: boolean;
+}): void {
+  try {
+    aiMetrics.failedGenerations++;
+    aiMetrics.byDomain[params.domain].failed++;
+    // Track violations by rule
+    for (const v of params.violations) {
+      aiMetrics.violationsByRule[v.ruleId] = (aiMetrics.violationsByRule[v.ruleId] || 0) + 1;
+    }
+    if (ENABLE_OBS_LOGGING) {
+      console.log(
+        `${LOG_PREFIX} ⚠️ generation_failed [${params.domain}/${params.intentId}]`,
+        `attempt=${params.attemptNumber} violations=${params.violations.length} willRetry=${params.willRetry}`
+      );
+    }
+  } catch {
+    // Never throw from observability
+  }
+}
+
+/**
+ * Log generation_regenerated event (non-blocking)
+ */
+function obsLogGenerationRegenerated(params: {
+  intentId: string;
+  domain: IntentDomain;
+  previousViolations: ViolationRecord[];
+  attemptNumber: number;
+}): void {
+  try {
+    aiMetrics.regenerations++;
+    aiMetrics.byDomain[params.domain].regenerated++;
+    if (ENABLE_OBS_LOGGING) {
+      console.log(
+        `${LOG_PREFIX} 🔄 generation_regenerated [${params.domain}/${params.intentId}]`,
+        `attempt=${params.attemptNumber} prevViolations=${params.previousViolations.length}`
+      );
+    }
+  } catch {
+    // Never throw from observability
+  }
+}
+
+/**
+ * Log generation_fail_hard event (non-blocking)
+ */
+function obsLogGenerationFailHard(params: {
+  intentId: string;
+  domain: IntentDomain;
+  totalAttempts: number;
+  allViolations: ViolationRecord[];
+  errorMessage: string;
+}): void {
+  try {
+    aiMetrics.failHards++;
+    aiMetrics.byDomain[params.domain].failHard++;
+    if (ENABLE_OBS_LOGGING) {
+      console.error(
+        `${LOG_PREFIX} ❌ generation_fail_hard [${params.domain}/${params.intentId}]`,
+        `attempts=${params.totalAttempts} violations=${params.allViolations.length}`,
+        params.errorMessage
+      );
+    }
+  } catch {
+    // Never throw from observability
+  }
+}
+
+/**
+ * Get current metrics snapshot (for debugging/monitoring)
+ */
+function getAIMetricsSnapshot(): AIMetricsState {
+  try {
+    return { ...aiMetrics };
+  } catch {
+    return aiMetrics;
+  }
+}
+
+// ============================================================================
 // CAPTION HANDLER
 // ============================================================================
 
 async function handleCaption(req: VercelRequest, res: VercelResponse) {
   const { property, context, postIntent, tone, platform }: CaptionRequest = req.body;
+  const batchItemId = req.body.batchItemId || null;
+  const isBatch = req.body.isBatch || false;
 
   if (!postIntent || !tone || !platform) {
     return res.status(400).json({ error: 'Missing required fields: postIntent, tone, platform' });
@@ -784,9 +1029,24 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'OpenAI API key not configured' });
   }
 
+  // Track timing for observability
+  const startTime = Date.now();
+  let attemptNumber = 1;
+  const allViolations: ViolationRecord[] = [];
+
   try {
     const domain = getIntentDomain(postIntent);
     const userPrompt = buildCaptionUserPrompt({ property, context, postIntent, tone, platform });
+
+    // Phase 4: Log generation started
+    obsLogGenerationStarted({
+      intentId: postIntent,
+      domain,
+      toneId: tone,
+      hasProperty: !!property,
+      batchItemId,
+      isBatch,
+    });
 
     // First generation attempt
     let systemPrompt = buildCaptionSystemPrompt(domain);
@@ -801,7 +1061,31 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
 
     // If violations detected, attempt ONE regeneration with stricter prompt
     if (!validation.valid) {
+      // Convert violations to ViolationRecords
+      const violationRecords = validation.violations.map((v) =>
+        toViolationRecord(v, domain, attemptNumber)
+      );
+      allViolations.push(...violationRecords);
+
+      // Phase 4: Log failed generation
+      obsLogGenerationFailed({
+        intentId: postIntent,
+        domain,
+        violations: violationRecords,
+        attemptNumber,
+        willRetry: true,
+      });
+
       console.warn(`[AI API] First generation failed validation for ${postIntent}. Regenerating...`);
+
+      // Phase 4: Log regeneration
+      attemptNumber = 2;
+      obsLogGenerationRegenerated({
+        intentId: postIntent,
+        domain,
+        previousViolations: violationRecords,
+        attemptNumber,
+      });
 
       const stricterPrompt = buildStricterSystemPrompt(domain, validation.violations);
       caption = await generateCaption(stricterPrompt, userPrompt);
@@ -815,6 +1099,21 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
 
       // If still failing, fail hard
       if (!validation.valid) {
+        const retryViolations = validation.violations.map((v) =>
+          toViolationRecord(v, domain, attemptNumber)
+        );
+        allViolations.push(...retryViolations);
+
+        // Phase 4: Log fail-hard
+        const errorMessage = `Caption generation failed domain validation after ${attemptNumber} attempts`;
+        obsLogGenerationFailHard({
+          intentId: postIntent,
+          domain,
+          totalAttempts: attemptNumber,
+          allViolations,
+          errorMessage,
+        });
+
         console.error(`[AI API] CRITICAL: Caption still violates domain rules after retry`, {
           intent: postIntent,
           domain,
@@ -826,6 +1125,16 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
         });
       }
     }
+
+    // Phase 4: Log success
+    const durationMs = Date.now() - startTime;
+    obsLogGenerationPassed({
+      intentId: postIntent,
+      domain,
+      captionLength: caption.length,
+      attemptNumber,
+      durationMs,
+    });
 
     const result: CaptionResponse = { caption, platform };
     return res.status(200).json(result);
@@ -966,6 +1275,9 @@ INSTRUCTIONS:
 1. Use the template structure exactly
 2. Replace {placeholders} with the provided data
 3. Write {body_copy} as 2-4 short, punchy sentences in ${tone} tone
+   - CRITICAL: For Personal and Professional posts, the body copy MUST be based on the CONTEXT FIELDS above
+   - The user's context is the SOURCE MATERIAL - incorporate their specific details, story, or tip into the caption
+   - Do NOT ignore the context or write generic copy
 4. Use the provided hook and CTA
 5. Keep emojis as shown
 6. Output ONLY the caption - no explanations
@@ -1099,7 +1411,17 @@ function getIntentContextSections(intent: string, ctx: Record<string, string>): 
       break;
   }
 
-  return sections.length > 0 ? `CONTEXT FIELDS:\n${sections.join('\n\n')}` : '';
+  if (sections.length === 0) return '';
+
+  // Get domain for context label
+  const domain = getIntentDomain(intent);
+
+  // Use stronger labeling for Personal/Professional to ensure LLM uses the context
+  if (domain === 'personal' || domain === 'professional') {
+    return `USER-PROVIDED CONTEXT (MUST USE IN BODY COPY):\n${sections.join('\n\n')}`;
+  }
+
+  return `CONTEXT FIELDS:\n${sections.join('\n\n')}`;
 }
 
 // ============================================================================
@@ -1374,4 +1696,193 @@ function getCaptionToneInstructions(tone: string): string {
     investor: `Investor tone: Analytical, numbers-focused, ROI-driven. Use words like: cap rate, cash flow, ARV, upside potential, solid returns.`,
   };
   return instructions[tone] || instructions.professional;
+}
+
+// ============================================================================
+// PHASE 4: STARTUP INTEGRITY CHECK
+// ============================================================================
+
+/**
+ * The authoritative list of 16 intents from Canonical Prompt Templates v1.2
+ *
+ * Property (6): just-listed, sold, open-house, price-drop, coming-soon, investment
+ * Personal (4): life-update, milestone, lesson-insight, behind-the-scenes
+ * Professional (6): market-update, buyer-tips, seller-tips, investment-insight,
+ *                   client-success-story, community-spotlight
+ */
+const EXPECTED_INTENTS = [
+  // Property domain
+  'just-listed',
+  'sold',
+  'open-house',
+  'price-drop',
+  'coming-soon',
+  'investment',
+  // Personal domain
+  'life-update',
+  'milestone',
+  'lesson-insight',
+  'behind-the-scenes',
+  // Professional domain
+  'market-update',
+  'buyer-tips',
+  'seller-tips',
+  'investment-insight',
+  'client-success-story',
+  'community-spotlight',
+] as const;
+
+const EXPECTED_INTENT_COUNT = 16;
+
+interface IntegrityCheckResult {
+  passed: boolean;
+  expectedIntents: number;
+  foundIntents: number;
+  missingIntents: string[];
+  extraIntents: string[];
+  timestamp: string;
+}
+
+/**
+ * Check that all expected intents are registered in INTENT_DOMAINS
+ */
+function runIntegrityCheck(): IntegrityCheckResult {
+  try {
+    const registeredIntents = Object.keys(INTENT_DOMAINS).filter(
+      // Exclude legacy intents from count
+      (intent) => !['under-contract', 'price-reduced', 'personal-value', 'success-story', 'general'].includes(intent)
+    );
+    const registered = new Set(registeredIntents);
+    const expected = new Set(EXPECTED_INTENTS);
+
+    const missingIntents: string[] = [];
+    const extraIntents: string[] = [];
+
+    // Check for missing intents
+    for (const intent of EXPECTED_INTENTS) {
+      if (!INTENT_DOMAINS[intent]) {
+        missingIntents.push(intent);
+      }
+    }
+
+    // Check for extra intents
+    for (const intent of registeredIntents) {
+      if (!expected.has(intent)) {
+        extraIntents.push(intent);
+      }
+    }
+
+    const passed = missingIntents.length === 0;
+    const result: IntegrityCheckResult = {
+      passed,
+      expectedIntents: EXPECTED_INTENT_COUNT,
+      foundIntents: registeredIntents.length,
+      missingIntents,
+      extraIntents,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Log result
+    if (passed) {
+      console.log(`[AI-INTEGRITY] ✅ All ${EXPECTED_INTENT_COUNT} intents registered correctly`);
+    } else {
+      console.error(`[AI-INTEGRITY] ❌ INTEGRITY CHECK FAILED`);
+      console.error(`[AI-INTEGRITY] Expected: ${EXPECTED_INTENT_COUNT}, Found: ${result.foundIntents}`);
+      if (missingIntents.length > 0) {
+        console.error(`[AI-INTEGRITY] Missing intents: ${missingIntents.join(', ')}`);
+      }
+    }
+
+    return result;
+  } catch (error) {
+    console.error('[AI-INTEGRITY] Error running integrity check:', error);
+    return {
+      passed: false,
+      expectedIntents: EXPECTED_INTENT_COUNT,
+      foundIntents: 0,
+      missingIntents: [...EXPECTED_INTENTS],
+      extraIntents: [],
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
+
+// Run integrity check at module load (cold start)
+const integrityResult = runIntegrityCheck();
+
+// ============================================================================
+// PHASE 4: HEALTH SIGNALS
+// ============================================================================
+
+const FAIL_HARD_THRESHOLD = 0.1; // 10% fail-hard rate = degraded
+const FAIL_HARD_CRITICAL = 0.2; // 20% fail-hard rate = critical
+const REGENERATION_WARNING = 0.3; // 30% regeneration rate = warning
+
+type HealthStatus = 'healthy' | 'degraded' | 'critical';
+
+interface HealthSignal {
+  status: HealthStatus;
+  failHardRate: number;
+  regenerationRate: number;
+  topViolations: Array<{ ruleId: string; count: number }>;
+  warnings: string[];
+}
+
+function calculateHealthSignal(): HealthSignal {
+  try {
+    const total = aiMetrics.totalGenerations;
+    const warnings: string[] = [];
+
+    // Calculate rates
+    const failHardRate = total > 0 ? aiMetrics.failHards / total : 0;
+    const regenerationRate = total > 0 ? aiMetrics.regenerations / total : 0;
+
+    // Determine status
+    let status: HealthStatus = 'healthy';
+
+    if (failHardRate >= FAIL_HARD_CRITICAL) {
+      status = 'critical';
+      warnings.push(`CRITICAL: Fail-hard rate at ${(failHardRate * 100).toFixed(1)}%`);
+    } else if (failHardRate >= FAIL_HARD_THRESHOLD) {
+      status = 'degraded';
+      warnings.push(`WARNING: Fail-hard rate at ${(failHardRate * 100).toFixed(1)}%`);
+    }
+
+    if (regenerationRate >= REGENERATION_WARNING) {
+      warnings.push(`WARNING: High regeneration rate at ${(regenerationRate * 100).toFixed(1)}%`);
+    }
+
+    // Get top violations
+    const topViolations = Object.entries(aiMetrics.violationsByRule)
+      .map(([ruleId, count]) => ({ ruleId, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Check for domain-specific issues
+    for (const [domain, domainMetrics] of Object.entries(aiMetrics.byDomain)) {
+      const domainTotal = domainMetrics.total;
+      if (domainTotal >= 10) {
+        const domainFailHardRate = domainMetrics.failHard / domainTotal;
+        if (domainFailHardRate >= FAIL_HARD_THRESHOLD) {
+          warnings.push(`WARNING: ${domain} domain fail-hard rate at ${(domainFailHardRate * 100).toFixed(1)}%`);
+        }
+      }
+    }
+
+    return {
+      status,
+      failHardRate,
+      regenerationRate,
+      topViolations,
+      warnings,
+    };
+  } catch {
+    return {
+      status: 'healthy',
+      failHardRate: 0,
+      regenerationRate: 0,
+      topViolations: [],
+      warnings: [],
+    };
+  }
 }

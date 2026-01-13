@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-import { PostIntentSubstep, ToneSubstep, EditCaptionSubstep } from './caption-substeps';
+import { PostIntentSubstep, ToneSubstep, HashtagPickerSubstep, EditCaptionSubstep } from './caption-substeps';
 import { PresetSelector } from '../../presets';
 import type { WizardState, CaptionSubstep } from '../types';
 import { CAPTION_SUBSTEPS, CAPTION_SUBSTEP_CONFIG } from '../types';
@@ -66,6 +66,15 @@ export default function CaptionStep({ state, updateState }: CaptionStepProps) {
       case 'tone':
         return (
           <ToneSubstep
+            state={state}
+            updateState={updateState}
+            onNext={goNextSubstep}
+            onBack={goPrevSubstep}
+          />
+        );
+      case 'hashtags':
+        return (
+          <HashtagPickerSubstep
             state={state}
             updateState={updateState}
             onNext={goNextSubstep}

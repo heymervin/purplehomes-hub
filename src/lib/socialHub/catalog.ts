@@ -497,3 +497,243 @@ export const INTENT_CTAS: Record<string, string> = {
   'client-success-story': "Ready to write your own success story? Let's talk.",
   'community-spotlight': 'Know another local gem? Tag them below!',
 };
+
+// ============ HASHTAG CONFIGURATION ============
+
+/**
+ * Platform-specific hashtag rules
+ */
+export const PLATFORM_HASHTAG_RULES: Record<string, {
+  enabled: boolean;
+  maxHashtags: number;
+  description: string;
+}> = {
+  instagram: {
+    enabled: true,
+    maxHashtags: 15, // Optimal is 5-15, max 30
+    description: 'Hashtags improve discoverability',
+  },
+  facebook: {
+    enabled: true,
+    maxHashtags: 5, // Minimal, most users don't use them
+    description: 'Use sparingly (2-5)',
+  },
+  linkedin: {
+    enabled: false,
+    maxHashtags: 3, // Generally not recommended
+    description: 'Not recommended',
+  },
+};
+
+/**
+ * Intent-specific hashtag suggestions
+ * These are added to the base hashtags based on intent
+ */
+export const INTENT_HASHTAGS: Record<string, string[]> = {
+  // Property intents - location and property focused
+  'just-listed': [
+    '#JustListed',
+    '#NewListing',
+    '#HomeForSale',
+    '#HouseHunting',
+    '#RealEstateAgent',
+  ],
+  'sold': [
+    '#JustSold',
+    '#SoldHome',
+    '#ClosingDay',
+    '#HappyHomeowners',
+    '#RealEstateSuccess',
+  ],
+  'open-house': [
+    '#OpenHouse',
+    '#HouseTour',
+    '#HomeShowing',
+    '#WeekendOpenHouse',
+    '#ComeVisit',
+  ],
+  'price-drop': [
+    '#PriceReduced',
+    '#PriceDrop',
+    '#ReducedPrice',
+    '#GreatDeal',
+    '#MustSee',
+  ],
+  'coming-soon': [
+    '#ComingSoon',
+    '#SneakPeek',
+    '#NewListingAlert',
+    '#StayTuned',
+    '#OffMarket',
+  ],
+  'investment': [
+    '#InvestmentProperty',
+    '#RealEstateInvestor',
+    '#CashFlow',
+    '#ROI',
+    '#PassiveIncome',
+  ],
+
+  // Personal intents - personal brand focused
+  'life-update': [
+    '#RealtorLife',
+    '#MyJourney',
+    '#RealTalk',
+    '#LifeUpdate',
+  ],
+  'milestone': [
+    '#Milestone',
+    '#Achievement',
+    '#Grateful',
+    '#Blessed',
+    '#RealEstateJourney',
+  ],
+  'lesson-insight': [
+    '#LessonsLearned',
+    '#RealEstateTips',
+    '#WisdomWednesday',
+    '#GrowthMindset',
+  ],
+  'behind-the-scenes': [
+    '#BehindTheScenes',
+    '#BTS',
+    '#AgentLife',
+    '#DayInTheLife',
+    '#RealtorBTS',
+  ],
+
+  // Professional intents - industry and education focused
+  'market-update': [
+    '#MarketUpdate',
+    '#RealEstateMarket',
+    '#MarketTrends',
+    '#HousingMarket',
+    '#MarketReport',
+  ],
+  'buyer-tips': [
+    '#BuyerTips',
+    '#FirstTimeHomeBuyer',
+    '#HomeBuyingTips',
+    '#BuyerAdvice',
+    '#HomeOwnership',
+  ],
+  'seller-tips': [
+    '#SellerTips',
+    '#SellingYourHome',
+    '#HomeSellingTips',
+    '#SellYourHome',
+    '#HomeStagingTips',
+  ],
+  'investment-insight': [
+    '#InvestmentTips',
+    '#RealEstateInvesting',
+    '#PropertyInvestment',
+    '#WealthBuilding',
+    '#FinancialFreedom',
+  ],
+  'client-success-story': [
+    '#SuccessStory',
+    '#HappyClients',
+    '#ClientLove',
+    '#Testimonial',
+    '#DreamHomeFound',
+  ],
+  'community-spotlight': [
+    '#LocalBusiness',
+    '#SupportLocal',
+    '#CommunityLove',
+    '#NeighborhoodSpotlight',
+    '#LocalGems',
+  ],
+};
+
+/**
+ * Base hashtags that apply to all posts (brand + general)
+ */
+export const BASE_HASHTAGS = [
+  '#PurpleHomes',
+  '#RealEstate',
+];
+
+/**
+ * Preferred community hashtags - always suggested prominently
+ * These support Purple Homes' mission of helping families achieve homeownership
+ */
+export const PREFERRED_HASHTAGS = [
+  '#DuenoADueno',
+  '#CompraTuCasa',
+  '#HogaresParaFamilias',
+  '#PathToHomeownership',
+  '#HelpingFamiliesBuyHomes',
+  '#HomeownershipJourney',
+];
+
+/**
+ * Location-based hashtag generators
+ */
+export function generateLocationHashtags(city?: string, state?: string): string[] {
+  const hashtags: string[] = [];
+
+  if (city) {
+    // Clean city name for hashtag
+    const cleanCity = city.replace(/[^a-zA-Z0-9]/g, '');
+    hashtags.push(`#${cleanCity}`);
+    hashtags.push(`#${cleanCity}RealEstate`);
+    hashtags.push(`#${cleanCity}Homes`);
+  }
+
+  if (state) {
+    const cleanState = state.replace(/[^a-zA-Z0-9]/g, '');
+    hashtags.push(`#${cleanState}RealEstate`);
+  }
+
+  return hashtags;
+}
+
+/**
+ * Generate complete hashtag list for an intent
+ */
+export function generateHashtagsForIntent(
+  intentId: string,
+  options?: {
+    city?: string;
+    state?: string;
+    platform?: 'instagram' | 'facebook' | 'linkedin';
+    includeBase?: boolean;
+    includePreferred?: boolean;
+  }
+): string[] {
+  const { city, state, platform = 'instagram', includeBase = true, includePreferred = true } = options || {};
+
+  // Check if platform allows hashtags
+  const platformRules = PLATFORM_HASHTAG_RULES[platform];
+  if (!platformRules?.enabled) {
+    return [];
+  }
+
+  const hashtags: string[] = [];
+
+  // Add base hashtags (brand)
+  if (includeBase) {
+    hashtags.push(...BASE_HASHTAGS);
+  }
+
+  // Add preferred community hashtags
+  if (includePreferred) {
+    hashtags.push(...PREFERRED_HASHTAGS);
+  }
+
+  // Add intent-specific hashtags
+  const intentHashtags = INTENT_HASHTAGS[intentId] || [];
+  hashtags.push(...intentHashtags);
+
+  // Add location hashtags for property intents
+  const propertyIntents = ['just-listed', 'sold', 'open-house', 'price-drop', 'coming-soon', 'investment'];
+  if (propertyIntents.includes(intentId)) {
+    hashtags.push(...generateLocationHashtags(city, state));
+  }
+
+  // Remove duplicates and limit to platform max
+  const uniqueHashtags = [...new Set(hashtags)];
+  return uniqueHashtags.slice(0, platformRules.maxHashtags);
+}
