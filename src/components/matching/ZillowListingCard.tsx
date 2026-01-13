@@ -7,7 +7,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Save, Bed, Bath, Square, Clock, Phone, Home } from 'lucide-react';
+import { ExternalLink, Building2, Bed, Bath, Square, Clock, Phone, Home, Check } from 'lucide-react';
 import { MatchTypeBadge } from './MatchTypeBadge';
 import { MatchStatusPills } from './MatchStatusPills';
 import type { ZillowListing } from '@/types/zillow';
@@ -149,14 +149,15 @@ export function ZillowListingCard({
                 disabled={isSaving}
                 className="bg-purple-600 hover:bg-purple-700"
               >
-                <Save className="h-4 w-4 mr-1" />
-                {isSaving ? 'Saving...' : 'Save to Inventory'}
+                <Building2 className="h-4 w-4 mr-1" />
+                {isSaving ? 'Saving...' : 'Save to Property Pro'}
               </Button>
             )}
 
             {isSaved && (
-              <span className="text-sm text-green-600 font-medium">
-                Saved
+              <span className="inline-flex items-center gap-1 text-sm text-green-700 font-medium bg-green-100 px-2 py-1 rounded">
+                <Check className="h-3 w-3" />
+                Saved to Property Pro
               </span>
             )}
           </div>

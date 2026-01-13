@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Save, Loader2, MapPin, Bed, Bath, Square, DollarSign } from 'lucide-react';
+import { Building2, Loader2, MapPin, Bed, Bath, Square, DollarSign } from 'lucide-react';
 import { useSaveZillowProperty } from '@/services/zillowApi';
 import type { ZillowListing, ZillowSearchType } from '@/types/zillow';
 import { toast } from 'sonner';
@@ -62,7 +62,7 @@ export function SaveZillowModal({
       },
       {
         onSuccess: () => {
-          toast.success('Property saved to system!');
+          toast.success('Property saved to Property Pro!');
           onOpenChange(false);
           // Reset form
           setStage('Lead');
@@ -82,8 +82,8 @@ export function SaveZillowModal({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Save className="h-5 w-5" />
-            Save Property to System
+            <Building2 className="h-5 w-5" />
+            Save to Property Pro
           </DialogTitle>
         </DialogHeader>
 
@@ -136,10 +136,10 @@ export function SaveZillowModal({
           </div>
 
           {/* What This Does */}
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h5 className="font-medium text-sm text-blue-900 mb-2">This will:</h5>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Save property to Airtable (Source: Zillow)</li>
+          <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+            <h5 className="font-medium text-sm text-purple-900 mb-2">This will:</h5>
+            <ul className="text-sm text-purple-800 space-y-1">
+              <li>• Save property to Property Pro (Source: Zillow)</li>
               <li>• Store Zillow link for reference</li>
               <li>• Enable match stage tracking</li>
               <li>• Make property available for matching with buyers</li>
@@ -191,10 +191,10 @@ export function SaveZillowModal({
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={isPending}>
+          <Button onClick={handleSave} disabled={isPending} className="bg-purple-600 hover:bg-purple-700">
             {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            <Save className="h-4 w-4 mr-2" />
-            Save to System
+            <Building2 className="h-4 w-4 mr-2" />
+            Save to Property Pro
           </Button>
         </DialogFooter>
       </DialogContent>

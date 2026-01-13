@@ -48,7 +48,8 @@ import {
   Settings,
   type LucideIcon,
 } from 'lucide-react';
-import { useZillowSearchByType } from '@/services/zillowApi';
+import { useZillowSearchByType, useCheckZillowSavedBatch } from '@/services/zillowApi';
+import { SaveZillowModal } from './SaveZillowModal';
 import { useZillowSettings, useMatchingPreferences } from '@/services/matchingApi';
 import { calculateMaxAffordablePrice, calculateMaxAffordablePriceWithFlex, hasValidDownPayment } from '@/lib/affordability';
 import { calculateZillowMatchStatus, filterZillowListings, countByMatchType, sortByMatchQuality } from '@/lib/zillowMatchScorer';
@@ -180,6 +181,9 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
   const [selectedSearchType, setSelectedSearchType] = useState<ZillowSearchType | null>(null);
   const [selectedPropertyType, setSelectedPropertyType] = useState<string | null>(null);
 
+  // Modal state for saving properties
+  const [saveModalListing, setSaveModalListing] = useState<ZillowListing | null>(null);
+
   // Filter state for match-based filtering
   const [filters, setFilters] = useState<ZillowFilterState>({
     showPerfect: true,
@@ -199,6 +203,24 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
     buyer.recordId || null,
     selectedSearchType
   );
+
+  // Extract ZPIDs from results for batch check
+  const resultZpids = useMemo(() => {
+    return data?.results?.map(r => r.zpid) || [];
+  }, [data?.results]);
+
+  // Batch check which properties are already saved
+  const { data: savedBatchData } = useCheckZillowSavedBatch(resultZpids);
+
+  // Create a Set of saved ZPIDs for quick lookup
+  const savedZpids = useMemo(() => {
+    return new Set(Object.keys(savedBatchData?.saved || {}));
+  }, [savedBatchData?.saved]);
+
+  // Handle save click - open modal
+  const handleSaveClick = (listing: ZillowListing) => {
+    setSaveModalListing(listing);
+  };
 
   // Reset property type filter when search type changes
   useEffect(() => {
@@ -566,7 +588,9 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
                         key={listing.zpid}
                         listing={listing}
                         matchStatus={matchStatus}
+                        onSave={handleSaveClick}
                         onCall={(phone) => window.open(`tel:${phone}`, '_self')}
+                        isSaved={savedZpids.has(listing.zpid)}
                       />
                     ))}
                   </div>
@@ -591,6 +615,15 @@ export function ZillowOpportunities({ buyer }: ZillowOpportunitiesProps) {
           </div>
         </CollapsibleContent>
       </Card>
+
+      {/* Save to Property Pro Modal */}
+      <SaveZillowModal
+        open={!!saveModalListing}
+        onOpenChange={(open) => !open && setSaveModalListing(null)}
+        listing={saveModalListing}
+        buyerId={buyer.recordId || ''}
+        zillowType={selectedSearchType || 'Creative Financing'}
+      />
     </Collapsible>
   );
 }

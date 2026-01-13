@@ -5,6 +5,7 @@
  * - action=search (GET) - Search Zillow for properties matching buyer criteria
  * - action=save (POST) - Save a Zillow property to the system
  * - action=check (GET) - Check if a Zillow property already exists
+ * - action=check-batch (POST) - Check multiple ZPIDs at once for saved status
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
@@ -57,10 +58,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       return handleCheck(req, res);
 
+    case 'check-batch':
+      if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+      }
+      return handleCheckBatch(req, res);
+
     default:
       return res.status(400).json({
         error: 'Unknown action',
-        validActions: ['search', 'save', 'check'],
+        validActions: ['search', 'save', 'check', 'check-batch'],
       });
   }
 }
@@ -392,6 +399,66 @@ async function handleCheck(req: VercelRequest, res: VercelResponse) {
     console.error('[Zillow API Check Error]', error);
     return res.status(500).json({
       error: 'Check failed',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+}
+
+// ============================================================================
+// CHECK-BATCH - Check multiple ZPIDs at once for saved status
+// ============================================================================
+
+async function handleCheckBatch(req: VercelRequest, res: VercelResponse) {
+  const { zpids }: { zpids: string[] } = req.body;
+
+  if (!zpids || !Array.isArray(zpids) || zpids.length === 0) {
+    return res.status(400).json({ error: 'zpids array required' });
+  }
+
+  // Limit batch size to prevent abuse
+  if (zpids.length > 100) {
+    return res.status(400).json({ error: 'Maximum 100 ZPIDs per batch' });
+  }
+
+  try {
+    const headers = { Authorization: `Bearer ${AIRTABLE_API_KEY}` };
+
+    // Build OR formula: OR({Zillow ZPID}="123", {Zillow ZPID}="456", ...)
+    const conditions = zpids.map((zpid) => `{Zillow ZPID}="${zpid}"`).join(',');
+    const filterFormula = encodeURIComponent(`OR(${conditions})`);
+
+    const response = await fetch(
+      `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Properties?filterByFormula=${filterFormula}&fields[]=Zillow%20ZPID&fields[]=Property%20Code`,
+      { headers }
+    );
+
+    if (!response.ok) {
+      throw new Error('Airtable query failed');
+    }
+
+    const data = await response.json();
+
+    // Build a map of zpid -> { propertyId, propertyCode }
+    const saved: Record<string, { propertyId: string; propertyCode: string }> = {};
+    for (const record of data.records || []) {
+      const zpid = record.fields?.['Zillow ZPID'];
+      if (zpid) {
+        saved[zpid] = {
+          propertyId: record.id,
+          propertyCode: record.fields?.['Property Code'] || '',
+        };
+      }
+    }
+
+    return res.json({
+      saved,
+      totalChecked: zpids.length,
+      totalSaved: Object.keys(saved).length,
+    });
+  } catch (error) {
+    console.error('[Zillow API Check-Batch Error]', error);
+    return res.status(500).json({
+      error: 'Batch check failed',
       details: error instanceof Error ? error.message : 'Unknown error',
     });
   }

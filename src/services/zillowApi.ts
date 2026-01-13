@@ -109,3 +109,42 @@ export const useIsZillowPropertySaved = (zpid: string | null) => {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
+
+/**
+ * Batch check response type
+ */
+export interface CheckBatchResponse {
+  saved: Record<string, { propertyId: string; propertyCode: string }>;
+  totalChecked: number;
+  totalSaved: number;
+}
+
+/**
+ * Check multiple Zillow properties (by ZPIDs) for saved status
+ * Efficient batch check to show saved badges on search results
+ */
+export const useCheckZillowSavedBatch = (zpids: string[]) => {
+  return useQuery({
+    queryKey: ['zillow-saved-batch', zpids.sort().join(',')],
+    queryFn: async (): Promise<CheckBatchResponse> => {
+      if (zpids.length === 0) {
+        return { saved: {}, totalChecked: 0, totalSaved: 0 };
+      }
+
+      const response = await fetch('/api/zillow?action=check-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ zpids }),
+      });
+
+      if (!response.ok) {
+        console.error('[Zillow API] Batch check failed');
+        return { saved: {}, totalChecked: zpids.length, totalSaved: 0 };
+      }
+
+      return response.json();
+    },
+    enabled: zpids.length > 0,
+    staleTime: 2 * 60 * 1000, // 2 minute cache
+  });
+};
