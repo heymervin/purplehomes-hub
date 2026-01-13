@@ -266,18 +266,16 @@ async function handleSave(req: VercelRequest, res: VercelResponse) {
   const {
     listing,
     buyerId,
-    stage,
     zillowType,
   }: {
     listing: ZillowListing;
     buyerId: string;
-    stage: string;
     zillowType: ZillowSearchType;
   } = req.body;
 
-  if (!listing || !buyerId || !stage || !zillowType) {
+  if (!listing || !buyerId || !zillowType) {
     return res.status(400).json({
-      error: 'Missing required fields: listing, buyerId, stage, zillowType',
+      error: 'Missing required fields: listing, buyerId, zillowType',
     });
   }
 
@@ -323,7 +321,6 @@ async function handleSave(req: VercelRequest, res: VercelResponse) {
           Beds: listing.beds,
           Baths: listing.baths,
           Sqft: listing.sqft,
-          Stage: stage,
           'Hero Image': listing.images[0] || '',
           Source: 'Zillow',
           'Zillow Type': zillowType,
