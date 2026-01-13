@@ -262,7 +262,7 @@ function generateRuleBasedInsight(input: InsightRequest): InsightResponse {
 }
 
 // ============================================================================
-// CAPTION GENERATION (from api/social/generate-caption.ts)
+// CAPTION GENERATION - Intent-Driven Architecture
 // ============================================================================
 
 interface Property {
@@ -293,6 +293,192 @@ interface CaptionResponse {
   platform: string;
 }
 
+// ============================================================================
+// INTENT DOMAIN CLASSIFICATION
+// ============================================================================
+
+type IntentDomain = 'property' | 'personal' | 'professional';
+
+const INTENT_DOMAINS: Record<string, IntentDomain> = {
+  // Property intents
+  'just-listed': 'property',
+  'sold': 'property',
+  'under-contract': 'property',
+  'price-reduced': 'property',
+  'price-drop': 'property',
+  'open-house': 'property',
+  'coming-soon': 'property',
+  'investment': 'property',
+  // Personal intents
+  'life-update': 'personal',
+  'milestone': 'personal',
+  'lesson-insight': 'personal',
+  'behind-the-scenes': 'personal',
+  // Professional intents
+  'market-update': 'professional',
+  'buyer-tips': 'professional',
+  'seller-tips': 'professional',
+  'investment-insight': 'professional',
+  'client-success-story': 'professional',
+  'community-spotlight': 'professional',
+  // Legacy
+  'personal-value': 'professional',
+  'success-story': 'professional',
+  'general': 'professional',
+};
+
+function getIntentDomain(intent: string): IntentDomain {
+  return INTENT_DOMAINS[intent] || 'professional';
+}
+
+// ============================================================================
+// INTENT HOOKS - Dynamic hook generation based on context
+// ============================================================================
+
+function getIntentHook(intent: string, context: Record<string, string>, property: Property | null): string {
+  const city = property?.city || 'your area';
+
+  const hooks: Record<string, string> = {
+    // Property
+    'just-listed': `🏠 JUST LISTED in ${city}!`,
+    'sold': `🎉 JUST SOLD in ${city}!`,
+    'under-contract': `📝 UNDER CONTRACT in ${city}!`,
+    'price-reduced': `💰 PRICE DROP in ${city}!`,
+    'price-drop': `💰 PRICE DROP in ${city}!`,
+    'open-house': `🚪 OPEN HOUSE in ${city}!`,
+    'coming-soon': `👀 COMING SOON in ${city}!`,
+    'investment': `📈 INVESTMENT OPPORTUNITY in ${city}!`,
+    // Personal
+    'life-update': `🌟 A little update from me...`,
+    'milestone': context.milestone ? `🏆 ${context.milestone}` : `🏆 Milestone reached!`,
+    'lesson-insight': `💡 Something I learned recently...`,
+    'behind-the-scenes': `🎬 Behind the scenes...`,
+    // Professional
+    'market-update': context.headline ? `📊 ${context.headline}` : `📊 Market Update`,
+    'buyer-tips': context.tipTitle ? `🏡 ${context.tipTitle}` : `🏡 Buyer Tip`,
+    'seller-tips': context.tipTitle ? `🏷️ ${context.tipTitle}` : `🏷️ Seller Tip`,
+    'investment-insight': `💹 Investment Insight`,
+    'client-success-story': `⭐ Client Success Story`,
+    'community-spotlight': context.spotlight ? `🏘️ Spotlight: ${context.spotlight}` : `🏘️ Local Feature`,
+    // Legacy
+    'personal-value': `💡 Pro Tip`,
+    'success-story': `⭐ Success Story`,
+    'general': ``,
+  };
+
+  return hooks[intent] || '';
+}
+
+// ============================================================================
+// INTENT CTAs - Call-to-action by intent
+// ============================================================================
+
+function getIntentCTA(intent: string): string {
+  const ctas: Record<string, string> = {
+    // Property
+    'just-listed': 'DM for details or to schedule a showing.',
+    'sold': 'Thinking of selling? DM me to chat.',
+    'under-contract': 'Missed this one? More coming soon. DM to be first.',
+    'price-reduced': "Don't miss this one. DM for details.",
+    'price-drop': "Don't miss this one. DM for details.",
+    'open-house': 'See you there! DM with questions.',
+    'coming-soon': 'Want first access? DM to get on the list.',
+    'investment': 'Serious inquiries only. DM for the full breakdown.',
+    // Personal
+    'life-update': "What's new with you? Let me know in the comments!",
+    'milestone': 'Thank you for being part of this journey!',
+    'lesson-insight': 'What do you think? Let me know below.',
+    'behind-the-scenes': 'Any questions about what I do? Ask away!',
+    // Professional
+    'market-update': "Questions about the market? Let's chat.",
+    'buyer-tips': 'Thinking of buying? DM me your questions.',
+    'seller-tips': 'Thinking of selling? DM me your questions.',
+    'investment-insight': 'Want to talk numbers? DM me.',
+    'client-success-story': "Ready to write your own success story? Let's talk.",
+    'community-spotlight': 'Know another local gem? Tag them below!',
+    // Legacy
+    'personal-value': 'Questions? DM me anytime.',
+    'success-story': "Ready to write your own success story? Let's talk.",
+    'general': 'DM us anytime.',
+  };
+
+  return ctas[intent] || 'DM us anytime.';
+}
+
+// ============================================================================
+// CONTEXT PARSER - Parse structured context from string
+// ============================================================================
+
+function parseContextFields(contextString: string): Record<string, string> {
+  const fields: Record<string, string> = {};
+
+  if (!contextString) return fields;
+
+  // Parse "Label: Value" format from context string
+  const lines = contextString.split('\n');
+  for (const line of lines) {
+    const colonIndex = line.indexOf(':');
+    if (colonIndex > 0) {
+      const rawKey = line.substring(0, colonIndex).trim();
+      const value = line.substring(colonIndex + 1).trim();
+
+      // Normalize key to camelCase
+      const key = rawKey
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+(.)/g, (_, c) => c.toUpperCase())
+        .replace(/\s/g, '');
+
+      if (key && value) {
+        fields[key] = value;
+      }
+    }
+  }
+
+  // Also try to extract known field patterns
+  const knownPatterns: Record<string, RegExp> = {
+    story: /(?:story|update|what'?s? your update)[:\s]*(.+)/i,
+    milestone: /(?:milestone|achievement)[:\s]*(.+)/i,
+    whyItMatters: /(?:why it matters|reflection)[:\s]*(.+)/i,
+    lesson: /(?:lesson|what did you learn)[:\s]*(.+)/i,
+    takeaway: /(?:takeaway|key point)[:\s]*(.+)/i,
+    bts: /(?:behind the scenes|bts)[:\s]*(.+)/i,
+    tipTitle: /(?:tip title|title)[:\s]*(.+)/i,
+    tipBody: /(?:tip details|tip body|details)[:\s]*(.+)/i,
+    headline: /(?:headline|market headline)[:\s]*(.+)/i,
+    stats: /(?:stats|key stats)[:\s]*(.+)/i,
+    soWhat: /(?:so what|why it matters|impact)[:\s]*(.+)/i,
+    insight: /(?:insight|analysis)[:\s]*(.+)/i,
+    metric: /(?:metric|numbers)[:\s]*(.+)/i,
+    challenge: /(?:challenge|client challenge|situation)[:\s]*(.+)/i,
+    solution: /(?:solution|how you helped)[:\s]*(.+)/i,
+    result: /(?:result|outcome)[:\s]*(.+)/i,
+    spotlight: /(?:spotlight|featuring)[:\s]*(.+)/i,
+    details: /(?:details|why they matter)[:\s]*(.+)/i,
+    cta: /(?:cta|call to action)[:\s]*(.+)/i,
+  };
+
+  for (const [key, pattern] of Object.entries(knownPatterns)) {
+    if (!fields[key]) {
+      const match = contextString.match(pattern);
+      if (match && match[1]) {
+        fields[key] = match[1].trim();
+      }
+    }
+  }
+
+  // If no structured fields found, treat entire context as main content
+  if (Object.keys(fields).length === 0 && contextString.trim()) {
+    fields.rawContext = contextString.trim();
+  }
+
+  return fields;
+}
+
+// ============================================================================
+// CAPTION HANDLER
+// ============================================================================
+
 async function handleCaption(req: VercelRequest, res: VercelResponse) {
   const { property, context, postIntent, tone, platform }: CaptionRequest = req.body;
 
@@ -306,7 +492,8 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const systemPrompt = buildCaptionSystemPrompt();
+    const domain = getIntentDomain(postIntent);
+    const systemPrompt = buildCaptionSystemPrompt(domain);
     const userPrompt = buildCaptionUserPrompt({ property, context, postIntent, tone, platform });
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -321,8 +508,8 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
-        temperature: 0.3,
-        max_tokens: 500,
+        temperature: 0.4,
+        max_tokens: 600,
       }),
     });
 
@@ -347,34 +534,112 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-function buildCaptionSystemPrompt(): string {
-  return `You are a real estate social media copywriter. You create STRUCTURED, SCANNABLE captions with emojis and bullet points.
+// ============================================================================
+// SYSTEM PROMPT - Domain-specific
+// ============================================================================
 
-CRITICAL RULES - MUST FOLLOW EXACTLY:
-1. PRESERVE THE EXACT STRUCTURE from the template - every line, every emoji, every bullet point
-2. DO NOT write prose paragraphs - use the template's line-by-line format
-3. KEEP all emojis exactly as shown in the template (🏠 📍 💰 🏡 etc.)
-4. KEEP the bullet point format (Beds • Baths • SF)
-5. Replace ONLY the {placeholders} with property data
-6. Write body copy = 2-4 SHORT sentences matching the tone
-7. Choose ONE CTA from provided options
-8. NEVER add extra sections or change the layout
-9. NEVER write formal prose - keep it punchy and structured
-10. NEVER include hashtags
+function buildCaptionSystemPrompt(domain: IntentDomain): string {
+  const baseRules = `You are a social media copywriter for a real estate professional. You create engaging, scannable captions.
 
-OUTPUT FORMAT: Copy the template structure EXACTLY, just fill in the blanks. No explanations, no extra text.`;
+CRITICAL RULES:
+1. Follow the template structure EXACTLY
+2. Use emojis as specified in the template
+3. Write in the specified tone
+4. Keep sentences short and punchy
+5. NEVER include hashtags
+6. Output ONLY the filled template - no explanations`;
+
+  const domainRules: Record<IntentDomain, string> = {
+    property: `
+DOMAIN: PROPERTY POSTS
+- You are writing about a specific property listing
+- Include property details (address, price, beds, baths, sqft)
+- Use real estate marketing language
+- Focus on features, value, and urgency`,
+
+    personal: `
+DOMAIN: PERSONAL POSTS
+- You are writing as the real estate agent sharing personal content
+- Write in FIRST PERSON ("I", "me", "my")
+- Be authentic, vulnerable, relatable
+- NEVER mention property listings, prices, or real estate transactions
+- NEVER use property-specific language (beds, baths, sqft, just listed, etc.)
+- Focus on life moments, personal growth, and human connection`,
+
+    professional: `
+DOMAIN: PROFESSIONAL POSTS
+- You are writing educational/authority content
+- Position the agent as a trusted expert
+- Share market insights, tips, or client success stories
+- NEVER use personal/casual life language
+- NEVER mention specific property listings unless in a success story context
+- Focus on value, expertise, and credibility`,
+  };
+
+  return `${baseRules}
+${domainRules[domain]}`;
 }
+
+// ============================================================================
+// USER PROMPT BUILDER
+// ============================================================================
 
 function buildCaptionUserPrompt(params: CaptionRequest): string {
   const { property, context, postIntent, tone, platform } = params;
 
-  const structureTemplate = getCaptionStructureTemplate(postIntent, property);
+  const domain = getIntentDomain(postIntent);
+  const parsedContext = parseContextFields(context);
+  const hook = getIntentHook(postIntent, parsedContext, property);
+  const cta = getIntentCTA(postIntent);
+  const template = getCaptionStructureTemplate(postIntent, property, parsedContext);
   const toneInstructions = getCaptionToneInstructions(tone);
-  const ctaOptions = getCaptionCTAOptions(postIntent);
+  const structuredContext = buildStructuredContext(postIntent, parsedContext, property);
 
-  const propertyContext = property
-    ? `
-PROPERTY DATA:
+  return `GENERATE A CAPTION USING THIS TEMPLATE:
+
+═══════════════════════════════════════════════════════════════
+TEMPLATE STRUCTURE:
+═══════════════════════════════════════════════════════════════
+${template}
+═══════════════════════════════════════════════════════════════
+
+HOOK TO USE: ${hook}
+
+CTA TO USE: ${cta}
+
+${structuredContext}
+
+TONE: ${tone.toUpperCase()}
+${toneInstructions}
+
+═══════════════════════════════════════════════════════════════
+INSTRUCTIONS:
+═══════════════════════════════════════════════════════════════
+1. Use the template structure exactly
+2. Replace {placeholders} with the provided data
+3. Write {body_copy} as 2-4 short, punchy sentences in ${tone} tone
+4. Use the provided hook and CTA
+5. Keep emojis as shown
+6. Output ONLY the caption - no explanations
+
+GENERATE THE CAPTION NOW:`;
+}
+
+// ============================================================================
+// STRUCTURED CONTEXT BUILDER - Intent-specific labeled sections
+// ============================================================================
+
+function buildStructuredContext(
+  intent: string,
+  parsedContext: Record<string, string>,
+  property: Property | null
+): string {
+  const domain = getIntentDomain(intent);
+  const sections: string[] = [];
+
+  // Property domain: include property data
+  if (domain === 'property' && property) {
+    sections.push(`PROPERTY DATA:
 - Address: ${property.address || 'TBD'}
 - City: ${property.city || 'TBD'}
 - Price: $${property.price?.toLocaleString() || 'TBD'}
@@ -384,51 +649,125 @@ PROPERTY DATA:
 - Type: ${property.propertyType || 'Single Family'}
 ${property.description ? `- Description: ${property.description}` : ''}
 ${property.arv ? `- ARV: $${property.arv.toLocaleString()}` : ''}
-${property.repairCost ? `- Repair Estimate: $${property.repairCost.toLocaleString()}` : ''}`
-    : '';
+${property.repairCost ? `- Repair Estimate: $${property.repairCost.toLocaleString()}` : ''}`);
+  }
 
-  const additionalContext = context
-    ? `
-ADDITIONAL CONTEXT (inform body copy, don't copy):
-${context}`
-    : '';
+  // Intent-specific context fields
+  const intentContextSections = getIntentContextSections(intent, parsedContext);
+  if (intentContextSections) {
+    sections.push(intentContextSections);
+  }
 
-  return `COPY THIS EXACT STRUCTURE (preserve all emojis, line breaks, bullet points):
-
-═══════════════════════════════════════════════════════════════
-TEMPLATE TO COPY:
-═══════════════════════════════════════════════════════════════
-${structureTemplate}
-═══════════════════════════════════════════════════════════════
-
-${propertyContext}
-${additionalContext}
-
-TONE FOR BODY COPY: ${tone.toUpperCase()}
-${toneInstructions}
-
-CTA OPTIONS (pick one):
-${ctaOptions.map((cta) => `- "${cta}"`).join('\n')}
-
-═══════════════════════════════════════════════════════════════
-CRITICAL INSTRUCTIONS:
-═══════════════════════════════════════════════════════════════
-1. COPY the template line-by-line with ALL emojis and formatting
-2. Replace {address} with actual address, {price} with actual price, etc.
-3. Replace {body_copy} with 2-4 SHORT sentences in ${tone} tone
-4. Replace {cta} with ONE option from the CTA list above
-5. DO NOT write paragraphs - keep the structured bullet format
-6. DO NOT add "New to market:" or prose intros - start with the emoji header
-7. Output ONLY the filled template - no explanations
-
-NOW OUTPUT THE FILLED TEMPLATE:`;
+  return sections.join('\n\n');
 }
 
-function getCaptionStructureTemplate(intent: string, property: Property | null): string {
+function getIntentContextSections(intent: string, ctx: Record<string, string>): string {
+  const sections: string[] = [];
+
+  switch (intent) {
+    // ===== PERSONAL INTENTS =====
+    case 'life-update':
+      if (ctx.story || ctx.rawContext) {
+        sections.push(`YOUR UPDATE (use this as the main content):\n${ctx.story || ctx.rawContext}`);
+      }
+      break;
+
+    case 'milestone':
+      if (ctx.milestone) sections.push(`MILESTONE: ${ctx.milestone}`);
+      if (ctx.whyItMatters) sections.push(`WHY IT MATTERS: ${ctx.whyItMatters}`);
+      if (!ctx.milestone && ctx.rawContext) sections.push(`MILESTONE: ${ctx.rawContext}`);
+      break;
+
+    case 'lesson-insight':
+      if (ctx.lesson || ctx.rawContext) sections.push(`LESSON LEARNED:\n${ctx.lesson || ctx.rawContext}`);
+      if (ctx.takeaway) sections.push(`KEY TAKEAWAY: ${ctx.takeaway}`);
+      break;
+
+    case 'behind-the-scenes':
+      if (ctx.bts || ctx.rawContext) {
+        sections.push(`BEHIND THE SCENES:\n${ctx.bts || ctx.rawContext}`);
+      }
+      break;
+
+    // ===== PROFESSIONAL INTENTS =====
+    case 'market-update':
+      if (ctx.headline) sections.push(`HEADLINE: ${ctx.headline}`);
+      if (ctx.stats) sections.push(`KEY STATS:\n${ctx.stats}`);
+      if (ctx.soWhat) sections.push(`WHY IT MATTERS:\n${ctx.soWhat}`);
+      if (!ctx.headline && ctx.rawContext) sections.push(`MARKET UPDATE:\n${ctx.rawContext}`);
+      break;
+
+    case 'buyer-tips':
+    case 'seller-tips':
+      if (ctx.tipTitle) sections.push(`TIP TITLE: ${ctx.tipTitle}`);
+      if (ctx.tipBody) sections.push(`TIP DETAILS:\n${ctx.tipBody}`);
+      if (!ctx.tipTitle && ctx.rawContext) sections.push(`TIP:\n${ctx.rawContext}`);
+      break;
+
+    case 'investment-insight':
+      if (ctx.insight || ctx.rawContext) sections.push(`INSIGHT:\n${ctx.insight || ctx.rawContext}`);
+      if (ctx.metric) sections.push(`KEY METRIC: ${ctx.metric}`);
+      break;
+
+    case 'client-success-story':
+      if (ctx.challenge) sections.push(`CLIENT CHALLENGE:\n${ctx.challenge}`);
+      if (ctx.solution) sections.push(`HOW YOU HELPED:\n${ctx.solution}`);
+      if (ctx.result) sections.push(`OUTCOME: ${ctx.result}`);
+      if (!ctx.challenge && ctx.rawContext) sections.push(`STORY:\n${ctx.rawContext}`);
+      break;
+
+    case 'community-spotlight':
+      if (ctx.spotlight) sections.push(`FEATURING: ${ctx.spotlight}`);
+      if (ctx.details) sections.push(`WHY THEY MATTER:\n${ctx.details}`);
+      if (ctx.cta) sections.push(`SUGGESTED CTA: ${ctx.cta}`);
+      if (!ctx.spotlight && ctx.rawContext) sections.push(`SPOTLIGHT:\n${ctx.rawContext}`);
+      break;
+
+    // ===== PROPERTY INTENTS =====
+    case 'open-house':
+      if (ctx.openHouseDateTime) sections.push(`OPEN HOUSE DATE/TIME: ${ctx.openHouseDateTime}`);
+      if (ctx.rawContext) sections.push(`ADDITIONAL NOTES: ${ctx.rawContext}`);
+      break;
+
+    case 'price-drop':
+    case 'price-reduced':
+      if (ctx.priceDropNote) sections.push(`NOTE: ${ctx.priceDropNote}`);
+      if (ctx.rawContext) sections.push(`ADDITIONAL NOTES: ${ctx.rawContext}`);
+      break;
+
+    case 'coming-soon':
+      if (ctx.teaser) sections.push(`TEASER: ${ctx.teaser}`);
+      if (ctx.rawContext) sections.push(`ADDITIONAL NOTES: ${ctx.rawContext}`);
+      break;
+
+    case 'investment':
+      if (ctx.roiAngle) sections.push(`INVESTMENT ANGLE: ${ctx.roiAngle}`);
+      if (ctx.rawContext) sections.push(`ADDITIONAL NOTES: ${ctx.rawContext}`);
+      break;
+
+    default:
+      // For just-listed, sold, under-contract, general
+      if (ctx.rawContext) sections.push(`ADDITIONAL CONTEXT: ${ctx.rawContext}`);
+      break;
+  }
+
+  return sections.length > 0 ? `CONTEXT FIELDS:\n${sections.join('\n\n')}` : '';
+}
+
+// ============================================================================
+// CAPTION STRUCTURE TEMPLATES - ALL INTENTS COVERED
+// ============================================================================
+
+function getCaptionStructureTemplate(
+  intent: string,
+  property: Property | null,
+  context: Record<string, string>
+): string {
   const city = property?.city || '{city}';
 
-  const templates: Record<string, string> = {
-    'just-listed': `🏠 JUST LISTED in ${city}!
+  // ===== PROPERTY TEMPLATES =====
+  const propertyTemplates: Record<string, string> = {
+    'just-listed': `{hook}
 
 📍 {address}
 💰 {price}
@@ -440,7 +779,7 @@ function getCaptionStructureTemplate(intent: string, property: Property | null):
 
 Purple Homes | Your Trusted Real Estate Partner`,
 
-    sold: `🎉 SOLD in ${city}!
+    'sold': `{hook}
 
 📍 {address}
 💰 {price}
@@ -452,7 +791,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 Purple Homes | Your Trusted Real Estate Partner`,
 
-    'under-contract': `📝 UNDER CONTRACT in ${city}!
+    'under-contract': `{hook}
 
 📍 {address}
 💰 {price}
@@ -464,7 +803,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 Purple Homes | Your Trusted Real Estate Partner`,
 
-    'price-reduced': `💰 PRICE REDUCED in ${city}!
+    'price-reduced': `{hook}
 
 📍 {address}
 💰 NOW {price}
@@ -476,9 +815,21 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 Purple Homes | Your Trusted Real Estate Partner`,
 
-    'open-house': `🚪 OPEN HOUSE in ${city}!
+    'price-drop': `{hook}
 
-📅 {date} | ⏰ {time}
+📍 {address}
+💰 NOW {price}
+🏡 {beds} Beds • {baths} Baths • {sqft} SF
+
+{body_copy}
+
+{cta}
+
+Purple Homes | Your Trusted Real Estate Partner`,
+
+    'open-house': `{hook}
+
+📅 {openHouseDateTime}
 📍 {address}
 💰 {price}
 🏡 {beds} Beds • {baths} Baths • {sqft} SF
@@ -489,7 +840,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 Purple Homes | Your Trusted Real Estate Partner`,
 
-    'coming-soon': `👀 COMING SOON in ${city}!
+    'coming-soon': `{hook}
 
 📍 {address}
 💰 {price}
@@ -501,7 +852,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 Purple Homes | Your Trusted Real Estate Partner`,
 
-    investment: `📈 INVESTMENT OPPORTUNITY in ${city}!
+    'investment': `{hook}
 
 📍 {address}
 💰 Asking: {price}
@@ -513,8 +864,11 @@ Purple Homes | Your Trusted Real Estate Partner`,
 {cta}
 
 Purple Homes | Your Trusted Real Estate Partner`,
+  };
 
-    'market-update': `📊 MARKET UPDATE: ${city}
+  // ===== PERSONAL TEMPLATES =====
+  const personalTemplates: Record<string, string> = {
+    'life-update': `{hook}
 
 {body_copy}
 
@@ -522,61 +876,154 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 Purple Homes | Your Trusted Real Estate Partner`,
 
-    general: `{body_copy}
+    'milestone': `{hook}
+
+{body_copy}
+
+🙏 {gratitude_or_reflection}
+
+{cta}
+
+Purple Homes | Your Trusted Real Estate Partner`,
+
+    'lesson-insight': `{hook}
+
+{body_copy}
+
+💭 {takeaway}
+
+{cta}
+
+Purple Homes | Your Trusted Real Estate Partner`,
+
+    'behind-the-scenes': `{hook}
+
+{body_copy}
 
 {cta}
 
 Purple Homes | Your Trusted Real Estate Partner`,
   };
 
-  return templates[intent] || templates['just-listed'];
+  // ===== PROFESSIONAL TEMPLATES =====
+  const professionalTemplates: Record<string, string> = {
+    'market-update': `{hook}
+
+📈 {stats_summary}
+
+{body_copy}
+
+{cta}
+
+Purple Homes | Your Trusted Real Estate Partner`,
+
+    'buyer-tips': `{hook}
+
+{body_copy}
+
+💡 {key_point}
+
+{cta}
+
+Purple Homes | Your Trusted Real Estate Partner`,
+
+    'seller-tips': `{hook}
+
+{body_copy}
+
+💡 {key_point}
+
+{cta}
+
+Purple Homes | Your Trusted Real Estate Partner`,
+
+    'investment-insight': `{hook}
+
+{body_copy}
+
+📊 {metric_highlight}
+
+{cta}
+
+Purple Homes | Your Trusted Real Estate Partner`,
+
+    'client-success-story': `{hook}
+
+📋 The Challenge:
+{challenge_summary}
+
+✅ The Solution:
+{solution_summary}
+
+🎉 The Result:
+{result_summary}
+
+{cta}
+
+Purple Homes | Your Trusted Real Estate Partner`,
+
+    'community-spotlight': `{hook}
+
+{body_copy}
+
+📍 {location_or_details}
+
+{cta}
+
+Purple Homes | Your Trusted Real Estate Partner`,
+
+    // Legacy intents
+    'personal-value': `{hook}
+
+{body_copy}
+
+{cta}
+
+Purple Homes | Your Trusted Real Estate Partner`,
+
+    'success-story': `{hook}
+
+{body_copy}
+
+{cta}
+
+Purple Homes | Your Trusted Real Estate Partner`,
+
+    'general': `{body_copy}
+
+{cta}
+
+Purple Homes | Your Trusted Real Estate Partner`,
+  };
+
+  // Merge all templates
+  const allTemplates: Record<string, string> = {
+    ...propertyTemplates,
+    ...personalTemplates,
+    ...professionalTemplates,
+  };
+
+  // FAIL LOUDLY if template is missing - never silently fallback
+  if (!allTemplates[intent]) {
+    console.error(`[AI API] CRITICAL: Missing caption template for intent: ${intent}`);
+    throw new Error(`Missing caption template for intent: ${intent}. This is a configuration error.`);
+  }
+
+  return allTemplates[intent];
 }
+
+// ============================================================================
+// TONE INSTRUCTIONS
+// ============================================================================
 
 function getCaptionToneInstructions(tone: string): string {
   const instructions: Record<string, string> = {
-    professional: `Professional tone: Polished, authoritative, value-focused. Words: exceptional, premier, ideal, distinguished.`,
-    casual: `Casual tone: Conversational, friendly, relatable. Words: honestly, love this, pretty amazing, check this out.`,
-    urgent: `Urgent tone: Time-sensitive, action-oriented, punchy sentences. Words: just listed, won't last, moving fast, act now.`,
-    friendly: `Friendly tone: Warm, welcoming, lifestyle-focused. Words: imagine, picture this, your next chapter, home sweet home.`,
-    luxury: `Luxury tone: Sophisticated, understated elegance. Words: exquisite, curated, bespoke, refined, residence.`,
-    investor: `Investor tone: Numbers-focused, analytical, ROI-driven. Words: cap rate, cash flow, ARV, upside, deal.`,
+    professional: `Professional tone: Polished, authoritative, credible. Use words like: exceptional, distinguished, premier, strategic, optimal.`,
+    casual: `Casual tone: Relaxed, conversational, real. Use words like: honestly, love this, pretty cool, check this out, real talk.`,
+    urgent: `Urgent tone: Time-sensitive, action-driving, punchy. Use words like: just dropped, won't last, moving fast, act now, don't miss.`,
+    friendly: `Friendly tone: Warm, approachable, personal. Use words like: imagine, picture this, excited to share, can't wait, thrilled.`,
+    luxury: `Luxury tone: Sophisticated, elegant, refined. Use words like: exquisite, curated, bespoke, residence, exceptional craftsmanship.`,
+    investor: `Investor tone: Analytical, numbers-focused, ROI-driven. Use words like: cap rate, cash flow, ARV, upside potential, solid returns.`,
   };
   return instructions[tone] || instructions.professional;
-}
-
-function getCaptionCTAOptions(intent: string): string[] {
-  const ctas: Record<string, string[]> = {
-    'just-listed': [
-      'Interested? DM us to schedule your private showing.',
-      'Want to see it first? Send us a message.',
-      "Comment 'INFO' for all the details.",
-    ],
-    sold: [
-      "Thinking of selling? Let's chat about your goals.",
-      "Want results like this? Let's talk.",
-    ],
-    'under-contract': [
-      'Missed this one? More coming soon. DM to be first.',
-      'Want first access to the next one? Follow for updates.',
-    ],
-    'price-reduced': [
-      "Better price, same amazing home. Let's talk.",
-      "Now's your chance. DM before someone else does.",
-    ],
-    'open-house': ['Stop by — no appointment needed!', "We'd love to see you there!"],
-    'coming-soon': [
-      'Want first access? DM to get on the list.',
-      "Comment 'NOTIFY' to be the first to know.",
-    ],
-    investment: [
-      'Serious inquiries only. DM for the full breakdown.',
-      'Want the numbers? Send us a message.',
-    ],
-    'market-update': [
-      "Questions about the market? Let's chat.",
-      'Want personalized advice? DM us.',
-    ],
-    general: ["Questions? We're here to help.", 'DM us anytime.'],
-  };
-  return ctas[intent] || ctas['just-listed'];
 }

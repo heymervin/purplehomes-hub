@@ -376,16 +376,17 @@ export async function getPropertyScenarios(
 
     const data = await response.json();
     const record = data.record || data;
+    const fields = record.fields || record;
 
     return {
-      scenario1: record['Calculator Scenario 1']
-        ? JSON.parse(record['Calculator Scenario 1'])
+      scenario1: fields['Calculator Scenario 1']
+        ? JSON.parse(fields['Calculator Scenario 1'])
         : null,
-      scenario2: record['Calculator Scenario 2']
-        ? JSON.parse(record['Calculator Scenario 2'])
+      scenario2: fields['Calculator Scenario 2']
+        ? JSON.parse(fields['Calculator Scenario 2'])
         : null,
-      scenario3: record['Calculator Scenario 3']
-        ? JSON.parse(record['Calculator Scenario 3'])
+      scenario3: fields['Calculator Scenario 3']
+        ? JSON.parse(fields['Calculator Scenario 3'])
         : null,
     };
   } catch (error) {
@@ -446,16 +447,17 @@ export async function getMatchScenarios(matchRecordId: string): Promise<Scenario
 
     const data = await response.json();
     const record = data.record || data;
+    const fields = record.fields || record;
 
     return {
-      scenario1: record['Calculator Scenario 1']
-        ? JSON.parse(record['Calculator Scenario 1'])
+      scenario1: fields['Calculator Scenario 1']
+        ? JSON.parse(fields['Calculator Scenario 1'])
         : null,
-      scenario2: record['Calculator Scenario 2']
-        ? JSON.parse(record['Calculator Scenario 2'])
+      scenario2: fields['Calculator Scenario 2']
+        ? JSON.parse(fields['Calculator Scenario 2'])
         : null,
-      scenario3: record['Calculator Scenario 3']
-        ? JSON.parse(record['Calculator Scenario 3'])
+      scenario3: fields['Calculator Scenario 3']
+        ? JSON.parse(fields['Calculator Scenario 3'])
         : null,
     };
   } catch (error) {

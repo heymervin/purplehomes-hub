@@ -633,17 +633,18 @@ export function PropertyDetailModal({
         )}
 
         {/* Footer */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 border-t bg-gray-50/50">
+        <div className="flex items-center justify-between gap-4 p-4 sm:p-6 border-t bg-gray-50/50">
           {/* Left Side - Secondary Actions */}
-          <div className="flex items-center gap-3 order-2 sm:order-1">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button
               type="button"
               variant="outline"
+              size="sm"
               onClick={() => setCalculatorOpen(true)}
               className="border-purple-200 text-purple-700 hover:bg-purple-50"
             >
               <Calculator className="h-4 w-4 mr-2" />
-              Deal Calculator
+              Calculator
             </Button>
 
             {initialProperty?.ghlOpportunityId && (
@@ -654,33 +655,33 @@ export function PropertyDetailModal({
                 onClick={() => window.open(getGhlOpportunityUrl(initialProperty.ghlOpportunityId!), '_blank')}
               >
                 <ExternalLink className="h-4 w-4 mr-2" />
-                Edit in CRM
+                CRM
               </Button>
-            )}
-
-            {/* Unsaved Changes Indicator */}
-            {hasChanges && (
-              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2 animate-pulse" />
-                Unsaved changes
-              </Badge>
             )}
           </div>
 
           {/* Right Side - Primary Actions */}
-          <div className="flex items-center justify-end gap-2 order-1 sm:order-2">
+          <div className="flex items-center gap-2">
+            {hasChanges && (
+              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 hidden sm:flex">
+                <div className="w-2 h-2 bg-yellow-500 rounded-full mr-2 animate-pulse" />
+                Unsaved
+              </Badge>
+            )}
             <Button
               type="button"
               variant="ghost"
+              size="sm"
               onClick={handleCloseAttempt}
             >
               Cancel
             </Button>
             <Button
               type="submit"
+              size="sm"
               onClick={handleSave}
               disabled={updateProperty.isPending || updateAirtableProperty.isPending || !hasChanges}
-              className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 min-w-[140px]"
+              className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"
             >
               {(updateProperty.isPending || updateAirtableProperty.isPending) ? (
                 <>
@@ -690,7 +691,7 @@ export function PropertyDetailModal({
               ) : (
                 <>
                   <Save className="h-4 w-4 mr-2" />
-                  Save Changes
+                  Save
                 </>
               )}
             </Button>
