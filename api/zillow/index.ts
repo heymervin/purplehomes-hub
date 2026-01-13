@@ -321,7 +321,7 @@ async function handleSave(req: VercelRequest, res: VercelResponse) {
           City: listing.city,
           State: listing.state,
           'Zip Code': listing.zipCode,
-          Price: listing.price,
+          'Property Total Price': listing.price,
           Beds: listing.beds,
           Baths: listing.baths,
           Sqft: listing.sqft,
