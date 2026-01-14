@@ -199,6 +199,7 @@ export function PropertyDetailModal({
       if (formData.propertyType) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.propertyType] = formData.propertyType;
       if (formData.heroImage) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.heroImage] = formData.heroImage;
       if (formData.caption) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.caption] = formData.caption;
+      if (formData.socialMediaPropertyDescription !== undefined) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.socialMediaDescription] = formData.socialMediaPropertyDescription;
       if (formData.downPayment !== undefined) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.downPayment] = String(formData.downPayment);
       if (formData.monthlyPayment !== undefined) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.monthlyPayment] = String(formData.monthlyPayment);
 
@@ -593,36 +594,32 @@ export function PropertyDetailModal({
                     </div>
                   </FieldSection>
 
-                  {/* Caption Section with AI Generator */}
-                  <FieldSection title="Social Caption" icon={MessageSquare} iconColor="text-green-600">
+                  {/* Social Media Description - Context for AI */}
+                  <FieldSection title="Context for AI" icon={MessageSquare} iconColor="text-green-600">
                     <div className="space-y-4">
-                      {/* AI Caption Generator */}
-                      <div className="flex items-center justify-between">
-                        <Label className="text-sm text-muted-foreground">Generate with AI</Label>
-                        <AICaptionGenerator
-                          property={formData}
-                          onCaptionGenerated={(platform, caption) => {
-                            handleFieldChange('caption', caption);
-                          }}
-                        />
-                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Describe property highlights for AI-generated captions. This will be used in the Social Hub when creating posts.
+                      </p>
 
-                      {/* Caption Textarea */}
+                      {/* Social Media Description Textarea */}
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="socialCaption">Caption Text</Label>
+                          <Label htmlFor="socialMediaDescription">Property Description for Social Media</Label>
                           <span className="text-xs text-muted-foreground">
-                            {(property.caption || '').length} / 2200 characters
+                            {(formData.socialMediaPropertyDescription || '').length} / 2000 characters
                           </span>
                         </div>
                         <Textarea
-                          id="socialCaption"
-                          value={property.caption || ''}
-                          onChange={(e) => handleFieldChange('caption', e.target.value)}
-                          placeholder="Write your social media caption here..."
+                          id="socialMediaDescription"
+                          value={formData.socialMediaPropertyDescription || ''}
+                          onChange={(e) => handleFieldChange('socialMediaPropertyDescription', e.target.value)}
+                          placeholder="E.g., '3bed/2bath, newly renovated kitchen with granite counters, near top-rated schools, owner financing available, ~$1,500/mo, move-in ready!'"
                           className="min-h-[150px]"
-                          maxLength={2200}
+                          maxLength={2000}
                         />
+                        <p className="text-xs text-muted-foreground">
+                          Include: beds, baths, monthly payment, unique features, financing options, and any selling points.
+                        </p>
                       </div>
                     </div>
                   </FieldSection>

@@ -321,6 +321,7 @@ export const PROPERTY_CUSTOM_FIELDS = {
   socialPostUrls: '9AnMRf8e0O1rqpzZQW7L', // Social Post URLs - key: opportunity.social_post_urls
   postedDate: 'p6a36PhyDK1b3ywpg233', // Posted Date - key: opportunity.posted_date
   scheduledDate: 'fZqdPu5zMXMA2vhVvCsX', // Scheduled Date - key: opportunity.scheduled_date
+  socialMediaDescription: 'ECPANbtNrVtw1pR1kgMy', // Marketing Description - used for AI Context in Social Hub
 
   // Other
   description: 'RW7UIpGEN8hwYbhGs9je', // Property Details - key: opportunity.details
@@ -619,6 +620,7 @@ export const transformOpportunityToProperty = (opp: GHLOpportunity): Property =>
     condition: (getCustomField(PROPERTY_CUSTOM_FIELDS.condition) as PropertyCondition) || undefined,
     propertyType: (getCustomField(PROPERTY_CUSTOM_FIELDS.propertyType) as PropertyType) || undefined,
     description: getCustomField(PROPERTY_CUSTOM_FIELDS.description),
+    socialMediaPropertyDescription: getCustomField(PROPERTY_CUSTOM_FIELDS.socialMediaDescription),
     heroImage: heroImage || '/placeholder.svg',
     images,
     status,

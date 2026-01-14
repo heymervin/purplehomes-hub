@@ -41,16 +41,17 @@ import {
   Upload,
   X,
   ArrowLeft,
-  Eye,
   Rocket,
   RefreshCw,
   Edit2,
   User,
   Briefcase,
   Calendar,
-  Clock,
   MessageSquare,
-  HelpCircle,
+  Hash,
+  Plus,
+  QrCode,
+  Link,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProperties, useSocialAccounts, useCreateSocialPost } from '@/services/ghlApi';
@@ -87,8 +88,14 @@ import {
   getDefaultTone,
   intentRequiresProperty,
   validateIntentFields,
+  BASE_HASHTAGS,
+  PREFERRED_HASHTAGS,
+  INTENT_HASHTAGS,
+  generateLocationHashtags,
+  PLATFORM_HASHTAG_RULES,
 } from '@/lib/socialHub';
 import { TEAM_AGENTS, getAgentById } from '@/lib/socialHub/agents';
+import VoiceInput from '../create-wizard/components/VoiceInput';
 
 // ============ FORM STATE ============
 type FormStep = 'form' | 'preview';
@@ -111,6 +118,9 @@ interface QuickPostFormState {
 
   // Intent context fields (dynamic based on intent)
   context: Record<string, string>;
+
+  // Property-specific AI context (for property tab)
+  propertyContext: string;
 
   // Scheduling
   scheduleDate: string;
@@ -147,6 +157,9 @@ interface QuickPostFormState {
   // Selected accounts for publishing
   selectedAccounts: string[];
 
+  // Hashtags
+  selectedHashtags: string[];
+
   // Track if user manually changed tone
   toneManuallySet: boolean;
 }
@@ -165,6 +178,7 @@ const getInitialState = (): QuickPostFormState => {
     selectedAgentId: 'krista',
     selectedHeroImage: null,
     context: {},
+    propertyContext: '',
 
     scheduleDate: '',
     scheduleTime: '',
@@ -189,6 +203,7 @@ const getInitialState = (): QuickPostFormState => {
     generatedImageBlob: null,
 
     selectedAccounts: [],
+    selectedHashtags: [],
     toneManuallySet: false,
   };
 };
@@ -277,6 +292,23 @@ export function QuickPostFormV2() {
       .map(([key, config]) => ({ key, config }));
   }, [selectedTemplate]);
 
+  // Custom hashtag input state
+  const [customHashtag, setCustomHashtag] = useState('');
+
+  // Generate suggested hashtags based on intent and property
+  const suggestedHashtags = useMemo(() => {
+    const hashtags: string[] = [];
+    hashtags.push(...BASE_HASHTAGS);
+    hashtags.push(...PREFERRED_HASHTAGS);
+    const intentHashtags = INTENT_HASHTAGS[state.intentId] || [];
+    hashtags.push(...intentHashtags);
+    if (state.selectedProperty) {
+      const locationHashtags = generateLocationHashtags(state.selectedProperty.city, state.selectedProperty.state);
+      hashtags.push(...locationHashtags);
+    }
+    return [...new Set(hashtags)];
+  }, [state.intentId, state.selectedProperty]);
+
   // ============ EFFECTS ============
 
   // Handle clicks outside dropdowns
@@ -303,22 +335,32 @@ export function QuickPostFormV2() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Auto-fill context when property is selected
+  // Auto-fill property context when property is selected
   useEffect(() => {
-    if (state.selectedProperty && Object.keys(state.context).length === 0) {
+    if (state.selectedProperty) {
       const prop = state.selectedProperty;
-      const parts = [];
-      if (prop.beds) parts.push(`${prop.beds} bed`);
-      if (prop.baths) parts.push(`${prop.baths} bath`);
-      if (prop.sqft) parts.push(`${prop.sqft.toLocaleString()} sqft`);
-      if (prop.price) parts.push(`$${prop.price.toLocaleString()}`);
 
-      const autoContext = parts.join(' | ');
-      if (autoContext) {
+      // Auto-fill propertyContext from socialMediaPropertyDescription or build from property details
+      if (prop.socialMediaPropertyDescription) {
         setState(prev => ({
           ...prev,
-          context: { ...prev.context, propertyDetails: autoContext },
+          propertyContext: prop.socialMediaPropertyDescription || '',
         }));
+      } else if (!state.propertyContext) {
+        // Build default context from property details
+        const parts = [];
+        if (prop.beds) parts.push(`${prop.beds} bed`);
+        if (prop.baths) parts.push(`${prop.baths} bath`);
+        if (prop.sqft) parts.push(`${prop.sqft.toLocaleString()} sqft`);
+        if (prop.price) parts.push(`$${prop.price.toLocaleString()}`);
+
+        const autoContext = parts.join(' | ');
+        if (autoContext) {
+          setState(prev => ({
+            ...prev,
+            propertyContext: autoContext,
+          }));
+        }
       }
     }
   }, [state.selectedProperty]);
@@ -450,31 +492,62 @@ export function QuickPostFormV2() {
     }));
   };
 
+  // Hashtag handlers
+  const toggleHashtag = (hashtag: string) => {
+    setState(prev => {
+      const isSelected = prev.selectedHashtags.includes(hashtag);
+      return {
+        ...prev,
+        selectedHashtags: isSelected
+          ? prev.selectedHashtags.filter(h => h !== hashtag)
+          : [...prev.selectedHashtags, hashtag],
+      };
+    });
+  };
+
+  const handleAddCustomHashtag = () => {
+    if (!customHashtag.trim()) return;
+    let formatted = customHashtag.trim();
+    if (!formatted.startsWith('#')) formatted = `#${formatted}`;
+    formatted = formatted.replace(/\s+/g, '');
+    if (!state.selectedHashtags.includes(formatted)) {
+      setState(prev => ({
+        ...prev,
+        selectedHashtags: [...prev.selectedHashtags, formatted],
+      }));
+    }
+    setCustomHashtag('');
+  };
+
   // ============ GENERATION & PUBLISHING ============
 
   const handleGenerate = async () => {
     setIsGenerating(true);
 
     try {
-      // Build context string from all context fields
-      let contextString = Object.entries(state.context)
-        .filter(([, value]) => value.trim())
-        .map(([key, value]) => {
-          const field = currentIntent.fields.find(f => f.key === key);
-          return field ? `${field.label}: ${value}` : value;
-        })
-        .join('\n');
+      // Build context string based on tab type
+      let contextString = '';
 
-      // Add open house info if applicable
-      if (state.intentId === 'open-house' && state.openHouseDate && state.openHouseStartTime && state.openHouseEndTime) {
-        const openHouseInfo = `\n\nOpen House: ${state.openHouseDateInput} from ${state.openHouseStartTimeInput} to ${state.openHouseEndTimeInput}`;
-        contextString += openHouseInfo;
-      }
+      if (state.tab === 'property') {
+        // For property tab, use the propertyContext field (which includes social media description)
+        if (state.propertyContext.trim()) {
+          contextString = state.propertyContext;
+        }
 
-      // Add property's social media description if available (from GHL custom field)
-      // This is the "Tell us more" field that provides additional context for captions
-      if (state.selectedProperty?.socialMediaPropertyDescription) {
-        contextString += `\n\nProperty Description: ${state.selectedProperty.socialMediaPropertyDescription}`;
+        // Add open house info if applicable
+        if (state.intentId === 'open-house' && state.openHouseDate && state.openHouseStartTime && state.openHouseEndTime) {
+          const openHouseInfo = `\n\nOpen House: ${state.openHouseDateInput} from ${state.openHouseStartTimeInput} to ${state.openHouseEndTimeInput}`;
+          contextString += openHouseInfo;
+        }
+      } else {
+        // For Personal/Professional tabs, use intent context fields
+        contextString = Object.entries(state.context)
+          .filter(([, value]) => value.trim())
+          .map(([key, value]) => {
+            const field = currentIntent.fields.find(f => f.key === key);
+            return field ? `${field.label}: ${value}` : value;
+          })
+          .join('\n');
       }
 
       // Generate caption
@@ -583,9 +656,16 @@ export function QuickPostFormV2() {
         scheduleDate = combined.toISOString();
       }
 
+      // Append hashtags to caption (use Facebook limit as default)
+      const maxHashtags = PLATFORM_HASHTAG_RULES.facebook?.maxHashtags || 5;
+      const hashtagString = state.selectedHashtags.slice(0, maxHashtags).join(' ');
+      const fullCaption = hashtagString
+        ? `${state.generatedCaption}\n\n${hashtagString}`
+        : state.generatedCaption;
+
       await createPost.mutateAsync({
         accountIds: state.selectedAccounts,
-        summary: state.generatedCaption,
+        summary: fullCaption,
         media: imageUrl ? [{ url: imageUrl, type: 'image/png' }] : undefined,
         scheduleDate,
         status: isNow ? 'published' : 'scheduled',
@@ -646,6 +726,8 @@ export function QuickPostFormV2() {
   // ============ RENDER HELPERS ============
 
   const renderIntentFields = () => {
+    // Property tab uses "Context for AI" instead of intent fields
+    if (state.tab === 'property') return null;
     if (currentIntent.fields.length === 0) return null;
 
     return (
@@ -1170,6 +1252,43 @@ export function QuickPostFormV2() {
               </div>
             </div>
 
+            {/* Context for AI - Property Tab Only */}
+            {state.tab === 'property' && (
+              <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border border-purple-200 dark:border-purple-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <span className="font-semibold text-sm text-purple-900 dark:text-purple-100">
+                    Context for AI
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Type, paste, or use voice to describe the property. AI will use this to generate your caption.
+                </p>
+                <div className="flex gap-2">
+                  <Textarea
+                    placeholder="E.g., '3bed/2bath, new kitchen, granite counters, near top schools, owner financing available, ~$1,500/mo'"
+                    value={state.propertyContext}
+                    onChange={(e) => setState(prev => ({ ...prev, propertyContext: e.target.value }))}
+                    rows={2}
+                    className="flex-1 resize-none text-sm"
+                  />
+                  <VoiceInput
+                    onTranscript={(text) => {
+                      setState(prev => ({
+                        ...prev,
+                        propertyContext: prev.propertyContext ? `${prev.propertyContext} ${text}` : text,
+                      }));
+                    }}
+                  />
+                </div>
+                {state.selectedProperty?.socialMediaPropertyDescription && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Auto-filled from property details. Edit if needed.
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Image Template Section */}
             <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-200 dark:border-purple-800">
               <div className="flex items-center gap-2 mb-2">
@@ -1257,7 +1376,7 @@ export function QuickPostFormV2() {
                   <span className="font-medium text-sm">Hero Image</span>
                   <span className="text-xs text-muted-foreground">Select main image for template</span>
                 </div>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-3">
                   {[
                     ...(state.selectedProperty.heroImage ? [state.selectedProperty.heroImage] : []),
                     ...(state.selectedProperty.images || []),
@@ -1272,7 +1391,7 @@ export function QuickPostFormV2() {
                           type="button"
                           onClick={() => setState(prev => ({ ...prev, selectedHeroImage: img }))}
                           className={cn(
-                            "relative aspect-square rounded-lg overflow-hidden border-2 transition-all",
+                            "relative aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all",
                             isSelected
                               ? "border-amber-500 ring-2 ring-amber-500/20"
                               : "border-transparent hover:border-muted-foreground/50"
@@ -1344,63 +1463,176 @@ export function QuickPostFormV2() {
                       </div>
                     )}
 
-                    {/* Carousel */}
-                    <div className="overflow-x-auto">
-                      <div className="flex gap-2 pb-2">
-                        {supportingImagesOnly.map((imageUrl, idx) => {
-                          const isSelected = state.selectedSupportingImages.includes(imageUrl);
-                          const selectedIndex = state.selectedSupportingImages.indexOf(imageUrl);
+                    {/* Grid layout matching Hero Images */}
+                    <div className="grid grid-cols-4 gap-3">
+                      {supportingImagesOnly.slice(0, 8).map((imageUrl, idx) => {
+                        const isSelected = state.selectedSupportingImages.includes(imageUrl);
+                        const selectedIndex = state.selectedSupportingImages.indexOf(imageUrl);
 
-                          return (
-                            <button
-                              key={idx}
-                              onClick={() => {
-                                if (isSelected) {
-                                  setState((prev) => ({
-                                    ...prev,
-                                    selectedSupportingImages: prev.selectedSupportingImages.filter(
-                                      (img) => img !== imageUrl
-                                    ),
-                                  }));
-                                } else if (state.selectedSupportingImages.length < maxImages) {
-                                  setState((prev) => ({
-                                    ...prev,
-                                    selectedSupportingImages: [...prev.selectedSupportingImages, imageUrl],
-                                  }));
-                                } else {
-                                  toast.error(`Maximum ${maxImages} supporting images allowed for ${selectedTemplate.name}`);
-                                }
-                              }}
-                              className={cn(
-                                'relative flex-shrink-0 w-24 h-24 rounded-lg border-2 transition-all',
-                                isSelected
-                                  ? 'border-purple-500 ring-2 ring-purple-300 dark:ring-purple-700'
-                                  : 'border-purple-200 dark:border-purple-700 hover:border-purple-400'
-                              )}
-                            >
-                              <img
-                                src={imageUrl}
-                                alt={`Supporting ${idx + 1}`}
-                                className="w-full h-full object-cover rounded-lg"
-                              />
-                              {isSelected && (
-                                <div className="absolute inset-0 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                                  <div className="bg-purple-600 text-white text-sm font-bold rounded-full h-8 w-8 flex items-center justify-center">
-                                    #{selectedIndex + 1}
-                                  </div>
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              if (isSelected) {
+                                setState((prev) => ({
+                                  ...prev,
+                                  selectedSupportingImages: prev.selectedSupportingImages.filter(
+                                    (img) => img !== imageUrl
+                                  ),
+                                }));
+                              } else if (state.selectedSupportingImages.length < maxImages) {
+                                setState((prev) => ({
+                                  ...prev,
+                                  selectedSupportingImages: [...prev.selectedSupportingImages, imageUrl],
+                                }));
+                              } else {
+                                toast.error(`Maximum ${maxImages} supporting images allowed for ${selectedTemplate.name}`);
+                              }
+                            }}
+                            className={cn(
+                              'relative aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all',
+                              isSelected
+                                ? 'border-purple-500 ring-2 ring-purple-300 dark:ring-purple-700'
+                                : 'border-purple-200 dark:border-purple-700 hover:border-purple-400'
+                            )}
+                          >
+                            <img
+                              src={imageUrl}
+                              alt={`Supporting ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                            {isSelected && (
+                              <div className="absolute inset-0 bg-purple-500/20 flex items-center justify-center">
+                                <div className="bg-purple-600 text-white text-sm font-bold rounded-full h-8 w-8 flex items-center justify-center">
+                                  #{selectedIndex + 1}
                                 </div>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
-                    <div className="text-xs text-center text-muted-foreground mt-1">
+                    <div className="text-xs text-center text-muted-foreground mt-2">
                       Click images to select (hero image is already included)
                     </div>
                   </div>
                 );
               })()}
+
+            {/* QR Code URL Section - for templates that support qrcode_comp */}
+            {state.tab === 'property' && selectedTemplate && state.templateId !== 'custom' && state.templateId !== 'none' && (
+              <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-sky-50 to-indigo-50 dark:from-sky-950/20 dark:to-indigo-950/20 border border-sky-200 dark:border-sky-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <QrCode className="h-4 w-4 text-sky-600 dark:text-sky-400" />
+                  <span className="font-semibold text-sm text-sky-900 dark:text-sky-100">
+                    QR Code Link
+                  </span>
+                  <Badge variant="secondary" className="text-xs">Optional</Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Add a URL to generate a QR code on the template image. Great for property links or landing pages.
+                </p>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Link className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="url"
+                      placeholder="https://purplehomessolutions.com/property/..."
+                      value={state.qrCodeUrl}
+                      onChange={(e) => setState(prev => ({ ...prev, qrCodeUrl: e.target.value }))}
+                      className="pl-10 h-9 text-sm"
+                    />
+                  </div>
+                  {state.qrCodeUrl && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setState(prev => ({ ...prev, qrCodeUrl: '' }))}
+                      className="h-9 px-2"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                {state.qrCodeUrl && (
+                  <div className="mt-2 flex items-center gap-2 text-xs text-sky-700 dark:text-sky-300">
+                    <Check className="h-3 w-3" />
+                    <span>QR code will be added to template</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Hashtags Section */}
+            <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 border border-green-200 dark:border-green-800">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Hash className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <span className="font-semibold text-sm text-green-900 dark:text-green-100">
+                    Hashtags
+                  </span>
+                </div>
+                <Badge variant="secondary" className="text-xs">
+                  {state.selectedHashtags.length} selected
+                </Badge>
+              </div>
+
+              {/* Suggested Hashtags */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {suggestedHashtags.map((hashtag) => {
+                  const isSelected = state.selectedHashtags.includes(hashtag);
+                  return (
+                    <Badge
+                      key={hashtag}
+                      variant={isSelected ? 'default' : 'outline'}
+                      className={cn(
+                        'cursor-pointer transition-all text-xs py-1 px-2',
+                        isSelected && 'bg-green-600 hover:bg-green-700'
+                      )}
+                      onClick={() => toggleHashtag(hashtag)}
+                    >
+                      {hashtag}
+                    </Badge>
+                  );
+                })}
+              </div>
+
+              {/* Custom hashtag input */}
+              <div className="flex gap-2">
+                <Input
+                  value={customHashtag}
+                  onChange={(e) => setCustomHashtag(e.target.value)}
+                  placeholder="#CustomHashtag"
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddCustomHashtag()}
+                  className="flex-1 h-8 text-sm"
+                />
+                <Button onClick={handleAddCustomHashtag} variant="outline" size="sm" className="h-8">
+                  <Plus className="h-3 w-3" />
+                </Button>
+              </div>
+
+              {/* Selected custom hashtags (not in suggestions) */}
+              {state.selectedHashtags.filter(h => !suggestedHashtags.includes(h)).length > 0 && (
+                <div className="mt-3">
+                  <label className="text-xs text-muted-foreground mb-1.5 block">Custom</label>
+                  <div className="flex flex-wrap gap-2">
+                    {state.selectedHashtags
+                      .filter(h => !suggestedHashtags.includes(h))
+                      .map((hashtag) => (
+                        <Badge
+                          key={hashtag}
+                          variant="default"
+                          className="bg-green-600 hover:bg-green-700 cursor-pointer text-xs py-1 px-2"
+                          onClick={() => toggleHashtag(hashtag)}
+                        >
+                          {hashtag}
+                          <X className="h-3 w-3 ml-1" />
+                        </Badge>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Generate Button */}
             <div className="pt-4">
