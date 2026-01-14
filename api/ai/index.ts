@@ -421,6 +421,7 @@ interface CaptionRequest {
   postIntent: string;
   tone: string;
   platform: string;
+  agentName?: string;
 }
 
 interface CaptionResponse {
@@ -1203,7 +1204,7 @@ function getAIMetricsSnapshot(): AIMetricsState {
 // ============================================================================
 
 async function handleCaption(req: VercelRequest, res: VercelResponse) {
-  const { property, context, postIntent, tone, platform }: CaptionRequest = req.body;
+  const { property, context, postIntent, tone, platform, agentName }: CaptionRequest = req.body;
   const batchItemId = req.body.batchItemId || null;
   const isBatch = req.body.isBatch || false;
 
@@ -1223,7 +1224,7 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
 
   try {
     const domain = getIntentDomain(postIntent);
-    const userPrompt = buildCaptionUserPrompt({ property, context, postIntent, tone, platform });
+    const userPrompt = buildCaptionUserPrompt({ property, context, postIntent, tone, platform, agentName });
 
     // Phase 4: Log generation started
     obsLogGenerationStarted({
@@ -1456,13 +1457,13 @@ ${copywritingInstructions}`;
 // ============================================================================
 
 function buildCaptionUserPrompt(params: CaptionRequest): string {
-  const { property, context, postIntent, tone, platform } = params;
+  const { property, context, postIntent, tone, platform, agentName } = params;
 
   const domain = getIntentDomain(postIntent);
   const parsedContext = parseContextFields(context);
   const hook = getIntentHook(postIntent, parsedContext, property);
   const cta = getIntentCTA(postIntent);
-  const template = getCaptionStructureTemplate(postIntent, property, parsedContext);
+  const template = getCaptionStructureTemplate(postIntent, property, parsedContext, agentName);
   const toneInstructions = getCaptionToneInstructions(tone);
   const structuredContext = buildStructuredContext(postIntent, parsedContext, property);
 
@@ -1661,9 +1662,14 @@ function getIntentContextSections(intent: string, ctx: Record<string, string>): 
 function getCaptionStructureTemplate(
   intent: string,
   property: Property | null,
-  context: Record<string, string>
+  context: Record<string, string>,
+  agentName?: string
 ): string {
   const city = property?.city || '{city}';
+  // Build signature based on agent name
+  const signature = agentName
+    ? `${agentName} | Purple Homes`
+    : 'Purple Homes | Your Trusted Real Estate Partner';
 
   // ===== PROPERTY TEMPLATES =====
   const propertyTemplates: Record<string, string> = {
@@ -1677,7 +1683,7 @@ function getCaptionStructureTemplate(
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'sold': `{hook}
 
@@ -1689,7 +1695,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'under-contract': `{hook}
 
@@ -1701,7 +1707,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'price-reduced': `{hook}
 
@@ -1713,7 +1719,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'price-drop': `{hook}
 
@@ -1725,7 +1731,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'open-house': `{hook}
 
@@ -1738,7 +1744,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'coming-soon': `{hook}
 
@@ -1750,7 +1756,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'investment': `{hook}
 
@@ -1763,7 +1769,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
   };
 
   // ===== PERSONAL TEMPLATES =====
@@ -1777,7 +1783,7 @@ Example format: "No emails. No showings. Just family. [specific detail]. [reflec
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'milestone': `{hook}
 
@@ -1789,7 +1795,7 @@ Then 2-3 short sentences about meaning. NO "I'm thrilled", "privilege", "gratefu
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'lesson-insight': `{hook}
 
@@ -1801,7 +1807,7 @@ Example: "The best deals? Listings no one wants. Ugly houses. That's where oppor
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'behind-the-scenes': `{hook}
 
@@ -1810,7 +1816,7 @@ RULES: Numbers first. "3 hours. One property. Garage furniture." Then what happe
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
   };
 
   // ===== PROFESSIONAL TEMPLATES =====
@@ -1826,7 +1832,7 @@ RULES: 2-3 short sentences. "Buyers have breathing room. Finally. Negotiation po
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'buyer-tips': `{hook}
 
@@ -1839,7 +1845,7 @@ RULES: One punchy sentence. "Skip inspection, inherit nightmare."
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'seller-tips': `{hook}
 
@@ -1851,7 +1857,7 @@ Then implications. Short. Punchy. NO "Here's something important" or "sellers sh
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'investment-insight': `{hook}
 
@@ -1863,7 +1869,7 @@ Then analysis in fragments.
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'client-success-story': `{hook}
 
@@ -1881,7 +1887,7 @@ RULES: The win. "Dream home. $5K under. Done."
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'community-spotlight': `{hook}
 
@@ -1894,7 +1900,7 @@ RULES: "Support local. Eat well. Meet neighbors."
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     // Legacy intents
     'personal-value': `{hook}
@@ -1903,7 +1909,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'success-story': `{hook}
 
@@ -1911,13 +1917,13 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
 
     'general': `{body_copy}
 
 {cta}
 
-Purple Homes | Your Trusted Real Estate Partner`,
+${signature}`,
   };
 
   // Merge all templates

@@ -10,6 +10,7 @@ import { useCaptionGenerate } from '../../hooks/useCaptionGenerate';
 import type { WizardState, Platform } from '../../types';
 import { POST_INTENTS, TONE_PRESETS } from '../../types';
 import { PLATFORM_HASHTAG_RULES } from '@/lib/socialHub';
+import { getAgentById } from '@/lib/socialHub/agents';
 
 interface EditCaptionSubstepProps {
   state: WizardState;
@@ -52,6 +53,9 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
     }
   }, []);
 
+  // Get agent name for signature
+  const agentName = state.selectedAgentId ? getAgentById(state.selectedAgentId)?.name : undefined;
+
   // Generate caption for a single platform
   const handleGenerate = async (platform: Platform) => {
     setIsGenerating(true);
@@ -64,6 +68,7 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
         tone: state.tone,
         platform,
         postIntent: state.postIntent,
+        agentName,
       });
 
       if (result.success) {
@@ -108,6 +113,7 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
           tone: state.tone,
           platform,
           postIntent: state.postIntent,
+          agentName,
         });
 
         if (result.success) {

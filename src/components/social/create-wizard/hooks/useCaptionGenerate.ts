@@ -9,6 +9,7 @@ interface GenerateCaptionParams {
   platform: Platform | 'all';
   postIntent?: PostIntent;
   templateType?: string;
+  agentName?: string;
 }
 
 interface GenerateCaptionResult {
@@ -34,6 +35,7 @@ export function useCaptionGenerate() {
           tone: params.tone,
           platform: params.platform,
           postIntent: params.postIntent || 'just-listed',
+          agentName: params.agentName,
         }),
       });
 
@@ -98,9 +100,14 @@ function getIntentDomain(intent: PostIntent): IntentDomain {
 // Uses the same template format as the structured caption API v2
 // CRITICAL: Respects domain isolation - Personal/Professional NEVER use property data
 function generateFallbackCaption(params: GenerateCaptionParams): string {
-  const { property, context, tone, postIntent } = params;
+  const { property, context, tone, postIntent, agentName } = params;
   const intent = postIntent || 'just-listed';
   const domain = getIntentDomain(intent);
+
+  // Build signature based on agent name
+  const signature = agentName
+    ? `${agentName} | Purple Homes`
+    : 'Purple Homes | Your Trusted Real Estate Partner';
 
   // Intent-specific headers
   const city = property?.city || 'your area';
@@ -201,7 +208,7 @@ ${bodyCopy}
 
 ${cta}
 
-Purple Homes | Your Trusted Real Estate Partner`;
+${signature}`;
   }
 
   // ========================================
@@ -246,7 +253,7 @@ ${bodyCopy}
 
 ${cta}
 
-Purple Homes | Your Trusted Real Estate Partner`;
+${signature}`;
   }
 
   // ========================================
@@ -261,7 +268,7 @@ A new property opportunity is available. Contact us for details.
 
 DM us anytime.
 
-Purple Homes | Your Trusted Real Estate Partner`;
+${signature}`;
   }
 
   const { address, beds, baths, sqft, price } = property;
@@ -305,7 +312,7 @@ Purple Homes | Your Trusted Real Estate Partner`;
   caption += `${cta}\n\n`;
 
   // Tagline
-  caption += 'Purple Homes | Your Trusted Real Estate Partner';
+  caption += signature;
 
   return caption;
 }

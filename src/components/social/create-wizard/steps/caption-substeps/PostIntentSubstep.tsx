@@ -4,10 +4,11 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ChevronRight, Sparkles, Loader2 } from 'lucide-react';
+import { ChevronRight, Sparkles, Loader2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WizardState, PostIntent } from '../../types';
 import { POST_INTENTS } from '../../types';
+import { TEAM_AGENTS } from '@/lib/socialHub/agents';
 
 // ============================================
 // INTENT FIELD CONFIGURATIONS
@@ -214,35 +215,73 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
     <div className="space-y-6">
       {/* Context Input - Property Domain */}
       {!isPersonalOrProfessional && (
-        <div className="space-y-2">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <Label htmlFor="postContext" className="text-base">
-                Property Highlights & Details <span className="text-red-500">*</span>
+        <div className="space-y-4">
+          {/* AI Context Helper for Property Posts */}
+          <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border border-purple-200 dark:border-purple-800">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="h-4 w-4 text-purple-600" />
+              <Label className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                Context for AI
               </Label>
-              <p className="text-xs text-muted-foreground mt-1">
-                {state.selectedProperty
-                  ? 'These details were auto-filled from your property. Edit if needed.'
-                  : 'Describe what makes this property special and worth sharing.'}
-              </p>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Paste property details, MLS notes, or your own description. AI will use this to generate your caption.
+            </p>
+            <div className="flex gap-2">
+              <Textarea
+                placeholder="E.g., 'Just renovated 3bed/2bath, new kitchen with granite, near top-rated schools, motivated seller, great for first-time buyers'"
+                value={rawContext}
+                onChange={(e) => setRawContext(e.target.value)}
+                rows={2}
+                className="flex-1 resize-none text-sm"
+              />
+              <Button
+                onClick={() => {
+                  if (rawContext.trim()) {
+                    updateState({ postContext: rawContext.trim() });
+                  }
+                }}
+                disabled={!rawContext.trim()}
+                className="gap-2 bg-purple-600 hover:bg-purple-700 self-end"
+              >
+                <Sparkles className="h-4 w-4" />
+                Use This
+              </Button>
             </div>
           </div>
-          <Textarea
-            id="postContext"
-            placeholder="E.g., 'Beautifully renovated 3-bed with new kitchen, granite countertops, stainless appliances. Great neighborhood near top schools and shopping. Move-in ready!'"
-            value={state.postContext}
-            onChange={(e) => updateState({ postContext: e.target.value })}
-            rows={4}
-            className="resize-none"
-          />
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900">
-            <div className="text-blue-600 dark:text-blue-400 text-lg">💡</div>
-            <div className="flex-1 text-xs text-blue-700 dark:text-blue-300">
-              <p className="font-medium mb-1">This information is used in two ways:</p>
-              <ul className="space-y-0.5 list-disc list-inside">
-                <li>AI incorporates these details into your caption text</li>
-                <li>Template image fields are auto-filled (for templates like "Value Tips" and "Open House")</li>
-              </ul>
+
+          <div className="space-y-2">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <Label htmlFor="postContext" className="text-base">
+                  Property Highlights & Details <span className="text-red-500">*</span>
+                </Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {state.selectedProperty?.socialMediaPropertyDescription
+                    ? 'These details were auto-filled from your property. Edit if needed.'
+                    : state.postContext
+                      ? 'Using your custom context. Edit if needed.'
+                      : 'Add context above or describe what makes this property special.'}
+                </p>
+              </div>
+            </div>
+            <Textarea
+              id="postContext"
+              placeholder="E.g., 'Beautifully renovated 3-bed with new kitchen, granite countertops, stainless appliances. Great neighborhood near top schools and shopping. Move-in ready!'"
+              value={state.postContext}
+              onChange={(e) => updateState({ postContext: e.target.value })}
+              rows={4}
+              className="resize-none"
+            />
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900">
+              <div className="text-blue-600 dark:text-blue-400 text-lg">💡</div>
+              <div className="flex-1 text-xs text-blue-700 dark:text-blue-300">
+                <p className="font-medium mb-1">This information is used in two ways:</p>
+                <ul className="space-y-0.5 list-disc list-inside">
+                  <li>AI incorporates these details into your caption text</li>
+                  <li>Template image fields are auto-filled (for templates like "Value Tips" and "Open House")</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
@@ -251,6 +290,39 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
       {/* Intent-Specific Fields - Personal/Professional Domain */}
       {isPersonalOrProfessional && intentFields.length > 0 && (
         <div className="space-y-4">
+          {/* Agent Selector */}
+          <div className="space-y-2">
+            <Label className="text-base flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Who is posting?
+            </Label>
+            <div className="flex gap-3">
+              {TEAM_AGENTS.map((agent) => (
+                <button
+                  key={agent.id}
+                  type="button"
+                  onClick={() => updateState({ selectedAgentId: agent.id })}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-all",
+                    state.selectedAgentId === agent.id
+                      ? "border-purple-600 bg-purple-50 dark:bg-purple-950/20"
+                      : "border-muted hover:border-purple-300"
+                  )}
+                >
+                  <img
+                    src={agent.headshot}
+                    alt={agent.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <div className="text-left">
+                    <p className="font-medium text-sm">{agent.name}</p>
+                    <p className="text-xs text-muted-foreground">{agent.title}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* AI Autofill Section */}
           <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border border-purple-200 dark:border-purple-800">
             <div className="flex items-center gap-2 mb-2">
