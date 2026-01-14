@@ -1,0 +1,320 @@
+{
+  "version": "1.0",
+  "source": "600 Copy Techniques by Shameer",
+  "domainRules": {
+    "property": "MINIMAL - specificity, clarity, factual urgency only. No persuasion frameworks.",
+    "personal": "FULL ACCESS - storytelling, identity, emotional resonance, reflection.",
+    "professional": "SELECTIVE - authority, education, proof, clarity. No personal narratives."
+  },
+  "primaryAppeals": {
+    "self-improvement": {
+      "description": "Growth, learning, becoming better",
+      "instruction": "Emphasize growth and becoming better. Connect to the reader's desire to improve.",
+      "powerWords": ["discover", "unlock", "transform", "master", "achieve", "grow", "level up"],
+      "allowedDomains": ["personal", "professional"]
+    },
+    "status": {
+      "description": "Recognition, achievement, progress",
+      "instruction": "Highlight achievement, recognition, and progress. Make the reader feel proud.",
+      "powerWords": ["exclusive", "elite", "premier", "distinguished", "accomplished", "recognized"],
+      "allowedDomains": ["personal", "professional"]
+    },
+    "security": {
+      "description": "Safety, stability, smart decisions",
+      "instruction": "Focus on stability, safety, and smart decisions. Reduce perceived risk.",
+      "powerWords": ["proven", "guaranteed", "secure", "reliable", "trusted", "safe", "protected"],
+      "allowedDomains": ["professional"]
+    },
+    "belonging": {
+      "description": "Community, connection, shared experience",
+      "instruction": "Create connection and community. Make the reader feel part of something.",
+      "powerWords": ["together", "community", "family", "team", "join", "we", "our"],
+      "allowedDomains": ["personal", "professional"]
+    },
+    "curiosity": {
+      "description": "Learning, discovery, intrigue",
+      "instruction": "Spark interest and desire to learn more. Create intrigue without clickbait.",
+      "powerWords": ["secret", "revealed", "inside", "discover", "uncover", "little-known"],
+      "allowedDomains": ["personal", "professional"]
+    },
+    "fear-of-missing-out": {
+      "description": "Scarcity, urgency, opportunity cost",
+      "instruction": "Subtly highlight opportunity cost without being pushy or manipulative.",
+      "powerWords": ["limited", "last chance", "don't miss", "before it's gone", "act now"],
+      "allowedDomains": ["professional"]
+    },
+    "trust": {
+      "description": "Credibility, reliability, expertise",
+      "instruction": "Build credibility through expertise and proof. Be reliable and consistent.",
+      "powerWords": ["proven", "trusted", "verified", "backed by", "research shows", "data"],
+      "allowedDomains": ["professional"]
+    },
+    "aspiration": {
+      "description": "Dreams, future self, possibilities",
+      "instruction": "Paint an inspiring future. Connect to dreams and possibilities.",
+      "powerWords": ["imagine", "envision", "dream", "future", "possibility", "potential"],
+      "allowedDomains": ["personal"]
+    }
+  },
+  "structures": {
+    "story-lesson-takeaway": {
+      "description": "Personal narrative → insight → actionable wisdom",
+      "instruction": "Open with a specific moment → Share the experience → Extract the lesson → End with a clear takeaway.",
+      "template": "HOOK (specific moment) → STORY (what happened) → LESSON (what you learned) → TAKEAWAY (what they can apply)",
+      "bestFor": ["life-update", "milestone", "lesson-insight", "behind-the-scenes"],
+      "allowedDomains": ["personal"]
+    },
+    "problem-agitation-solution": {
+      "description": "PAS framework - Name, amplify, solve",
+      "instruction": "Name the problem → Amplify the pain point → Present the solution.",
+      "template": "PROBLEM (identify the pain) → AGITATION (why it matters/costs) → SOLUTION (your answer)",
+      "bestFor": ["buyer-tips", "seller-tips"],
+      "allowedDomains": ["professional"]
+    },
+    "hook-value-cta": {
+      "description": "Direct value delivery",
+      "instruction": "Strong opening hook → Deliver immediate value → Clear call-to-action.",
+      "template": "HOOK (attention-grabber) → VALUE (useful info/tip) → CTA (next step)",
+      "bestFor": ["buyer-tips", "seller-tips", "market-update"],
+      "allowedDomains": ["professional"]
+    },
+    "insight-proof-application": {
+      "description": "Educational framework with evidence",
+      "instruction": "Share the insight → Back it with evidence → Show how to apply it.",
+      "template": "INSIGHT (the key point) → PROOF (data/evidence) → APPLICATION (how to use it)",
+      "bestFor": ["market-update", "investment-insight"],
+      "allowedDomains": ["professional"]
+    },
+    "challenge-solution-result": {
+      "description": "Case study framework",
+      "instruction": "Describe the challenge → Explain the approach → Reveal the outcome.",
+      "template": "CHALLENGE (what they faced) → SOLUTION (how you helped) → RESULT (the outcome)",
+      "bestFor": ["client-success-story"],
+      "allowedDomains": ["professional"]
+    },
+    "curiosity-reveal-engage": {
+      "description": "Engagement-first framework",
+      "instruction": "Create curiosity → Reveal the interesting part → Invite engagement.",
+      "template": "CURIOSITY (open loop) → REVEAL (the payoff) → ENGAGE (invite response)",
+      "bestFor": ["behind-the-scenes", "community-spotlight"],
+      "allowedDomains": ["personal", "professional"]
+    }
+  },
+  "microDevices": {
+    "specificity": {
+      "description": "Numbers, dates, concrete details instead of vague claims",
+      "instruction": "Use specific numbers, dates, and concrete details. '3 days' beats 'a few days'. '$47,000' beats 'thousands'.",
+      "examples": ["In 3 weeks...", "saved $12,400", "at 6:47am", "after 127 showings"],
+      "allowedDomains": ["personal", "professional"]
+    },
+    "future-pacing": {
+      "description": "Paint the future state after taking action",
+      "instruction": "Help the reader visualize their future state. Use present tense for the future.",
+      "examples": ["Picture yourself...", "6 months from now...", "You're closing on your dream home..."],
+      "allowedDomains": ["personal"]
+    },
+    "power-words": {
+      "description": "Emotionally charged words that trigger response",
+      "instruction": "Use emotionally charged words naturally: discover, transform, unlock, proven, essential, secret.",
+      "examples": ["discover", "transform", "unlock", "proven", "essential", "breakthrough", "insider"],
+      "allowedDomains": ["personal", "professional"]
+    },
+    "social-proof": {
+      "description": "Others' success, validation, testimonials",
+      "instruction": "Reference others' experiences or validation when relevant. Show you're not alone.",
+      "examples": ["I've helped 50+ families...", "My clients often say...", "Just like Sarah who..."],
+      "allowedDomains": ["professional"]
+    },
+    "authority-markers": {
+      "description": "Expertise signals without bragging",
+      "instruction": "Subtly signal expertise through specific knowledge and insights, not claims.",
+      "examples": ["In my 10 years...", "What I've seen work...", "The data shows..."],
+      "allowedDomains": ["professional"]
+    },
+    "bucket-brigades": {
+      "description": "Transition phrases that pull readers forward",
+      "instruction": "Use transition phrases that keep readers moving: 'Here's the thing...', 'But wait...', 'The truth is...'",
+      "examples": ["Here's the thing:", "But here's what most people miss:", "The truth is:", "And that's when it hit me:"],
+      "allowedDomains": ["personal", "professional"]
+    },
+    "open-loops": {
+      "description": "Create curiosity gaps that demand resolution",
+      "instruction": "Create curiosity gaps that make readers want to continue. Open a loop, then close it.",
+      "examples": ["What happened next changed everything.", "I almost made a huge mistake.", "There's one thing nobody tells you."],
+      "allowedDomains": ["personal"]
+    },
+    "pattern-interrupt": {
+      "description": "Break expectations to capture attention",
+      "instruction": "Break expectations to capture attention. Say something unexpected.",
+      "examples": ["I'm going to tell you something most agents won't.", "Forget everything you've heard about...", "This might surprise you:"],
+      "allowedDomains": ["personal", "professional"]
+    },
+    "sensory-language": {
+      "description": "Vivid imagery creating mental pictures",
+      "instruction": "Use vivid, descriptive language that creates mental images. Appeal to senses.",
+      "examples": ["The morning light streaming through...", "That sinking feeling when...", "The rush of hearing 'offer accepted'"],
+      "allowedDomains": ["personal"]
+    },
+    "contrast": {
+      "description": "Before/after comparisons highlighting value",
+      "instruction": "Show before/after or compare options to highlight value. Make the difference tangible.",
+      "examples": ["Before: stressed about listings. After: 3 offers in 48 hours.", "Most agents say X. Here's what actually works:"],
+      "allowedDomains": ["personal", "professional"]
+    },
+    "rhetorical-questions": {
+      "description": "Questions that engage and prompt reflection",
+      "instruction": "Ask questions that engage the reader and prompt reflection. Don't overuse.",
+      "examples": ["Ever feel like you're always one step behind?", "What would change if...?", "Sound familiar?"],
+      "allowedDomains": ["personal", "professional"]
+    }
+  },
+  "ctaPatterns": {
+    "reflective-engagement": {
+      "description": "Invite genuine reflection and response",
+      "instruction": "End with a question that invites genuine reflection and response.",
+      "examples": ["What's been on your mind lately?", "Can you relate?", "What would you do?"],
+      "bestFor": ["life-update", "lesson-insight", "behind-the-scenes"]
+    },
+    "soft-invitation": {
+      "description": "Gentle next step without pressure",
+      "instruction": "Offer a gentle next step without pressure. Make it easy to say yes.",
+      "examples": ["DM me if you're curious.", "Happy to chat if this resonates.", "Questions? I'm here."],
+      "bestFor": ["buyer-tips", "seller-tips"]
+    },
+    "authority-positioning": {
+      "description": "Position as expert ready to help",
+      "instruction": "Position as an expert ready to help when they're ready. Confident but not pushy.",
+      "examples": ["When you're ready, I'm here.", "Let's talk strategy.", "Ready to work with someone who gets it?"],
+      "bestFor": ["market-update", "investment-insight", "client-success-story"]
+    },
+    "community-building": {
+      "description": "Encourage interaction building community",
+      "instruction": "Encourage interaction that builds community. Make them feel part of something.",
+      "examples": ["Tag someone who needs to hear this.", "Drop a 🙌 if you agree.", "Share your experience below!"],
+      "bestFor": ["milestone", "community-spotlight"]
+    },
+    "value-exchange": {
+      "description": "Offer additional value for engagement",
+      "instruction": "Offer additional value in exchange for engagement.",
+      "examples": ["Comment 'GUIDE' and I'll send you my checklist.", "DM 'TIPS' for my free PDF."],
+      "bestFor": ["buyer-tips", "seller-tips"]
+    },
+    "direct-action": {
+      "description": "Clear, direct call to take next step",
+      "instruction": "Clear, direct call to take the next step. No ambiguity.",
+      "examples": ["DM me now.", "Click the link in bio.", "Schedule your call today."],
+      "bestFor": ["professional"]
+    }
+  },
+  "intentBundles": {
+    "personal": {
+      "life-update": {
+        "primaryAppeal": "belonging",
+        "structure": "story-lesson-takeaway",
+        "devices": ["specificity", "sensory-language", "bucket-brigades"],
+        "ctaPattern": "reflective-engagement"
+      },
+      "milestone": {
+        "primaryAppeal": "status",
+        "structure": "story-lesson-takeaway",
+        "devices": ["specificity", "future-pacing", "contrast"],
+        "ctaPattern": "community-building"
+      },
+      "lesson-insight": {
+        "primaryAppeal": "self-improvement",
+        "structure": "story-lesson-takeaway",
+        "devices": ["specificity", "power-words", "rhetorical-questions"],
+        "ctaPattern": "reflective-engagement"
+      },
+      "behind-the-scenes": {
+        "primaryAppeal": "curiosity",
+        "structure": "curiosity-reveal-engage",
+        "devices": ["sensory-language", "open-loops", "pattern-interrupt"],
+        "ctaPattern": "reflective-engagement"
+      }
+    },
+    "professional": {
+      "market-update": {
+        "primaryAppeal": "trust",
+        "structure": "insight-proof-application",
+        "devices": ["specificity", "authority-markers", "contrast"],
+        "ctaPattern": "authority-positioning"
+      },
+      "buyer-tips": {
+        "primaryAppeal": "self-improvement",
+        "structure": "hook-value-cta",
+        "devices": ["specificity", "power-words", "bucket-brigades"],
+        "ctaPattern": "soft-invitation"
+      },
+      "seller-tips": {
+        "primaryAppeal": "self-improvement",
+        "structure": "hook-value-cta",
+        "devices": ["specificity", "power-words", "social-proof"],
+        "ctaPattern": "soft-invitation"
+      },
+      "investment-insight": {
+        "primaryAppeal": "security",
+        "structure": "insight-proof-application",
+        "devices": ["specificity", "authority-markers", "contrast"],
+        "ctaPattern": "authority-positioning"
+      },
+      "client-success-story": {
+        "primaryAppeal": "trust",
+        "structure": "challenge-solution-result",
+        "devices": ["specificity", "social-proof", "contrast"],
+        "ctaPattern": "authority-positioning"
+      },
+      "community-spotlight": {
+        "primaryAppeal": "belonging",
+        "structure": "curiosity-reveal-engage",
+        "devices": ["sensory-language", "specificity", "social-proof"],
+        "ctaPattern": "community-building"
+      }
+    }
+  },
+  "headlineTechniques": {
+    "numberHeadlines": {
+      "description": "Headlines with specific numbers perform 36% better",
+      "examples": ["3 Things Every First-Time Buyer Should Know", "5 Mistakes That Cost Sellers $10,000+", "The 1 Question That Changes Everything"]
+    },
+    "howToHeadlines": {
+      "description": "Educational positioning with clear value",
+      "examples": ["How to Get Top Dollar for Your Home (Without Overpricing)", "How I Helped 3 Families Find Their Forever Home This Month"]
+    },
+    "questionHeadlines": {
+      "description": "Engage curiosity and self-reflection",
+      "examples": ["Is Your Home Ready for 2024's Market?", "What Would You Do With an Extra $50K?", "Ready to Stop Renting?"]
+    },
+    "statementHeadlines": {
+      "description": "Bold declarations that demand attention",
+      "examples": ["The Market Just Shifted. Here's What It Means.", "I Was Wrong About Open Houses.", "This Changed How I Think About Pricing."]
+    }
+  },
+  "openingTechniques": {
+    "storyOpening": {
+      "description": "Start in the middle of action",
+      "instruction": "Drop the reader into a moment. No preamble.",
+      "example": "It was 11pm when my phone buzzed. 'We got it.'"
+    },
+    "contrarianOpening": {
+      "description": "Challenge conventional wisdom",
+      "instruction": "Say something unexpected that makes them stop scrolling.",
+      "example": "Most agents will tell you to price high. Here's why that's wrong."
+    },
+    "questionOpening": {
+      "description": "Start with a thought-provoking question",
+      "instruction": "Ask something that makes them think.",
+      "example": "What would change if you knew exactly what buyers wanted?"
+    },
+    "dataOpening": {
+      "description": "Lead with a compelling statistic",
+      "instruction": "Open with a surprising or relevant number.",
+      "example": "87% of buyers start their search online. Here's what they're looking for."
+    },
+    "confessionOpening": {
+      "description": "Vulnerability that builds trust (Personal only)",
+      "instruction": "Share something honest that humanizes you.",
+      "example": "I almost quit real estate in my first year. Here's what kept me going."
+    }
+  }
+}

@@ -8,6 +8,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import copywritingFrameworks from '../../src/data/copywriting-frameworks.json';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -335,6 +336,83 @@ interface CaptionResponse {
 }
 
 // ============================================================================
+// COPYWRITING TECHNIQUES (From 600 Copy Techniques JSON)
+// ============================================================================
+
+interface TechniqueBundle {
+  primaryAppeal: string;
+  structure: string;
+  devices: string[];
+  ctaPattern: string;
+}
+
+/**
+ * Get technique bundle for an intent from the JSON framework
+ * Returns null for property domain (excluded from copywriting frameworks)
+ */
+function getTechniqueBundle(domain: string, intent: string): TechniqueBundle | null {
+  // Property domain excluded - uses factual templates only
+  if (domain === 'property') return null;
+
+  const domainBundles = copywritingFrameworks.intentBundles[domain as keyof typeof copywritingFrameworks.intentBundles];
+  if (!domainBundles) return null;
+
+  const bundle = domainBundles[intent as keyof typeof domainBundles];
+  return bundle || null;
+}
+
+/**
+ * Build copywriting instructions from technique bundle
+ * This creates the prompt section that guides OpenAI to use specific techniques
+ */
+function buildCopywritingInstructions(bundle: TechniqueBundle): string {
+  const { primaryAppeals, structures, microDevices, ctaPatterns } = copywritingFrameworks;
+
+  // Get appeal instruction
+  const appeal = primaryAppeals[bundle.primaryAppeal as keyof typeof primaryAppeals];
+  const appealInstruction = appeal?.instruction || '';
+  const powerWords = appeal?.powerWords?.slice(0, 5).join(', ') || '';
+
+  // Get structure instruction
+  const structure = structures[bundle.structure as keyof typeof structures];
+  const structureInstruction = structure?.instruction || '';
+  const structureTemplate = structure?.template || '';
+
+  // Get device instructions
+  const deviceInstructions = bundle.devices.map(deviceKey => {
+    const device = microDevices[deviceKey as keyof typeof microDevices];
+    return device ? `• ${device.instruction}` : '';
+  }).filter(Boolean).join('\n');
+
+  // Get CTA instruction
+  const cta = ctaPatterns[bundle.ctaPattern as keyof typeof ctaPatterns];
+  const ctaInstruction = cta?.instruction || '';
+  const ctaExamples = cta?.examples?.slice(0, 2).join(' | ') || '';
+
+  return `
+═══════════════════════════════════════════════════════════════
+COPYWRITING FRAMEWORK (Apply these principles):
+═══════════════════════════════════════════════════════════════
+
+PRIMARY APPEAL: ${bundle.primaryAppeal.toUpperCase()}
+${appealInstruction}
+${powerWords ? `Power words to consider: ${powerWords}` : ''}
+
+STRUCTURE:
+${structureInstruction}
+${structureTemplate ? `Template: ${structureTemplate}` : ''}
+
+WRITING TECHNIQUES:
+${deviceInstructions}
+
+CTA APPROACH:
+${ctaInstruction}
+${ctaExamples ? `Examples: ${ctaExamples}` : ''}
+
+═══════════════════════════════════════════════════════════════`;
+}
+
+// ============================================================================
 // INTENT DOMAIN CLASSIFICATION
 // ============================================================================
 
@@ -484,11 +562,11 @@ function parseContextFields(contextString: string): Record<string, string> {
   // Also try to extract known field patterns
   const knownPatterns: Record<string, RegExp> = {
     story: /(?:story|update|what'?s? your update)[:\s]*(.+)/i,
-    milestone: /(?:milestone|achievement)[:\s]*(.+)/i,
-    whyItMatters: /(?:why it matters|reflection)[:\s]*(.+)/i,
-    lesson: /(?:lesson|what did you learn)[:\s]*(.+)/i,
-    takeaway: /(?:takeaway|key point)[:\s]*(.+)/i,
-    bts: /(?:behind the scenes|bts)[:\s]*(.+)/i,
+    milestone: /(?:milestone|achievement|what'?s? your milestone|what milestone)[:\s]*(.+)/i,
+    whyItMatters: /(?:why it matters|reflection|why does it matter)[:\s]*(.+)/i,
+    lesson: /(?:lesson|what did you learn|what'?s? the lesson)[:\s]*(.+)/i,
+    takeaway: /(?:takeaway|key point|key takeaway|remember)[:\s]*(.+)/i,
+    bts: /(?:behind the scenes|bts|what happened)[:\s]*(.+)/i,
     tipTitle: /(?:tip title|title)[:\s]*(.+)/i,
     tipBody: /(?:tip details|tip body|details)[:\s]*(.+)/i,
     headline: /(?:headline|market headline)[:\s]*(.+)/i,
@@ -794,8 +872,8 @@ function validateCaptionOutput(caption: string, domain: IntentDomain, intent: st
 /**
  * Build stricter system prompt for regeneration after violation
  */
-function buildStricterSystemPrompt(domain: IntentDomain, violations: DomainViolation[]): string {
-  const basePrompt = buildCaptionSystemPrompt(domain);
+function buildStricterSystemPrompt(domain: IntentDomain, violations: DomainViolation[], intent?: string, tone?: string): string {
+  const basePrompt = buildCaptionSystemPrompt(domain, intent, tone);
   const violationWarnings = violations
     .map((v) => `- DO NOT use: "${v.matched}" (violates ${v.rule})`)
     .join('\n');
@@ -1048,8 +1126,8 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
       isBatch,
     });
 
-    // First generation attempt
-    let systemPrompt = buildCaptionSystemPrompt(domain);
+    // First generation attempt - include copywriting framework for Personal/Professional
+    let systemPrompt = buildCaptionSystemPrompt(domain, postIntent, tone);
     let caption = await generateCaption(systemPrompt, userPrompt);
 
     if (!caption) {
@@ -1087,7 +1165,7 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
         attemptNumber,
       });
 
-      const stricterPrompt = buildStricterSystemPrompt(domain, validation.violations);
+      const stricterPrompt = buildStricterSystemPrompt(domain, validation.violations, postIntent, tone);
       caption = await generateCaption(stricterPrompt, userPrompt);
 
       if (!caption) {
@@ -1179,7 +1257,7 @@ async function generateCaption(systemPrompt: string, userPrompt: string): Promis
 // SYSTEM PROMPT - Domain-specific
 // ============================================================================
 
-function buildCaptionSystemPrompt(domain: IntentDomain): string {
+function buildCaptionSystemPrompt(domain: IntentDomain, intent?: string, tone?: string): string {
   const baseRules = `You are a social media copywriter for a real estate professional. You create engaging, scannable captions.
 
 CRITICAL RULES:
@@ -1208,16 +1286,26 @@ PROPERTY DOMAIN CONSTRAINTS (STRICTLY ENFORCED):
 
     personal: `
 DOMAIN: PERSONAL POSTS (Story & Reflection)
+
+CRITICAL RULES FOR PERSONAL POSTS:
 - Write in FIRST PERSON ("I", "me", "my")
-- Be authentic, reflective, and relatable
-- Focus on personal moments, growth, and human connection
-- Use story-driven, emotionally resonant language
+- The user's context is your SOURCE MATERIAL - incorporate their SPECIFIC details
+- Don't generate generic inspirational fluff - use THEIR story
+- For milestone posts: Use THEIR milestone, THEIR reflection
+- For lesson posts: Expand on THEIR lesson, don't replace it with generic wisdom
+- For behind-the-scenes: Describe THEIR actual experience, not imagined scenarios
+
+WHAT TO DO WITH USER CONTEXT:
+- If they say "I got 8 hours of sleep" → Write about THEIR sleep experience
+- If they say "It's my 5th year in real estate" → Write about THEIR 5 years
+- For takeaways: EXPAND and ENHANCE what they wrote, don't just copy verbatim
 
 PERSONAL DOMAIN CONSTRAINTS (STRICTLY ENFORCED):
 - NEVER mention property listings, prices, or transactions
 - NEVER use property-specific language (beds, baths, sqft, just listed, etc.)
 - NEVER sound promotional or sales-driven
-- This is about the person, not the business`,
+- NEVER generate generic "Imagine..." or "Picture this..." filler
+- This is about THE PERSON and THEIR specific story`,
 
     professional: `
 DOMAIN: PROFESSIONAL POSTS (Education & Authority)
@@ -1233,8 +1321,18 @@ PROFESSIONAL DOMAIN CONSTRAINTS (STRICTLY ENFORCED):
 - This is about expertise, not personality`,
   };
 
+  // Get copywriting framework for Personal/Professional domains
+  let copywritingInstructions = '';
+  if (intent && (domain === 'personal' || domain === 'professional')) {
+    const bundle = getTechniqueBundle(domain, intent);
+    if (bundle) {
+      copywritingInstructions = buildCopywritingInstructions(bundle);
+    }
+  }
+
   return `${baseRules}
-${domainRules[domain]}`;
+${domainRules[domain]}
+${copywritingInstructions}`;
 }
 
 // ============================================================================
@@ -1275,9 +1373,16 @@ INSTRUCTIONS:
 1. Use the template structure exactly
 2. Replace {placeholders} with the provided data
 3. Write {body_copy} as 2-4 short, punchy sentences in ${tone} tone
-   - CRITICAL: For Personal and Professional posts, the body copy MUST be based on the CONTEXT FIELDS above
-   - The user's context is the SOURCE MATERIAL - incorporate their specific details, story, or tip into the caption
-   - Do NOT ignore the context or write generic copy
+
+FOR PERSONAL POSTS - READ CAREFULLY:
+- The USER-PROVIDED CONTEXT above contains THEIR actual story/experience
+- Your job is to EXPAND and ENHANCE their words into polished copy
+- Do NOT replace their story with generic inspirational content
+- Do NOT start with "Imagine..." or "Picture this..." - use THEIR experience
+- If they wrote about sleep, write about THEIR sleep experience
+- If they wrote about a milestone, celebrate THEIR specific milestone
+- For {takeaway} fields: EXPAND on what they wrote, don't just copy verbatim
+
 4. Use the provided hook and CTA
 5. Keep emojis as shown
 6. Output ONLY the caption - no explanations
@@ -1333,26 +1438,28 @@ function getIntentContextSections(intent: string, ctx: Record<string, string>): 
 
   switch (intent) {
     // ===== PERSONAL INTENTS =====
+    // IMPORTANT: For Personal intents, these are the user's ACTUAL words/story.
+    // The AI must EXPAND on these, not replace them with generic content.
     case 'life-update':
       if (ctx.story || ctx.rawContext) {
-        sections.push(`YOUR UPDATE (use this as the main content):\n${ctx.story || ctx.rawContext}`);
+        sections.push(`THE USER'S ACTUAL UPDATE (expand on THIS, don't invent new content):\n"${ctx.story || ctx.rawContext}"`);
       }
       break;
 
     case 'milestone':
-      if (ctx.milestone) sections.push(`MILESTONE: ${ctx.milestone}`);
-      if (ctx.whyItMatters) sections.push(`WHY IT MATTERS: ${ctx.whyItMatters}`);
-      if (!ctx.milestone && ctx.rawContext) sections.push(`MILESTONE: ${ctx.rawContext}`);
+      if (ctx.milestone) sections.push(`THE USER'S SPECIFIC MILESTONE (celebrate THIS):\n"${ctx.milestone}"`);
+      if (ctx.whyItMatters) sections.push(`THE USER'S REFLECTION (expand on THIS):\n"${ctx.whyItMatters}"`);
+      if (!ctx.milestone && ctx.rawContext) sections.push(`THE USER'S MILESTONE (celebrate THIS):\n"${ctx.rawContext}"`);
       break;
 
     case 'lesson-insight':
-      if (ctx.lesson || ctx.rawContext) sections.push(`LESSON LEARNED:\n${ctx.lesson || ctx.rawContext}`);
-      if (ctx.takeaway) sections.push(`KEY TAKEAWAY: ${ctx.takeaway}`);
+      if (ctx.lesson || ctx.rawContext) sections.push(`THE USER'S LESSON (expand on THIS insight):\n"${ctx.lesson || ctx.rawContext}"`);
+      if (ctx.takeaway) sections.push(`THE USER'S TAKEAWAY (enhance THIS, don't just copy verbatim):\n"${ctx.takeaway}"`);
       break;
 
     case 'behind-the-scenes':
       if (ctx.bts || ctx.rawContext) {
-        sections.push(`BEHIND THE SCENES:\n${ctx.bts || ctx.rawContext}`);
+        sections.push(`THE USER'S BTS MOMENT (describe THIS specific experience):\n"${ctx.bts || ctx.rawContext}"`);
       }
       break;
 
@@ -1544,20 +1651,21 @@ Purple Homes | Your Trusted Real Estate Partner`,
   };
 
   // ===== PERSONAL TEMPLATES =====
+  // NOTE: For Personal posts, {body_copy} MUST be based on user's context, not generic content
   const personalTemplates: Record<string, string> = {
     'life-update': `{hook}
 
-{body_copy}
+{body_copy - Write 2-3 sentences that EXPAND on the user's specific update. Use their words and details.}
 
 {cta}
 
 Purple Homes | Your Trusted Real Estate Partner`,
 
-    'milestone': `{hook}
+    'milestone': `{hook - Include the user's SPECIFIC milestone}
 
-{body_copy}
+{body_copy - Write 2-3 sentences about THEIR specific achievement and journey. Reference their actual milestone.}
 
-🙏 {gratitude_or_reflection}
+🙏 {gratitude_reflection - A genuine reflection on THEIR milestone, not generic gratitude}
 
 {cta}
 
@@ -1565,9 +1673,9 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
     'lesson-insight': `{hook}
 
-{body_copy}
+{body_copy - Write 2-3 sentences that EXPAND on the user's specific lesson/insight. Don't replace their wisdom with generic advice.}
 
-💭 {takeaway}
+💭 {expanded_takeaway - ENHANCE what the user wrote, don't just copy it. Make it more impactful while keeping their core message.}
 
 {cta}
 
@@ -1575,7 +1683,7 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
     'behind-the-scenes': `{hook}
 
-{body_copy}
+{body_copy - Describe the user's ACTUAL behind-the-scenes moment. Use their specific details, not imagined scenarios.}
 
 {cta}
 
