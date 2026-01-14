@@ -33,12 +33,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return handleInsights(req, res);
     case 'caption':
       return handleCaption(req, res);
+    case 'expand-context':
+      return handleExpandContext(req, res);
     case 'health':
       return handleHealth(req, res);
     default:
       return res.status(400).json({
         error: 'Unknown action',
-        validActions: ['insights', 'caption', 'health'],
+        validActions: ['insights', 'caption', 'expand-context', 'health'],
       });
   }
 }
@@ -78,6 +80,97 @@ async function handleHealth(_req: VercelRequest, res: VercelResponse) {
   } catch (error) {
     console.error('[AI API] Health check error:', error);
     return res.status(500).json({ error: 'Health check failed' });
+  }
+}
+
+// ============================================================================
+// EXPAND CONTEXT - AI Field Autofill for Personal/Professional Posts
+// ============================================================================
+
+interface ExpandContextRequest {
+  rawContext: string;
+  intent: string;
+  fields: Array<{ id: string; label: string }>;
+}
+
+async function handleExpandContext(req: VercelRequest, res: VercelResponse) {
+  const { rawContext, intent, fields }: ExpandContextRequest = req.body;
+
+  if (!rawContext || !intent || !fields || fields.length === 0) {
+    return res.status(400).json({ error: 'Missing required fields: rawContext, intent, fields' });
+  }
+
+  if (!OPENAI_API_KEY) {
+    console.error('[AI API] OpenAI API key not configured');
+    return res.status(500).json({ error: 'OpenAI API key not configured' });
+  }
+
+  try {
+    const fieldDescriptions = fields.map(f => `- ${f.id}: ${f.label}`).join('\n');
+
+    const systemPrompt = `You are helping a real estate professional create social media content.
+Your job is to take their raw idea and expand it into structured form fields.
+
+RULES:
+1. Use their words and ideas - don't invent new content
+2. Expand and enhance, but stay true to their message
+3. Use staccato style - short, punchy sentences
+4. For tips, break down into actionable points
+5. Return ONLY valid JSON with the field values
+
+FIELDS TO FILL:
+${fieldDescriptions}
+
+Return a JSON object like: { "fieldId": "value", ... }`;
+
+    const userPrompt = `Intent: ${intent}
+
+Raw context from user:
+"${rawContext}"
+
+Fill in the fields based on this context. Expand their ideas but keep their voice.`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.4,
+        max_tokens: 500,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[AI API] OpenAI error:', errorText);
+      return res.status(500).json({ error: 'OpenAI API error' });
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content?.trim() || '';
+
+    // Parse JSON from response
+    try {
+      // Handle markdown code blocks
+      const jsonMatch = content.match(/```(?:json)?\n?([\s\S]*?)\n?```/) || [null, content];
+      const jsonStr = jsonMatch[1] || content;
+      const parsed = JSON.parse(jsonStr.trim());
+
+      return res.status(200).json({ fields: parsed });
+    } catch (parseError) {
+      console.error('[AI API] Failed to parse expand-context response:', content);
+      return res.status(500).json({ error: 'Failed to parse AI response' });
+    }
+  } catch (error) {
+    console.error('[AI API] Expand context error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
 

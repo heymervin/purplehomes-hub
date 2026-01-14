@@ -1,12 +1,113 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WizardState, PostIntent } from '../../types';
 import { POST_INTENTS } from '../../types';
+
+// ============================================
+// INTENT FIELD CONFIGURATIONS
+// ============================================
+
+type IntentDomain = 'property' | 'personal' | 'professional';
+
+interface FieldConfig {
+  id: string;
+  label: string;
+  placeholder: string;
+  type: 'input' | 'textarea';
+  rows?: number;
+  required?: boolean;
+}
+
+const INTENT_DOMAINS: Record<string, IntentDomain> = {
+  'just-listed': 'property',
+  'sold': 'property',
+  'under-contract': 'property',
+  'price-reduced': 'property',
+  'price-drop': 'property',
+  'open-house': 'property',
+  'coming-soon': 'property',
+  'investment': 'property',
+  'life-update': 'personal',
+  'milestone': 'personal',
+  'lesson-insight': 'personal',
+  'behind-the-scenes': 'personal',
+  'market-update': 'professional',
+  'buyer-tips': 'professional',
+  'seller-tips': 'professional',
+  'investment-insight': 'professional',
+  'client-success-story': 'professional',
+  'community-spotlight': 'professional',
+  'personal-value': 'professional',
+  'success-story': 'professional',
+  'general': 'professional',
+};
+
+// Intent-specific form fields for Personal/Professional domains
+const INTENT_FIELDS: Record<string, FieldConfig[]> = {
+  // ===== PERSONAL INTENTS =====
+  'life-update': [
+    { id: 'story', label: "What's your update?", placeholder: "I finally took a full weekend off for the first time in 2 years...", type: 'textarea', rows: 3, required: true },
+  ],
+  'milestone': [
+    { id: 'milestone', label: "What milestone did you hit?", placeholder: "100 families helped find their dream home", type: 'input', required: true },
+    { id: 'whyItMatters', label: "Why does it matter to you?", placeholder: "Every closing reminds me why I got into this business...", type: 'textarea', rows: 2 },
+  ],
+  'lesson-insight': [
+    { id: 'lesson', label: "What did you learn?", placeholder: "The best deals often come from the listings no one else wants to show.", type: 'textarea', rows: 2, required: true },
+    { id: 'takeaway', label: "Key takeaway for your audience", placeholder: "Don't skip the 'ugly' houses - that's where the opportunity hides.", type: 'textarea', rows: 2 },
+  ],
+  'behind-the-scenes': [
+    { id: 'bts', label: "What happened behind the scenes?", placeholder: "Spent 3 hours staging a vacant property with furniture from my garage...", type: 'textarea', rows: 3, required: true },
+  ],
+
+  // ===== PROFESSIONAL INTENTS =====
+  'market-update': [
+    { id: 'headline', label: "Market headline", placeholder: "Inventory hits 6-month high in Phoenix Metro", type: 'input', required: true },
+    { id: 'stats', label: "Key stats", placeholder: "Active listings up 23% YoY, median days on market now 34", type: 'textarea', rows: 2 },
+    { id: 'soWhat', label: "Why it matters", placeholder: "Buyers finally have breathing room to negotiate", type: 'textarea', rows: 2 },
+  ],
+  'buyer-tips': [
+    { id: 'tipTitle', label: "Tip title", placeholder: "Stop waiving inspections", type: 'input', required: true },
+    { id: 'tip1', label: "Tip #1", placeholder: "I've seen 3 deals fall apart this month from hidden foundation issues.", type: 'textarea', rows: 2 },
+    { id: 'tip2', label: "Tip #2 (optional)", placeholder: "The $500 inspection is the cheapest insurance you'll buy.", type: 'textarea', rows: 2 },
+    { id: 'tip3', label: "Tip #3 (optional)", placeholder: "Always get a sewer scope in older homes.", type: 'textarea', rows: 2 },
+  ],
+  'seller-tips': [
+    { id: 'tipTitle', label: "Tip title", placeholder: "Price it right the first week", type: 'input', required: true },
+    { id: 'tip1', label: "Tip #1", placeholder: "Homes priced correctly sell 18 days faster.", type: 'textarea', rows: 2 },
+    { id: 'tip2', label: "Tip #2 (optional)", placeholder: "Overpricing then reducing looks desperate to buyers.", type: 'textarea', rows: 2 },
+    { id: 'tip3', label: "Tip #3 (optional)", placeholder: "First 2 weeks get 80% of your showings.", type: 'textarea', rows: 2 },
+  ],
+  'investment-insight': [
+    { id: 'insight', label: "Investment insight", placeholder: "Multifamily under 4 units still qualifies for residential financing", type: 'textarea', rows: 2, required: true },
+    { id: 'metric', label: "Key metric", placeholder: "3.2% average cap rate in suburban Phoenix vs 4.8% in Tucson", type: 'input' },
+  ],
+  'client-success-story': [
+    { id: 'challenge', label: "Client's challenge", placeholder: "First-time buyers kept losing to cash offers", type: 'textarea', rows: 2, required: true },
+    { id: 'solution', label: "How you helped", placeholder: "Connected them with a local lender who could close in 14 days", type: 'textarea', rows: 2 },
+    { id: 'result', label: "The result", placeholder: "Won their dream home $5K under asking", type: 'input' },
+  ],
+  'community-spotlight': [
+    { id: 'spotlight', label: "What/who are you featuring?", placeholder: "Mesa Farmers Market", type: 'input', required: true },
+    { id: 'details', label: "Why they matter", placeholder: "Every Saturday 8am-noon. Fresh produce, live music, and the best breakfast tacos.", type: 'textarea', rows: 2 },
+  ],
+
+  // Legacy intents
+  'personal-value': [
+    { id: 'tipTitle', label: "Tip title", placeholder: "The one thing first-time buyers always forget", type: 'input', required: true },
+    { id: 'tipBody', label: "Tip details", placeholder: "Budget for closing costs - they're usually 2-5% of the purchase price.", type: 'textarea', rows: 3 },
+  ],
+  'success-story': [
+    { id: 'challenge', label: "Client's situation", placeholder: "They needed to sell and buy simultaneously", type: 'textarea', rows: 2, required: true },
+    { id: 'result', label: "The outcome", placeholder: "Closed both on the same day, moved once", type: 'input' },
+  ],
+};
 
 interface PostIntentSubstepProps {
   state: WizardState;
@@ -15,48 +116,205 @@ interface PostIntentSubstepProps {
 }
 
 export default function PostIntentSubstep({ state, updateState, onNext }: PostIntentSubstepProps) {
+  const [isGeneratingFields, setIsGeneratingFields] = useState(false);
+  const [rawContext, setRawContext] = useState('');
+  const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+
   const handleSelect = (intentId: PostIntent) => {
     updateState({ postIntent: intentId });
+    // Reset field values when intent changes
+    setFieldValues({});
   };
 
   // Intents that have matching image templates
   const templateLinkedIntents = ['just-listed', 'sold', 'open-house', 'personal-value', 'success-story'];
 
+  // Get the domain for current intent
+  const currentDomain = INTENT_DOMAINS[state.postIntent] || 'property';
+  const isPersonalOrProfessional = currentDomain === 'personal' || currentDomain === 'professional';
+  const intentFields = INTENT_FIELDS[state.postIntent] || [];
+
+  // Build context string from field values
+  const buildContextFromFields = useMemo(() => {
+    if (!isPersonalOrProfessional || intentFields.length === 0) return state.postContext;
+
+    const parts: string[] = [];
+    for (const field of intentFields) {
+      const value = fieldValues[field.id];
+      if (value?.trim()) {
+        parts.push(`${field.label}: ${value.trim()}`);
+      }
+    }
+    return parts.join('\n');
+  }, [fieldValues, intentFields, isPersonalOrProfessional, state.postContext]);
+
+  // Update parent state when fields change
+  const handleFieldChange = (fieldId: string, value: string) => {
+    const newValues = { ...fieldValues, [fieldId]: value };
+    setFieldValues(newValues);
+
+    // Build context string from all fields
+    const parts: string[] = [];
+    for (const field of intentFields) {
+      const fieldValue = newValues[field.id];
+      if (fieldValue?.trim()) {
+        parts.push(`${field.label}: ${fieldValue.trim()}`);
+      }
+    }
+    updateState({ postContext: parts.join('\n') });
+  };
+
+  // AI autofill - generate field values from raw context
+  const handleGenerateFields = async () => {
+    if (!rawContext.trim()) return;
+
+    setIsGeneratingFields(true);
+    try {
+      const response = await fetch('/api/ai?action=expand-context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          rawContext: rawContext.trim(),
+          intent: state.postIntent,
+          fields: intentFields.map(f => ({ id: f.id, label: f.label })),
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.fields) {
+          setFieldValues(data.fields);
+          // Also update the context
+          const parts: string[] = [];
+          for (const field of intentFields) {
+            const value = data.fields[field.id];
+            if (value?.trim()) {
+              parts.push(`${field.label}: ${value.trim()}`);
+            }
+          }
+          updateState({ postContext: parts.join('\n') });
+        }
+      }
+    } catch (error) {
+      console.error('Error generating fields:', error);
+    } finally {
+      setIsGeneratingFields(false);
+    }
+  };
+
+  // Check if form has required fields filled
+  const hasRequiredFields = useMemo(() => {
+    if (!isPersonalOrProfessional) return state.postContext.trim().length > 0;
+
+    const requiredFields = intentFields.filter(f => f.required);
+    return requiredFields.every(f => fieldValues[f.id]?.trim());
+  }, [fieldValues, intentFields, isPersonalOrProfessional, state.postContext]);
+
   return (
     <div className="space-y-6">
-      {/* Context Input */}
-      <div className="space-y-2">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <Label htmlFor="postContext" className="text-base">
-              Property Highlights & Details <span className="text-red-500">*</span>
-            </Label>
-            <p className="text-xs text-muted-foreground mt-1">
-              {state.selectedProperty
-                ? 'These details were auto-filled from your property. Edit if needed.'
-                : 'Describe what makes this property special and worth sharing.'}
+      {/* Context Input - Property Domain */}
+      {!isPersonalOrProfessional && (
+        <div className="space-y-2">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <Label htmlFor="postContext" className="text-base">
+                Property Highlights & Details <span className="text-red-500">*</span>
+              </Label>
+              <p className="text-xs text-muted-foreground mt-1">
+                {state.selectedProperty
+                  ? 'These details were auto-filled from your property. Edit if needed.'
+                  : 'Describe what makes this property special and worth sharing.'}
+              </p>
+            </div>
+          </div>
+          <Textarea
+            id="postContext"
+            placeholder="E.g., 'Beautifully renovated 3-bed with new kitchen, granite countertops, stainless appliances. Great neighborhood near top schools and shopping. Move-in ready!'"
+            value={state.postContext}
+            onChange={(e) => updateState({ postContext: e.target.value })}
+            rows={4}
+            className="resize-none"
+          />
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900">
+            <div className="text-blue-600 dark:text-blue-400 text-lg">💡</div>
+            <div className="flex-1 text-xs text-blue-700 dark:text-blue-300">
+              <p className="font-medium mb-1">This information is used in two ways:</p>
+              <ul className="space-y-0.5 list-disc list-inside">
+                <li>AI incorporates these details into your caption text</li>
+                <li>Template image fields are auto-filled (for templates like "Value Tips" and "Open House")</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Intent-Specific Fields - Personal/Professional Domain */}
+      {isPersonalOrProfessional && intentFields.length > 0 && (
+        <div className="space-y-4">
+          {/* AI Autofill Section */}
+          <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border border-purple-200 dark:border-purple-800">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="h-4 w-4 text-purple-600" />
+              <Label className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                AI Context Helper
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">
+              Paste your raw idea and let AI fill in the fields below.
             </p>
+            <div className="flex gap-2">
+              <Textarea
+                placeholder="E.g., 'Hit 100 families milestone today, feeling grateful for every closing'"
+                value={rawContext}
+                onChange={(e) => setRawContext(e.target.value)}
+                rows={2}
+                className="flex-1 resize-none text-sm"
+              />
+              <Button
+                onClick={handleGenerateFields}
+                disabled={!rawContext.trim() || isGeneratingFields}
+                className="gap-2 bg-purple-600 hover:bg-purple-700 self-end"
+              >
+                {isGeneratingFields ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+                Fill Fields
+              </Button>
+            </div>
+          </div>
+
+          {/* Dynamic Form Fields */}
+          <div className="space-y-3">
+            <Label className="text-base">Post Details</Label>
+            {intentFields.map((field) => (
+              <div key={field.id} className="space-y-1">
+                <Label htmlFor={field.id} className="text-sm">
+                  {field.label} {field.required && <span className="text-red-500">*</span>}
+                </Label>
+                {field.type === 'input' ? (
+                  <Input
+                    id={field.id}
+                    placeholder={field.placeholder}
+                    value={fieldValues[field.id] || ''}
+                    onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                  />
+                ) : (
+                  <Textarea
+                    id={field.id}
+                    placeholder={field.placeholder}
+                    value={fieldValues[field.id] || ''}
+                    onChange={(e) => handleFieldChange(field.id, e.target.value)}
+                    rows={field.rows || 2}
+                    className="resize-none"
+                  />
+                )}
+              </div>
+            ))}
           </div>
         </div>
-        <Textarea
-          id="postContext"
-          placeholder="E.g., 'Beautifully renovated 3-bed with new kitchen, granite countertops, stainless appliances. Great neighborhood near top schools and shopping. Move-in ready!'"
-          value={state.postContext}
-          onChange={(e) => updateState({ postContext: e.target.value })}
-          rows={4}
-          className="resize-none"
-        />
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900">
-          <div className="text-blue-600 dark:text-blue-400 text-lg">💡</div>
-          <div className="flex-1 text-xs text-blue-700 dark:text-blue-300">
-            <p className="font-medium mb-1">This information is used in two ways:</p>
-            <ul className="space-y-0.5 list-disc list-inside">
-              <li>AI incorporates these details into your caption text</li>
-              <li>Template image fields are auto-filled (for templates like "Value Tips" and "Open House")</li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      )}
 
       <div>
         <h3 className="text-lg font-medium mb-1">What are you announcing?</h3>
@@ -122,7 +380,7 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
       <div className="flex justify-end">
         <Button
           onClick={onNext}
-          disabled={!state.postIntent || !state.postContext || state.postContext.trim().length === 0}
+          disabled={!state.postIntent || !hasRequiredFields}
           className="gap-2 bg-purple-600 hover:bg-purple-700"
         >
           Next: Choose Tone
