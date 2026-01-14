@@ -10,7 +10,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import copywritingFrameworks from '../../src/data/copywriting-frameworks.json';
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS
