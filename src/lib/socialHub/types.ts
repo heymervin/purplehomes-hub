@@ -161,6 +161,13 @@ export interface BatchItem {
   templateId: ImageTemplateId;
   context: Record<string, string>;
 
+  // Agent selection (for template generation)
+  selectedAgentId?: string;
+
+  // Image selection (for template generation)
+  selectedHeroImage?: string;           // User-selected hero image
+  selectedSupportingImages?: string[];  // User-selected supporting images (up to 3)
+
   // Hashtags (auto-initialized based on intent, can be customized)
   selectedHashtags: string[];
 

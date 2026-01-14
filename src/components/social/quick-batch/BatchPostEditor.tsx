@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -36,6 +37,7 @@ import {
   X,
   Hash,
   Plus,
+  Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Property } from '@/types';
@@ -58,6 +60,8 @@ import {
   INTENT_HASHTAGS,
   generateLocationHashtags,
 } from '@/lib/socialHub';
+import { TEAM_AGENTS } from '@/lib/socialHub/agents';
+import { SupportingImagePicker } from '@/components/social/templates/SupportingImagePicker';
 
 interface BatchPostEditorProps {
   item: BatchItem;
@@ -417,28 +421,120 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
             Image Template
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-4">
-          <Select
-            value={item.templateId}
-            onValueChange={(v) => onChange({ templateId: v as ImageTemplateId })}
-          >
-            <SelectTrigger className="h-10">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {allowedTemplates.map((template) => (
-                <SelectItem key={template.id} value={template.id}>
-                  <span className="flex items-center gap-2">
-                    <span>{template.icon}</span>
-                    <span>{template.label}</span>
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground mt-2">
-            Templates are filtered based on your selected intent.
-          </p>
+        <CardContent className="pt-4 space-y-4">
+          {/* Template Selection */}
+          <div>
+            <Select
+              value={item.templateId}
+              onValueChange={(v) => onChange({ templateId: v as ImageTemplateId })}
+            >
+              <SelectTrigger className="h-10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {allowedTemplates.map((template) => (
+                  <SelectItem key={template.id} value={template.id}>
+                    <span className="flex items-center gap-2">
+                      <span>{template.icon}</span>
+                      <span>{template.label}</span>
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground mt-2">
+              Templates are filtered based on your selected intent.
+            </p>
+          </div>
+
+          {/* Agent Selector - shown for property posts */}
+          {item.tab === 'property' && (
+            <div className="p-3 rounded-lg border border-purple-200 bg-purple-50/30 dark:bg-purple-950/10">
+              <div className="flex items-center gap-2 mb-2">
+                <User className="h-4 w-4 text-purple-600" />
+                <Label className="font-medium text-sm mb-0">Posting As</Label>
+              </div>
+              <Select
+                value={item.selectedAgentId || 'krista'}
+                onValueChange={(value) => onChange({ selectedAgentId: value })}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="Select agent" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TEAM_AGENTS.map((agent) => (
+                    <SelectItem key={agent.id} value={agent.id}>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{agent.name}</span>
+                        <span className="text-muted-foreground text-xs">({agent.phone})</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                Agent info will appear on the generated image
+              </p>
+            </div>
+          )}
+
+          {/* Hero Image Selection - shown for property posts with images */}
+          {item.tab === 'property' && property && (property.heroImage || (property.images && property.images.length > 0)) && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4 text-purple-500" />
+                <Label className="text-sm font-medium">Hero Image</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Select the main image for this post
+              </p>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  ...(property.heroImage ? [property.heroImage] : []),
+                  ...(property.images || []),
+                ]
+                  .filter((img, idx, arr) => arr.indexOf(img) === idx)
+                  .slice(0, 8)
+                  .map((img, idx) => {
+                    const isSelected = (item.selectedHeroImage || property.heroImage) === img;
+                    return (
+                      <button
+                        key={`hero-${img}-${idx}`}
+                        type="button"
+                        onClick={() => onChange({ selectedHeroImage: img })}
+                        className={cn(
+                          "relative aspect-square rounded-lg overflow-hidden border-2 transition-all",
+                          isSelected
+                            ? "border-purple-500 ring-2 ring-purple-500/20"
+                            : "border-transparent hover:border-muted-foreground/50"
+                        )}
+                      >
+                        <img
+                          src={img}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                        {isSelected && (
+                          <div className="absolute top-1 right-1 bg-purple-600 text-white rounded-full p-0.5">
+                            <Check className="h-3 w-3" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
+
+          {/* Supporting Images Selection - shown for Open House template */}
+          {item.tab === 'property' && property && item.templateId === 'open-house' && (
+            <SupportingImagePicker
+              property={property}
+              selectedImages={item.selectedSupportingImages || []}
+              onSelectionChange={(images) => onChange({ selectedSupportingImages: images })}
+              maxImages={3}
+            />
+          )}
         </CardContent>
       </Card>
 
