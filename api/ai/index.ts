@@ -460,12 +460,13 @@ function getTechniqueBundle(domain: string, intent: string): TechniqueBundle | n
  * This creates the prompt section that guides OpenAI to use specific techniques
  */
 function buildCopywritingInstructions(bundle: TechniqueBundle, intent: string): string {
-  const { primaryAppeals, structures, microDevices, ctaPatterns, exampleOutputs } = copywritingFrameworks as {
+  const { primaryAppeals, structures, microDevices, ctaPatterns, exampleOutputs, globalAvoidPhrases } = copywritingFrameworks as {
     primaryAppeals: Record<string, { instruction?: string; powerWords?: string[] }>;
     structures: Record<string, { instruction?: string; template?: string }>;
     microDevices: Record<string, { instruction?: string }>;
     ctaPatterns: Record<string, { instruction?: string; examples?: string[] }>;
-    exampleOutputs: Record<string, { good: string; bad: string; avoid: string[] }>;
+    exampleOutputs: Record<string, { good: string; good2?: string; good3?: string; good4?: string; good5?: string; bad: string; bad2?: string; avoid: string[] }>;
+    globalAvoidPhrases: string[];
   };
 
   // Get appeal instruction
@@ -488,9 +489,37 @@ function buildCopywritingInstructions(bundle: TechniqueBundle, intent: string): 
 
   // Get example outputs for this intent
   const examples = exampleOutputs?.[intent];
-  const goodExample = examples?.good || '';
-  const badExample = examples?.bad || '';
-  const avoidPhrases = examples?.avoid?.join('", "') || '';
+  const goodExamples = [
+    examples?.good,
+    examples?.good2,
+    examples?.good3,
+    examples?.good4,
+    examples?.good5,
+  ].filter(Boolean) as string[];
+
+  const badExample1 = examples?.bad || '';
+  const badExample2 = examples?.bad2 || '';
+
+  // Combine intent-specific and global avoid phrases
+  const intentAvoid = examples?.avoid || [];
+  const allAvoidPhrases = [...new Set([...intentAvoid, ...(globalAvoidPhrases || [])])];
+  const avoidPhrasesStr = allAvoidPhrases.slice(0, 25).join('", "'); // Limit to top 25
+
+  // Build multiple examples section - show up to 3 random good examples to keep prompt size reasonable
+  const selectedGoodExamples = goodExamples.slice(0, 3);
+  let goodExamplesSection = selectedGoodExamples.map((example, i) =>
+    `✅ GOOD EXAMPLE ${i + 1}:\n${example}`
+  ).join('\n\n───────────────────────────────────────────────────────────────\n\n');
+
+  let badExamplesSection = `❌ BAD EXAMPLE 1 (DO NOT WRITE LIKE THIS - TOO WORDY):
+${badExample1}`;
+
+  if (badExample2) {
+    badExamplesSection += `
+
+❌ BAD EXAMPLE 2 (ALSO BAD - GENERIC AND FLUFFY):
+${badExample2}`;
+  }
 
   return `
 ═══════════════════════════════════════════════════════════════
@@ -507,18 +536,21 @@ ${deviceInstructions}
 CTA: ${ctaInstruction}
 
 ═══════════════════════════════════════════════════════════════
-CRITICAL: GOOD vs BAD EXAMPLES
+CRITICAL: STUDY THESE EXAMPLES CAREFULLY
 ═══════════════════════════════════════════════════════════════
 
-✅ WRITE LIKE THIS (staccato, punchy):
-${goodExample}
+${goodExamplesSection}
 
-❌ NOT LIKE THIS (wordy, generic):
-${badExample}
+───────────────────────────────────────────────────────────────
 
-🚫 NEVER USE THESE PHRASES:
-"${avoidPhrases}"
+${badExamplesSection}
 
+═══════════════════════════════════════════════════════════════
+🚫 BANNED PHRASES - NEVER USE THESE:
+═══════════════════════════════════════════════════════════════
+"${avoidPhrasesStr}"
+
+If you catch yourself writing any of these, STOP and rewrite in staccato style.
 ═══════════════════════════════════════════════════════════════`;
 }
 

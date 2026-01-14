@@ -326,53 +326,188 @@
   "exampleOutputs": {
     "life-update": {
       "good": "🌟 A little update from me...\n\nNo emails. No showings. Just family.\n\nTook a full weekend off. First time in 2 years. Lake. Sunsets. Rest.\n\nForgot how good that feels.\n\nWhat's your reset look like?\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good2": "🌟 A little update from me...\n\n8 hours of sleep. Haven't done that in months.\n\nBody needed it. Mind needed it more. Back to grinding tomorrow.\n\nBut today? Just grateful.\n\nWhat's your reset look like?\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good3": "🌟 A little update from me...\n\nDate night. Finally.\n\nDinner. No phones. Just us. Real conversation.\n\nEasy to forget what matters. Tonight reminded me.\n\nWhat's your reset look like?\n\nPurple Homes | Your Trusted Real Estate Partner",
       "bad": "🌟 A little update from me...\n\nI finally took a full weekend off for the first time in 2 years. It was really nice to spend time with my family at the lake without checking emails or doing showings. I feel so refreshed now.\n\nWhat's new with you? Let me know in the comments!\n\nPurple Homes | Your Trusted Real Estate Partner",
-      "avoid": ["I finally", "It was really nice", "I feel so", "I'm excited to share", "I wanted to", "I decided to"]
+      "bad2": "🌟 A little update from me...\n\nI wanted to share that I finally got 8 hours of sleep last night, which is something I haven't been able to do in months. My body and mind really needed the rest, and I feel so much better now.\n\nWhat's new with you? Let me know in the comments!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I finally", "It was really nice", "I feel so", "I'm excited to share", "I wanted to", "I decided to", "which is something", "I haven't been able to", "I feel so much better", "for the first time in", "without checking", "to spend time with"]
     },
     "milestone": {
       "good": "🏆 100 families helped find their dream home\n\n100 families. 100 stories. 100 reasons I do this.\n\nEvery closing reminds me. Not about transactions. About trust. About new chapters.\n\n🙏 Grateful for every single one.\n\nThank you for being part of this journey!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good2": "🏆 5 years in real estate\n\n5 years. 200+ closings. Countless late nights.\n\nYear one was brutal. Almost quit. Didn't.\n\nNow? Can't imagine doing anything else.\n\n🙏 To everyone who believed in me. Thank you.\n\nThank you for being part of this journey!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good3": "🏆 $10M in sales this quarter\n\n$10M. One quarter. Best yet.\n\nNot about the number. About what it represents. Trust. Hustle. Results.\n\nOnward.\n\n🙏 Couldn't do it without my clients.\n\nThank you for being part of this journey!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good4": "🏆 FIRST CLOSING OF 2024\n\nJanuary 3rd. New year. New keys.\n\nThis is not just a transaction.\nIt's a family starting fresh.\nIt's a dream becoming real.\nIt's proof that hard work pays off.\n\nFor them AND for me.\n\n🙏 Here's to many more this year.\n\nThank you for being part of this journey!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good5": "🏆 50 5-STAR REVIEWS\n\n50 reviews. 50 families. 50 trust tests.\n\nEvery review = someone who took a chance on me.\nEvery 5 stars = a promise kept.\n\nThis is not just feedback.\nIt's accountability.\nIt's reputation.\nIt's everything.\n\n🙏 You trusted me. I won't forget that.\n\nThank you for being part of this journey!\n\nPurple Homes | Your Trusted Real Estate Partner",
       "bad": "🏆 Milestone achieved!\n\nI'm thrilled to share that I've had the privilege of helping 100 families find their dream homes over the years. Each journey has been unique and I'm so grateful for the trust they placed in me.\n\n🙏 Thank you for being part of this amazing journey!\n\nPurple Homes | Your Trusted Real Estate Partner",
-      "avoid": ["I'm thrilled", "I've had the privilege", "I'm so grateful", "amazing journey", "over the years", "Each journey has been"]
+      "bad2": "🏆 Celebrating 5 years!\n\nI can't believe it's been 5 years since I started my real estate career. It's been an incredible journey filled with ups and downs, and I've learned so much along the way. I'm so blessed to have helped over 200 families during this time.\n\n🙏 Thank you for being part of this amazing journey!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I'm thrilled", "I've had the privilege", "I'm so grateful", "amazing journey", "over the years", "Each journey has been", "I can't believe", "It's been an incredible", "filled with", "I've learned so much", "along the way", "I'm so blessed"]
     },
     "lesson-insight": {
       "good": "💡 Something I learned recently...\n\nThe best deals? They come from the listings no one else wants.\n\nUgly houses. Overlooked properties. That's where opportunity hides.\n\nStop chasing what everyone else is chasing.\n\n💭 The crowd is usually wrong.\n\nWhat do you think?\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good2": "💡 Something I learned recently...\n\nSpeed kills deals. Rushing buyers. Rushing decisions.\n\nBest clients? They take their time. Ask questions. Sleep on it.\n\nPatience wins. Every time.\n\n💭 Slow down to speed up.\n\nWhat do you think?\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good3": "💡 Something I learned recently...\n\nThe house doesn't sell the house. The story does.\n\nPhotos matter. But context? That's what moves people.\n\nWho lived here. What happened here. Why it matters.\n\n💭 Every home has a story. Tell it.\n\nWhat do you think?\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good4": "💡 Something I learned recently...\n\nMost agents don't fail because they lack skill.\n\nThey get stuck because:\n→ They fear rejection\n→ They fear looking dumb\n→ They fear the ask\n\nBut the only real failure?\nNot starting at all.\n\n💭 Fear is the real competitor.\n\nWhat do you think?\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good5": "💡 Something I learned recently...\n\n'I'LL WAIT FOR THE PERFECT TIME'\n\nThat's what they all say.\nThen?\n→ Rates go up\n→ Prices rise\n→ Perfect time never comes\n\nMeanwhile:\nBuyers who moved? Building equity.\nBuyers who waited? Still waiting.\n\n💭 Someday is not a day of the week.\n\nWhat do you think?\n\nPurple Homes | Your Trusted Real Estate Partner",
       "bad": "💡 Something I learned recently...\n\nI've come to realize that the best deals often come from the listings that no one else wants to show. I think it's really important to look at the properties that might seem ugly at first because that's often where the real opportunity is hiding.\n\nWhat do you think? Let me know below.\n\nPurple Homes | Your Trusted Real Estate Partner",
-      "avoid": ["I've come to realize", "I think it's really important", "might seem", "at first because", "often where"]
+      "bad2": "💡 Something I learned recently...\n\nOver the years, I've learned that speed can really kill deals. When buyers feel rushed to make a decision, they often end up backing out later. The best clients are the ones who take their time, ask lots of questions, and sleep on important decisions.\n\nWhat do you think? Let me know below.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I've come to realize", "I think it's really important", "might seem", "at first because", "often where", "Over the years", "can really", "they often end up", "The best clients are the ones who", "lots of questions"]
     },
     "behind-the-scenes": {
       "good": "🎬 Behind the scenes...\n\n3 hours. One vacant property. Furniture from my garage.\n\nSometimes you gotta get creative. No staging budget? Make it work.\n\nThe photos turned out incredible.\n\nAny questions about what I do? Ask away!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good2": "🎬 Behind the scenes...\n\n9pm showing. Kids in the car. Client couldn't do any other time.\n\nThis job? It's not 9-to-5. Never will be.\n\nBut seeing their faces when they found the one? Worth it.\n\nAny questions about what I do? Ask away!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good3": "🎬 Behind the scenes...\n\n47 photos. 2 hours of editing. One listing.\n\nDetails matter. First impressions are everything online.\n\nNo shortcuts here.\n\nAny questions about what I do? Ask away!\n\nPurple Homes | Your Trusted Real Estate Partner",
       "bad": "🎬 Behind the scenes...\n\nToday I spent 3 hours staging a vacant property using furniture from my own garage. Sometimes in this business you have to be creative and work with what you have when there's no staging budget available.\n\nAny questions about what I do? Ask away!\n\nPurple Homes | Your Trusted Real Estate Partner",
-      "avoid": ["Today I spent", "Sometimes in this business", "you have to be", "work with what you have", "when there's no"]
+      "bad2": "🎬 Behind the scenes...\n\nLast night I had to do a showing at 9pm because my client couldn't do any other time. I even had my kids in the car waiting! This job definitely isn't 9-to-5, but it's all worth it when you see the joy on their faces.\n\nAny questions about what I do? Ask away!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["Today I spent", "Sometimes in this business", "you have to be", "work with what you have", "when there's no", "Last night I had to", "because my client", "I even had", "This job definitely", "it's all worth it when", "the joy on their faces"]
     },
     "market-update": {
       "good": "📊 Inventory hits 6-month high in Phoenix Metro\n\n📈 Active listings: Up 23% YoY. Days on market: 34.\n\nWhat this means: Buyers have breathing room. Finally.\n\nNegotiation power is shifting. Slowly but surely.\n\nQuestions about the market? Let's chat.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good2": "📊 Interest rates dropped. Again.\n\n📈 30-year fixed: 6.2%. Down from 7.1% in October.\n\nBuying power just increased. Significantly.\n\n$400K home? $200/month cheaper now.\n\nQuestions about the market? Let's chat.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good3": "📊 Median home price: $485K\n\n📈 Up 4.2% YoY. But slowing. Days on market: 28.\n\nSellers still have leverage. But not for long.\n\nSpring market will be different.\n\nQuestions about the market? Let's chat.\n\nPurple Homes | Your Trusted Real Estate Partner",
       "bad": "📊 Market Update\n\nI wanted to share some important market data with you. Inventory has hit a 6-month high in Phoenix Metro, with active listings up 23% year over year and median days on market now at 34 days. This is really significant because it means buyers finally have some breathing room to negotiate.\n\nQuestions about the market? Let's chat.\n\nPurple Homes | Your Trusted Real Estate Partner",
-      "avoid": ["I wanted to share", "This is really significant", "some important", "because it means"]
+      "bad2": "📊 Market Update\n\nI'm excited to report that interest rates have dropped again! The 30-year fixed rate is currently at 6.2%, which is down from 7.1% back in October. This is great news for buyers because it means their buying power has increased significantly.\n\nQuestions about the market? Let's chat.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I wanted to share", "This is really significant", "some important", "because it means", "I'm excited to report", "currently at", "which is down from", "This is great news", "it means their"]
     },
     "buyer-tips": {
       "good": "🏡 Stop waiving inspections\n\n3 deals fell apart this month. Hidden foundation issues. Every single one.\n\nThe $500 inspection? Cheapest insurance you'll ever buy.\n\n💡 Skip the inspection, inherit the nightmare.\n\nThinking of buying? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good2": "🏡 Get pre-approved before you shop\n\nFound the perfect home? Great. No pre-approval? Lost it.\n\nSellers want certainty. Pre-approval = serious buyer.\n\n48 hours. That's all it takes.\n\n💡 Pre-approval first. Always.\n\nThinking of buying? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good3": "🏡 Check the neighborhood at night\n\nDaytime showing? Perfect. Night visit? Different story.\n\nParking. Noise. Activity. You need to know.\n\nDrive by at 9pm. Then decide.\n\n💡 Houses don't change. Neighborhoods do.\n\nThinking of buying? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good4": "🏡 REJECTED BY 3 LENDERS? PERFECT.\n\nYou're exactly who I help.\n\nEvery 'no' from a bank?\nBrought you closer to the right solution.\n\n→ Hardworking\n→ Committed\n→ Deserving of a real chance\n\nStop applying to banks that don't get you.\nStart talking to someone who does.\n\n💡 Sometimes the best path isn't the traditional one.\n\nThinking of buying? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good5": "🏡 WHAT YOUR RENT COULD BUY YOU\n\nThat $1,800 rent payment?\n\nCould be buying:\n→ A 3-bedroom home\n→ Building equity monthly\n→ Tax benefits\n→ YOURS forever\n\nInstead you're buying:\n→ Nothing\n→ Zero equity\n→ Your landlord's next vacation\n\nSame money. Different future.\n\n💡 Every rent payment is a missed investment.\n\nThinking of buying? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
       "bad": "🏡 Buyer Tip\n\nI wanted to share an important tip about home inspections. I've seen 3 deals fall apart this month because of hidden foundation issues that could have been caught earlier. The $500 inspection is really the cheapest insurance you'll buy in the homebuying process.\n\n💡 Always get an inspection!\n\nThinking of buying? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
-      "avoid": ["I wanted to share", "I've seen", "because of", "could have been", "really the", "in the homebuying process"]
+      "bad2": "🏡 Buyer Tip\n\nHere's something really important for first-time buyers to know: you should always get pre-approved before you start shopping for homes. This is crucial because sellers want to see that you're a serious buyer who can actually afford the home.\n\n💡 Get pre-approved first!\n\nThinking of buying? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I wanted to share", "I've seen", "because of", "could have been", "really the", "in the homebuying process", "Here's something really important", "you should always", "This is crucial because", "who can actually"]
     },
     "seller-tips": {
       "good": "🏷️ Price it right the first week\n\nCorrectly priced homes sell 18 days faster. Fact.\n\nOverprice then reduce? Looks desperate. Buyers notice.\n\nFirst 2 weeks = 80% of your showings. Don't waste them.\n\n💡 You only get one first impression.\n\nThinking of selling? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good2": "🏷️ Declutter before photos. Not after.\n\n92% of buyers search online first. Photos = first impression.\n\nCluttered photos? They scroll past. Gone in 2 seconds.\n\nBox it up. Store it. Sell faster.\n\n💡 Less stuff. More offers.\n\nThinking of selling? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good3": "🏷️ Fix the small stuff\n\nLeaky faucet. Scuffed walls. Broken doorbell.\n\nBuyers see neglect. They assume bigger problems.\n\n$200 in fixes = $2,000 in perception.\n\n💡 Small repairs. Big returns.\n\nThinking of selling? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good4": "🏷️ STOP WAITING FOR PERFECT CONDITIONS\n\nPerfect buyer? Might never come.\nPerfect price? Market decides.\nPerfect timing? Who knows.\n\nMeanwhile:\n→ Mortgage payments continue\n→ Maintenance piles up\n→ Opportunity costs add up\n\nSometimes 'good enough' beats 'perfect never.'\n\n💡 Done is better than perfect.\n\nThinking of selling? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good5": "🏷️ THE TRUTH ABOUT STAGING\n\nStaged homes sell 73% faster.\nNot because buyers lack imagination.\n\nBecause:\n→ They see potential\n→ They feel the space\n→ They picture THEIR life there\n\nEmpty rooms = cold.\nStaged rooms = home.\n\nSame house. Different emotions.\nDifferent offers.\n\n💡 Emotion sells. Logic justifies.\n\nThinking of selling? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
       "bad": "🏷️ Seller Tip\n\nHere's something important sellers should know: homes that are priced correctly tend to sell about 18 days faster than those that aren't. When you overprice your home and then have to reduce the price later, it can look desperate to potential buyers.\n\n💡 Price it right from the start!\n\nThinking of selling? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
-      "avoid": ["Here's something important", "should know", "tend to", "about 18 days", "When you", "can look", "from the start"]
+      "bad2": "🏷️ Seller Tip\n\nI always tell my clients that it's really important to declutter your home before we take listing photos. Since 92% of buyers start their search online, your photos are essentially your first impression and you don't want clutter to distract from the home's features.\n\n💡 Declutter before photos!\n\nThinking of selling? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["Here's something important", "should know", "tend to", "about 18 days", "When you", "can look", "from the start", "I always tell my clients", "it's really important to", "Since 92%", "essentially your", "you don't want"]
     },
     "investment-insight": {
       "good": "💹 Investment Insight\n\nMultifamily under 4 units? Still qualifies for residential financing.\n\nPhoenix suburbs: 3.2% cap rate. Tucson: 4.8%.\n\nThe gap is closing. Smart money is moving south.\n\n📊 Numbers don't lie.\n\nWant to talk numbers? DM me.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good2": "💹 Investment Insight\n\nHouse hacking. Best first investment. Period.\n\nBuy a duplex. Live in one. Rent the other.\n\nFHA loan. 3.5% down. Tenant pays your mortgage.\n\n📊 Build equity while you sleep.\n\nWant to talk numbers? DM me.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good3": "💹 Investment Insight\n\nCash flow vs appreciation. Wrong question.\n\nArizona? Appreciation market. Midwest? Cash flow.\n\nBoth work. Depends on your strategy.\n\n📊 Know your goal first.\n\nWant to talk numbers? DM me.\n\nPurple Homes | Your Trusted Real Estate Partner",
       "bad": "💹 Investment Insight\n\nI wanted to share an interesting insight about multifamily investing. Properties with under 4 units still qualify for residential financing, which is great news for investors. Currently, the average cap rate in suburban Phoenix is around 3.2% compared to 4.8% in Tucson.\n\n📊 The numbers are interesting!\n\nWant to talk numbers? DM me.\n\nPurple Homes | Your Trusted Real Estate Partner",
-      "avoid": ["I wanted to share", "which is great news", "Currently, the", "is around", "compared to", "are interesting"]
+      "bad2": "💹 Investment Insight\n\nI've been thinking about how house hacking is really the best first investment you can make. The idea is simple: buy a duplex, live in one unit, and rent out the other. You can use an FHA loan with just 3.5% down, and your tenant essentially pays your mortgage for you.\n\n📊 Great way to build equity!\n\nWant to talk numbers? DM me.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I wanted to share", "which is great news", "Currently, the", "is around", "compared to", "are interesting", "I've been thinking about", "is really the best", "The idea is simple", "You can use", "essentially pays", "Great way to"]
     },
     "client-success-story": {
       "good": "⭐ Client Success Story\n\n📋 The Challenge:\nFirst-time buyers. Lost to cash offers. Three times.\n\n✅ The Solution:\nConnected them with a lender who closes in 14 days.\n\n🎉 The Result:\nDream home. $5K under asking. Done.\n\nReady to write your own success story? Let's talk.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good2": "⭐ Client Success Story\n\n📋 The Challenge:\nRelocating family. 2 weeks to find a home. From out of state.\n\n✅ The Solution:\nVirtual tours. Daily updates. 7 properties in 3 days.\n\n🎉 The Result:\nKeys in hand. Before the moving truck arrived.\n\nReady to write your own success story? Let's talk.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good3": "⭐ Client Success Story\n\n📋 The Challenge:\nSelling and buying. Same time. Needed to align closings.\n\n✅ The Solution:\nNegotiated rent-back. Coordinated both timelines.\n\n🎉 The Result:\nNo storage. No hotel. Seamless transition.\n\nReady to write your own success story? Let's talk.\n\nPurple Homes | Your Trusted Real Estate Partner",
       "bad": "⭐ Client Success Story\n\n📋 The Challenge:\nI recently worked with some first-time buyers who kept losing out to cash offers multiple times.\n\n✅ The Solution:\nI was able to connect them with a local lender who specializes in quick closings and can close in about 14 days.\n\n🎉 The Result:\nThey were able to win their dream home for $5K under the asking price!\n\nReady to write your own success story? Let's talk.\n\nPurple Homes | Your Trusted Real Estate Partner",
-      "avoid": ["I recently worked", "I was able to", "who specializes in", "They were able to", "for $5K under the asking price"]
+      "bad2": "⭐ Client Success Story\n\n📋 The Challenge:\nI had a wonderful family relocating from out of state who only had about 2 weeks to find their new home.\n\n✅ The Solution:\nI set up virtual tours and provided daily updates so they could see 7 properties over 3 days.\n\n🎉 The Result:\nThey got their keys before the moving truck even arrived, which was such a relief for them!\n\nReady to write your own success story? Let's talk.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I recently worked", "I was able to", "who specializes in", "They were able to", "for $5K under the asking price", "I had a wonderful", "who only had about", "I set up", "so they could", "which was such a relief"]
     },
     "community-spotlight": {
       "good": "🏘️ Spotlight: Mesa Farmers Market\n\nEvery Saturday. 8am-noon.\n\nFresh produce. Live music. Best breakfast tacos in the East Valley.\n\nLocal gems like this? They make a neighborhood home.\n\n📍 Support local. Eat well. Meet your neighbors.\n\nKnow another local gem? Tag them below!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good2": "🏘️ Spotlight: Postino WineCafe\n\nGilbert location. Happy hour til 5pm.\n\nBruschetta board. Local wines. Perfect patio weather.\n\nThis is why people move here.\n\n📍 Good food. Good vibes. Great neighborhood.\n\nKnow another local gem? Tag them below!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "good3": "🏘️ Spotlight: Riparian Preserve\n\n100+ acres. Right in Gilbert. Free entry.\n\nHiking trails. Bird watching. Sunset views.\n\nHidden gem. Locals know. Now you do too.\n\n📍 Nature. Right in your backyard.\n\nKnow another local gem? Tag them below!\n\nPurple Homes | Your Trusted Real Estate Partner",
       "bad": "🏘️ Community Spotlight\n\nI wanted to feature the Mesa Farmers Market today! It runs every Saturday from 8am to noon and offers fresh produce, live music, and what I think are the best breakfast tacos in the East Valley.\n\n📍 I love places like this that make a community feel like home!\n\nKnow another local gem? Tag them below!\n\nPurple Homes | Your Trusted Real Estate Partner",
-      "avoid": ["I wanted to feature", "It runs", "and offers", "what I think are", "I love places like this"]
+      "bad2": "🏘️ Community Spotlight\n\nToday I want to tell you about Postino WineCafe in Gilbert. They have an amazing happy hour that runs until 5pm, featuring a delicious bruschetta board and a great selection of local wines. The patio is perfect for this weather!\n\n📍 This is one of the many reasons people love living here!\n\nKnow another local gem? Tag them below!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I wanted to feature", "It runs", "and offers", "what I think are", "I love places like this", "Today I want to tell you", "They have an amazing", "featuring a delicious", "a great selection of", "is perfect for", "one of the many reasons"]
     }
-  }
+  },
+  "staccatoPatterns": {
+    "description": "Proven staccato patterns that work - study and apply these",
+    "patterns": [
+      {
+        "name": "contrast-flip",
+        "formula": "X said no? We say yes.",
+        "examples": ["Bank said no? We say yes.", "Market's slow? Time to move.", "Others quit? We push harder."]
+      },
+      {
+        "name": "same-different",
+        "formula": "Same X. Different Y. Completely different outcome.",
+        "examples": ["Same monthly payment. Different outcome.", "Same effort. Different results.", "Same market. Different approach."]
+      },
+      {
+        "name": "not-x-but-y",
+        "formula": "Not about X. About Y.",
+        "examples": ["Not about transactions. About trust.", "Not about price. About value.", "Not about speed. About precision."]
+      },
+      {
+        "name": "list-with-arrows",
+        "formula": "→ Point 1\n→ Point 2\n→ Point 3",
+        "examples": ["→ 3-bedroom home\n→ Building equity\n→ Tax benefits\n→ YOURS forever"]
+      },
+      {
+        "name": "triple-stack",
+        "formula": "X. Y. Z.",
+        "examples": ["Hardworking. Committed. Deserving.", "Real people. Real solutions. Real results.", "Fast. Flexible. Fair."]
+      },
+      {
+        "name": "meanwhile-contrast",
+        "formula": "You're doing X. Meanwhile: Y happens.",
+        "examples": ["You're renting. Meanwhile: Prices rise. Space shrinks. Money disappears."]
+      },
+      {
+        "name": "stop-start",
+        "formula": "Stop X. Start Y.",
+        "examples": ["Stop waiting. Start owning.", "Stop renting. Start building.", "Stop dreaming. Start doing."]
+      },
+      {
+        "name": "question-answer",
+        "formula": "Question? Answer.",
+        "examples": ["Bad credit? Not a problem.", "Self-employed? We get it.", "Rejected? Perfect. You're exactly who we help."]
+      },
+      {
+        "name": "that-is-what",
+        "formula": "That's the difference between X and Y.",
+        "examples": ["That's the difference between staying stuck and owning your future."]
+      },
+      {
+        "name": "every-x-is-y",
+        "formula": "Every X is a Y.",
+        "examples": ["Every payment is an investment.", "Every closing is a new chapter.", "Every no brings you closer to yes."]
+      }
+    ]
+  },
+  "globalAvoidPhrases": [
+    "I finally",
+    "I wanted to share",
+    "I'm thrilled to",
+    "I'm excited to",
+    "I'm so grateful",
+    "I've had the privilege",
+    "It was really nice",
+    "I feel so",
+    "I decided to",
+    "I can't believe",
+    "It's been an incredible",
+    "I've learned so much",
+    "along the way",
+    "over the years",
+    "This is really significant",
+    "Here's something important",
+    "I think it's really important",
+    "which is something",
+    "because it means",
+    "I've come to realize",
+    "I always tell my clients",
+    "Today I spent",
+    "Last night I had to",
+    "I was able to",
+    "They were able to",
+    "for the first time in",
+    "filled with ups and downs",
+    "amazing journey",
+    "it's all worth it when",
+    "the joy on their faces",
+    "essentially your",
+    "you don't want to",
+    "should know that",
+    "tend to",
+    "can really",
+    "which is great news",
+    "Currently, the",
+    "is around",
+    "The idea is simple",
+    "Great way to"
+  ]
 }
