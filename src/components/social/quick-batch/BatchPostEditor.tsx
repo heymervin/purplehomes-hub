@@ -62,6 +62,7 @@ import {
 } from '@/lib/socialHub';
 import { TEAM_AGENTS, getAgentById } from '@/lib/socialHub/agents';
 import { SupportingImagePicker } from '@/components/social/templates/SupportingImagePicker';
+import { getTemplateById } from '@/lib/templates/profiles';
 
 interface BatchPostEditorProps {
   item: BatchItem;
@@ -547,15 +548,23 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
             </div>
           )}
 
-          {/* Supporting Images Selection - shown for Open House template */}
-          {item.tab === 'property' && property && item.templateId === 'open-house' && (
-            <SupportingImagePicker
-              property={property}
-              selectedImages={item.selectedSupportingImages || []}
-              onSelectionChange={(images) => onChange({ selectedSupportingImages: images })}
-              maxImages={3}
-            />
-          )}
+          {/* Supporting Images Selection - shown for templates that support them */}
+          {item.tab === 'property' && property && (() => {
+            // Get template profile to check if it supports supporting images
+            const templateProfile = getTemplateById(item.templateId);
+            const supportingImageCount = templateProfile?.supportingImageCount || 0;
+
+            if (supportingImageCount === 0) return null;
+
+            return (
+              <SupportingImagePicker
+                property={property}
+                selectedImages={item.selectedSupportingImages || []}
+                onSelectionChange={(images) => onChange({ selectedSupportingImages: images })}
+                maxImages={supportingImageCount}
+              />
+            );
+          })()}
         </CardContent>
       </Card>
 

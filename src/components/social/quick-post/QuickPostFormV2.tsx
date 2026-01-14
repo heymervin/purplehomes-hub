@@ -1278,12 +1278,14 @@ export function QuickPostFormV2() {
               </div>
             )}
 
-            {/* Supporting Images Selection - Only show for Open House template */}
+            {/* Supporting Images Selection - Show for templates that support them */}
             {state.tab === 'property' &&
-              state.templateId === 'open-house' &&
+              selectedTemplate?.supportingImageCount &&
+              selectedTemplate.supportingImageCount > 0 &&
               state.selectedProperty?.images &&
               state.selectedProperty.images.length > 0 &&
               (() => {
+                const maxImages = selectedTemplate.supportingImageCount;
                 const supportingImagesOnly = state.selectedProperty.images.filter(
                   (img) => img !== state.selectedProperty?.heroImage
                 );
@@ -1295,11 +1297,11 @@ export function QuickPostFormV2() {
                       <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                       <span className="font-medium text-sm">Supporting Images</span>
                       <Badge variant="secondary" className="text-xs">
-                        Select up to 3
+                        Select up to {maxImages}
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mb-3">
-                      Open House template displays 3 additional property images
+                      {selectedTemplate.name} template displays {maxImages} additional property image{maxImages > 1 ? 's' : ''}
                     </p>
 
                     {/* Selected preview */}
@@ -1343,13 +1345,13 @@ export function QuickPostFormV2() {
                                       (img) => img !== imageUrl
                                     ),
                                   }));
-                                } else if (state.selectedSupportingImages.length < 3) {
+                                } else if (state.selectedSupportingImages.length < maxImages) {
                                   setState((prev) => ({
                                     ...prev,
                                     selectedSupportingImages: [...prev.selectedSupportingImages, imageUrl],
                                   }));
                                 } else {
-                                  toast.error('Maximum 3 supporting images allowed for Open House');
+                                  toast.error(`Maximum ${maxImages} supporting images allowed for ${selectedTemplate.name}`);
                                 }
                               }}
                               className={cn(

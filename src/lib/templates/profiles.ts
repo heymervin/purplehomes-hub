@@ -41,6 +41,21 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         dataType: 'image',
         propertyPath: 'heroImage',
       },
+      // Supporting images for Just Listed template
+      supportingImage1: {
+        imejisFieldId: 'image_comp_1767864570203_xpa484prr',
+        source: 'auto-property',
+        dataType: 'image',
+        propertyPath: 'images[0]',
+        optional: true,
+      },
+      supportingImage2: {
+        imejisFieldId: 'image_comp_1767864672097_vw6lqjdrt',
+        source: 'auto-property',
+        dataType: 'image',
+        propertyPath: 'images[1]',
+        optional: true,
+      },
       address: {
         imejisFieldId: 'text_comp_1767864783352_5o7fpiht0',
         source: 'auto-property',
@@ -91,7 +106,8 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
     userInputFields: [],
     userInputCount: 0,
     requiresProperty: true,
-    requiresImages: false,
+    requiresImages: true,
+    supportingImageCount: 2,
   },
 
   // ----------------------------------------
@@ -270,6 +286,7 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
     userInputCount: 1,
     requiresProperty: true,
     requiresImages: true,
+    supportingImageCount: 3,
   },
 
   // ----------------------------------------

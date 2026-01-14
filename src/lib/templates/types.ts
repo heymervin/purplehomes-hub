@@ -146,6 +146,9 @@ export interface TemplateProfile {
   // Requirements
   requiresProperty: boolean;     // Needs a property selected
   requiresImages: boolean;       // Needs property images
+
+  // Supporting images
+  supportingImageCount?: number; // How many supporting images this template uses (0 = none)
 }
 
 // ============================================
