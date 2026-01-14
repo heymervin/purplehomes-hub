@@ -166,6 +166,12 @@
       "instruction": "Ask questions that engage the reader and prompt reflection. Don't overuse.",
       "examples": ["Ever feel like you're always one step behind?", "What would change if...?", "Sound familiar?"],
       "allowedDomains": ["personal", "professional"]
+    },
+    "staccato": {
+      "description": "Short, punchy sentences that hit hard",
+      "instruction": "Use short sentences. Fragment when it works. Punch. Breathe. No run-ons. No fluff. Every word earns its place.",
+      "examples": ["100 families. 100 stories. One mission.", "No emails. No showings. Just rest.", "The deal fell through. Then this happened."],
+      "allowedDomains": ["personal", "professional"]
     }
   },
   "ctaPatterns": {
@@ -211,25 +217,25 @@
       "life-update": {
         "primaryAppeal": "belonging",
         "structure": "story-lesson-takeaway",
-        "devices": ["specificity", "sensory-language", "bucket-brigades"],
+        "devices": ["staccato", "specificity", "sensory-language"],
         "ctaPattern": "reflective-engagement"
       },
       "milestone": {
         "primaryAppeal": "status",
         "structure": "story-lesson-takeaway",
-        "devices": ["specificity", "future-pacing", "contrast"],
+        "devices": ["staccato", "specificity", "contrast"],
         "ctaPattern": "community-building"
       },
       "lesson-insight": {
         "primaryAppeal": "self-improvement",
         "structure": "story-lesson-takeaway",
-        "devices": ["specificity", "power-words", "rhetorical-questions"],
+        "devices": ["staccato", "specificity", "rhetorical-questions"],
         "ctaPattern": "reflective-engagement"
       },
       "behind-the-scenes": {
         "primaryAppeal": "curiosity",
         "structure": "curiosity-reveal-engage",
-        "devices": ["sensory-language", "open-loops", "pattern-interrupt"],
+        "devices": ["staccato", "sensory-language", "open-loops"],
         "ctaPattern": "reflective-engagement"
       }
     },
@@ -237,37 +243,37 @@
       "market-update": {
         "primaryAppeal": "trust",
         "structure": "insight-proof-application",
-        "devices": ["specificity", "authority-markers", "contrast"],
+        "devices": ["staccato", "specificity", "authority-markers"],
         "ctaPattern": "authority-positioning"
       },
       "buyer-tips": {
         "primaryAppeal": "self-improvement",
         "structure": "hook-value-cta",
-        "devices": ["specificity", "power-words", "bucket-brigades"],
+        "devices": ["staccato", "specificity", "power-words"],
         "ctaPattern": "soft-invitation"
       },
       "seller-tips": {
         "primaryAppeal": "self-improvement",
         "structure": "hook-value-cta",
-        "devices": ["specificity", "power-words", "social-proof"],
+        "devices": ["staccato", "specificity", "social-proof"],
         "ctaPattern": "soft-invitation"
       },
       "investment-insight": {
         "primaryAppeal": "security",
         "structure": "insight-proof-application",
-        "devices": ["specificity", "authority-markers", "contrast"],
+        "devices": ["staccato", "specificity", "authority-markers"],
         "ctaPattern": "authority-positioning"
       },
       "client-success-story": {
         "primaryAppeal": "trust",
         "structure": "challenge-solution-result",
-        "devices": ["specificity", "social-proof", "contrast"],
+        "devices": ["staccato", "specificity", "contrast"],
         "ctaPattern": "authority-positioning"
       },
       "community-spotlight": {
         "primaryAppeal": "belonging",
         "structure": "curiosity-reveal-engage",
-        "devices": ["sensory-language", "specificity", "social-proof"],
+        "devices": ["staccato", "sensory-language", "specificity"],
         "ctaPattern": "community-building"
       }
     }

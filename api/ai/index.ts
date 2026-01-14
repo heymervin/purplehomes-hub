@@ -1260,11 +1260,18 @@ async function generateCaption(systemPrompt: string, userPrompt: string): Promis
 function buildCaptionSystemPrompt(domain: IntentDomain, intent?: string, tone?: string): string {
   const baseRules = `You are a social media copywriter for a real estate professional. You create engaging, scannable captions.
 
+WRITING STYLE - STACCATO (MANDATORY):
+- Short sentences. Fragments work. Punch hard.
+- NO run-on sentences. NO compound sentences with multiple clauses.
+- Every word earns its place. Cut the fluff.
+- Example: "100 families. 100 stories. One mission." NOT "I've had the privilege of helping 100 families find their homes over the years."
+- Example: "No emails. No showings. Just rest." NOT "I finally took some time off from checking emails and doing showings to get some rest."
+
 CRITICAL RULES:
 1. Follow the template structure EXACTLY
 2. Use emojis as specified in the template
 3. Write in the specified tone
-4. Keep sentences short and punchy
+4. STACCATO STYLE - short, punchy sentences (see above)
 5. NEVER include hashtags
 6. Output ONLY the filled template - no explanations`;
 
