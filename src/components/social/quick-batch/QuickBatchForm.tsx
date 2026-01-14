@@ -85,6 +85,9 @@ import {
 // Import pill-based editor component
 import { BatchPostEditor } from './BatchPostEditor';
 
+// Import agent utilities
+import { getAgentById } from '@/lib/socialHub/agents';
+
 // Interval options
 const INTERVAL_OPTIONS = [
   { value: '0', label: 'No interval' },
@@ -405,6 +408,12 @@ export function QuickBatchForm() {
       }
     }
 
+    // Add property's social media description if available (from GHL custom field)
+    // This is the "Tell us more" field that provides additional context for captions
+    if (property?.socialMediaPropertyDescription) {
+      parts.push(`Property Description: ${property.socialMediaPropertyDescription}`);
+    }
+
     // Fallback property description (only for property posts)
     if (parts.length === 0 && property) {
       parts.push(`${property.beds} bed, ${property.baths} bath property in ${property.city}`);
@@ -504,8 +513,23 @@ export function QuickBatchForm() {
         if (item.templateId !== 'none' && item.templateId !== 'custom') {
           const template = getTemplateById(item.templateId);
           if (template && property) {
+            // Get selected agent for template fields
+            const selectedAgent = item.selectedAgentId ? getAgentById(item.selectedAgentId) : undefined;
+
+            // Prepare property with user-selected images (if any)
             const preparedProperty = preparePropertyForTemplate(property);
-            const resolvedFields = resolveAllFields(template, preparedProperty, item.context);
+            const propertyWithSelectedImages = {
+              ...preparedProperty,
+              // Override hero image if user selected one
+              heroImage: item.selectedHeroImage || preparedProperty.heroImage,
+              // Override supporting images if user selected any
+              images: item.selectedSupportingImages?.length
+                ? item.selectedSupportingImages
+                : preparedProperty.images,
+            };
+
+            // Resolve fields with agent and selected images
+            const resolvedFields = resolveAllFields(template, propertyWithSelectedImages, item.context, selectedAgent);
             const payload = buildImejisPayload(template, resolvedFields);
             const imageResult = await renderImejisTemplate(payload);
 

@@ -462,6 +462,12 @@ export function QuickPostFormV2() {
         contextString += openHouseInfo;
       }
 
+      // Add property's social media description if available (from GHL custom field)
+      // This is the "Tell us more" field that provides additional context for captions
+      if (state.selectedProperty?.socialMediaPropertyDescription) {
+        contextString += `\n\nProperty Description: ${state.selectedProperty.socialMediaPropertyDescription}`;
+      }
+
       // Generate caption
       const captionResult = await generateCaption({
         property: state.selectedProperty,

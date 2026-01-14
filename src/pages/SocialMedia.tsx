@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Image as ImageIcon, Send, Calendar, List,
-  ChevronLeft, ChevronRight, Layers, BarChart3, Sparkles, ListOrdered
+  ChevronLeft, ChevronRight, Layers, BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,8 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useScheduledPosts } from '@/services/ghlApi';
 import { SocialAnalytics } from '@/components/social/SocialAnalytics';
-import { CreateWizard } from '@/components/social/create-wizard';
-import { BatchWizard } from '@/components/social/batch-wizard';
 import { QuickPostFormV2 } from '@/components/social/quick-post';
 import { QuickBatchForm } from '@/components/social/quick-batch';
 import { PipelineView } from '@/components/social/queue';
@@ -36,8 +34,6 @@ export default function SocialMedia() {
   };
 
   const [mainTab, setMainTab] = useState<MainTab>(getInitialTab());
-  const [createMode, setCreateMode] = useState<'quick' | 'wizard'>('quick');
-  const [batchMode, setBatchMode] = useState<'quick' | 'wizard'>('quick');
 
   // Schedule/Calendar state
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -148,86 +144,14 @@ export default function SocialMedia() {
           </TabsTrigger>
         </TabsList>
 
-        {/* CREATE TAB - Quick Form or Wizard */}
+        {/* CREATE TAB - Quick Post Form */}
         <TabsContent value="create" className="mt-6">
-          {/* Mode Toggle */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <Button
-                variant={createMode === 'quick' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setCreateMode('quick')}
-                className={cn(
-                  "gap-2",
-                  createMode === 'quick' && "bg-purple-600 hover:bg-purple-700"
-                )}
-              >
-                <Sparkles className="h-4 w-4" />
-                Quick Post
-              </Button>
-              <Button
-                variant={createMode === 'wizard' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setCreateMode('wizard')}
-                className={cn(
-                  "gap-2",
-                  createMode === 'wizard' && "bg-purple-600 hover:bg-purple-700"
-                )}
-              >
-                <ListOrdered className="h-4 w-4" />
-                Step-by-Step
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {createMode === 'quick'
-                ? 'Fill in the blanks to create a post quickly'
-                : 'Use the guided wizard for more control'}
-            </p>
-          </div>
-
-          {/* Content based on mode */}
-          {createMode === 'quick' ? <QuickPostFormV2 /> : <CreateWizard />}
+          <QuickPostFormV2 />
         </TabsContent>
 
-        {/* BATCH TAB - Quick Form or Step-by-Step Wizard */}
+        {/* BATCH TAB - Quick Batch Form */}
         <TabsContent value="batch" className="mt-6">
-          {/* Mode Toggle */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <Button
-                variant={batchMode === 'quick' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setBatchMode('quick')}
-                className={cn(
-                  "gap-2",
-                  batchMode === 'quick' && "bg-purple-600 hover:bg-purple-700"
-                )}
-              >
-                <Sparkles className="h-4 w-4" />
-                Quick Batch
-              </Button>
-              <Button
-                variant={batchMode === 'wizard' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setBatchMode('wizard')}
-                className={cn(
-                  "gap-2",
-                  batchMode === 'wizard' && "bg-purple-600 hover:bg-purple-700"
-                )}
-              >
-                <ListOrdered className="h-4 w-4" />
-                Step-by-Step
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {batchMode === 'quick'
-                ? 'Create batch posts with sentence-style form'
-                : 'Use the guided wizard for granular control'}
-            </p>
-          </div>
-
-          {/* Content based on mode */}
-          {batchMode === 'quick' ? <QuickBatchForm /> : <BatchWizard />}
+          <QuickBatchForm />
         </TabsContent>
 
         {/* SCHEDULE TAB - Pipeline or Calendar View */}

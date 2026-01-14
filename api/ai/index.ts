@@ -1312,6 +1312,13 @@ ${property.arv ? `- ARV: $${property.arv.toLocaleString()}` : ''}
 ${property.repairCost ? `- Repair Estimate: $${property.repairCost.toLocaleString()}` : ''}`);
   }
 
+  // Check parsed context for property description (from GHL "Social media property description" field)
+  // This is passed as "Property Description:" in the context string
+  if (parsedContext.propertyDescription) {
+    sections.push(`ADDITIONAL PROPERTY CONTEXT (USE THIS IN THE BODY COPY):
+${parsedContext.propertyDescription}`);
+  }
+
   // Intent-specific context fields
   const intentContextSections = getIntentContextSections(intent, parsedContext);
   if (intentContextSections) {
