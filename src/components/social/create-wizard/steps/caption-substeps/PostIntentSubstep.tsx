@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ChevronRight, Sparkles, Loader2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { WizardState, PostIntent } from '../../types';
-import { POST_INTENTS } from '../../types';
+import type { WizardState, PostIntent, CaptionLength } from '../../types';
+import { POST_INTENTS, CAPTION_LENGTHS } from '../../types';
 import { TEAM_AGENTS } from '@/lib/socialHub/agents';
+import VoiceInput from '../../components/VoiceInput';
 
 // ============================================
 // INTENT FIELD CONFIGURATIONS
@@ -225,7 +226,7 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
               </Label>
             </div>
             <p className="text-xs text-muted-foreground mb-3">
-              Paste property details, MLS notes, or your own description. AI will use this to generate your caption.
+              Type, paste, or use voice to describe the property. AI will use this to generate your caption.
             </p>
             <div className="flex gap-2">
               <Textarea
@@ -235,18 +236,26 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
                 rows={2}
                 className="flex-1 resize-none text-sm"
               />
-              <Button
-                onClick={() => {
-                  if (rawContext.trim()) {
-                    updateState({ postContext: rawContext.trim() });
-                  }
-                }}
-                disabled={!rawContext.trim()}
-                className="gap-2 bg-purple-600 hover:bg-purple-700 self-end"
-              >
-                <Sparkles className="h-4 w-4" />
-                Use This
-              </Button>
+              <div className="flex flex-col gap-2 self-end">
+                <VoiceInput
+                  onTranscript={(text) => {
+                    // Append transcribed text to existing context
+                    setRawContext(prev => prev ? `${prev} ${text}` : text);
+                  }}
+                />
+                <Button
+                  onClick={() => {
+                    if (rawContext.trim()) {
+                      updateState({ postContext: rawContext.trim() });
+                    }
+                  }}
+                  disabled={!rawContext.trim()}
+                  className="gap-2 bg-purple-600 hover:bg-purple-700"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Use This
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -283,6 +292,35 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
                 </ul>
               </div>
             </div>
+          </div>
+
+          {/* Caption Length Selector for Property Domain */}
+          <div className="space-y-2">
+            <Label className="text-base flex items-center gap-2">
+              📏 Caption Length
+            </Label>
+            <div className="grid grid-cols-3 gap-3">
+              {CAPTION_LENGTHS.map((length) => (
+                <button
+                  key={length.id}
+                  type="button"
+                  onClick={() => updateState({ captionLength: length.id })}
+                  className={cn(
+                    "flex flex-col items-center gap-1 px-4 py-3 rounded-lg border-2 transition-all text-center",
+                    state.captionLength === length.id
+                      ? "border-purple-600 bg-purple-50 dark:bg-purple-950/20"
+                      : "border-muted hover:border-purple-300"
+                  )}
+                >
+                  <span className="text-xl">{length.icon}</span>
+                  <p className="font-medium text-sm">{length.label}</p>
+                  <p className="text-xs text-muted-foreground">{length.wordCount}</p>
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {CAPTION_LENGTHS.find(l => l.id === state.captionLength)?.description}
+            </p>
           </div>
         </div>
       )}
@@ -323,6 +361,35 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
             </div>
           </div>
 
+          {/* Caption Length Selector */}
+          <div className="space-y-2">
+            <Label className="text-base flex items-center gap-2">
+              📏 Caption Length
+            </Label>
+            <div className="grid grid-cols-3 gap-3">
+              {CAPTION_LENGTHS.map((length) => (
+                <button
+                  key={length.id}
+                  type="button"
+                  onClick={() => updateState({ captionLength: length.id })}
+                  className={cn(
+                    "flex flex-col items-center gap-1 px-4 py-3 rounded-lg border-2 transition-all text-center",
+                    state.captionLength === length.id
+                      ? "border-purple-600 bg-purple-50 dark:bg-purple-950/20"
+                      : "border-muted hover:border-purple-300"
+                  )}
+                >
+                  <span className="text-xl">{length.icon}</span>
+                  <p className="font-medium text-sm">{length.label}</p>
+                  <p className="text-xs text-muted-foreground">{length.wordCount}</p>
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {CAPTION_LENGTHS.find(l => l.id === state.captionLength)?.description}
+            </p>
+          </div>
+
           {/* AI Autofill Section */}
           <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border border-purple-200 dark:border-purple-800">
             <div className="flex items-center gap-2 mb-2">
@@ -332,7 +399,7 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
               </Label>
             </div>
             <p className="text-xs text-muted-foreground mb-3">
-              Paste your raw idea and let AI fill in the fields below.
+              Type your idea or use voice input, then let AI fill in the fields below.
             </p>
             <div className="flex gap-2">
               <Textarea
@@ -342,18 +409,26 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
                 rows={2}
                 className="flex-1 resize-none text-sm"
               />
-              <Button
-                onClick={handleGenerateFields}
-                disabled={!rawContext.trim() || isGeneratingFields}
-                className="gap-2 bg-purple-600 hover:bg-purple-700 self-end"
-              >
-                {isGeneratingFields ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Sparkles className="h-4 w-4" />
-                )}
-                Fill Fields
-              </Button>
+              <div className="flex flex-col gap-2 self-end">
+                <VoiceInput
+                  onTranscript={(text) => {
+                    // Append transcribed text to existing context
+                    setRawContext(prev => prev ? `${prev} ${text}` : text);
+                  }}
+                />
+                <Button
+                  onClick={handleGenerateFields}
+                  disabled={!rawContext.trim() || isGeneratingFields}
+                  className="gap-2 bg-purple-600 hover:bg-purple-700"
+                >
+                  {isGeneratingFields ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )}
+                  Fill Fields
+                </Button>
+              </div>
             </div>
           </div>
 

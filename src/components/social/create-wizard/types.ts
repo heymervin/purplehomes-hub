@@ -192,6 +192,43 @@ export type CaptionTone =
   | 'luxury'
   | 'investor';
 
+// ============================================
+// CAPTION LENGTH (How long should it be)
+// ============================================
+export type CaptionLength = 'short' | 'medium' | 'long';
+
+export interface CaptionLengthConfig {
+  id: CaptionLength;
+  label: string;
+  icon: string;
+  description: string;
+  wordCount: string;
+}
+
+export const CAPTION_LENGTHS: CaptionLengthConfig[] = [
+  {
+    id: 'short',
+    label: 'Short',
+    icon: '⚡',
+    description: 'Punchy, scroll-stopping. Perfect for Stories.',
+    wordCount: '30-60 words',
+  },
+  {
+    id: 'medium',
+    label: 'Medium',
+    icon: '📝',
+    description: 'Balanced depth. Great for Feed posts.',
+    wordCount: '80-150 words',
+  },
+  {
+    id: 'long',
+    label: 'Long',
+    icon: '📖',
+    description: 'Full story. Best for LinkedIn, carousels.',
+    wordCount: '200-400 words',
+  },
+];
+
 export interface ToneConfig {
   id: CaptionTone;
   label: string;
@@ -262,6 +299,7 @@ export interface WizardState {
   captionSubstep: CaptionSubstep;
   postIntent: PostIntent;
   tone: CaptionTone;
+  captionLength: CaptionLength;
   captions: Record<Platform, string>;
   useSameCaptionForAll: boolean;
   selectedCaptionTemplate: string | null;
@@ -314,6 +352,7 @@ export const INITIAL_WIZARD_STATE: WizardState = {
   captionSubstep: 'intent',
   postIntent: 'just-listed',
   tone: 'professional',
+  captionLength: 'medium',
   captions: {
     facebook: '',
     instagram: '',

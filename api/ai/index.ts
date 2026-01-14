@@ -35,13 +35,82 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return handleCaption(req, res);
     case 'expand-context':
       return handleExpandContext(req, res);
+    case 'transcribe':
+      return handleTranscribe(req, res);
     case 'health':
       return handleHealth(req, res);
     default:
       return res.status(400).json({
         error: 'Unknown action',
-        validActions: ['insights', 'caption', 'expand-context', 'health'],
+        validActions: ['insights', 'caption', 'expand-context', 'transcribe', 'health'],
       });
+  }
+}
+
+// ============================================================================
+// TRANSCRIBE - Voice-to-Text using OpenAI Whisper
+// ============================================================================
+
+async function handleTranscribe(req: VercelRequest, res: VercelResponse) {
+  if (!OPENAI_API_KEY) {
+    console.error('[AI API] OpenAI API key not configured');
+    return res.status(500).json({ error: 'OpenAI API key not configured' });
+  }
+
+  try {
+    // Expect base64 audio in the body
+    const { audio, mimeType } = req.body;
+
+    if (!audio) {
+      return res.status(400).json({ error: 'Missing audio data' });
+    }
+
+    // Decode base64 audio
+    const audioBuffer = Buffer.from(audio, 'base64');
+
+    // Determine file extension from MIME type
+    const extMap: Record<string, string> = {
+      'audio/webm': 'webm',
+      'audio/webm;codecs=opus': 'webm',
+      'audio/mp4': 'm4a',
+      'audio/mpeg': 'mp3',
+      'audio/wav': 'wav',
+      'audio/ogg': 'ogg',
+    };
+    const ext = extMap[mimeType] || 'webm';
+
+    // Create form data for OpenAI Whisper API
+    const formData = new FormData();
+    const audioBlob = new Blob([audioBuffer], { type: mimeType || 'audio/webm' });
+    formData.append('file', audioBlob, `audio.${ext}`);
+    formData.append('model', 'whisper-1');
+    formData.append('language', 'en');
+    // Add prompt to help with real estate terminology
+    formData.append('prompt', 'Real estate property description. Include details about bedrooms, bathrooms, square footage, renovations, neighborhoods, schools, and features.');
+
+    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[AI API] Whisper transcription error:', errorText);
+      return res.status(500).json({ error: 'Transcription failed' });
+    }
+
+    const data = await response.json();
+    const text = data.text?.trim() || '';
+
+    console.log(`[AI API] Transcribed ${audioBuffer.length} bytes to ${text.length} chars`);
+
+    return res.status(200).json({ text });
+  } catch (error) {
+    console.error('[AI API] Transcription error:', error);
+    return res.status(500).json({ error: 'Transcription failed' });
   }
 }
 
@@ -413,13 +482,17 @@ interface Property {
   arv?: number;
   repairCost?: number;
   condition?: string;
+  monthlyPayment?: number;
 }
+
+type CaptionLengthType = 'short' | 'medium' | 'long';
 
 interface CaptionRequest {
   property: Property | null;
   context: string;
   postIntent: string;
   tone: string;
+  captionLength?: CaptionLengthType;
   platform: string;
   agentName?: string;
 }
@@ -1236,9 +1309,10 @@ function getAIMetricsSnapshot(): AIMetricsState {
 // ============================================================================
 
 async function handleCaption(req: VercelRequest, res: VercelResponse) {
-  const { property, context, postIntent, tone, platform, agentName }: CaptionRequest = req.body;
+  const { property, context, postIntent, tone, captionLength, platform, agentName }: CaptionRequest = req.body;
   const batchItemId = req.body.batchItemId || null;
   const isBatch = req.body.isBatch || false;
+  const lengthSetting: CaptionLengthType = captionLength || 'medium';
 
   if (!postIntent || !tone || !platform) {
     return res.status(400).json({ error: 'Missing required fields: postIntent, tone, platform' });
@@ -1256,7 +1330,7 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
 
   try {
     const domain = getIntentDomain(postIntent);
-    const userPrompt = buildCaptionUserPrompt({ property, context, postIntent, tone, platform, agentName });
+    const userPrompt = buildCaptionUserPrompt({ property, context, postIntent, tone, captionLength: lengthSetting, platform, agentName });
 
     // Phase 4: Log generation started
     obsLogGenerationStarted({
@@ -1270,7 +1344,7 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
 
     // First generation attempt - include copywriting framework for Personal/Professional
     let systemPrompt = buildCaptionSystemPrompt(domain, postIntent, tone);
-    let caption = await generateCaption(systemPrompt, userPrompt);
+    let caption = await generateCaption(systemPrompt, userPrompt, lengthSetting);
 
     if (!caption) {
       return res.status(500).json({ error: 'Empty response from OpenAI' });
@@ -1308,7 +1382,7 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
       });
 
       const stricterPrompt = buildStricterSystemPrompt(domain, validation.violations, postIntent, tone);
-      caption = await generateCaption(stricterPrompt, userPrompt);
+      caption = await generateCaption(stricterPrompt, userPrompt, lengthSetting);
 
       if (!caption) {
         return res.status(500).json({ error: 'Empty response from OpenAI on retry' });
@@ -1367,7 +1441,15 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
 /**
  * Helper: Generate caption via OpenAI
  */
-async function generateCaption(systemPrompt: string, userPrompt: string): Promise<string> {
+async function generateCaption(systemPrompt: string, userPrompt: string, captionLength: CaptionLengthType = 'medium'): Promise<string> {
+  // Adjust max_tokens based on caption length
+  const maxTokensByLength: Record<CaptionLengthType, number> = {
+    short: 300,
+    medium: 600,
+    long: 1200,
+  };
+  const maxTokens = maxTokensByLength[captionLength];
+
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -1381,7 +1463,7 @@ async function generateCaption(systemPrompt: string, userPrompt: string): Promis
         { role: 'user', content: userPrompt },
       ],
       temperature: 0.4,
-      max_tokens: 600,
+      max_tokens: maxTokens,
     }),
   });
 
@@ -1489,7 +1571,8 @@ ${copywritingInstructions}`;
 // ============================================================================
 
 function buildCaptionUserPrompt(params: CaptionRequest): string {
-  const { property, context, postIntent, tone, platform, agentName } = params;
+  const { property, context, postIntent, tone, captionLength, platform, agentName } = params;
+  const lengthSetting = captionLength || 'medium';
 
   const domain = getIntentDomain(postIntent);
   const parsedContext = parseContextFields(context);
@@ -1497,6 +1580,7 @@ function buildCaptionUserPrompt(params: CaptionRequest): string {
   const cta = getIntentCTA(postIntent);
   const template = getCaptionStructureTemplate(postIntent, property, parsedContext, agentName);
   const toneInstructions = getCaptionToneInstructions(tone);
+  const lengthInstructions = getCaptionLengthInstructions(lengthSetting);
   const structuredContext = buildStructuredContext(postIntent, parsedContext, property);
 
   return `GENERATE A CAPTION USING THIS TEMPLATE:
@@ -1515,6 +1599,10 @@ ${structuredContext}
 
 TONE: ${tone.toUpperCase()}
 ${toneInstructions}
+
+═══════════════════════════════════════════════════════════════
+${lengthInstructions}
+═══════════════════════════════════════════════════════════════
 
 ═══════════════════════════════════════════════════════════════
 INSTRUCTIONS:
@@ -1553,9 +1641,15 @@ function buildStructuredContext(
 
   // Property domain: include property data
   if (domain === 'property' && property) {
+    // Format monthly payment for display (this is the primary price shown)
+    const monthlyPaymentDisplay = property.monthlyPayment
+      ? `~$${property.monthlyPayment.toLocaleString()}/mo*`
+      : `$${property.price?.toLocaleString() || 'TBD'}`;
+
     sections.push(`PROPERTY DATA:
 - Address: ${property.address || 'TBD'}
 - City: ${property.city || 'TBD'}
+- Monthly Payment: ${monthlyPaymentDisplay}
 - Price: $${property.price?.toLocaleString() || 'TBD'}
 - Beds: ${property.beds || 'TBD'}
 - Baths: ${property.baths || 'TBD'}
@@ -1563,7 +1657,11 @@ function buildStructuredContext(
 - Type: ${property.propertyType || 'Single Family'}
 ${property.description ? `- Description: ${property.description}` : ''}
 ${property.arv ? `- ARV: $${property.arv.toLocaleString()}` : ''}
-${property.repairCost ? `- Repair Estimate: $${property.repairCost.toLocaleString()}` : ''}`);
+${property.repairCost ? `- Repair Estimate: $${property.repairCost.toLocaleString()}` : ''}
+
+IMPORTANT: For {monthlyPayment} placeholder:
+- Use the Monthly Payment value above: "${monthlyPaymentDisplay}"
+- This is the PRIMARY price shown to buyers (not the full price)`);
   }
 
   // Check parsed context for property description (from GHL "Social media property description" field)
@@ -1708,7 +1806,7 @@ function getCaptionStructureTemplate(
     'just-listed': `{hook}
 
 📍 {address}
-💰 {price}
+💰 {monthlyPayment}
 🏡 {beds} Beds • {baths} Baths • {sqft} SF
 
 {body_copy}
@@ -1744,7 +1842,7 @@ ${signature}`,
     'price-reduced': `{hook}
 
 📍 {address}
-💰 NOW {price}
+💰 NOW {monthlyPayment}
 🏡 {beds} Beds • {baths} Baths • {sqft} SF
 
 {body_copy}
@@ -1756,7 +1854,7 @@ ${signature}`,
     'price-drop': `{hook}
 
 📍 {address}
-💰 NOW {price}
+💰 NOW {monthlyPayment}
 🏡 {beds} Beds • {baths} Baths • {sqft} SF
 
 {body_copy}
@@ -1769,7 +1867,7 @@ ${signature}`,
 
 📅 {openHouseDateTime}
 📍 {address}
-💰 {price}
+💰 {monthlyPayment}
 🏡 {beds} Beds • {baths} Baths • {sqft} SF
 
 {body_copy}
@@ -1781,7 +1879,7 @@ ${signature}`,
     'coming-soon': `{hook}
 
 📍 {address}
-💰 {price}
+💰 {monthlyPayment}
 🏡 {beds} Beds • {baths} Baths • {sqft} SF
 
 {body_copy}
@@ -1988,6 +2086,52 @@ function getCaptionToneInstructions(tone: string): string {
     investor: `Investor tone: Analytical, numbers-focused, ROI-driven. Use words like: cap rate, cash flow, ARV, upside potential, solid returns.`,
   };
   return instructions[tone] || instructions.professional;
+}
+
+// ============================================================================
+// LENGTH INSTRUCTIONS - How long should the caption be
+// ============================================================================
+
+function getCaptionLengthInstructions(length: CaptionLengthType): string {
+  // Get length examples from the copywriting frameworks
+  const lengthExamples = (copywritingFrameworks as { lengthExamples?: Record<string, { description: string; wordCount: string; examples: string[] }> }).lengthExamples;
+
+  const lengthConfigs: Record<CaptionLengthType, { description: string; wordCount: string; sentences: string; example?: string }> = {
+    short: {
+      description: 'Punchy, scroll-stopping. Perfect for Stories and quick engagement.',
+      wordCount: '30-60 words',
+      sentences: '3-5 sentences MAX. Fragments welcome. Get in, make impact, get out.',
+      example: lengthExamples?.short?.examples?.[Math.floor(Math.random() * 3)] || undefined,
+    },
+    medium: {
+      description: 'Balanced depth. Room for story + value. Great for Feed posts.',
+      wordCount: '80-150 words',
+      sentences: '6-12 sentences. Room for context but still punchy. No rambling.',
+      example: lengthExamples?.medium?.examples?.[Math.floor(Math.random() * 3)] || undefined,
+    },
+    long: {
+      description: 'Full story format. Deep engagement, authority building. Best for LinkedIn, carousel posts.',
+      wordCount: '200-400 words',
+      sentences: '13-25 sentences. Full narrative arc. Sections with breaks. Still staccato style.',
+      example: lengthExamples?.long?.examples?.[Math.floor(Math.random() * 3)] || undefined,
+    },
+  };
+
+  const config = lengthConfigs[length];
+  let instruction = `LENGTH: ${length.toUpperCase()} (${config.wordCount})
+${config.description}
+${config.sentences}`;
+
+  if (config.example) {
+    instruction += `
+
+EXAMPLE OF ${length.toUpperCase()} LENGTH CAPTION:
+───────────────────────────────────────────────────────────────
+${config.example}
+───────────────────────────────────────────────────────────────`;
+  }
+
+  return instruction;
 }
 
 // ============================================================================

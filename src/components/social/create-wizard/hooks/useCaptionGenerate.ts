@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
 import type { Property } from '@/types';
-import type { CaptionTone, Platform, PostIntent } from '../types';
+import type { CaptionTone, CaptionLength, Platform, PostIntent } from '../types';
 
 interface GenerateCaptionParams {
   property: Property | null;
   context: string;
   tone: CaptionTone;
+  captionLength?: CaptionLength;
   platform: Platform | 'all';
   postIntent?: PostIntent;
   templateType?: string;
@@ -33,6 +34,7 @@ export function useCaptionGenerate() {
           property: params.property,
           context: params.context,
           tone: params.tone,
+          captionLength: params.captionLength || 'medium',
           platform: params.platform,
           postIntent: params.postIntent || 'just-listed',
           agentName: params.agentName,

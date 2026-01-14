@@ -126,8 +126,8 @@ export function SupportingImagePicker({
         Click images to select them. Order matters - first selected will be Image 1, etc.
       </p>
 
-      {/* Image Grid */}
-      <div className="grid grid-cols-3 gap-2">
+      {/* Image Grid - larger thumbnails for better preview */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {availableImages.map((imageUrl, index) => {
           const selectionOrder = getSelectionOrder(imageUrl);
           const isSelected = selectionOrder !== null;
@@ -140,7 +140,7 @@ export function SupportingImagePicker({
               onClick={() => handleToggleImage(imageUrl)}
               disabled={isDisabled}
               className={cn(
-                "relative aspect-square rounded-lg overflow-hidden border-2 transition-all",
+                "relative aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all",
                 "focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2",
                 isSelected
                   ? "border-purple-500 ring-2 ring-purple-500/20"
@@ -179,19 +179,22 @@ export function SupportingImagePicker({
         })}
       </div>
 
-      {/* Selected order preview */}
+      {/* Selected order preview - larger thumbnails */}
       {selectedImages.length > 0 && (
-        <div className="flex items-center gap-2 p-2 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
-          <span className="text-xs text-purple-700 dark:text-purple-300 font-medium">
+        <div className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+          <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">
             Selection order:
           </span>
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             {selectedImages.map((img, idx) => (
               <div
                 key={img}
-                className="w-8 h-8 rounded overflow-hidden border border-purple-300"
+                className="relative w-16 h-12 rounded-md overflow-hidden border-2 border-purple-300"
               >
                 <img src={img} alt={`Selected ${idx + 1}`} className="w-full h-full object-cover" />
+                <div className="absolute bottom-0 left-0 bg-purple-600 text-white text-xs px-1.5 rounded-tr">
+                  {idx + 1}
+                </div>
               </div>
             ))}
           </div>

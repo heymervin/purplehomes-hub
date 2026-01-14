@@ -95,7 +95,7 @@ export default function PostPreview({
 
         {/* Image */}
         {imageUrl && (
-          <img src={imageUrl} alt="Post" className="w-full" />
+          <img src={imageUrl} alt="Post" className="w-full object-contain" />
         )}
 
         {/* Reactions bar */}
@@ -170,7 +170,7 @@ export default function PostPreview({
 
         {/* Image */}
         {imageUrl && (
-          <img src={imageUrl} alt="Post" className="w-full aspect-square object-cover" />
+          <img src={imageUrl} alt="Post" className="w-full object-contain max-h-[400px]" />
         )}
 
         {/* Actions */}
@@ -292,7 +292,7 @@ export default function PostPreview({
 
       {/* Image */}
       {imageUrl && (
-        <img src={imageUrl} alt="Post" className="w-full" />
+        <img src={imageUrl} alt="Post" className="w-full object-contain" />
       )}
 
       {/* Reactions bar */}

@@ -8,7 +8,7 @@ import { ChevronLeft, RefreshCw, Loader2, Copy, Check, Hash } from 'lucide-react
 import { cn } from '@/lib/utils';
 import { useCaptionGenerate } from '../../hooks/useCaptionGenerate';
 import type { WizardState, Platform } from '../../types';
-import { POST_INTENTS, TONE_PRESETS } from '../../types';
+import { POST_INTENTS, TONE_PRESETS, CAPTION_LENGTHS } from '../../types';
 import { PLATFORM_HASHTAG_RULES } from '@/lib/socialHub';
 import { getAgentById } from '@/lib/socialHub/agents';
 
@@ -26,6 +26,7 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
 
   const selectedIntent = POST_INTENTS.find(i => i.id === state.postIntent);
   const selectedTone = TONE_PRESETS.find(t => t.id === state.tone);
+  const selectedLength = CAPTION_LENGTHS.find(l => l.id === state.captionLength);
 
   // Get platform-specific hashtags respecting limits
   const getHashtagsForPlatform = (platform: Platform): string => {
@@ -66,6 +67,7 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
         property: state.selectedProperty,
         context: state.postContext,
         tone: state.tone,
+        captionLength: state.captionLength,
         platform,
         postIntent: state.postIntent,
         agentName,
@@ -111,6 +113,7 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
           property: state.selectedProperty,
           context: state.postContext,
           tone: state.tone,
+          captionLength: state.captionLength,
           platform,
           postIntent: state.postIntent,
           agentName,
@@ -174,6 +177,11 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
         <div className="flex items-center gap-2 text-sm bg-purple-50 dark:bg-purple-950/20 px-3 py-1.5 rounded-full">
           <span>{selectedTone?.icon}</span>
           <span className="font-medium">{selectedTone?.label}</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm bg-blue-50 dark:bg-blue-950/20 px-3 py-1.5 rounded-full">
+          <span>{selectedLength?.icon}</span>
+          <span className="font-medium">{selectedLength?.label}</span>
+          <span className="text-xs text-muted-foreground">({selectedLength?.wordCount})</span>
         </div>
         <Button
           variant="outline"

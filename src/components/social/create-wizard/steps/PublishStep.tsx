@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Info, Expand, Calendar, Clock, CheckCircle2, Loader2 } from 'lucide-react';
+import { Info, Expand, Calendar, Clock, CheckCircle2, Loader2, Pencil } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -25,7 +25,7 @@ import { buildImejisPayload, resolveAllFields, preparePropertyForTemplate } from
 import { getAgentById } from '@/lib/socialHub/agents';
 import PostPreview from '../components/PostPreview';
 import ExpandablePreview from '../components/ExpandablePreview';
-import type { WizardState, Platform } from '../types';
+import type { WizardState, Platform, WizardStep } from '../types';
 import { toast } from 'sonner';
 
 interface PublishStepProps {
@@ -33,6 +33,7 @@ interface PublishStepProps {
   updateState: (updates: Partial<WizardState>) => void;
   onPublish: () => void;
   onReset: () => void;
+  onGoToStep?: (step: WizardStep) => void;
 }
 
 // Fallback accounts for demo mode
@@ -51,7 +52,7 @@ const PLATFORM_ICONS: Record<string, string> = {
   gmb: 'G',
 };
 
-export default function PublishStep({ state, updateState }: PublishStepProps) {
+export default function PublishStep({ state, updateState, onGoToStep }: PublishStepProps) {
   const [activePlatform, setActivePlatform] = useState<Platform>('facebook');
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -171,7 +172,7 @@ export default function PublishStep({ state, updateState }: PublishStepProps) {
             {(['facebook', 'instagram', 'linkedin'] as Platform[]).map((platform) => (
               <TabsContent key={platform} value={platform} className="mt-4">
                 <Card>
-                  <CardContent className="p-4">
+                  <CardContent className="p-4 max-h-[500px] overflow-y-auto">
                     <div className="relative">
                       {/* Loading overlay when generating image */}
                       {isGenerating && (
@@ -319,41 +320,114 @@ export default function PublishStep({ state, updateState }: PublishStepProps) {
           )}
         </div>
 
-        {/* Summary */}
+        {/* Summary with Edit Buttons */}
         <Card className="bg-muted/30">
           <CardContent className="p-4">
-            <h3 className="font-medium mb-2">Summary</h3>
-            <ul className="space-y-1 text-sm">
-              <li className="flex items-center gap-2">
-                <span className="text-green-500">&#10003;</span>
-                {state.selectedProperty
-                  ? `Property: ${state.selectedProperty.address}`
-                  : state.postType === 'custom'
-                    ? 'Custom post with image'
-                    : 'Text-only post'
-                }
+            <h3 className="font-medium mb-3">Summary</h3>
+            <ul className="space-y-2 text-sm">
+              {/* Source/Property */}
+              <li className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-green-500">✓</span>
+                  <span>
+                    {state.selectedProperty
+                      ? `Property: ${state.selectedProperty.address}`
+                      : state.postType === 'custom'
+                        ? 'Custom post with image'
+                        : 'Text-only post'
+                    }
+                  </span>
+                </div>
+                {onGoToStep && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-muted-foreground hover:text-foreground"
+                    onClick={() => onGoToStep('source')}
+                  >
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Edit
+                  </Button>
+                )}
               </li>
-              <li className="flex items-center gap-2">
-                <span className={imageUrl ? "text-green-500" : "text-amber-500"}>
-                  {imageUrl ? '✓' : '○'}
-                </span>
-                Image: {imageUrl ? 'Ready' : 'None'}
+
+              {/* Caption */}
+              <li className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={state.captions.facebook.length > 0 ? "text-green-500" : "text-amber-500"}>
+                    {state.captions.facebook.length > 0 ? '✓' : '○'}
+                  </span>
+                  <span>Caption: {state.captions.facebook.length} characters</span>
+                </div>
+                {onGoToStep && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-muted-foreground hover:text-foreground"
+                    onClick={() => onGoToStep('caption')}
+                  >
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Edit
+                  </Button>
+                )}
               </li>
-              <li className="flex items-center gap-2">
-                <span className={state.captions.facebook.length > 0 ? "text-green-500" : "text-amber-500"}>
-                  {state.captions.facebook.length > 0 ? '✓' : '○'}
-                </span>
-                Caption: {state.captions.facebook.length} characters
+
+              {/* Image */}
+              <li className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={imageUrl ? "text-green-500" : "text-amber-500"}>
+                    {imageUrl ? '✓' : '○'}
+                  </span>
+                  <span>Image: {imageUrl ? 'Ready' : 'None'}</span>
+                </div>
+                {onGoToStep && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-muted-foreground hover:text-foreground"
+                    onClick={() => onGoToStep('image')}
+                  >
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Edit
+                  </Button>
+                )}
               </li>
+
+              {/* Hashtags */}
+              <li className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={state.selectedHashtags.length > 0 ? "text-green-500" : "text-amber-500"}>
+                    {state.selectedHashtags.length > 0 ? '✓' : '○'}
+                  </span>
+                  <span>Hashtags: {state.selectedHashtags.length} selected</span>
+                </div>
+                {onGoToStep && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-muted-foreground hover:text-foreground"
+                    onClick={() => onGoToStep('hashtags')}
+                  >
+                    <Pencil className="h-3 w-3 mr-1" />
+                    Edit
+                  </Button>
+                )}
+              </li>
+
+              {/* Accounts - no edit, handled on this page */}
               <li className="flex items-center gap-2">
                 <span className={state.selectedAccounts.length > 0 ? "text-green-500" : "text-red-500"}>
                   {state.selectedAccounts.length > 0 ? '✓' : '✗'}
                 </span>
-                Posting to: {state.selectedAccounts.length} account(s)
+                <span>Posting to: {state.selectedAccounts.length} account(s)</span>
               </li>
+
+              {/* Schedule - no edit, handled on this page */}
               <li className="flex items-center gap-2">
-                <span className="text-green-500">&#10003;</span>
-                {state.scheduleType === 'now' ? 'Publishing immediately' : `Scheduled for ${state.scheduledDate?.toLocaleDateString() || 'TBD'}`}
+                <span className="text-green-500">✓</span>
+                <span>
+                  {state.scheduleType === 'now' ? 'Publishing immediately' : `Scheduled for ${state.scheduledDate?.toLocaleDateString() || 'TBD'}`}
+                </span>
               </li>
             </ul>
           </CardContent>

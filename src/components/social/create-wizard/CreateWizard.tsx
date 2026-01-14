@@ -66,6 +66,7 @@ export default function CreateWizard() {
             updateState={updateState}
             onPublish={handlePublish}
             onReset={resetWizard}
+            onGoToStep={goToStep}
           />
         );
       default:
