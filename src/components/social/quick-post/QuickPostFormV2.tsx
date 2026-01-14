@@ -511,10 +511,6 @@ export function QuickPostFormV2() {
 
         const enhancedUserInputs = {
           ...state.templateUserInputs,
-          ...(state.selectedSupportingImages.length > 0 && {
-            image_comp_1: state.selectedSupportingImages[0] || '',
-            image_comp_2: state.selectedSupportingImages[1] || '',
-          }),
           ...(state.qrCodeUrl && {
             qrcode_comp: state.qrCodeUrl,
           }),
@@ -757,12 +753,15 @@ export function QuickPostFormV2() {
           <CardContent className="p-6 space-y-6">
             {/* Generated Image */}
             {(state.generatedImageUrl || state.customImagePreview) && (
-              <div className="relative aspect-square max-w-md mx-auto rounded-lg overflow-hidden border">
+              <div className="relative max-w-md mx-auto">
                 <img
                   src={state.generatedImageUrl || state.customImagePreview || ''}
                   alt="Generated post"
-                  className="w-full h-full object-cover"
+                  className="w-full h-auto border"
                 />
+                <p className="text-xs text-center text-muted-foreground mt-1">
+                  Preview – final layout may vary slightly
+                </p>
               </div>
             )}
 
@@ -1279,8 +1278,9 @@ export function QuickPostFormV2() {
               </div>
             )}
 
-            {/* Supporting Images Selection */}
+            {/* Supporting Images Selection - Only show for Open House template */}
             {state.tab === 'property' &&
+              state.templateId === 'open-house' &&
               state.selectedProperty?.images &&
               state.selectedProperty.images.length > 0 &&
               (() => {
@@ -1295,9 +1295,12 @@ export function QuickPostFormV2() {
                       <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                       <span className="font-medium text-sm">Supporting Images</span>
                       <Badge variant="secondary" className="text-xs">
-                        Select up to 2
+                        Select up to 3
                       </Badge>
                     </div>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Open House template displays 3 additional property images
+                    </p>
 
                     {/* Selected preview */}
                     {state.selectedSupportingImages.length > 0 && (
@@ -1340,13 +1343,13 @@ export function QuickPostFormV2() {
                                       (img) => img !== imageUrl
                                     ),
                                   }));
-                                } else if (state.selectedSupportingImages.length < 2) {
+                                } else if (state.selectedSupportingImages.length < 3) {
                                   setState((prev) => ({
                                     ...prev,
                                     selectedSupportingImages: [...prev.selectedSupportingImages, imageUrl],
                                   }));
                                 } else {
-                                  toast.error('Maximum 2 supporting images allowed');
+                                  toast.error('Maximum 3 supporting images allowed for Open House');
                                 }
                               }}
                               className={cn(
