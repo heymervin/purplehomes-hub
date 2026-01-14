@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Info, Upload, X, Sparkles } from 'lucide-react';
+import { Info, Upload, X, Sparkles, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Tooltip,
   TooltipContent,
@@ -11,6 +18,8 @@ import {
 import { TemplateSelector, TemplateConfigurator } from '@/components/social/templates';
 import { getTemplateById } from '@/lib/templates/profiles';
 import { extractTemplateFieldsFromCaption } from '@/services/openai/captionExtractor';
+import { TEAM_AGENTS, getAgentById } from '@/lib/socialHub/agents';
+import { cn } from '@/lib/utils';
 import type { TemplateProfile } from '@/lib/templates/types';
 import type { WizardState } from '../types';
 
@@ -78,6 +87,13 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
     });
   };
 
+  // Handle supporting image selection change
+  const handleSupportingImagesChange = (images: string[]) => {
+    updateState({
+      selectedSupportingImages: images,
+    });
+  };
+
   // Handle re-extraction of fields from caption
   const handleReExtract = (extractedFields: Record<string, string>) => {
     setUserInputs(extractedFields);
@@ -138,6 +154,9 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
             property={state.selectedProperty}
             userInputs={userInputs}
             onUserInputChange={handleUserInputChange}
+            selectedSupportingImages={state.selectedSupportingImages}
+            onSupportingImagesChange={handleSupportingImagesChange}
+            selectedAgent={state.selectedAgentId ? getAgentById(state.selectedAgentId) : undefined}
             onBack={handleBackToSelector}
             onGenerate={() => {}} // No-op: generation happens at publish
             isGenerating={false}
@@ -172,6 +191,37 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
             </TooltipContent>
           </Tooltip>
         </div>
+
+        {/* Agent Selector - shown for property posts */}
+        {isPropertyPost && (
+          <div className="p-4 rounded-lg border border-purple-200 bg-purple-50/30 dark:bg-purple-950/10">
+            <div className="flex items-center gap-2 mb-3">
+              <User className="h-5 w-5 text-purple-600" />
+              <Label className="font-medium text-base mb-0">Posting As</Label>
+            </div>
+            <Select
+              value={state.selectedAgentId || 'krista'}
+              onValueChange={(value) => updateState({ selectedAgentId: value })}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select agent" />
+              </SelectTrigger>
+              <SelectContent>
+                {TEAM_AGENTS.map((agent) => (
+                  <SelectItem key={agent.id} value={agent.id}>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{agent.name}</span>
+                      <span className="text-muted-foreground text-xs">({agent.phone})</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground mt-2">
+              Agent name, phone, and email will appear on the generated image
+            </p>
+          </div>
+        )}
 
         {/* Property Post: Show Template Selector */}
         {isPropertyPost && (

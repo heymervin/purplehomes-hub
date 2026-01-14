@@ -4,3 +4,4 @@ export { TemplateConfigurator } from './TemplateConfigurator';
 export { TemplatePreview } from './TemplatePreview';
 export { TemplateFieldInput } from './TemplateFieldInput';
 export { AutoFilledField } from './AutoFilledField';
+export { SupportingImagePicker } from './SupportingImagePicker';

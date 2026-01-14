@@ -255,6 +255,7 @@ export interface WizardState {
   // Step 1: Content Source
   postType: PostType;
   selectedProperty: Property | null;
+  selectedAgentId: string | null; // Agent for personal posts
 
   // Step 2: Caption (Mini-Wizard)
   postContext: string;
@@ -268,6 +269,7 @@ export interface WizardState {
   // Step 3: Image
   selectedTemplateId: string | null;
   templateUserInputs: Record<string, string>; // User inputs for template fields
+  selectedSupportingImages: string[]; // User-selected supporting images for templates
   generatedImageUrl: string | null;
   generatedImageBlob: Blob | null;
   customImageFile: File | null;
@@ -296,10 +298,12 @@ export const INITIAL_WIZARD_STATE: WizardState = {
   // Step 1
   postType: 'property',
   selectedProperty: null,
+  selectedAgentId: 'krista', // Default to first agent
 
   // Step 2
   selectedTemplateId: null,
   templateUserInputs: {},
+  selectedSupportingImages: [],
   generatedImageUrl: null,
   generatedImageBlob: null,
   customImageFile: null,

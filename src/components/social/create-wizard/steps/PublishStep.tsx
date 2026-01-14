@@ -22,6 +22,7 @@ import { useSocialAccounts } from '@/services/ghlApi';
 import { renderImejisTemplate } from '@/services/imejis/api';
 import { getTemplateById } from '@/lib/templates/profiles';
 import { buildImejisPayload, resolveAllFields, preparePropertyForTemplate } from '@/lib/templates/fieldMapper';
+import { getAgentById } from '@/lib/socialHub/agents';
 import PostPreview from '../components/PostPreview';
 import ExpandablePreview from '../components/ExpandablePreview';
 import type { WizardState, Platform } from '../types';
@@ -86,10 +87,23 @@ export default function PublishStep({ state, updateState }: PublishStepProps) {
         return;
       }
 
-      const preparedProperty = state.selectedProperty
+      // Prepare property with selected supporting images
+      let preparedProperty = state.selectedProperty
         ? preparePropertyForTemplate(state.selectedProperty)
         : null;
-      const resolvedFields = resolveAllFields(template, preparedProperty, state.templateUserInputs || {});
+
+      // If user selected supporting images, override the images array
+      if (preparedProperty && state.selectedSupportingImages?.length > 0) {
+        preparedProperty = {
+          ...preparedProperty,
+          images: state.selectedSupportingImages,
+        };
+      }
+
+      // Get selected agent for template fields
+      const selectedAgent = state.selectedAgentId ? getAgentById(state.selectedAgentId) : undefined;
+
+      const resolvedFields = resolveAllFields(template, preparedProperty, state.templateUserInputs || {}, selectedAgent);
       const payload = buildImejisPayload(template, resolvedFields);
 
       const result = await renderImejisTemplate(payload);

@@ -1,10 +1,11 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { ChevronLeft, Loader2, Sparkles, Check, AlertCircle, Eye, RefreshCw } from 'lucide-react';
+import { ChevronLeft, Loader2, Sparkles, Check, AlertCircle, Eye, RefreshCw, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TemplateFieldInput } from './TemplateFieldInput';
 import { AutoFilledField } from './AutoFilledField';
+import { SupportingImagePicker } from './SupportingImagePicker';
 import {
   resolveAllFields,
   areAllFieldsValid,
@@ -16,6 +17,7 @@ import { renderImejisTemplate } from '@/services/imejis/api';
 import { extractTemplateFieldsFromCaption } from '@/services/openai/captionExtractor';
 import type { Property } from '@/types';
 import type { TemplateProfile } from '@/lib/templates/types';
+import type { TeamAgent } from '@/lib/socialHub/agents';
 import { cn } from '@/lib/utils';
 
 interface TemplateConfiguratorProps {
@@ -23,6 +25,9 @@ interface TemplateConfiguratorProps {
   property: Property | null;
   userInputs: Record<string, string>;
   onUserInputChange: (field: string, value: string) => void;
+  selectedSupportingImages?: string[]; // User-selected supporting images
+  onSupportingImagesChange?: (images: string[]) => void; // Callback for image selection
+  selectedAgent?: TeamAgent | null; // Selected agent for template fields
   onBack: () => void;
   onGenerate: () => void;
   isGenerating: boolean;
@@ -38,6 +43,9 @@ export function TemplateConfigurator({
   property,
   userInputs,
   onUserInputChange,
+  selectedSupportingImages = [],
+  onSupportingImagesChange,
+  selectedAgent,
   onBack,
   onGenerate,
   isGenerating,
@@ -54,10 +62,34 @@ export function TemplateConfigurator({
   // Prepare property with computed fields
   const preparedProperty = property ? preparePropertyForTemplate(property) : null;
 
-  // Resolve all field values
+  // Check if template needs supporting images (has supportingImage fields)
+  const supportingImageFields = useMemo(() => {
+    return Object.entries(template.fields).filter(
+      ([key, config]) =>
+        key.startsWith('supportingImage') &&
+        config.source === 'auto-property' &&
+        config.dataType === 'image'
+    );
+  }, [template.fields]);
+
+  const needsSupportingImages = supportingImageFields.length > 0;
+  const maxSupportingImages = supportingImageFields.length;
+
+  // Create a modified property that uses selected supporting images
+  const propertyWithSelectedImages = useMemo(() => {
+    if (!preparedProperty || !needsSupportingImages) return preparedProperty;
+
+    // Override the images array with selected images
+    return {
+      ...preparedProperty,
+      images: selectedSupportingImages.length > 0 ? selectedSupportingImages : preparedProperty.images,
+    };
+  }, [preparedProperty, selectedSupportingImages, needsSupportingImages]);
+
+  // Resolve all field values (using property with selected images and agent)
   const resolvedFields = useMemo(() => {
-    return resolveAllFields(template, preparedProperty, userInputs);
-  }, [template, preparedProperty, userInputs]);
+    return resolveAllFields(template, propertyWithSelectedImages, userInputs, selectedAgent);
+  }, [template, propertyWithSelectedImages, userInputs, selectedAgent]);
 
   // Validation
   const isValid = areAllFieldsValid(resolvedFields);
@@ -203,6 +235,20 @@ export function TemplateConfigurator({
                     );
                   })}
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Supporting Images Section */}
+          {needsSupportingImages && property && onSupportingImagesChange && (
+            <Card className="border-purple-200 dark:border-purple-800">
+              <CardContent className="p-4">
+                <SupportingImagePicker
+                  property={property}
+                  selectedImages={selectedSupportingImages}
+                  onSelectionChange={onSupportingImagesChange}
+                  maxImages={maxSupportingImages}
+                />
               </CardContent>
             </Card>
           )}

@@ -36,6 +36,7 @@ export type FieldSourceType =
   | 'auto-property'      // Auto-fill from property data
   | 'auto-constant'      // Auto-fill from constant (logo, etc.)
   | 'auto-generated'     // Auto-generate (QR code URL)
+  | 'auto-agent'         // Auto-fill from selected agent
   | 'user-input';        // User must provide
 
 export type FieldDataType =
@@ -75,6 +76,9 @@ export interface FieldConfig {
 
   // For auto-generated: function name
   generator?: 'qrCodeUrl' | 'listingUrl';
+
+  // For auto-agent: path in agent object (name, phone, email, headshot)
+  agentPath?: 'name' | 'phone' | 'email' | 'headshot';
 
   // For user-input: input configuration
   inputConfig?: UserInputConfig;

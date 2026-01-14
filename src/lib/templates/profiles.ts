@@ -48,11 +48,11 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         propertyPath: 'fullAddress',
         format: 'address',
       },
-      price: {
+      downPayment: {
         imejisFieldId: 'text_comp_1767864146031_237ayry70',
         source: 'auto-property',
         dataType: 'text',
-        propertyPath: 'price',
+        propertyPath: 'downPayment',
         format: 'currency',
       },
       qrCode: {
@@ -60,6 +60,31 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         source: 'auto-generated',
         dataType: 'qr',
         generator: 'qrCodeUrl',
+      },
+      // Agent fields
+      agentName: {
+        imejisFieldId: 'text_comp_1767865067140_fhl22vcqp',
+        source: 'auto-agent',
+        dataType: 'text',
+        agentPath: 'name',
+      },
+      agentPhone: {
+        imejisFieldId: 'text_comp_1767865411329_ohv9qfk56',
+        source: 'auto-agent',
+        dataType: 'text',
+        agentPath: 'phone',
+      },
+      agentEmail: {
+        imejisFieldId: 'text_comp_1767865486832_takqrhxf5',
+        source: 'auto-agent',
+        dataType: 'text',
+        agentPath: 'email',
+      },
+      agentHeadshot: {
+        imejisFieldId: 'image_comp_1767864936087_ro6p0rb7m',
+        source: 'auto-agent',
+        dataType: 'image',
+        agentPath: 'headshot',
       },
     },
 
@@ -107,6 +132,31 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         source: 'auto-generated',
         dataType: 'qr',
         generator: 'qrCodeUrl',
+      },
+      // Agent fields
+      agentName: {
+        imejisFieldId: 'text_comp_1767865067140_fhl22vcqp',
+        source: 'auto-agent',
+        dataType: 'text',
+        agentPath: 'name',
+      },
+      agentPhone: {
+        imejisFieldId: 'text_comp_1767865411329_ohv9qfk56',
+        source: 'auto-agent',
+        dataType: 'text',
+        agentPath: 'phone',
+      },
+      agentEmail: {
+        imejisFieldId: 'text_comp_1767865486832_takqrhxf5',
+        source: 'auto-agent',
+        dataType: 'text',
+        agentPath: 'email',
+      },
+      agentHeadshot: {
+        imejisFieldId: 'image_comp_1767864936087_ro6p0rb7m',
+        source: 'auto-agent',
+        dataType: 'image',
+        agentPath: 'headshot',
       },
     },
 
@@ -188,6 +238,31 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         source: 'auto-generated',
         dataType: 'qr',
         generator: 'qrCodeUrl',
+      },
+      // Agent fields
+      agentName: {
+        imejisFieldId: 'text_comp_1767865067140_fhl22vcqp',
+        source: 'auto-agent',
+        dataType: 'text',
+        agentPath: 'name',
+      },
+      agentPhone: {
+        imejisFieldId: 'text_comp_1767865411329_ohv9qfk56',
+        source: 'auto-agent',
+        dataType: 'text',
+        agentPath: 'phone',
+      },
+      agentEmail: {
+        imejisFieldId: 'text_comp_1767865486832_takqrhxf5',
+        source: 'auto-agent',
+        dataType: 'text',
+        agentPath: 'email',
+      },
+      agentHeadshot: {
+        imejisFieldId: 'image_comp_1767864936087_ro6p0rb7m',
+        source: 'auto-agent',
+        dataType: 'image',
+        agentPath: 'headshot',
       },
     },
 
@@ -343,6 +418,31 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         source: 'auto-constant',
         dataType: 'qr',
         constantValue: COMPANY_CONSTANTS.website,
+      },
+      // Agent fields
+      agentName: {
+        imejisFieldId: 'text_comp_1767865067140_fhl22vcqp',
+        source: 'auto-agent',
+        dataType: 'text',
+        agentPath: 'name',
+      },
+      agentPhone: {
+        imejisFieldId: 'text_comp_1767865411329_ohv9qfk56',
+        source: 'auto-agent',
+        dataType: 'text',
+        agentPath: 'phone',
+      },
+      agentEmail: {
+        imejisFieldId: 'text_comp_1767865486832_takqrhxf5',
+        source: 'auto-agent',
+        dataType: 'text',
+        agentPath: 'email',
+      },
+      agentHeadshot: {
+        imejisFieldId: 'image_comp_1767864936087_ro6p0rb7m',
+        source: 'auto-agent',
+        dataType: 'image',
+        agentPath: 'headshot',
       },
     },
 

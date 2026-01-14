@@ -7,6 +7,7 @@ import type {
   ImejisRenderPayload,
 } from './types';
 import { COMPANY_CONSTANTS, QR_CODE_BASE_URL } from './constants';
+import { getDefaultAgent, type TeamAgent } from '@/lib/socialHub/agents';
 
 /**
  * Get nested property value by path
@@ -80,7 +81,8 @@ export function resolveFieldValue(
   fieldKey: string,
   fieldConfig: FieldConfig,
   property: Property | null,
-  userInputs: Record<string, string>
+  userInputs: Record<string, string>,
+  agent?: TeamAgent | null
 ): ResolvedFieldValue {
   const baseResult: ResolvedFieldValue = {
     fieldId: fieldKey,
@@ -109,6 +111,21 @@ export function resolveFieldValue(
           return baseResult;
         }
         baseResult.value = formatValue(propValue, fieldConfig.format);
+        break;
+
+      case 'auto-agent':
+        // Use provided agent or fall back to default
+        const selectedAgent = agent || getDefaultAgent();
+        if (fieldConfig.agentPath && selectedAgent) {
+          const agentValue = selectedAgent[fieldConfig.agentPath];
+          if (agentValue) {
+            baseResult.value = agentValue;
+          } else {
+            // Agent field is empty (e.g., headshot not set)
+            baseResult.isValid = !!fieldConfig.optional;
+            baseResult.error = fieldConfig.optional ? undefined : `Missing agent data: ${fieldConfig.agentPath}`;
+          }
+        }
         break;
 
       case 'auto-generated':
@@ -148,12 +165,13 @@ export function resolveFieldValue(
 export function resolveAllFields(
   template: TemplateProfile,
   property: Property | null,
-  userInputs: Record<string, string>
+  userInputs: Record<string, string>,
+  agent?: TeamAgent | null
 ): Map<string, ResolvedFieldValue> {
   const resolved = new Map<string, ResolvedFieldValue>();
 
   for (const [fieldKey, fieldConfig] of Object.entries(template.fields)) {
-    resolved.set(fieldKey, resolveFieldValue(fieldKey, fieldConfig, property, userInputs));
+    resolved.set(fieldKey, resolveFieldValue(fieldKey, fieldConfig, property, userInputs, agent));
   }
 
   return resolved;

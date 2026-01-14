@@ -16,6 +16,8 @@ export interface Property {
   city?: string;
   state?: string;
   price?: number;
+  downPayment?: number;
+  monthlyPayment?: number;
   beds?: number;
   baths?: number;
   sqft?: number;
@@ -270,6 +272,8 @@ export function buildStructuredContext(
 - Address: ${property.address || 'TBD'}
 - City: ${property.city || 'TBD'}
 - Price: $${property.price?.toLocaleString() || 'TBD'}
+${property.downPayment ? `- Down Payment: $${property.downPayment.toLocaleString()}` : ''}
+${property.monthlyPayment ? `- Monthly Payment: $${property.monthlyPayment.toLocaleString()}/mo` : ''}
 - Beds: ${property.beds || 'TBD'}
 - Baths: ${property.baths || 'TBD'}
 - SqFt: ${property.sqft?.toLocaleString() || 'TBD'}
