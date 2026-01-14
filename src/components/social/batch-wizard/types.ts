@@ -79,6 +79,8 @@ export interface PropertyPostState {
   hasExistingImage: boolean;
   generatedImageUrl: string | null;
   useExistingImage: boolean;
+  selectedHeroImage: string | null;           // User-selected hero image
+  selectedSupportingImages: string[];         // User-selected supporting images
   // Caption
   captions: Record<Platform, string>;
   // Status
@@ -106,6 +108,7 @@ export interface BatchWizardState {
 
   // Step 2: Image Settings
   selectedTemplateId: string | null;
+  selectedAgentId: string | null;             // Agent for template generation
   skipExistingImages: boolean;
   imageGenerationStatus: Record<string, 'pending' | 'generating' | 'complete' | 'failed'>;
 
@@ -146,6 +149,7 @@ export const INITIAL_BATCH_WIZARD_STATE: BatchWizardState = {
 
   // Step 2
   selectedTemplateId: null,
+  selectedAgentId: 'krista',                  // Default to first agent
   skipExistingImages: true,
   imageGenerationStatus: {},
 
