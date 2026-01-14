@@ -60,7 +60,7 @@ import {
   INTENT_HASHTAGS,
   generateLocationHashtags,
 } from '@/lib/socialHub';
-import { TEAM_AGENTS } from '@/lib/socialHub/agents';
+import { TEAM_AGENTS, getAgentById } from '@/lib/socialHub/agents';
 import { SupportingImagePicker } from '@/components/social/templates/SupportingImagePicker';
 
 interface BatchPostEditorProps {
@@ -85,6 +85,12 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
   const intentDef = useMemo(() => getIntent(item.intentId), [item.intentId]);
   const allowedTemplates = useMemo(() => getAllowedTemplates(item.intentId), [item.intentId]);
   const tabIntents = useMemo(() => getIntentsByTab(item.tab), [item.tab]);
+
+  // Get selected agent for displaying contact info
+  const selectedAgent = useMemo(
+    () => getAgentById(item.selectedAgentId || 'krista') || TEAM_AGENTS[0],
+    [item.selectedAgentId]
+  );
 
   // Generate suggested hashtags based on intent and property
   const suggestedHashtags = useMemo(() => {
@@ -176,10 +182,11 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
 
   return (
     <div className="space-y-6">
-      {/* Property Info Header (if property post) */}
+      {/* Property Info Header with Agent Selector (if property post) */}
       {item.tab === 'property' && property && (
         <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border-purple-200 dark:border-purple-800">
-          <CardContent className="p-4">
+          <CardContent className="p-4 space-y-4">
+            {/* Property Info */}
             <div className="flex items-center gap-4">
               <Building2 className="h-8 w-8 text-purple-600" />
               <div>
@@ -189,6 +196,51 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
                   {property.beds} bed · {property.baths} bath
                 </p>
               </div>
+            </div>
+
+            {/* Agent Selector - Natural Language Style */}
+            <div className="pt-3 border-t border-purple-200 dark:border-purple-700">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm text-muted-foreground">Share this listing as</span>
+                <Select
+                  value={item.selectedAgentId || 'krista'}
+                  onValueChange={(value) => onChange({ selectedAgentId: value })}
+                >
+                  <SelectTrigger className="w-auto h-8 px-3 bg-white dark:bg-gray-900 border-purple-300">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TEAM_AGENTS.map((agent) => (
+                      <SelectItem key={agent.id} value={agent.id}>
+                        <span className="font-medium">{agent.name}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Agent Contact Info (Read-only) */}
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Phone</Label>
+                  <Input
+                    value={selectedAgent.phone}
+                    readOnly
+                    className="h-8 text-sm bg-muted/50 cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Email</Label>
+                  <Input
+                    value={selectedAgent.email}
+                    readOnly
+                    className="h-8 text-sm bg-muted/50 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Agent name, phone, and email will appear on the generated image
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -446,37 +498,6 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
               Templates are filtered based on your selected intent.
             </p>
           </div>
-
-          {/* Agent Selector - shown for property posts */}
-          {item.tab === 'property' && (
-            <div className="p-3 rounded-lg border border-purple-200 bg-purple-50/30 dark:bg-purple-950/10">
-              <div className="flex items-center gap-2 mb-2">
-                <User className="h-4 w-4 text-purple-600" />
-                <Label className="font-medium text-sm mb-0">Posting As</Label>
-              </div>
-              <Select
-                value={item.selectedAgentId || 'krista'}
-                onValueChange={(value) => onChange({ selectedAgentId: value })}
-              >
-                <SelectTrigger className="h-9">
-                  <SelectValue placeholder="Select agent" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TEAM_AGENTS.map((agent) => (
-                    <SelectItem key={agent.id} value={agent.id}>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{agent.name}</span>
-                        <span className="text-muted-foreground text-xs">({agent.phone})</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1.5">
-                Agent info will appear on the generated image
-              </p>
-            </div>
-          )}
 
           {/* Hero Image Selection - shown for property posts with images */}
           {item.tab === 'property' && property && (property.heroImage || (property.images && property.images.length > 0)) && (
