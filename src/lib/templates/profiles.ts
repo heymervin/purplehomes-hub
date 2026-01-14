@@ -310,17 +310,36 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
     ],
 
     fields: {
-      header: {
-        imejisFieldId: 'text_comp_1767862944913_m4kenfjln',
+      // Two-line header: "HOME BUYER" (topic) + "CRUCIAL TIPS" (title)
+      // User enters natural language like "Home buyer crucial tips"
+      // which gets parsed into topic + title
+      tipHeader: {
+        imejisFieldId: '__composite__', // Not a real field - parsed into tipTopic + tipTitle
         source: 'user-input',
         dataType: 'text',
         inputConfig: {
-          label: 'Main Header',
-          placeholder: '3 Tips for First-Time Homebuyers',
-          helpText: 'Keep it concise - this is the main title',
+          label: 'Tip Title',
+          placeholder: 'Home buyer crucial tips',
+          helpText: 'Enter topic and title naturally (e.g., "First-time buyer essential advice")',
           required: true,
-          maxLength: 45,
+          maxLength: 60,
         },
+      },
+      // Derived field - Line 1 (Topic)
+      tipTopic: {
+        imejisFieldId: 'text_comp_1768369845442_d2gkk17q7',
+        source: 'derived',
+        dataType: 'text',
+        derivedFrom: 'tipHeader',
+        derivedPart: 'topic',
+      },
+      // Derived field - Line 2 (Title)
+      tipTitle: {
+        imejisFieldId: 'text_comp_1767862944913_m4kenfjln',
+        source: 'derived',
+        dataType: 'text',
+        derivedFrom: 'tipHeader',
+        derivedPart: 'title',
       },
       tip1Image: {
         imejisFieldId: 'image_comp_1767867471974_gn3o8p3fm',
@@ -464,7 +483,7 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
     },
 
     userInputFields: [
-      'header',
+      'tipHeader',
       'tip1Header', 'tip1Body',
       'tip2Header', 'tip2Body',
       'tip3Header', 'tip3Body',

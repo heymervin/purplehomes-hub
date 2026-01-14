@@ -37,7 +37,8 @@ export type FieldSourceType =
   | 'auto-constant'      // Auto-fill from constant (logo, etc.)
   | 'auto-generated'     // Auto-generate (QR code URL)
   | 'auto-agent'         // Auto-fill from selected agent
-  | 'user-input';        // User must provide
+  | 'user-input'         // User must provide
+  | 'derived';           // Derived/parsed from another user-input field
 
 export type FieldDataType =
   | 'text'
@@ -82,6 +83,10 @@ export interface FieldConfig {
 
   // For user-input: input configuration
   inputConfig?: UserInputConfig;
+
+  // For derived: which field to derive from and how
+  derivedFrom?: string;         // Source field key (e.g., 'tipHeader')
+  derivedPart?: 'topic' | 'title';  // Which part to extract
 
   // Formatting
   format?: FieldFormat;

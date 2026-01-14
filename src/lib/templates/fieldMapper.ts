@@ -61,6 +61,72 @@ function formatValue(value: any, format?: string): string {
 }
 
 /**
+ * Parse a natural language tip header into topic + title
+ * e.g., "Home buyer crucial tips" → { topic: "HOME BUYER", title: "CRUCIAL TIPS" }
+ *
+ * Parsing logic:
+ * - Look for common split points: "tips", "advice", "guide", "strategies", etc.
+ * - The part before is the topic, the part including the keyword is the title
+ * - If no keyword found, split roughly in half by words
+ */
+function parseTipHeader(input: string): { topic: string; title: string } {
+  if (!input || !input.trim()) {
+    return { topic: '', title: '' };
+  }
+
+  const trimmed = input.trim();
+
+  // Common title keywords that indicate where to split
+  const titleKeywords = [
+    'tips', 'tip', 'advice', 'guide', 'strategies', 'strategy',
+    'secrets', 'steps', 'ways', 'checklist', 'essentials', 'must-knows',
+    'mistakes', 'questions', 'facts', 'myths', 'basics', 'fundamentals'
+  ];
+
+  // Try to find a natural split point based on keywords
+  const words = trimmed.split(/\s+/);
+
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i].toLowerCase().replace(/[^a-z]/g, '');
+    if (titleKeywords.includes(word)) {
+      // Found a keyword - split here
+      // Topic is everything before this word (if there's anything)
+      // Title is from this word onwards
+
+      // Look for adjective before the keyword (e.g., "crucial tips", "essential advice")
+      let titleStartIndex = i;
+      const adjectives = ['crucial', 'essential', 'key', 'important', 'top', 'best', 'quick', 'easy', 'simple', 'smart'];
+
+      if (i > 0) {
+        const prevWord = words[i - 1].toLowerCase().replace(/[^a-z]/g, '');
+        if (adjectives.includes(prevWord)) {
+          titleStartIndex = i - 1;
+        }
+      }
+
+      if (titleStartIndex > 0) {
+        const topic = words.slice(0, titleStartIndex).join(' ').toUpperCase();
+        const title = words.slice(titleStartIndex).join(' ').toUpperCase();
+        return { topic, title };
+      }
+    }
+  }
+
+  // No keyword found - try splitting by word count
+  // If we have 2+ words, first word(s) = topic, last word(s) = title
+  if (words.length >= 2) {
+    // Simple split: first half topic, second half title
+    const midpoint = Math.ceil(words.length / 2);
+    const topic = words.slice(0, midpoint).join(' ').toUpperCase();
+    const title = words.slice(midpoint).join(' ').toUpperCase();
+    return { topic, title };
+  }
+
+  // Single word - use as title, leave topic empty
+  return { topic: '', title: trimmed.toUpperCase() };
+}
+
+/**
  * Generate QR code URL for property
  */
 function generateQrCodeUrl(property: Property | null): string {
@@ -148,6 +214,22 @@ export function resolveFieldValue(
         baseResult.value = inputValue || '';
         break;
 
+      case 'derived':
+        // Derive value from another field (e.g., tipHeader → tipTopic/tipTitle)
+        const sourceFieldKey = fieldConfig.derivedFrom;
+        const derivedPart = fieldConfig.derivedPart;
+
+        if (sourceFieldKey && derivedPart) {
+          const sourceValue = userInputs[sourceFieldKey] || '';
+
+          if (sourceFieldKey === 'tipHeader') {
+            // Parse tip header into topic + title
+            const parsed = parseTipHeader(sourceValue);
+            baseResult.value = derivedPart === 'topic' ? parsed.topic : parsed.title;
+          }
+        }
+        break;
+
       default:
         baseResult.value = '';
     }
@@ -212,6 +294,9 @@ export function buildImejisPayload(
   for (const [fieldKey, fieldConfig] of Object.entries(template.fields)) {
     const resolved = resolvedFields.get(fieldKey);
     if (!resolved || !resolved.value) continue;
+
+    // Skip composite/placeholder fields (they're just for UI, derived fields have the real IDs)
+    if (fieldConfig.imejisFieldId === '__composite__') continue;
 
     const modification: ImejisModification = {
       name: fieldConfig.imejisFieldId,
