@@ -322,5 +322,57 @@
       "instruction": "Share something honest that humanizes you.",
       "example": "I almost quit real estate in my first year. Here's what kept me going."
     }
+  },
+  "exampleOutputs": {
+    "life-update": {
+      "good": "🌟 A little update from me...\n\nNo emails. No showings. Just family.\n\nTook a full weekend off. First time in 2 years. Lake. Sunsets. Rest.\n\nForgot how good that feels.\n\nWhat's your reset look like?\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "bad": "🌟 A little update from me...\n\nI finally took a full weekend off for the first time in 2 years. It was really nice to spend time with my family at the lake without checking emails or doing showings. I feel so refreshed now.\n\nWhat's new with you? Let me know in the comments!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I finally", "It was really nice", "I feel so", "I'm excited to share", "I wanted to", "I decided to"]
+    },
+    "milestone": {
+      "good": "🏆 100 families helped find their dream home\n\n100 families. 100 stories. 100 reasons I do this.\n\nEvery closing reminds me. Not about transactions. About trust. About new chapters.\n\n🙏 Grateful for every single one.\n\nThank you for being part of this journey!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "bad": "🏆 Milestone achieved!\n\nI'm thrilled to share that I've had the privilege of helping 100 families find their dream homes over the years. Each journey has been unique and I'm so grateful for the trust they placed in me.\n\n🙏 Thank you for being part of this amazing journey!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I'm thrilled", "I've had the privilege", "I'm so grateful", "amazing journey", "over the years", "Each journey has been"]
+    },
+    "lesson-insight": {
+      "good": "💡 Something I learned recently...\n\nThe best deals? They come from the listings no one else wants.\n\nUgly houses. Overlooked properties. That's where opportunity hides.\n\nStop chasing what everyone else is chasing.\n\n💭 The crowd is usually wrong.\n\nWhat do you think?\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "bad": "💡 Something I learned recently...\n\nI've come to realize that the best deals often come from the listings that no one else wants to show. I think it's really important to look at the properties that might seem ugly at first because that's often where the real opportunity is hiding.\n\nWhat do you think? Let me know below.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I've come to realize", "I think it's really important", "might seem", "at first because", "often where"]
+    },
+    "behind-the-scenes": {
+      "good": "🎬 Behind the scenes...\n\n3 hours. One vacant property. Furniture from my garage.\n\nSometimes you gotta get creative. No staging budget? Make it work.\n\nThe photos turned out incredible.\n\nAny questions about what I do? Ask away!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "bad": "🎬 Behind the scenes...\n\nToday I spent 3 hours staging a vacant property using furniture from my own garage. Sometimes in this business you have to be creative and work with what you have when there's no staging budget available.\n\nAny questions about what I do? Ask away!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["Today I spent", "Sometimes in this business", "you have to be", "work with what you have", "when there's no"]
+    },
+    "market-update": {
+      "good": "📊 Inventory hits 6-month high in Phoenix Metro\n\n📈 Active listings: Up 23% YoY. Days on market: 34.\n\nWhat this means: Buyers have breathing room. Finally.\n\nNegotiation power is shifting. Slowly but surely.\n\nQuestions about the market? Let's chat.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "bad": "📊 Market Update\n\nI wanted to share some important market data with you. Inventory has hit a 6-month high in Phoenix Metro, with active listings up 23% year over year and median days on market now at 34 days. This is really significant because it means buyers finally have some breathing room to negotiate.\n\nQuestions about the market? Let's chat.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I wanted to share", "This is really significant", "some important", "because it means"]
+    },
+    "buyer-tips": {
+      "good": "🏡 Stop waiving inspections\n\n3 deals fell apart this month. Hidden foundation issues. Every single one.\n\nThe $500 inspection? Cheapest insurance you'll ever buy.\n\n💡 Skip the inspection, inherit the nightmare.\n\nThinking of buying? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "bad": "🏡 Buyer Tip\n\nI wanted to share an important tip about home inspections. I've seen 3 deals fall apart this month because of hidden foundation issues that could have been caught earlier. The $500 inspection is really the cheapest insurance you'll buy in the homebuying process.\n\n💡 Always get an inspection!\n\nThinking of buying? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I wanted to share", "I've seen", "because of", "could have been", "really the", "in the homebuying process"]
+    },
+    "seller-tips": {
+      "good": "🏷️ Price it right the first week\n\nCorrectly priced homes sell 18 days faster. Fact.\n\nOverprice then reduce? Looks desperate. Buyers notice.\n\nFirst 2 weeks = 80% of your showings. Don't waste them.\n\n💡 You only get one first impression.\n\nThinking of selling? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "bad": "🏷️ Seller Tip\n\nHere's something important sellers should know: homes that are priced correctly tend to sell about 18 days faster than those that aren't. When you overprice your home and then have to reduce the price later, it can look desperate to potential buyers.\n\n💡 Price it right from the start!\n\nThinking of selling? DM me your questions.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["Here's something important", "should know", "tend to", "about 18 days", "When you", "can look", "from the start"]
+    },
+    "investment-insight": {
+      "good": "💹 Investment Insight\n\nMultifamily under 4 units? Still qualifies for residential financing.\n\nPhoenix suburbs: 3.2% cap rate. Tucson: 4.8%.\n\nThe gap is closing. Smart money is moving south.\n\n📊 Numbers don't lie.\n\nWant to talk numbers? DM me.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "bad": "💹 Investment Insight\n\nI wanted to share an interesting insight about multifamily investing. Properties with under 4 units still qualify for residential financing, which is great news for investors. Currently, the average cap rate in suburban Phoenix is around 3.2% compared to 4.8% in Tucson.\n\n📊 The numbers are interesting!\n\nWant to talk numbers? DM me.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I wanted to share", "which is great news", "Currently, the", "is around", "compared to", "are interesting"]
+    },
+    "client-success-story": {
+      "good": "⭐ Client Success Story\n\n📋 The Challenge:\nFirst-time buyers. Lost to cash offers. Three times.\n\n✅ The Solution:\nConnected them with a lender who closes in 14 days.\n\n🎉 The Result:\nDream home. $5K under asking. Done.\n\nReady to write your own success story? Let's talk.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "bad": "⭐ Client Success Story\n\n📋 The Challenge:\nI recently worked with some first-time buyers who kept losing out to cash offers multiple times.\n\n✅ The Solution:\nI was able to connect them with a local lender who specializes in quick closings and can close in about 14 days.\n\n🎉 The Result:\nThey were able to win their dream home for $5K under the asking price!\n\nReady to write your own success story? Let's talk.\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I recently worked", "I was able to", "who specializes in", "They were able to", "for $5K under the asking price"]
+    },
+    "community-spotlight": {
+      "good": "🏘️ Spotlight: Mesa Farmers Market\n\nEvery Saturday. 8am-noon.\n\nFresh produce. Live music. Best breakfast tacos in the East Valley.\n\nLocal gems like this? They make a neighborhood home.\n\n📍 Support local. Eat well. Meet your neighbors.\n\nKnow another local gem? Tag them below!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "bad": "🏘️ Community Spotlight\n\nI wanted to feature the Mesa Farmers Market today! It runs every Saturday from 8am to noon and offers fresh produce, live music, and what I think are the best breakfast tacos in the East Valley.\n\n📍 I love places like this that make a community feel like home!\n\nKnow another local gem? Tag them below!\n\nPurple Homes | Your Trusted Real Estate Partner",
+      "avoid": ["I wanted to feature", "It runs", "and offers", "what I think are", "I love places like this"]
+    }
   }
 }

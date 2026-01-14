@@ -458,49 +458,65 @@ function getTechniqueBundle(domain: string, intent: string): TechniqueBundle | n
  * Build copywriting instructions from technique bundle
  * This creates the prompt section that guides OpenAI to use specific techniques
  */
-function buildCopywritingInstructions(bundle: TechniqueBundle): string {
-  const { primaryAppeals, structures, microDevices, ctaPatterns } = copywritingFrameworks;
+function buildCopywritingInstructions(bundle: TechniqueBundle, intent: string): string {
+  const { primaryAppeals, structures, microDevices, ctaPatterns, exampleOutputs } = copywritingFrameworks as {
+    primaryAppeals: Record<string, { instruction?: string; powerWords?: string[] }>;
+    structures: Record<string, { instruction?: string; template?: string }>;
+    microDevices: Record<string, { instruction?: string }>;
+    ctaPatterns: Record<string, { instruction?: string; examples?: string[] }>;
+    exampleOutputs: Record<string, { good: string; bad: string; avoid: string[] }>;
+  };
 
   // Get appeal instruction
-  const appeal = primaryAppeals[bundle.primaryAppeal as keyof typeof primaryAppeals];
+  const appeal = primaryAppeals[bundle.primaryAppeal];
   const appealInstruction = appeal?.instruction || '';
-  const powerWords = appeal?.powerWords?.slice(0, 5).join(', ') || '';
 
   // Get structure instruction
-  const structure = structures[bundle.structure as keyof typeof structures];
+  const structure = structures[bundle.structure];
   const structureInstruction = structure?.instruction || '';
-  const structureTemplate = structure?.template || '';
 
   // Get device instructions
   const deviceInstructions = bundle.devices.map(deviceKey => {
-    const device = microDevices[deviceKey as keyof typeof microDevices];
+    const device = microDevices[deviceKey];
     return device ? `• ${device.instruction}` : '';
   }).filter(Boolean).join('\n');
 
   // Get CTA instruction
-  const cta = ctaPatterns[bundle.ctaPattern as keyof typeof ctaPatterns];
+  const cta = ctaPatterns[bundle.ctaPattern];
   const ctaInstruction = cta?.instruction || '';
-  const ctaExamples = cta?.examples?.slice(0, 2).join(' | ') || '';
+
+  // Get example outputs for this intent
+  const examples = exampleOutputs?.[intent];
+  const goodExample = examples?.good || '';
+  const badExample = examples?.bad || '';
+  const avoidPhrases = examples?.avoid?.join('", "') || '';
 
   return `
 ═══════════════════════════════════════════════════════════════
-COPYWRITING FRAMEWORK (Apply these principles):
+COPYWRITING FRAMEWORK - FOLLOW THIS EXACTLY
 ═══════════════════════════════════════════════════════════════
 
-PRIMARY APPEAL: ${bundle.primaryAppeal.toUpperCase()}
-${appealInstruction}
-${powerWords ? `Power words to consider: ${powerWords}` : ''}
+APPEAL: ${bundle.primaryAppeal.toUpperCase()} - ${appealInstruction}
 
-STRUCTURE:
-${structureInstruction}
-${structureTemplate ? `Template: ${structureTemplate}` : ''}
+STRUCTURE: ${structureInstruction}
 
-WRITING TECHNIQUES:
+TECHNIQUES:
 ${deviceInstructions}
 
-CTA APPROACH:
-${ctaInstruction}
-${ctaExamples ? `Examples: ${ctaExamples}` : ''}
+CTA: ${ctaInstruction}
+
+═══════════════════════════════════════════════════════════════
+CRITICAL: GOOD vs BAD EXAMPLES
+═══════════════════════════════════════════════════════════════
+
+✅ WRITE LIKE THIS (staccato, punchy):
+${goodExample}
+
+❌ NOT LIKE THIS (wordy, generic):
+${badExample}
+
+🚫 NEVER USE THESE PHRASES:
+"${avoidPhrases}"
 
 ═══════════════════════════════════════════════════════════════`;
 }
@@ -1426,7 +1442,7 @@ PROFESSIONAL DOMAIN CONSTRAINTS (STRICTLY ENFORCED):
   if (intent && (domain === 'personal' || domain === 'professional')) {
     const bundle = getTechniqueBundle(domain, intent);
     if (bundle) {
-      copywritingInstructions = buildCopywritingInstructions(bundle);
+      copywritingInstructions = buildCopywritingInstructions(bundle, intent);
     }
   }
 
@@ -1751,21 +1767,25 @@ Purple Homes | Your Trusted Real Estate Partner`,
   };
 
   // ===== PERSONAL TEMPLATES =====
-  // NOTE: For Personal posts, {body_copy} MUST be based on user's context, not generic content
+  // STACCATO STYLE: Short sentences. Fragments. No conjunctions. Punch hard.
   const personalTemplates: Record<string, string> = {
     'life-update': `{hook}
 
-{body_copy - Write 2-3 sentences that EXPAND on the user's specific update. Use their words and details.}
+{body_copy}
+RULES: 3-5 SHORT sentences. Fragments OK. Use user's words. NO "I finally", "It was nice", "I feel".
+Example format: "No emails. No showings. Just family. [specific detail]. [reflection]."
 
 {cta}
 
 Purple Homes | Your Trusted Real Estate Partner`,
 
-    'milestone': `{hook - Include the user's SPECIFIC milestone}
+    'milestone': `{hook}
 
-{body_copy - Write 2-3 sentences about THEIR specific achievement and journey. Reference their actual milestone.}
+{body_copy}
+RULES: Start with the NUMBER repeated in staccato. "100 families. 100 stories. 100 reasons."
+Then 2-3 short sentences about meaning. NO "I'm thrilled", "privilege", "grateful for".
 
-🙏 {gratitude_reflection - A genuine reflection on THEIR milestone, not generic gratitude}
+🙏 {one_sentence_gratitude}
 
 {cta}
 
@@ -1773,9 +1793,11 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
     'lesson-insight': `{hook}
 
-{body_copy - Write 2-3 sentences that EXPAND on the user's specific lesson/insight. Don't replace their wisdom with generic advice.}
+{body_copy}
+RULES: State the lesson directly. Short sentences. Then the implication.
+Example: "The best deals? Listings no one wants. Ugly houses. That's where opportunity hides."
 
-💭 {expanded_takeaway - ENHANCE what the user wrote, don't just copy it. Make it more impactful while keeping their core message.}
+💭 {takeaway_one_liner}
 
 {cta}
 
@@ -1783,7 +1805,8 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
     'behind-the-scenes': `{hook}
 
-{body_copy - Describe the user's ACTUAL behind-the-scenes moment. Use their specific details, not imagined scenarios.}
+{body_copy}
+RULES: Numbers first. "3 hours. One property. Garage furniture." Then what happened. Short bursts.
 
 {cta}
 
@@ -1791,12 +1814,15 @@ Purple Homes | Your Trusted Real Estate Partner`,
   };
 
   // ===== PROFESSIONAL TEMPLATES =====
+  // STACCATO STYLE: Short sentences. Facts. Numbers. No filler.
   const professionalTemplates: Record<string, string> = {
     'market-update': `{hook}
 
-📈 {stats_summary}
+📈 {stats_in_staccato}
+RULES: "Listings: Up 23%. Days on market: 34." NO "Currently at" or "approximately".
 
-{body_copy}
+{what_it_means}
+RULES: 2-3 short sentences. "Buyers have breathing room. Finally. Negotiation power shifting."
 
 {cta}
 
@@ -1804,9 +1830,12 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
     'buyer-tips': `{hook}
 
-{body_copy}
+{tip_body}
+RULES: Lead with the problem/stat. "3 deals fell apart. Hidden issues. Every one."
+Then the solution in fragments. NO "I wanted to share" or "It's important".
 
-💡 {key_point}
+💡 {punchline}
+RULES: One punchy sentence. "Skip inspection, inherit nightmare."
 
 {cta}
 
@@ -1814,9 +1843,11 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
     'seller-tips': `{hook}
 
-{body_copy}
+{tip_body}
+RULES: Lead with the stat. "Correctly priced = 18 days faster. Fact."
+Then implications. Short. Punchy. NO "Here's something important" or "sellers should know".
 
-💡 {key_point}
+💡 {punchline}
 
 {cta}
 
@@ -1824,9 +1855,11 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
     'investment-insight': `{hook}
 
-{body_copy}
+{insight_body}
+RULES: Numbers first. "Under 4 units? Residential financing. Phoenix: 3.2% cap. Tucson: 4.8%."
+Then analysis in fragments.
 
-📊 {metric_highlight}
+📊 {metric_punchline}
 
 {cta}
 
@@ -1835,13 +1868,16 @@ Purple Homes | Your Trusted Real Estate Partner`,
     'client-success-story': `{hook}
 
 📋 The Challenge:
-{challenge_summary}
+{challenge_staccato}
+RULES: Short fragments. "First-time buyers. Lost to cash. Three times."
 
 ✅ The Solution:
-{solution_summary}
+{solution_staccato}
+RULES: What you did. Brief. "Connected with lender. 14-day close."
 
 🎉 The Result:
-{result_summary}
+{result_staccato}
+RULES: The win. "Dream home. $5K under. Done."
 
 {cta}
 
@@ -1849,9 +1885,12 @@ Purple Homes | Your Trusted Real Estate Partner`,
 
     'community-spotlight': `{hook}
 
-{body_copy}
+{spotlight_body}
+RULES: Details in fragments. "Every Saturday. 8am-noon. Fresh produce. Live music."
+Then why it matters. Short.
 
-📍 {location_or_details}
+📍 {location_punchline}
+RULES: "Support local. Eat well. Meet neighbors."
 
 {cta}
 
