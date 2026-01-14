@@ -714,8 +714,20 @@ export function QuickBatchForm() {
         if (failedItem.templateId !== 'none' && failedItem.templateId !== 'custom') {
           const template = getTemplateById(failedItem.templateId);
           if (template && property) {
+            // Get selected agent for template fields
+            const selectedAgent = failedItem.selectedAgentId ? getAgentById(failedItem.selectedAgentId) : undefined;
+
+            // Prepare property with user-selected images
             const preparedProperty = preparePropertyForTemplate(property);
-            const resolvedFields = resolveAllFields(template, preparedProperty, failedItem.context);
+            const propertyWithSelectedImages = {
+              ...preparedProperty,
+              heroImage: failedItem.selectedHeroImage || preparedProperty.heroImage,
+              images: failedItem.selectedSupportingImages?.length
+                ? failedItem.selectedSupportingImages
+                : preparedProperty.images,
+            };
+
+            const resolvedFields = resolveAllFields(template, propertyWithSelectedImages, failedItem.context, selectedAgent);
             const payload = buildImejisPayload(template, resolvedFields);
             const imageResult = await renderImejisTemplate(payload);
             if (imageResult.success && imageResult.imageUrl) {

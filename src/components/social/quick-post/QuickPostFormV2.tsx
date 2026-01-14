@@ -88,6 +88,7 @@ import {
   intentRequiresProperty,
   validateIntentFields,
 } from '@/lib/socialHub';
+import { TEAM_AGENTS, getAgentById } from '@/lib/socialHub/agents';
 
 // ============ FORM STATE ============
 type FormStep = 'form' | 'preview';
@@ -101,6 +102,12 @@ interface QuickPostFormState {
 
   // Property (for property tab)
   selectedProperty: Property | null;
+
+  // Agent selection (for property posts)
+  selectedAgentId: string;
+
+  // Hero image selection
+  selectedHeroImage: string | null;
 
   // Intent context fields (dynamic based on intent)
   context: Record<string, string>;
@@ -155,6 +162,8 @@ const getInitialState = (): QuickPostFormState => {
     toneId: getDefaultTone(defaultIntent.id),
 
     selectedProperty: null,
+    selectedAgentId: 'krista',
+    selectedHeroImage: null,
     context: {},
 
     scheduleDate: '',
@@ -483,9 +492,22 @@ export function QuickPostFormV2() {
 
       // Generate image if template selected
       if (selectedTemplate && state.templateId !== 'custom' && state.templateId !== 'none') {
-        const preparedProperty = state.selectedProperty
+        // Get selected agent for template fields
+        const selectedAgent = getAgentById(state.selectedAgentId);
+
+        // Prepare property with user-selected images
+        const baseProperty = state.selectedProperty
           ? preparePropertyForTemplate(state.selectedProperty)
           : null;
+
+        // Override hero image and supporting images if user selected them
+        const preparedProperty = baseProperty ? {
+          ...baseProperty,
+          heroImage: state.selectedHeroImage || baseProperty.heroImage,
+          images: state.selectedSupportingImages.length > 0
+            ? state.selectedSupportingImages
+            : baseProperty.images,
+        } : null;
 
         const enhancedUserInputs = {
           ...state.templateUserInputs,
@@ -498,7 +520,8 @@ export function QuickPostFormV2() {
           }),
         };
 
-        const resolvedFields = resolveAllFields(selectedTemplate, preparedProperty, enhancedUserInputs);
+        // Pass agent to resolveAllFields for agent name, phone, email, headshot
+        const resolvedFields = resolveAllFields(selectedTemplate, preparedProperty, enhancedUserInputs, selectedAgent);
         const payload = buildImejisPayload(selectedTemplate, resolvedFields);
 
         const imageResult = await renderImejisTemplate(payload);
@@ -956,9 +979,43 @@ export function QuickPostFormV2() {
                       </Command>
                     </PopoverContent>
                   </Popover>
+
+                  {/* Agent Selector */}
+                  <span className="text-muted-foreground">as</span>
+                  <Select
+                    value={state.selectedAgentId}
+                    onValueChange={(value) => setState(prev => ({ ...prev, selectedAgentId: value }))}
+                  >
+                    <SelectTrigger className="w-auto h-auto py-1.5 px-3 border-purple-300 bg-purple-50 dark:bg-purple-950/30">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TEAM_AGENTS.map((agent) => (
+                        <SelectItem key={agent.id} value={agent.id}>
+                          <span className="font-medium">{agent.name}</span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </>
               )}
             </div>
+
+            {/* Agent Contact Info (Read-only, shown when property tab selected) */}
+            {state.tab === 'property' && (
+              <div className="flex items-center gap-4 text-sm text-muted-foreground pl-1">
+                {(() => {
+                  const agent = getAgentById(state.selectedAgentId) || TEAM_AGENTS[0];
+                  return (
+                    <>
+                      <span>{agent.phone}</span>
+                      <span>•</span>
+                      <span>{agent.email}</span>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
 
             {/* Row 2: Scheduling */}
             <div className="flex flex-wrap items-center gap-2 text-base leading-relaxed">
@@ -1176,30 +1233,48 @@ export function QuickPostFormV2() {
               </div>
             )}
 
-            {/* Hero Image Display (for property posts with images) */}
-            {state.tab === 'property' && state.selectedProperty?.heroImage && (
+            {/* Hero Image Selection (for property posts with images) */}
+            {state.tab === 'property' && state.selectedProperty && (state.selectedProperty.heroImage || (state.selectedProperty.images && state.selectedProperty.images.length > 0)) && (
               <div className="mt-4 p-4 rounded-lg bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800">
                 <div className="flex items-center gap-2 mb-3">
                   <ImageIcon className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                   <span className="font-medium text-sm">Hero Image</span>
-                  <span className="text-xs text-muted-foreground">Main image for your template</span>
+                  <span className="text-xs text-muted-foreground">Select main image for template</span>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="relative">
-                    <img
-                      src={state.selectedProperty.heroImage}
-                      alt="Hero"
-                      className="h-32 w-32 object-cover rounded-lg border-2 border-amber-300 dark:border-amber-700 shadow-sm"
-                    />
-                    <div className="absolute -top-2 -right-2 bg-amber-600 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
-                      ★
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-muted-foreground">
-                      This is the primary image that will be displayed prominently in your template.
-                    </p>
-                  </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    ...(state.selectedProperty.heroImage ? [state.selectedProperty.heroImage] : []),
+                    ...(state.selectedProperty.images || []),
+                  ]
+                    .filter((img, idx, arr) => arr.indexOf(img) === idx)
+                    .slice(0, 8)
+                    .map((img, idx) => {
+                      const isSelected = (state.selectedHeroImage || state.selectedProperty?.heroImage) === img;
+                      return (
+                        <button
+                          key={`hero-${img}-${idx}`}
+                          type="button"
+                          onClick={() => setState(prev => ({ ...prev, selectedHeroImage: img }))}
+                          className={cn(
+                            "relative aspect-square rounded-lg overflow-hidden border-2 transition-all",
+                            isSelected
+                              ? "border-amber-500 ring-2 ring-amber-500/20"
+                              : "border-transparent hover:border-muted-foreground/50"
+                          )}
+                        >
+                          <img
+                            src={img}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                          {isSelected && (
+                            <div className="absolute top-1 right-1 bg-amber-600 text-white rounded-full p-0.5">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
                 </div>
               </div>
             )}
