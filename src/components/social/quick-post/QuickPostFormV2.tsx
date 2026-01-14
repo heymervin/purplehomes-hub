@@ -491,7 +491,16 @@ export function QuickPostFormV2() {
       }
 
       // Generate image if template selected
-      if (selectedTemplate && state.templateId !== 'custom' && state.templateId !== 'none') {
+      // DOMAIN ISOLATION: Only generate Imejis templates for Property tab
+      // Personal/Professional tabs should ONLY use custom images or text-only (none)
+      const isPropertyDomain = state.tab === 'property';
+      const shouldGenerateImejisTemplate =
+        selectedTemplate &&
+        state.templateId !== 'custom' &&
+        state.templateId !== 'none' &&
+        isPropertyDomain; // <-- CRITICAL: Only for Property domain
+
+      if (shouldGenerateImejisTemplate) {
         // Get selected agent for template fields
         const selectedAgent = getAgentById(state.selectedAgentId);
 
@@ -529,7 +538,15 @@ export function QuickPostFormV2() {
             generatedImageBlob: imageResult.imageBlob || null,
           }));
         }
+      } else if (state.templateId === 'none') {
+        // Text Only - clear any existing generated image
+        setState(prev => ({
+          ...prev,
+          generatedImageUrl: null,
+          generatedImageBlob: null,
+        }));
       }
+      // For 'custom' template, the customImagePreview is already set from file upload
 
       // Auto-select first account if none selected
       if (state.selectedAccounts.length === 0 && connectedAccounts.length > 0) {
