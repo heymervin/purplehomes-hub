@@ -852,13 +852,13 @@ export function QuickPostFormV2() {
           <CardContent className="p-6 space-y-6">
             {/* Generated Image */}
             {(state.generatedImageUrl || state.customImagePreview) && (
-              <div className="relative max-w-md mx-auto">
+              <div className="relative mx-auto">
                 <img
                   src={state.generatedImageUrl || state.customImagePreview || ''}
                   alt="Generated post"
-                  className="w-full h-auto border"
+                  className="w-full max-w-lg h-auto border rounded-lg shadow-sm mx-auto"
                 />
-                <p className="text-xs text-center text-muted-foreground mt-1">
+                <p className="text-xs text-center text-muted-foreground mt-2">
                   Preview – final layout may vary slightly
                 </p>
               </div>
