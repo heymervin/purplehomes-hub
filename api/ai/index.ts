@@ -2256,7 +2256,7 @@ function runIntegrityCheck(): IntegrityCheckResult {
       (intent) => !['under-contract', 'price-reduced', 'personal-value', 'success-story', 'general'].includes(intent)
     );
     const registered = new Set(registeredIntents);
-    const expected = new Set(EXPECTED_INTENTS);
+    const expected = new Set<string>(EXPECTED_INTENTS);
 
     const missingIntents: string[] = [];
     const extraIntents: string[] = [];
