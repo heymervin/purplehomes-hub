@@ -2078,12 +2078,43 @@ ${signature}`,
 
 function getCaptionToneInstructions(tone: string): string {
   const instructions: Record<string, string> = {
-    professional: `Professional tone: Polished, authoritative, credible. Use words like: exceptional, distinguished, premier, strategic, optimal.`,
-    casual: `Casual tone: Relaxed, conversational, real. Use words like: honestly, love this, pretty cool, check this out, real talk.`,
-    urgent: `Urgent tone: Time-sensitive, action-driving, punchy. Use words like: just dropped, won't last, moving fast, act now, don't miss.`,
-    friendly: `Friendly tone: Warm, approachable, personal. Use words like: imagine, picture this, excited to share, can't wait, thrilled.`,
-    luxury: `Luxury tone: Sophisticated, elegant, refined. Use words like: exquisite, curated, bespoke, residence, exceptional craftsmanship.`,
-    investor: `Investor tone: Analytical, numbers-focused, ROI-driven. Use words like: cap rate, cash flow, ARV, upside potential, solid returns.`,
+    professional: `PROFESSIONAL TONE:
+- Voice: Polished, authoritative, credible
+- Sentence style: Complete, measured, confident
+- Power words: exceptional, distinguished, premier, strategic, optimal, curated
+- Example body: "This property offers exceptional value. Prime location. Thoughtfully designed. A rare find for discerning buyers."`,
+
+    casual: `CASUAL TONE:
+- Voice: Relaxed, real, like texting a friend
+- Sentence style: Informal, contractions welcome, emoji-friendly
+- Power words: honestly, love this, pretty cool, check this out, real talk, lowkey
+- Example body: "Okay but this one's actually fire. The kitchen? Chef's kiss. Backyard's perfect for BBQs. You gotta see it."`,
+
+    urgent: `URGENT TONE - MAXIMUM INTENSITY:
+- Voice: Breaking news energy. This is HOT. Act NOW or miss out.
+- Sentence style: Staccato bursts. One-word sentences. Exclamation points OK.
+- MUST include time pressure: "Just hit the market." "Hours old." "Already getting calls." "Won't last the weekend."
+- Power words: JUST DROPPED, WON'T LAST, MOVING FAST, ACT NOW, DON'T WAIT, GONE BY MONDAY
+- Example body: "🚨 JUST HIT THE MARKET. Already fielding calls. This price point? In THIS neighborhood? Gone by Sunday. Mark my words."
+- CRITICAL: Reader should feel FOMO. They should want to call IMMEDIATELY.`,
+
+    friendly: `FRIENDLY TONE:
+- Voice: Warm neighbor energy, genuinely excited to share
+- Sentence style: Conversational, inclusive, welcoming
+- Power words: imagine, picture this, excited to share, can't wait, thrilled, welcome home
+- Example body: "I'm so excited to share this one! Picture lazy Sunday mornings on that porch. The neighborhood? You'll love your neighbors."`,
+
+    luxury: `LUXURY TONE:
+- Voice: Sophisticated, refined, exclusive
+- Sentence style: Elegant, unhurried, selective
+- Power words: exquisite, curated, bespoke, residence, exceptional craftsmanship, distinguished, estate
+- Example body: "A residence of distinction. Meticulously curated finishes. Every detail speaks to craftsmanship. For those who appreciate the finer things."`,
+
+    investor: `INVESTOR TONE:
+- Voice: Analytical, numbers-first, ROI-focused
+- Sentence style: Data-driven, direct, no fluff
+- Power words: cap rate, cash flow, ARV, upside, strong returns, solid fundamentals, the numbers work
+- Example body: "The numbers: $185K all-in. ARV: $260K. Potential spread: $75K. Cap rate in this zip? 6.2%. The math checks out."`,
   };
   return instructions[tone] || instructions.professional;
 }
