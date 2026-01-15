@@ -1265,13 +1265,6 @@ export function QuickPostFormV2() {
                   Type, paste, or use voice to describe the property. AI will use this to generate your caption.
                 </p>
                 <div className="flex gap-2">
-                  <Textarea
-                    placeholder="E.g., '3bed/2bath, new kitchen, granite counters, near top schools, owner financing available, ~$1,500/mo'"
-                    value={state.propertyContext}
-                    onChange={(e) => setState(prev => ({ ...prev, propertyContext: e.target.value }))}
-                    rows={2}
-                    className="flex-1 resize-none text-sm"
-                  />
                   <VoiceInput
                     onTranscript={(text) => {
                       setState(prev => ({
@@ -1279,6 +1272,13 @@ export function QuickPostFormV2() {
                         propertyContext: prev.propertyContext ? `${prev.propertyContext} ${text}` : text,
                       }));
                     }}
+                  />
+                  <Textarea
+                    placeholder="E.g., '3bed/2bath, new kitchen, granite counters, near top schools, owner financing available, ~$1,500/mo'"
+                    value={state.propertyContext}
+                    onChange={(e) => setState(prev => ({ ...prev, propertyContext: e.target.value }))}
+                    rows={2}
+                    className="flex-1 resize-none text-sm"
                   />
                 </div>
                 {state.selectedProperty?.socialMediaPropertyDescription && (
