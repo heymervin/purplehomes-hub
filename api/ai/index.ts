@@ -1595,14 +1595,19 @@ INSTRUCTIONS:
 2. Replace {placeholders} with the provided data
 3. Write {body_copy} as 2-4 short, punchy sentences in ${tone} tone
 
-FOR PERSONAL POSTS - READ CAREFULLY:
-- The USER-PROVIDED CONTEXT above contains THEIR actual story/experience
-- Your job is to EXPAND and ENHANCE their words into polished copy
+CRITICAL - BODY COPY MUST HAVE SUBSTANCE:
+- READ the ADDITIONAL CONTEXT or PROPERTY CONTEXT above
+- Your body copy MUST include SPECIFIC details from that context
+- If context mentions "renovated kitchen" → mention renovated kitchen
+- If context mentions "owner financing" → mention owner financing
+- If context mentions "near top schools" → mention schools
+- NEVER write generic filler like "Quality finishes. Great location."
+- ALWAYS use the REAL details provided
+
+FOR PERSONAL POSTS:
+- The USER-PROVIDED CONTEXT contains THEIR actual story/experience
+- EXPAND and ENHANCE their words into polished copy
 - Do NOT replace their story with generic inspirational content
-- Do NOT start with "Imagine..." or "Picture this..." - use THEIR experience
-- If they wrote about sleep, write about THEIR sleep experience
-- If they wrote about a milestone, celebrate THEIR specific milestone
-- For {takeaway} fields: EXPAND on what they wrote, don't just copy verbatim
 
 4. Use the provided hook and CTA
 5. Keep emojis as shown
@@ -2065,71 +2070,89 @@ function getCaptionToneInstructions(tone: string): string {
     professional: `PROFESSIONAL TONE:
 - Voice: Polished, authoritative, credible
 - Sentence style: Complete, measured, confident
-- Power words: exceptional, distinguished, premier, strategic, optimal, curated
 
-PROPERTY BODY EXAMPLE (copy this style):
-"Exceptional value in a prime location. Thoughtfully designed layout. Quality finishes throughout. A rare find for discerning buyers."
+CRITICAL FOR BODY COPY:
+- USE the user's context/description - don't ignore it!
+- Mention SPECIFIC features from the context (renovated kitchen, new roof, corner lot, etc.)
+- Include WHY this property stands out
 
-PERSONAL/PROFESSIONAL BODY EXAMPLE:
-"This property offers exceptional value. Prime location. Thoughtfully designed. A rare find for discerning buyers."`,
+PROPERTY BODY EXAMPLE (with substance):
+"Renovated kitchen with granite counters. New roof 2023. Corner lot with mature trees. Owner financing available. Move-in ready."
+
+BAD EXAMPLE (no substance - DON'T DO THIS):
+"Exceptional value. Prime location. Quality finishes. A rare find." ← TOO GENERIC!`,
 
     casual: `CASUAL TONE:
 - Voice: Relaxed, real, like texting a friend
-- Sentence style: Informal, contractions welcome, emoji-friendly
-- Power words: honestly, love this, pretty cool, check this out, real talk, lowkey
+- Sentence style: Informal, contractions welcome
 
-PROPERTY BODY EXAMPLE (copy this style):
-"Okay this one's a vibe. Updated kitchen. Backyard made for hangouts. Honestly? Priced to move. Check it out before it's gone."
+CRITICAL FOR BODY COPY:
+- USE the user's context - mention SPECIFIC features they provided
+- Sound like you're excited about REAL details, not generic hype
 
-PERSONAL/PROFESSIONAL BODY EXAMPLE:
-"Okay but this one's actually fire. The kitchen? Chef's kiss. Backyard's perfect for BBQs. You gotta see it."`,
+PROPERTY BODY EXAMPLE (with substance):
+"Updated kitchen is chef's kiss. That backyard tho? Perfect for BBQs. Near top schools. Owner financing = low barrier. This one's a vibe."
+
+BAD EXAMPLE (no substance - DON'T DO THIS):
+"This one's fire. Love it. Check it out. Won't last." ← WHERE ARE THE DETAILS?`,
 
     urgent: `URGENT TONE - MAXIMUM INTENSITY:
-- Voice: Breaking news energy. This is HOT. Act NOW or miss out.
-- Sentence style: Staccato bursts. One-word sentences. Exclamation points OK.
-- MUST include time pressure phrases in your body copy
-- Power words: JUST DROPPED, WON'T LAST, MOVING FAST, ACT NOW, DON'T WAIT, GONE BY MONDAY
+- Voice: Breaking news energy. Act NOW.
+- Sentence style: Staccato bursts. Short. Punchy.
+- MUST include time pressure
 
-PROPERTY BODY EXAMPLE (copy this style):
-"🚨 Just hit market. Hours old. Already getting calls. This price? This neighborhood? Won't see this again. Move NOW."
+CRITICAL FOR BODY COPY:
+- USE the user's context - what makes this property HOT?
+- Mention SPECIFIC features that create urgency
+- WHY will this sell fast?
 
-PERSONAL/PROFESSIONAL BODY EXAMPLE:
-"🚨 JUST HIT THE MARKET. Already fielding calls. This price point? In THIS neighborhood? Gone by Sunday. Mark my words."
+PROPERTY BODY EXAMPLE (with substance):
+"New construction. Under market value. 3 beds under $1,500/mo? In THIS school district? Already fielding calls. Won't last the weekend."
 
-CRITICAL: Reader should feel FOMO. They should want to call IMMEDIATELY.`,
+BAD EXAMPLE (no substance - DON'T DO THIS):
+"Just dropped. Moving fast. Act now. Don't miss." ← WHY SHOULD THEY ACT? GIVE REASONS!`,
 
     friendly: `FRIENDLY TONE:
-- Voice: Warm neighbor energy, genuinely excited to share
-- Sentence style: Conversational, inclusive, welcoming
-- Power words: imagine, picture this, excited to share, can't wait, thrilled, welcome home
+- Voice: Warm neighbor energy, genuinely excited
+- Sentence style: Conversational, welcoming
 
-PROPERTY BODY EXAMPLE (copy this style):
-"So excited about this one! Great neighborhood. Friendly neighbors. Perfect for families. Can't wait to show you around!"
+CRITICAL FOR BODY COPY:
+- USE the user's context - share SPECIFIC details you're excited about
+- Paint a picture with REAL features, not generic warmth
 
-PERSONAL/PROFESSIONAL BODY EXAMPLE:
-"I'm so excited to share this one! Picture lazy Sunday mornings on that porch. The neighborhood? You'll love your neighbors."`,
+PROPERTY BODY EXAMPLE (with substance):
+"Can't wait to show you this one! Screened porch perfect for morning coffee. Fenced backyard for the kids. Great schools nearby. The neighborhood? You'll love your neighbors."
+
+BAD EXAMPLE (no substance - DON'T DO THIS):
+"So excited! Great home. Perfect for families. Welcome home!" ← WHAT'S GREAT ABOUT IT?`,
 
     luxury: `LUXURY TONE:
 - Voice: Sophisticated, refined, exclusive
-- Sentence style: Elegant, unhurried, selective
-- Power words: exquisite, curated, bespoke, residence, exceptional craftsmanship, distinguished, estate
+- Sentence style: Elegant, selective
 
-PROPERTY BODY EXAMPLE (copy this style):
-"A residence of distinction. Impeccable craftsmanship. Curated finishes. Refined living for the discerning few."
+CRITICAL FOR BODY COPY:
+- USE the user's context - highlight SPECIFIC premium features
+- What makes this property DISTINGUISHED?
 
-PERSONAL/PROFESSIONAL BODY EXAMPLE:
-"A residence of distinction. Meticulously curated finishes. Every detail speaks to craftsmanship. For those who appreciate the finer things."`,
+PROPERTY BODY EXAMPLE (with substance):
+"Custom millwork throughout. Chef's kitchen with Wolf appliances. Primary suite with spa bath. Private courtyard. Designed for discerning taste."
+
+BAD EXAMPLE (no substance - DON'T DO THIS):
+"A residence of distinction. Curated finishes. Exceptional." ← WHAT FINISHES? BE SPECIFIC!`,
 
     investor: `INVESTOR TONE:
 - Voice: Analytical, numbers-first, ROI-focused
-- Sentence style: Data-driven, direct, no fluff
-- Power words: cap rate, cash flow, ARV, upside, strong returns, solid fundamentals, the numbers work
+- Sentence style: Data-driven, direct
 
-PROPERTY BODY EXAMPLE (copy this style):
-"Numbers talk. Strong rental market. Solid cap rate potential. Below-market price. The math works. Serious investors only."
+CRITICAL FOR BODY COPY:
+- USE the user's context - pull out the NUMBERS and VALUE DRIVERS
+- ARV, cap rate, rental potential, repair costs - use REAL data if provided
 
-PERSONAL/PROFESSIONAL BODY EXAMPLE:
-"The numbers: $185K all-in. ARV: $260K. Potential spread: $75K. Cap rate in this zip? 6.2%. The math checks out."`,
+PROPERTY BODY EXAMPLE (with substance):
+"Asking $185K. ARV: $260K. Needs $30K in cosmetics. Strong rental market - $1,800/mo comps. Cap rate: 6.2%. The spread works."
+
+BAD EXAMPLE (no substance - DON'T DO THIS):
+"Numbers work. Solid fundamentals. Strong upside." ← WHAT NUMBERS? SHOW THE MATH!`,
   };
   return instructions[tone] || instructions.professional;
 }
