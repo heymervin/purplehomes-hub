@@ -191,29 +191,28 @@ async function handleGenerateContent(req: VercelRequest, res: VercelResponse) {
     // Perform web searches using Anthropic's web search (via Claude)
     const searchResults = await performWebSearches(searchQueries);
 
-    // Generate content - need to generate for BOTH template AND intent
-    // Template determines image fields, intent determines caption fields
+    // Always generate intent-specific fields for "Tell us more" caption section
+    // Additionally generate value-tips template fields if that template is selected
     let generatedContent;
 
-    if (templateId === 'value-tips' && intent !== 'value-tips') {
-      // Generate value-tips template fields + intent-specific caption fields
-      const [templateContent, intentContent] = await Promise.all([
-        generateContentFromSearch('value-tips', location, searchResults, topic),
+    if (templateId === 'value-tips') {
+      // Generate both: intent fields (for caption) AND value-tips template fields (for image)
+      const [intentContent, templateContent] = await Promise.all([
         generateContentFromSearch(intent, location, searchResults, topic),
+        generateContentFromSearch('value-tips', location, searchResults, topic),
       ]);
 
       // Merge: intent fields for caption + template fields for image
       generatedContent = {
         fields: {
-          ...intentContent.fields,  // headline, stats, soWhat for market-update etc.
-          ...templateContent.fields, // tipHeader, tip1Header, tip1Body etc.
+          ...intentContent.fields,   // headline, stats, soWhat / tipTitle, tipBody / etc.
+          ...templateContent.fields, // tipHeader, tip1Header, tip1Body etc. for image
         },
-        imagePrompt: templateContent.imagePrompt, // Use template's image prompts
+        imagePrompt: templateContent.imagePrompt, // Use template's tip image prompts
       };
     } else {
-      // Normal case: just generate for the effective intent
-      const effectiveIntent = templateId === 'value-tips' ? 'value-tips' : intent;
-      generatedContent = await generateContentFromSearch(effectiveIntent, location, searchResults, topic);
+      // No value-tips template - just generate for the intent
+      generatedContent = await generateContentFromSearch(intent, location, searchResults, topic);
     }
 
     return res.status(200).json({
