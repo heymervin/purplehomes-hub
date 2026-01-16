@@ -124,6 +124,9 @@ interface QuickPostFormState {
   // Property-specific AI context (for property tab)
   propertyContext: string;
 
+  // Personal-specific AI context (for personal tab - thinking out loud ideas)
+  personalContext: string;
+
   // Scheduling
   scheduleDate: string;
   scheduleTime: string;
@@ -181,6 +184,7 @@ const getInitialState = (): QuickPostFormState => {
     selectedHeroImage: null,
     context: {},
     propertyContext: '',
+    personalContext: '',
 
     scheduleDate: '',
     scheduleTime: '',
@@ -637,8 +641,24 @@ export function QuickPostFormV2() {
           const openHouseInfo = `\n\nOpen House: ${state.openHouseDateInput} from ${state.openHouseStartTimeInput} to ${state.openHouseEndTimeInput}`;
           contextString += openHouseInfo;
         }
+      } else if (state.tab === 'personal') {
+        // For Personal tab, use the personalContext field (voice/typed ideas)
+        if (state.personalContext.trim()) {
+          contextString = state.personalContext;
+        }
+        // Also include any intent context fields
+        const intentContext = Object.entries(state.context)
+          .filter(([, value]) => value.trim())
+          .map(([key, value]) => {
+            const field = currentIntent.fields.find(f => f.key === key);
+            return field ? `${field.label}: ${value}` : value;
+          })
+          .join('\n');
+        if (intentContext) {
+          contextString = contextString ? `${contextString}\n\n${intentContext}` : intentContext;
+        }
       } else {
-        // For Personal/Professional tabs, use intent context fields
+        // For Professional tab, use intent context fields
         contextString = Object.entries(state.context)
           .filter(([, value]) => value.trim())
           .map(([key, value]) => {
@@ -1490,6 +1510,38 @@ export function QuickPostFormV2() {
                     Auto-filled from property details. Edit if needed.
                   </p>
                 )}
+              </div>
+            )}
+
+            {/* Context for AI - Personal Tab Only */}
+            {state.tab === 'personal' && (
+              <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-950/20 dark:to-teal-950/20 border border-green-200 dark:border-green-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <span className="font-semibold text-sm text-green-900 dark:text-green-100">
+                    Your Idea
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Think out loud! Type or use voice to describe your idea. AI will help shape it into a great post.
+                </p>
+                <div className="flex gap-2">
+                  <VoiceInput
+                    onTranscript={(text) => {
+                      setState(prev => ({
+                        ...prev,
+                        personalContext: prev.personalContext ? `${prev.personalContext} ${text}` : text,
+                      }));
+                    }}
+                  />
+                  <Textarea
+                    placeholder="E.g., 'Just helped a first-time buyer close on their dream home, feeling grateful, want to share the excitement and maybe some tips for others...'"
+                    value={state.personalContext}
+                    onChange={(e) => setState(prev => ({ ...prev, personalContext: e.target.value }))}
+                    rows={2}
+                    className="flex-1 resize-none text-sm"
+                  />
+                </div>
               </div>
             )}
 
