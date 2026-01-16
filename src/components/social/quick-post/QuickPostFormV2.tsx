@@ -543,6 +543,7 @@ export function QuickPostFormV2() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           intent: state.intentId,
+          templateId: state.templateId, // Pass template to generate appropriate fields
           location: 'New Orleans, LA', // Could be made configurable
           topic: state.context.topic || undefined,
         }),

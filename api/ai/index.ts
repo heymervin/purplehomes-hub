@@ -160,6 +160,7 @@ async function handleHealth(_req: VercelRequest, res: VercelResponse) {
 
 interface GenerateContentRequest {
   intent: string;  // 'market-update', 'buyer-tips', 'seller-tips', 'investment-insight'
+  templateId?: string;  // 'value-tips', 'custom', 'none' - determines field format
   location?: string;  // e.g., 'New Orleans, LA'
   topic?: string;  // optional specific topic
 }
@@ -171,7 +172,7 @@ interface GeneratedContent {
 }
 
 async function handleGenerateContent(req: VercelRequest, res: VercelResponse) {
-  const { intent, location = 'New Orleans, LA', topic }: GenerateContentRequest = req.body;
+  const { intent, templateId, location = 'New Orleans, LA', topic }: GenerateContentRequest = req.body;
 
   if (!intent) {
     return res.status(400).json({ error: 'Intent is required' });
@@ -181,7 +182,7 @@ async function handleGenerateContent(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'OpenAI API key not configured' });
   }
 
-  console.log('[AI API] Generating content for intent:', intent, 'location:', location);
+  console.log('[AI API] Generating content for intent:', intent, 'template:', templateId, 'location:', location);
 
   try {
     // Build search queries based on intent
@@ -191,7 +192,9 @@ async function handleGenerateContent(req: VercelRequest, res: VercelResponse) {
     const searchResults = await performWebSearches(searchQueries);
 
     // Generate content using GPT-4o based on search results
-    const generatedContent = await generateContentFromSearch(intent, location, searchResults, topic);
+    // If template is 'value-tips', use value-tips format regardless of intent
+    const effectiveIntent = templateId === 'value-tips' ? 'value-tips' : intent;
+    const generatedContent = await generateContentFromSearch(effectiveIntent, location, searchResults, topic);
 
     return res.status(200).json({
       success: true,
