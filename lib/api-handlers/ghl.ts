@@ -1008,10 +1008,16 @@ if (resource === 'opportunities') {
         }
 
         if (method === 'POST') {
-          console.log('[SOCIAL POSTS] Creating post with body:', JSON.stringify(body, null, 2));
+          // GHL API requires type and userId fields
+          const postBody = {
+            ...body,
+            type: body.type || 'post',  // Default to 'post' if not specified
+            userId: GHL_LOCATION_ID,     // Required by GHL API
+          };
+          console.log('[SOCIAL POSTS] Creating post with body:', JSON.stringify(postBody, null, 2));
           const response = await fetch(
             `${GHL_API_URL}/social-media-posting/${GHL_LOCATION_ID}/posts`,
-            { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
+            { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(postBody) }
           );
           const responseData = await response.json();
           console.log('[SOCIAL POSTS] Response status:', response.status, response.ok ? 'OK' : 'FAILED');
