@@ -468,6 +468,22 @@ export function QuickPostFormV2() {
     setShowDateSuggestions(false);
   };
 
+  const handleDateBlur = () => {
+    // Auto-select first suggestion if user typed something but didn't click
+    if (state.dateInput && !state.scheduleDate) {
+      const suggestions = getDateSuggestions(state.dateInput);
+      if (suggestions.length > 0) {
+        setState(prev => ({
+          ...prev,
+          scheduleDate: suggestions[0].value,
+          dateInput: suggestions[0].label,
+        }));
+      }
+    }
+    // Small delay to allow click events on suggestions
+    setTimeout(() => setShowDateSuggestions(false), 150);
+  };
+
   const handleTimeSelect = (suggestion: TimeSuggestion) => {
     setState(prev => ({
       ...prev,
@@ -475,6 +491,22 @@ export function QuickPostFormV2() {
       timeInput: suggestion.label,
     }));
     setShowTimeSuggestions(false);
+  };
+
+  const handleTimeBlur = () => {
+    // Auto-select first suggestion if user typed something but didn't click
+    if (state.timeInput && !state.scheduleTime) {
+      const suggestions = getTimeSuggestions(state.timeInput);
+      if (suggestions.length > 0) {
+        setState(prev => ({
+          ...prev,
+          scheduleTime: suggestions[0].value,
+          timeInput: suggestions[0].label,
+        }));
+      }
+    }
+    // Small delay to allow click events on suggestions
+    setTimeout(() => setShowTimeSuggestions(false), 150);
   };
 
   // Custom image handlers
@@ -1356,6 +1388,7 @@ export function QuickPostFormV2() {
                     setDateSuggestions(suggestions);
                     setShowDateSuggestions(suggestions.length > 0);
                   }}
+                  onBlur={handleDateBlur}
                   className="w-[140px] h-auto py-1.5 px-3"
                 />
                 {showDateSuggestions && dateSuggestions.length > 0 && (
@@ -1391,6 +1424,7 @@ export function QuickPostFormV2() {
                     setTimeSuggestions(suggestions);
                     setShowTimeSuggestions(suggestions.length > 0);
                   }}
+                  onBlur={handleTimeBlur}
                   className="w-[120px] h-auto py-1.5 px-3"
                 />
                 {showTimeSuggestions && timeSuggestions.length > 0 && (
