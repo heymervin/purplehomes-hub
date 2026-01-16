@@ -191,10 +191,30 @@ async function handleGenerateContent(req: VercelRequest, res: VercelResponse) {
     // Perform web searches using Anthropic's web search (via Claude)
     const searchResults = await performWebSearches(searchQueries);
 
-    // Generate content using GPT-4o based on search results
-    // If template is 'value-tips', use value-tips format regardless of intent
-    const effectiveIntent = templateId === 'value-tips' ? 'value-tips' : intent;
-    const generatedContent = await generateContentFromSearch(effectiveIntent, location, searchResults, topic);
+    // Generate content - need to generate for BOTH template AND intent
+    // Template determines image fields, intent determines caption fields
+    let generatedContent;
+
+    if (templateId === 'value-tips' && intent !== 'value-tips') {
+      // Generate value-tips template fields + intent-specific caption fields
+      const [templateContent, intentContent] = await Promise.all([
+        generateContentFromSearch('value-tips', location, searchResults, topic),
+        generateContentFromSearch(intent, location, searchResults, topic),
+      ]);
+
+      // Merge: intent fields for caption + template fields for image
+      generatedContent = {
+        fields: {
+          ...intentContent.fields,  // headline, stats, soWhat for market-update etc.
+          ...templateContent.fields, // tipHeader, tip1Header, tip1Body etc.
+        },
+        imagePrompt: templateContent.imagePrompt, // Use template's image prompts
+      };
+    } else {
+      // Normal case: just generate for the effective intent
+      const effectiveIntent = templateId === 'value-tips' ? 'value-tips' : intent;
+      generatedContent = await generateContentFromSearch(effectiveIntent, location, searchResults, topic);
+    }
 
     return res.status(200).json({
       success: true,
