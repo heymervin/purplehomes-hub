@@ -245,6 +245,9 @@ export function QuickPostFormV2() {
   // QR Code links from localStorage
   const [savedQRLinks, setSavedQRLinks] = useState<QRCodeLink[]>([]);
 
+  // Content generation state (for Professional tab)
+  const [isGeneratingContent, setIsGeneratingContent] = useState(false);
+
   // Load QR links on mount
   useEffect(() => {
     setSavedQRLinks(getQRCodeLinks());
@@ -522,6 +525,48 @@ export function QuickPostFormV2() {
 
   // ============ GENERATION & PUBLISHING ============
 
+  // Generate content from AI (for Professional tab - auto-fills fields)
+  const handleGenerateContent = async () => {
+    setIsGeneratingContent(true);
+
+    try {
+      const response = await fetch('/api/ai?action=generate-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          intent: state.intentId,
+          location: 'New Orleans, LA', // Could be made configurable
+          topic: state.context.topic || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate content');
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.content?.fields) {
+        // Update context fields with generated content
+        setState(prev => ({
+          ...prev,
+          context: {
+            ...prev.context,
+            ...data.content.fields,
+          },
+        }));
+        toast.success('Content generated! Review and edit as needed.');
+      } else {
+        throw new Error(data.error || 'Failed to generate content');
+      }
+    } catch (error) {
+      console.error('Generate content error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to generate content');
+    } finally {
+      setIsGeneratingContent(false);
+    }
+  };
+
   const handleGenerate = async () => {
     setIsGenerating(true);
 
@@ -752,14 +797,40 @@ export function QuickPostFormV2() {
     if (state.tab === 'property') return null;
     if (currentIntent.fields.length === 0) return null;
 
+    // Check if this intent supports content generation
+    const supportsContentGen = ['market-update', 'buyer-tips', 'seller-tips', 'investment-insight', 'value-tips'].includes(state.intentId);
+
     return (
       <div className="mt-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-2 mb-3">
-          <Edit2 className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-          <span className="font-medium text-sm">Tell us more</span>
-          <span className="text-xs text-muted-foreground">
-            These details generate your hook + talking points
-          </span>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Edit2 className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+            <span className="font-medium text-sm">Tell us more</span>
+            <span className="text-xs text-muted-foreground">
+              These details generate your hook + talking points
+            </span>
+          </div>
+          {supportsContentGen && state.tab === 'professional' && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleGenerateContent}
+              disabled={isGeneratingContent}
+              className="gap-1.5 text-purple-600 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+            >
+              {isGeneratingContent ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Generate Content
+                </>
+              )}
+            </Button>
+          )}
         </div>
         <div className="space-y-4">
           {currentIntent.fields.map((field) => (
