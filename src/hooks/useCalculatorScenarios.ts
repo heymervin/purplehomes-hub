@@ -1,6 +1,7 @@
 /**
  * Hook for managing calculator scenarios
  * Handles loading, saving, and switching between scenarios for both Property and Match calculators
+ * Includes migration support for backwards compatibility with old scenario formats
  */
 
 import { useState, useCallback, useMemo } from 'react';
@@ -17,6 +18,7 @@ import {
   getMatchScenarios,
   saveMatchScenario,
 } from '@/services/calculatorApi';
+import { migrateScenarioInputs } from '@/lib/calculatorEngine';
 
 interface UseCalculatorScenariosOptions {
   recordId: string;
@@ -94,11 +96,27 @@ export function useCalculatorScenarios({
     },
   });
 
-  // Get current scenario data
+  // Get current scenario data with migration support
   const currentScenarioData = useMemo(() => {
     if (!scenarios) return null;
     const scenarioKey = `scenario${activeScenario}` as keyof ScenarioSet;
-    return scenarios[scenarioKey];
+    const rawScenario = scenarios[scenarioKey];
+
+    // If no scenario, return null
+    if (!rawScenario) return null;
+
+    // Migrate inputs to ensure backwards compatibility
+    // This handles:
+    // - maintenancePercent → warChestPercent
+    // - annualInsurance → annualHomeownersInsurance
+    // - Removes flip data if present
+    // - Adds dscrLtvPercent if missing
+    const migratedInputs = migrateScenarioInputs(rawScenario.inputs);
+
+    return {
+      ...rawScenario,
+      inputs: migratedInputs,
+    };
   }, [scenarios, activeScenario]);
 
   // Save handler

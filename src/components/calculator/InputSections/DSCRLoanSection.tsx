@@ -1,5 +1,6 @@
 /**
- * DSCRLoanSection - DSCR (Debt Service Coverage Ratio) loan inputs
+ * DSCRLoanSection - Funding Loan 1 (formerly DSCR Loan)
+ * Investment property loan with configurable LTV
  */
 
 import { Landmark, DollarSign, Percent, Calendar, Clock, CreditCard } from 'lucide-react';
@@ -19,8 +20,10 @@ interface DSCRLoanSectionProps {
 }
 
 export function DSCRLoanSection({ inputs, purchasePrice, onChange }: DSCRLoanSectionProps) {
-  const loanAmount = purchasePrice * 0.8;
-  const downPayment = purchasePrice * 0.2;
+  // Use configurable LTV (default 80%)
+  const ltvPercent = inputs.dscrLtvPercent ?? 80;
+  const loanAmount = purchasePrice * (ltvPercent / 100);
+  const downPayment = purchasePrice - loanAmount;
   const pointsCost = loanAmount * (inputs.dscrPoints / 100);
   const totalUpfront = downPayment + pointsCost + inputs.dscrFees;
 
@@ -30,8 +33,8 @@ export function DSCRLoanSection({ inputs, purchasePrice, onChange }: DSCRLoanSec
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Landmark className="h-5 w-5 text-blue-600" />
-            <CardTitle className="text-lg">DSCR Loan</CardTitle>
-            <Badge variant="secondary" className="text-xs">80% LTV</Badge>
+            <CardTitle className="text-lg">Funding Loan 1</CardTitle>
+            <Badge variant="secondary" className="text-xs">{ltvPercent}% LTV</Badge>
           </div>
           <div className="flex items-center gap-2">
             <Label htmlFor="use-dscr" className="text-sm text-muted-foreground">
@@ -44,7 +47,7 @@ export function DSCRLoanSection({ inputs, purchasePrice, onChange }: DSCRLoanSec
             />
           </div>
         </div>
-        <CardDescription>Investment property loan based on rental income</CardDescription>
+        <CardDescription>Primary funding loan for property acquisition</CardDescription>
       </CardHeader>
 
       {inputs.useDSCRLoan && (
@@ -72,6 +75,16 @@ export function DSCRLoanSection({ inputs, purchasePrice, onChange }: DSCRLoanSec
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* LTV Percent */}
+            <SliderInput
+              label="Loan-to-Value (LTV)"
+              value={ltvPercent}
+              onChange={(v) => onChange('dscrLtvPercent', v)}
+              config={SLIDER_CONFIGS.dscrLtvPercent}
+              icon={<Percent className="h-4 w-4" />}
+              description="Percentage of purchase price"
+            />
+
             {/* Interest Rate */}
             <SliderInput
               label="Interest Rate"

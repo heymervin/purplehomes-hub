@@ -42,17 +42,23 @@ export interface PurchaseCostsInputs {
  */
 export interface TaxInsuranceInputs {
   annualTaxes: number;
-  annualInsurance: number;
+  annualHomeownersInsurance: number;
+  annualFloodInsurance: number;
+  hasFloodInsurance: boolean;
+  // Legacy field for migration support
+  annualInsurance?: number;
 }
 
 /**
  * Operating Expenses - Recurring property costs
  */
 export interface OperatingInputs {
-  maintenancePercent: number; // Percentage of rent
+  warChestPercent: number; // Percentage of rent (renamed from maintenancePercent)
   propertyMgmtPercent: number; // Percentage of rent
   hoa: number;
   utilities: number;
+  // Legacy field for migration support
+  maintenancePercent?: number;
 }
 
 /**
@@ -69,7 +75,7 @@ export interface SubjectToInputs {
 }
 
 /**
- * DSCR Loan - Debt Service Coverage Ratio loan
+ * DSCR Loan - Debt Service Coverage Ratio loan (now "Funding Loan 1")
  */
 export interface DSCRLoanInputs {
   useDSCRLoan: boolean;
@@ -79,6 +85,7 @@ export interface DSCRLoanInputs {
   dscrBalloonYears: number;
   dscrPoints: number; // Percentage of loan amount
   dscrFees: number;
+  dscrLtvPercent: number; // LTV percentage (default 80)
 }
 
 /**
@@ -119,18 +126,11 @@ export interface WrapSalesInputs {
   buyerClosingCosts: number;
 }
 
-/**
- * Flip - Fix and flip scenario
- */
-export interface FlipInputs {
-  projectMonths: number;
-  resaleClosingCosts: number;
-  resaleMarketing: number;
-  contingency: number;
-}
+// FlipInputs removed - calculator is now wrap-focused only
 
 /**
  * Complete Calculator Inputs - All sections combined
+ * Note: flip inputs removed - calculator is now wrap-focused only
  */
 export interface CalculatorInputs {
   // Metadata
@@ -151,42 +151,49 @@ export interface CalculatorInputs {
   secondLoan: SecondLoanInputs;
   wrapLoan: WrapLoanInputs;
   wrapSales: WrapSalesInputs;
-  flip: FlipInputs;
 }
 
 // ============ OUTPUT TYPES ============
 
 /**
- * Quick Stats - Key metrics displayed prominently
+ * Quick Stats - Key metrics displayed prominently (WRAP FOCUSED)
  */
 export interface QuickStatsOutputs {
-  mao: number; // Maximum Allowable Offer
-  monthlyCashflow: number; // Hold strategy cashflow
-  wrapCashflow: number; // Wrap strategy cashflow
-  flipProfit: number; // Flip strategy profit
-  totalEntryFee: number; // Total upfront costs
-  fundingGap: number; // Cash needed at closing
-  cashOnCashHold: number; // CoC return for hold (percentage)
-  cashOnCashFlip: number; // CoC return for flip (percentage)
+  totalEntryFee: number; // Purple Homes' upfront cost
+  wrapCashflow: number; // Purple Homes' monthly profit
   cashOnCashWrap: number; // CoC return for wrap (percentage)
+  buyerFullMonthlyPayment: number; // The marketing number (P&I + T&I + cushion + service)
+  rentalFallbackCashflow: number; // If wrap fails, rental income
+  escrowCushion: number; // Monthly escrow cushion amount
 }
 
 /**
  * Loan Calculations - Detailed loan outputs
  */
 export interface LoanCalcsOutputs {
+  // DSCR / Funding Loan 1
   dscrLoanAmount: number;
   dscrMonthlyPayment: number;
   dscrBalloonAmount: number;
   dscrDownPayment: number;
+  // Subject-To
   subToMonthlyPayment: number;
   subToCurrentBalance: number;
+  subToBalloonAmount: number;
+  // Second Loan / Funding Loan 2
   loan2MonthlyPayment: number;
   loan2BalloonAmount: number;
+  // Wrap Loan
   wrapPrincipal: number;
   wrapMonthlyPayment: number;
   wrapBalloonAmount: number;
-  buyerMonthlyPITI: number;
+  // Buyer payment breakdown
+  buyerMonthlyPITI: number; // Legacy: P&I + T&I only
+  buyerFullMonthlyPayment: number; // Full: P&I + T&I + cushion + service fee
+  escrowCushion: number;
+  // Explicit P&I for display
+  fundingLoan1PI: number;
+  fundingLoan2PI: number;
 }
 
 /**
@@ -196,19 +203,20 @@ export interface TotalsOutputs {
   totalMonthlyIncome: number;
   totalMonthlyPI: number; // Principal + Interest payments
   totalMonthlyTI: number; // Taxes + Insurance
-  totalMonthlyMaintenance: number;
+  totalMonthlyWarChest: number; // Renamed from totalMonthlyMaintenance
   totalMonthlyPropertyMgmt: number;
   totalMonthlyExpenses: number;
 }
 
 /**
- * Deal Checklist - Pass/fail criteria
+ * Deal Checklist - Pass/fail criteria (WRAP FOCUSED)
  */
 export interface DealChecklistOutputs {
   entryFeeUnder25k: boolean;
-  cashflowOver400: boolean;
+  wrapCashflowOver300: boolean;
   ltvUnder75: boolean;
   equityOver15k: boolean;
+  rentalFallbackPositive: boolean;
   dealDecision: 'DEAL' | 'NO DEAL' | 'NEEDS REVIEW';
 }
 
@@ -257,15 +265,17 @@ export interface SavedCalculation {
 export interface CalculatorDefaults {
   id?: string;
   wholesaleDiscount: number;
-  yourFee: number;
-  creditToBuyer: number;
-  maintenancePercent: number;
+  yourFee?: number;
+  creditToBuyer?: number;
+  warChestPercent: number;
+  maintenancePercent?: number; // Legacy, kept for migration
   propertyMgmtPercent: number;
   dscrInterestRate: number;
   dscrTermYears: number;
   dscrBalloonYears: number;
   dscrPoints: number;
   dscrFees: number;
+  dscrLtvPercent: number;
   wrapInterestRate: number;
   wrapTermYears: number;
   wrapBalloonYears: number;
@@ -338,9 +348,11 @@ export const SLIDER_CONFIGS: Record<string, SliderFieldConfig> = {
   monthlyRent: { min: 0, max: 10000, step: 50, format: 'currency' },
   otherIncome: { min: 0, max: 2000, step: 50, format: 'currency' },
 
-  // Annual costs
+  // Annual costs - Split insurance
   annualTaxes: { min: 0, max: 25000, step: 100, format: 'currency' },
-  annualInsurance: { min: 0, max: 10000, step: 100, format: 'currency' },
+  annualHomeownersInsurance: { min: 0, max: 10000, step: 100, format: 'currency' },
+  annualFloodInsurance: { min: 0, max: 5000, step: 100, format: 'currency' },
+  annualInsurance: { min: 0, max: 10000, step: 100, format: 'currency' }, // Legacy
 
   // Operating
   hoa: { min: 0, max: 1000, step: 25, format: 'currency' },
@@ -348,30 +360,34 @@ export const SLIDER_CONFIGS: Record<string, SliderFieldConfig> = {
 
   // Percentages
   wholesaleDiscount: { min: 50, max: 95, step: 1, format: 'percentage' },
-  maintenancePercent: { min: 0, max: 20, step: 1, format: 'percentage' },
+  warChestPercent: { min: 0, max: 20, step: 1, format: 'percentage' },
+  maintenancePercent: { min: 0, max: 20, step: 1, format: 'percentage' }, // Legacy
   propertyMgmtPercent: { min: 0, max: 15, step: 1, format: 'percentage' },
+
+  // LTV
+  dscrLtvPercent: { min: 50, max: 100, step: 1, format: 'percentage' },
 
   // Loan amounts
   subToPrincipal: { min: 0, max: 500000, step: 5000, format: 'currency' },
   loan2Principal: { min: 0, max: 200000, step: 5000, format: 'currency' },
 
-  // Interest rates
+  // Interest rates - Allow 0% for seller financing, finer step
   subToInterestRate: { min: 0, max: 15, step: 0.125, format: 'percentage' },
-  dscrInterestRate: { min: 5, max: 15, step: 0.125, format: 'percentage' },
-  loan2InterestRate: { min: 5, max: 18, step: 0.25, format: 'percentage' },
-  wrapInterestRate: { min: 5, max: 15, step: 0.125, format: 'percentage' },
+  dscrInterestRate: { min: 0, max: 15, step: 0.001, format: 'percentage' },
+  loan2InterestRate: { min: 0, max: 18, step: 0.125, format: 'percentage' },
+  wrapInterestRate: { min: 0, max: 15, step: 0.001, format: 'percentage' },
 
-  // Terms (years)
-  subToTermYears: { min: 5, max: 40, step: 1, format: 'years' },
-  dscrTermYears: { min: 5, max: 40, step: 1, format: 'years' },
-  loan2TermYears: { min: 1, max: 30, step: 1, format: 'years' },
-  wrapTermYears: { min: 5, max: 40, step: 1, format: 'years' },
+  // Terms (years) - Extended to 50 years
+  subToTermYears: { min: 5, max: 50, step: 1, format: 'years' },
+  dscrTermYears: { min: 5, max: 50, step: 1, format: 'years' },
+  loan2TermYears: { min: 1, max: 50, step: 1, format: 'years' },
+  wrapTermYears: { min: 5, max: 50, step: 1, format: 'years' },
 
-  // Balloon years
-  subToBalloonYears: { min: 0, max: 30, step: 1, format: 'years' },
-  dscrBalloonYears: { min: 0, max: 10, step: 1, format: 'years' },
-  loan2BalloonYears: { min: 0, max: 10, step: 1, format: 'years' },
-  wrapBalloonYears: { min: 0, max: 10, step: 1, format: 'years' },
+  // Balloon years - Extended to 29 years
+  subToBalloonYears: { min: 0, max: 29, step: 1, format: 'years' },
+  dscrBalloonYears: { min: 0, max: 29, step: 1, format: 'years' },
+  loan2BalloonYears: { min: 0, max: 29, step: 1, format: 'years' },
+  wrapBalloonYears: { min: 0, max: 29, step: 1, format: 'years' },
 
   // Points
   dscrPoints: { min: 0, max: 5, step: 0.25, format: 'percentage' },
@@ -388,12 +404,6 @@ export const SLIDER_CONFIGS: Record<string, SliderFieldConfig> = {
   wrapSalesPrice: { min: 50000, max: 1500000, step: 5000, format: 'currency' },
   buyerDownPayment: { min: 5000, max: 200000, step: 1000, format: 'currency' },
   buyerClosingCosts: { min: 0, max: 15000, step: 500, format: 'currency' },
-
-  // Flip
-  projectMonths: { min: 1, max: 24, step: 1, format: 'months' },
-  resaleClosingCosts: { min: 0, max: 50000, step: 1000, format: 'currency' },
-  resaleMarketing: { min: 0, max: 25000, step: 500, format: 'currency' },
-  contingency: { min: 0, max: 50000, step: 1000, format: 'currency' },
 };
 
 // ============ DEFAULT VALUES ============
@@ -403,13 +413,15 @@ export const SLIDER_CONFIGS: Record<string, SliderFieldConfig> = {
  */
 export const DEFAULT_CALCULATOR_VALUES: CalculatorDefaults = {
   wholesaleDiscount: 70,
-  maintenancePercent: 5,
+  warChestPercent: 5,
+  maintenancePercent: 5, // Legacy, kept for migration
   propertyMgmtPercent: 10,
   dscrInterestRate: 8,
   dscrTermYears: 30,
   dscrBalloonYears: 5,
   dscrPoints: 2,
   dscrFees: 1500,
+  dscrLtvPercent: 80,
   wrapInterestRate: 9,
   wrapTermYears: 30,
   wrapBalloonYears: 5,

@@ -1,8 +1,9 @@
 /**
  * LoanCalcsPanel - Displays detailed loan calculation outputs
+ * Updated for wrap-focused calculator with renamed loan sections
  */
 
-import { Landmark, Calculator, Calendar, DollarSign } from 'lucide-react';
+import { Landmark, Calculator, Calendar, DollarSign, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -21,20 +22,30 @@ interface LoanSummaryRowProps {
   value: string;
   subValue?: string;
   highlight?: boolean;
+  warning?: boolean;
 }
 
-function LoanSummaryRow({ label, value, subValue, highlight }: LoanSummaryRowProps) {
+function LoanSummaryRow({ label, value, subValue, highlight, warning }: LoanSummaryRowProps) {
   return (
     <div className={cn('flex items-center justify-between py-1.5', highlight && 'font-medium')}>
       <span className="text-sm text-muted-foreground">{label}</span>
       <div className="text-right">
-        <span className={cn('text-sm', highlight && 'font-semibold')}>{value}</span>
+        <span className={cn('text-sm', highlight && 'font-semibold', warning && 'text-orange-600')}>{value}</span>
         {subValue && (
           <span className="text-xs text-muted-foreground ml-2">({subValue})</span>
         )}
       </div>
     </div>
   );
+}
+
+function calculateBalloonDate(startDate: string | undefined, balloonYears: number): string {
+  if (!startDate || balloonYears <= 0) return '';
+  const start = new Date(startDate);
+  if (isNaN(start.getTime())) return `in ${balloonYears} yr`;
+  const balloonDate = new Date(start);
+  balloonDate.setFullYear(balloonDate.getFullYear() + balloonYears);
+  return balloonDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 }
 
 export function LoanCalcsPanel({ outputs, inputs, className }: LoanCalcsPanelProps) {
@@ -46,6 +57,9 @@ export function LoanCalcsPanel({ outputs, inputs, className }: LoanCalcsPanelPro
   const hasWrap = inputs?.wrapLoan.useWrap || false;
 
   const hasAnyLoan = hasDSCR || hasSubTo || hasLoan2 || hasWrap;
+
+  // Get LTV percentage for display
+  const ltvPercent = inputs?.dscrLoan.dscrLtvPercent ?? 80;
 
   return (
     <Card className={cn('', className)}>
@@ -64,38 +78,6 @@ export function LoanCalcsPanel({ outputs, inputs, className }: LoanCalcsPanelPro
           </div>
         ) : (
           <>
-            {/* DSCR Loan */}
-            {hasDSCR && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                    DSCR Loan
-                  </Badge>
-                </div>
-                <div className="pl-2 border-l-2 border-blue-200 space-y-1">
-                  <LoanSummaryRow
-                    label="Loan Amount (80% LTV)"
-                    value={formatCurrency(loanCalcs.dscrLoanAmount)}
-                  />
-                  <LoanSummaryRow
-                    label="Down Payment (20%)"
-                    value={formatCurrency(loanCalcs.dscrDownPayment)}
-                  />
-                  <LoanSummaryRow
-                    label="Monthly Payment"
-                    value={formatCurrency(loanCalcs.dscrMonthlyPayment)}
-                    highlight
-                  />
-                  {loanCalcs.dscrBalloonAmount > 0 && (
-                    <LoanSummaryRow
-                      label={`Balloon (${inputs?.dscrLoan.dscrBalloonYears}yr)`}
-                      value={formatCurrency(loanCalcs.dscrBalloonAmount)}
-                    />
-                  )}
-                </div>
-              </div>
-            )}
-
             {/* Subject-To Loan */}
             {hasSubTo && (
               <div className="space-y-2">
@@ -113,20 +95,66 @@ export function LoanCalcsPanel({ outputs, inputs, className }: LoanCalcsPanelPro
                     value={formatCurrency(loanCalcs.subToCurrentBalance)}
                   />
                   <LoanSummaryRow
-                    label="Monthly Payment"
+                    label="P&I Payment"
                     value={formatCurrency(loanCalcs.subToMonthlyPayment)}
                     highlight
                   />
+                  {loanCalcs.subToBalloonAmount > 0 && (
+                    <LoanSummaryRow
+                      label="Balloon Due"
+                      value={formatCurrency(loanCalcs.subToBalloonAmount)}
+                      subValue={calculateBalloonDate(inputs?.subjectTo.subToStartDate, inputs?.subjectTo.subToBalloonYears ?? 0)}
+                      warning
+                    />
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Second Loan */}
+            {/* Funding Loan 1 (formerly DSCR Loan) */}
+            {hasDSCR && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                    Funding Loan 1
+                  </Badge>
+                  <Badge variant="secondary" className="text-xs">
+                    {ltvPercent}% LTV
+                  </Badge>
+                </div>
+                <div className="pl-2 border-l-2 border-blue-200 space-y-1">
+                  <LoanSummaryRow
+                    label="Loan Amount"
+                    value={formatCurrency(loanCalcs.dscrLoanAmount)}
+                  />
+                  <LoanSummaryRow
+                    label="Down Payment"
+                    value={formatCurrency(loanCalcs.dscrDownPayment)}
+                    subValue={`${100 - ltvPercent}%`}
+                  />
+                  <LoanSummaryRow
+                    label="P&I Payment"
+                    value={formatCurrency(loanCalcs.fundingLoan1PI)}
+                    highlight
+                  />
+                  {loanCalcs.dscrBalloonAmount > 0 && (
+                    <LoanSummaryRow
+                      label="Balloon Due"
+                      value={formatCurrency(loanCalcs.dscrBalloonAmount)}
+                      subValue={calculateBalloonDate(inputs?.dscrLoan.dscrStartDate, inputs?.dscrLoan.dscrBalloonYears ?? 0)}
+                      warning
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Funding Loan 2 (formerly Second Loan) */}
             {hasLoan2 && (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-                    Second Loan
+                    Funding Loan 2
                   </Badge>
                 </div>
                 <div className="pl-2 border-l-2 border-orange-200 space-y-1">
@@ -135,14 +163,16 @@ export function LoanCalcsPanel({ outputs, inputs, className }: LoanCalcsPanelPro
                     value={formatCurrency(inputs?.secondLoan.loan2Principal || 0)}
                   />
                   <LoanSummaryRow
-                    label="Monthly Payment"
-                    value={formatCurrency(loanCalcs.loan2MonthlyPayment)}
+                    label="P&I Payment"
+                    value={formatCurrency(loanCalcs.fundingLoan2PI)}
                     highlight
                   />
                   {loanCalcs.loan2BalloonAmount > 0 && (
                     <LoanSummaryRow
-                      label={`Balloon (${inputs?.secondLoan.loan2BalloonYears}yr)`}
+                      label="Balloon Due"
                       value={formatCurrency(loanCalcs.loan2BalloonAmount)}
+                      subValue={calculateBalloonDate(inputs?.secondLoan.loan2StartDate, inputs?.secondLoan.loan2BalloonYears ?? 0)}
+                      warning
                     />
                   )}
                 </div>
@@ -164,21 +194,29 @@ export function LoanCalcsPanel({ outputs, inputs, className }: LoanCalcsPanelPro
                   <LoanSummaryRow
                     label="Wrap Principal"
                     value={formatCurrency(loanCalcs.wrapPrincipal)}
+                    subValue="Sales - DP + Closing"
                   />
                   <LoanSummaryRow
-                    label="Payment from Buyer"
+                    label="P&I Payment"
                     value={formatCurrency(loanCalcs.wrapMonthlyPayment)}
                     highlight
                   />
                   <LoanSummaryRow
-                    label="Buyer PITI"
-                    value={formatCurrency(loanCalcs.buyerMonthlyPITI)}
-                    subValue="incl. taxes & insurance"
+                    label="Buyer Full Payment"
+                    value={formatCurrency(loanCalcs.buyerFullMonthlyPayment)}
+                    subValue="+T&I +cushion +service"
+                  />
+                  <LoanSummaryRow
+                    label="Escrow Cushion"
+                    value={formatCurrency(loanCalcs.escrowCushion)}
+                    subValue="14mo T&I / 12"
                   />
                   {loanCalcs.wrapBalloonAmount > 0 && (
                     <LoanSummaryRow
-                      label={`Balloon (${inputs?.wrapLoan.wrapBalloonYears}yr)`}
+                      label="Balloon Due"
                       value={formatCurrency(loanCalcs.wrapBalloonAmount)}
+                      subValue={calculateBalloonDate(inputs?.wrapLoan.wrapStartDate, inputs?.wrapLoan.wrapBalloonYears ?? 0)}
+                      warning
                     />
                   )}
                 </div>
@@ -203,8 +241,8 @@ export function LoanCalcsPanel({ outputs, inputs, className }: LoanCalcsPanelPro
                   <p className="text-lg font-semibold">{formatCurrency(totals.totalMonthlyTI)}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-muted/50">
-                  <p className="text-xs text-muted-foreground">Maintenance</p>
-                  <p className="text-lg font-semibold">{formatCurrency(totals.totalMonthlyMaintenance)}</p>
+                  <p className="text-xs text-muted-foreground">War Chest</p>
+                  <p className="text-lg font-semibold">{formatCurrency(totals.totalMonthlyWarChest)}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-muted/50">
                   <p className="text-xs text-muted-foreground">Prop Mgmt</p>
@@ -218,6 +256,14 @@ export function LoanCalcsPanel({ outputs, inputs, className }: LoanCalcsPanelPro
                 </span>
               </div>
             </div>
+
+            {/* Balloon Alert */}
+            {(loanCalcs.dscrBalloonAmount > 0 || loanCalcs.loan2BalloonAmount > 0 || loanCalcs.wrapBalloonAmount > 0 || loanCalcs.subToBalloonAmount > 0) && (
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-orange-50 border border-orange-200 text-orange-700 text-sm">
+                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                <span>This deal has balloon payments. Plan refinance or payoff strategy.</span>
+              </div>
+            )}
           </>
         )}
       </CardContent>

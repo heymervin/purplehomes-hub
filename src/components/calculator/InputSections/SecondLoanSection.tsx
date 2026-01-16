@@ -1,5 +1,5 @@
 /**
- * SecondLoanSection - Additional financing (second position loan)
+ * SecondLoanSection - Funding Loan 2 (additional financing)
  */
 
 import { Layers, DollarSign, Percent, Calendar, Clock, CreditCard } from 'lucide-react';
@@ -26,7 +26,7 @@ export function SecondLoanSection({ inputs, onChange }: SecondLoanSectionProps) 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Layers className="h-5 w-5 text-orange-600" />
-            <CardTitle className="text-lg">Second Loan</CardTitle>
+            <CardTitle className="text-lg">Funding Loan 2</CardTitle>
           </div>
           <div className="flex items-center gap-2">
             <Label htmlFor="use-loan2" className="text-sm text-muted-foreground">

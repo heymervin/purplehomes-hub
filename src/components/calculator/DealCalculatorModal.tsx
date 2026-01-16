@@ -58,7 +58,6 @@ import {
   SecondLoanSection,
   WrapLoanSection,
   WrapSalesSection,
-  FlipSection,
 } from './InputSections';
 import { LoanCalcsPanel, DealChecklistPanel } from './OutputSections';
 
@@ -371,18 +370,17 @@ export function DealCalculatorModal({
           ) : activeScenario ? (
             <div className="p-4 space-y-4">
               {/* Quick Stats Panel */}
-              <QuickStatsPanel outputs={activeScenario.outputs} />
+              <QuickStatsPanel outputs={activeScenario.outputs} inputs={activeScenario.inputs} />
 
               <Separator />
 
-              {/* Input Tabs */}
+              {/* Input Tabs - Wrap Focused (no flip) */}
               <Tabs defaultValue="property" className="w-full">
-                <TabsList className="grid w-full grid-cols-6">
+                <TabsList className="grid w-full grid-cols-5">
                   <TabsTrigger value="property">Property</TabsTrigger>
                   <TabsTrigger value="income">Income</TabsTrigger>
-                  <TabsTrigger value="loans">Loans</TabsTrigger>
-                  <TabsTrigger value="wrap">Wrap</TabsTrigger>
-                  <TabsTrigger value="flip">Flip</TabsTrigger>
+                  <TabsTrigger value="loans">Your Loans</TabsTrigger>
+                  <TabsTrigger value="wrap">Wrap Terms</TabsTrigger>
                   <TabsTrigger value="results">
                     <BarChart3 className="h-4 w-4 mr-1" />
                     Results
@@ -451,14 +449,8 @@ export function DealCalculatorModal({
                   />
                 </TabsContent>
 
-                {/* Wrap Tab */}
+                {/* Wrap Tab - Buyer Terms first, then Loan Terms */}
                 <TabsContent value="wrap" className="space-y-4 mt-4">
-                  <WrapLoanSection
-                    inputs={activeScenario.inputs.wrapLoan}
-                    onChange={(field, value) =>
-                      handleInputChange('wrapLoan', field, value as never)
-                    }
-                  />
                   <WrapSalesSection
                     inputs={activeScenario.inputs.wrapSales}
                     useWrap={activeScenario.inputs.wrapLoan.useWrap}
@@ -466,14 +458,10 @@ export function DealCalculatorModal({
                       handleInputChange('wrapSales', field, value)
                     }
                   />
-                </TabsContent>
-
-                {/* Flip Tab */}
-                <TabsContent value="flip" className="space-y-4 mt-4">
-                  <FlipSection
-                    inputs={activeScenario.inputs.flip}
+                  <WrapLoanSection
+                    inputs={activeScenario.inputs.wrapLoan}
                     onChange={(field, value) =>
-                      handleInputChange('flip', field, value)
+                      handleInputChange('wrapLoan', field, value as never)
                     }
                   />
                 </TabsContent>

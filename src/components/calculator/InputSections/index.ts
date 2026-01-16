@@ -1,5 +1,6 @@
 /**
  * Input Section Components - Export all input sections
+ * Note: FlipSection removed - calculator is now wrap-focused only
  */
 
 export { PropertyBasicsSection } from './PropertyBasicsSection';
@@ -12,4 +13,3 @@ export { DSCRLoanSection } from './DSCRLoanSection';
 export { SecondLoanSection } from './SecondLoanSection';
 export { WrapLoanSection } from './WrapLoanSection';
 export { WrapSalesSection } from './WrapSalesSection';
-export { FlipSection } from './FlipSection';

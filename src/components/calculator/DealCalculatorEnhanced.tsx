@@ -56,7 +56,6 @@ import {
   SecondLoanSection,
   WrapLoanSection,
   WrapSalesSection,
-  FlipSection,
 } from './InputSections';
 import { LoanCalcsPanel, DealChecklistPanel } from './OutputSections';
 
@@ -374,18 +373,17 @@ export function DealCalculatorEnhanced({
                 <Separator />
 
                 {/* Quick Stats Panel */}
-                <QuickStatsPanel outputs={outputs} />
+                <QuickStatsPanel outputs={outputs} inputs={inputs} />
 
                 <Separator />
 
-                {/* Input Tabs */}
+                {/* Input Tabs - Wrap Focused (no flip) */}
                 <Tabs defaultValue="property" className="w-full">
-                  <TabsList className="grid w-full grid-cols-6">
+                  <TabsList className="grid w-full grid-cols-5">
                     <TabsTrigger value="property">Property</TabsTrigger>
                     <TabsTrigger value="income">Income</TabsTrigger>
-                    <TabsTrigger value="loans">Loans</TabsTrigger>
-                    <TabsTrigger value="wrap">Wrap</TabsTrigger>
-                    <TabsTrigger value="flip">Flip</TabsTrigger>
+                    <TabsTrigger value="loans">Your Loans</TabsTrigger>
+                    <TabsTrigger value="wrap">Wrap Terms</TabsTrigger>
                     <TabsTrigger value="results">
                       <BarChart3 className="h-4 w-4 mr-1" />
                       Results
@@ -442,24 +440,16 @@ export function DealCalculatorEnhanced({
                     />
                   </TabsContent>
 
-                  {/* Wrap Tab */}
+                  {/* Wrap Tab - Buyer Terms first, then Loan Terms */}
                   <TabsContent value="wrap" className="space-y-4 mt-4">
-                    <WrapLoanSection
-                      inputs={inputs.wrapLoan}
-                      onChange={(field, value) => handleInputChange('wrapLoan', field, value as never)}
-                    />
                     <WrapSalesSection
                       inputs={inputs.wrapSales}
                       useWrap={inputs.wrapLoan.useWrap}
                       onChange={(field, value) => handleInputChange('wrapSales', field, value)}
                     />
-                  </TabsContent>
-
-                  {/* Flip Tab */}
-                  <TabsContent value="flip" className="space-y-4 mt-4">
-                    <FlipSection
-                      inputs={inputs.flip}
-                      onChange={(field, value) => handleInputChange('flip', field, value)}
+                    <WrapLoanSection
+                      inputs={inputs.wrapLoan}
+                      onChange={(field, value) => handleInputChange('wrapLoan', field, value as never)}
                     />
                   </TabsContent>
 

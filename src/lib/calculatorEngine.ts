@@ -21,7 +21,6 @@ import type {
   SecondLoanInputs,
   WrapLoanInputs,
   WrapSalesInputs,
-  FlipInputs,
 } from '@/types/calculator';
 import { DEFAULT_CALCULATOR_VALUES } from '@/types/calculator';
 
@@ -139,6 +138,14 @@ export function calculateCurrentBalance(
 // ============ DEAL CALCULATION FUNCTIONS ============
 
 /**
+ * Calculate escrow cushion (T&I buffer)
+ * 14 months of T&I spread over 12 months
+ */
+export function calculateEscrowCushion(annualTaxes: number, annualInsurance: number): number {
+  return ((annualTaxes + annualInsurance) * 14) / 12 / 12; // Monthly cushion amount
+}
+
+/**
  * Calculate MAO (Maximum Allowable Offer)
  * MAO = (ARV - repairs - yourFee - creditToBuyer) * (wholesaleDiscount / 100)
  */
@@ -149,10 +156,10 @@ export function calculateMAO(propertyBasics: PropertyBasicsInputs): number {
 }
 
 /**
- * Calculate DSCR loan amount (typically 80% LTV)
+ * Calculate DSCR loan amount based on LTV
  */
-export function calculateDSCRLoanAmount(purchasePrice: number): number {
-  return purchasePrice * 0.8;
+export function calculateDSCRLoanAmount(purchasePrice: number, ltvPercent: number = 80): number {
+  return purchasePrice * (ltvPercent / 100);
 }
 
 /**
@@ -161,9 +168,12 @@ export function calculateDSCRLoanAmount(purchasePrice: number): number {
 export function calculateLoanCalcs(inputs: CalculatorInputs): LoanCalcsOutputs {
   const { purchaseCosts, subjectTo, dscrLoan, secondLoan, wrapLoan, wrapSales, taxInsurance } = inputs;
 
-  // DSCR Loan calculations
+  // Get LTV (default 80%)
+  const ltvPercent = dscrLoan.dscrLtvPercent ?? 80;
+
+  // DSCR Loan calculations (now "Funding Loan 1")
   const dscrLoanAmount = dscrLoan.useDSCRLoan
-    ? calculateDSCRLoanAmount(purchaseCosts.purchasePrice)
+    ? calculateDSCRLoanAmount(purchaseCosts.purchasePrice, ltvPercent)
     : 0;
   const dscrDownPayment = dscrLoan.useDSCRLoan
     ? purchaseCosts.purchasePrice - dscrLoanAmount
@@ -184,8 +194,12 @@ export function calculateLoanCalcs(inputs: CalculatorInputs): LoanCalcsOutputs {
   const subToMonthlyPayment = subjectTo.useSubjectTo
     ? calculateMonthlyPayment(subjectTo.subToPrincipal, subjectTo.subToInterestRate, subjectTo.subToTermYears)
     : 0;
+  // Subject-To balloon calculation
+  const subToBalloonAmount = subjectTo.useSubjectTo && subjectTo.subToBalloonYears > 0
+    ? calculateBalloonBalance(subToCurrentBalance, subjectTo.subToInterestRate, subjectTo.subToTermYears, subjectTo.subToBalloonYears)
+    : 0;
 
-  // Second Loan calculations
+  // Second Loan calculations (now "Funding Loan 2")
   const loan2MonthlyPayment = secondLoan.useLoan2
     ? calculateMonthlyPayment(secondLoan.loan2Principal, secondLoan.loan2InterestRate, secondLoan.loan2TermYears)
     : 0;
@@ -193,9 +207,11 @@ export function calculateLoanCalcs(inputs: CalculatorInputs): LoanCalcsOutputs {
     ? calculateBalloonBalance(secondLoan.loan2Principal, secondLoan.loan2InterestRate, secondLoan.loan2TermYears, secondLoan.loan2BalloonYears)
     : 0;
 
-  // Wrap Loan calculations
+  // FIXED: Wrap principal formula
+  // Closing costs come FROM down payment, not subtracted from principal
+  // So principal = salesPrice - downPayment + closingCosts (buyer pays closing from their DP)
   const wrapPrincipal = wrapLoan.useWrap
-    ? wrapSales.wrapSalesPrice - wrapSales.buyerDownPayment
+    ? wrapSales.wrapSalesPrice - wrapSales.buyerDownPayment + wrapSales.buyerClosingCosts
     : 0;
   const wrapMonthlyPayment = wrapLoan.useWrap
     ? (wrapLoan.wrapLoanType === 'Interest Only'
@@ -208,10 +224,28 @@ export function calculateLoanCalcs(inputs: CalculatorInputs): LoanCalcsOutputs {
         : calculateBalloonBalance(wrapPrincipal, wrapLoan.wrapInterestRate, wrapLoan.wrapTermYears, wrapLoan.wrapBalloonYears))
     : 0;
 
-  // Buyer Monthly PITI (Principal, Interest, Taxes, Insurance)
+  // Calculate total annual insurance (homeowners + flood)
+  const annualInsurance = (taxInsurance.annualHomeownersInsurance ?? taxInsurance.annualInsurance ?? 0) +
+    (taxInsurance.hasFloodInsurance ? (taxInsurance.annualFloodInsurance ?? 0) : 0);
+
+  // Monthly T&I
   const monthlyTaxes = taxInsurance.annualTaxes / 12;
-  const monthlyInsurance = taxInsurance.annualInsurance / 12;
+  const monthlyInsurance = annualInsurance / 12;
+
+  // Escrow cushion (14 months T&I spread over 12 months)
+  const escrowCushion = calculateEscrowCushion(taxInsurance.annualTaxes, annualInsurance);
+
+  // Buyer Monthly PITI (old calculation for backwards compatibility)
   const buyerMonthlyPITI = wrapMonthlyPayment + monthlyTaxes + monthlyInsurance;
+
+  // NEW: Buyer's full monthly payment (P&I + T&I + escrow cushion + service fee)
+  const buyerFullMonthlyPayment = wrapLoan.useWrap
+    ? wrapMonthlyPayment + monthlyTaxes + monthlyInsurance + escrowCushion + wrapLoan.wrapServiceFee
+    : 0;
+
+  // Explicit P&I displays for funding loans
+  const fundingLoan1PI = dscrMonthlyPayment;
+  const fundingLoan2PI = loan2MonthlyPayment;
 
   return {
     dscrLoanAmount,
@@ -220,12 +254,17 @@ export function calculateLoanCalcs(inputs: CalculatorInputs): LoanCalcsOutputs {
     dscrBalloonAmount,
     subToMonthlyPayment,
     subToCurrentBalance,
+    subToBalloonAmount,
     loan2MonthlyPayment,
     loan2BalloonAmount,
     wrapPrincipal,
     wrapMonthlyPayment,
     wrapBalloonAmount,
     buyerMonthlyPITI,
+    buyerFullMonthlyPayment,
+    escrowCushion,
+    fundingLoan1PI,
+    fundingLoan2PI,
   };
 }
 
@@ -244,11 +283,16 @@ export function calculateTotals(inputs: CalculatorInputs, loanCalcs: LoanCalcsOu
     loanCalcs.subToMonthlyPayment +
     loanCalcs.loan2MonthlyPayment;
 
-  // Total monthly T&I (taxes and insurance)
-  const totalMonthlyTI = (taxInsurance.annualTaxes + taxInsurance.annualInsurance) / 12;
+  // Calculate total annual insurance (homeowners + flood) for backwards compatibility
+  const annualInsurance = (taxInsurance.annualHomeownersInsurance ?? taxInsurance.annualInsurance ?? 0) +
+    (taxInsurance.hasFloodInsurance ? (taxInsurance.annualFloodInsurance ?? 0) : 0);
 
-  // Maintenance
-  const totalMonthlyMaintenance = income.monthlyRent * (operating.maintenancePercent / 100);
+  // Total monthly T&I (taxes and insurance)
+  const totalMonthlyTI = (taxInsurance.annualTaxes + annualInsurance) / 12;
+
+  // War Chest (renamed from Maintenance) - supports both field names for migration
+  const warChestPercent = operating.warChestPercent ?? operating.maintenancePercent ?? 5;
+  const totalMonthlyWarChest = income.monthlyRent * (warChestPercent / 100);
 
   // Property management
   const totalMonthlyPropertyMgmt = totalMonthlyIncome * (operating.propertyMgmtPercent / 100);
@@ -257,7 +301,7 @@ export function calculateTotals(inputs: CalculatorInputs, loanCalcs: LoanCalcsOu
   const totalMonthlyExpenses =
     totalMonthlyPI +
     totalMonthlyTI +
-    totalMonthlyMaintenance +
+    totalMonthlyWarChest +
     totalMonthlyPropertyMgmt +
     operating.hoa +
     operating.utilities;
@@ -266,47 +310,29 @@ export function calculateTotals(inputs: CalculatorInputs, loanCalcs: LoanCalcsOu
     totalMonthlyIncome,
     totalMonthlyPI,
     totalMonthlyTI,
-    totalMonthlyMaintenance,
+    totalMonthlyWarChest,
     totalMonthlyPropertyMgmt,
     totalMonthlyExpenses,
   };
 }
 
 /**
- * Calculate quick stats (key metrics)
+ * Calculate quick stats (key metrics) - WRAP FOCUSED
  */
 export function calculateQuickStats(
   inputs: CalculatorInputs,
   loanCalcs: LoanCalcsOutputs,
   totals: TotalsOutputs
 ): QuickStatsOutputs {
-  const { propertyBasics, purchaseCosts, flip, wrapLoan, wrapSales, dscrLoan, secondLoan, subjectTo } = inputs;
+  const { propertyBasics, purchaseCosts, income, operating, taxInsurance, wrapLoan, wrapSales, dscrLoan, secondLoan } = inputs;
 
-  // MAO (Maximum Allowable Offer)
-  const mao = calculateMAO(propertyBasics);
-
-  // Monthly Cashflow (Hold strategy)
-  const monthlyCashflow = totals.totalMonthlyIncome - totals.totalMonthlyExpenses;
-
-  // Wrap Cashflow
+  // Wrap Cashflow (Purple Homes' monthly profit)
   const underlyingPayments = loanCalcs.subToMonthlyPayment + loanCalcs.dscrMonthlyPayment + loanCalcs.loan2MonthlyPayment;
   const wrapCashflow = wrapLoan.useWrap
     ? loanCalcs.wrapMonthlyPayment - underlyingPayments - wrapLoan.wrapServiceFee
     : 0;
 
-  // Flip Profit
-  const carryingCosts = (totals.totalMonthlyPI + totals.totalMonthlyTI) * flip.projectMonths;
-  const totalFlipCosts =
-    purchaseCosts.purchasePrice +
-    propertyBasics.repairs +
-    purchaseCosts.closingCosts +
-    carryingCosts +
-    flip.resaleClosingCosts +
-    flip.resaleMarketing +
-    flip.contingency;
-  const flipProfit = propertyBasics.arv - totalFlipCosts;
-
-  // Total Entry Fee (upfront costs)
+  // Total Entry Fee (Purple Homes' upfront cost)
   const dscrUpfrontCosts = dscrLoan.useDSCRLoan
     ? (loanCalcs.dscrLoanAmount * dscrLoan.dscrPoints / 100) + dscrLoan.dscrFees
     : 0;
@@ -326,65 +352,57 @@ export function calculateQuickStats(
     loan2UpfrontCosts +
     wrapUpfrontCosts;
 
-  // Funding Gap (cash needed at closing)
-  const financingAvailable =
-    loanCalcs.dscrLoanAmount +
-    loanCalcs.subToCurrentBalance +
-    (secondLoan.useLoan2 ? secondLoan.loan2Principal : 0);
-  const cashNeeded = purchaseCosts.purchasePrice - financingAvailable;
-  const fundingGap = Math.max(0, cashNeeded + totalEntryFee + propertyBasics.repairs);
-
-  // Cash on Cash Returns
-  const totalCashInvested = fundingGap > 0 ? fundingGap : 1; // Prevent division by zero
-
-  // Hold CoC: Annual cashflow / cash invested
-  const annualCashflow = monthlyCashflow * 12;
-  const cashOnCashHold = (annualCashflow / totalCashInvested) * 100;
-
-  // Flip CoC: Annualized profit / cash invested
-  const annualizedFlipProfit = flip.projectMonths > 0
-    ? (flipProfit / (flip.projectMonths / 12))
-    : 0;
-  const cashOnCashFlip = (annualizedFlipProfit / totalCashInvested) * 100;
-
   // Wrap CoC: Wrap net (including down payment received)
   const wrapNetAtClosing = wrapLoan.useWrap
     ? wrapSales.buyerDownPayment - wrapSales.buyerClosingCosts - totalEntryFee
     : 0;
-  const wrapTotalInvested = Math.max(1, fundingGap - wrapNetAtClosing);
+  const wrapTotalInvested = Math.max(1, Math.abs(wrapNetAtClosing) > 0 ? Math.abs(wrapNetAtClosing) : 1);
   const annualWrapCashflow = wrapCashflow * 12;
   const cashOnCashWrap = wrapLoan.useWrap
     ? (annualWrapCashflow / wrapTotalInvested) * 100
     : 0;
 
+  // Rental Fallback Calculation (if wrap fails)
+  // Calculate total annual insurance (homeowners + flood)
+  const annualInsurance = (taxInsurance.annualHomeownersInsurance ?? taxInsurance.annualInsurance ?? 0) +
+    (taxInsurance.hasFloodInsurance ? (taxInsurance.annualFloodInsurance ?? 0) : 0);
+  const warChestPercent = operating.warChestPercent ?? operating.maintenancePercent ?? 5;
+
+  const rentalFallbackCashflow = income.monthlyRent > 0
+    ? income.monthlyRent -
+      totals.totalMonthlyPI -
+      ((taxInsurance.annualTaxes + annualInsurance) / 12) -
+      (income.monthlyRent * warChestPercent / 100) -
+      (income.monthlyRent * operating.propertyMgmtPercent / 100) -
+      operating.hoa -
+      operating.utilities
+    : 0;
+
   return {
-    mao,
-    monthlyCashflow,
-    wrapCashflow,
-    flipProfit,
     totalEntryFee,
-    fundingGap,
-    cashOnCashHold,
-    cashOnCashFlip,
+    wrapCashflow,
     cashOnCashWrap,
+    buyerFullMonthlyPayment: loanCalcs.buyerFullMonthlyPayment,
+    rentalFallbackCashflow,
+    escrowCushion: loanCalcs.escrowCushion,
   };
 }
 
 /**
- * Calculate deal checklist (pass/fail criteria)
+ * Calculate deal checklist (pass/fail criteria) - WRAP FOCUSED
  */
 export function calculateDealChecklist(
   inputs: CalculatorInputs,
   quickStats: QuickStatsOutputs,
   loanCalcs: LoanCalcsOutputs
 ): DealChecklistOutputs {
-  const { propertyBasics, purchaseCosts } = inputs;
+  const { propertyBasics, purchaseCosts, wrapLoan } = inputs;
 
   // Entry Fee < $25k
   const entryFeeUnder25k = quickStats.totalEntryFee < 25000;
 
-  // Monthly Cashflow > $400
-  const cashflowOver400 = quickStats.monthlyCashflow >= 400;
+  // Wrap Cashflow > $300
+  const wrapCashflowOver300 = quickStats.wrapCashflow >= 300;
 
   // LTV < 75% (total loans / ARV)
   const totalLoanAmount =
@@ -398,13 +416,22 @@ export function calculateDealChecklist(
   const equity = propertyBasics.arv - purchaseCosts.purchasePrice - propertyBasics.repairs;
   const equityOver15k = equity >= 15000;
 
-  // Deal Decision Logic
-  const passCount = [entryFeeUnder25k, cashflowOver400, ltvUnder75, equityOver15k].filter(Boolean).length;
+  // Rental Fallback positive
+  const rentalFallbackPositive = quickStats.rentalFallbackCashflow >= 0;
+
+  // Deal Decision Logic - wrap focused
+  const criteriaMet = [
+    entryFeeUnder25k,
+    wrapCashflowOver300,
+    ltvUnder75,
+    equityOver15k,
+    wrapLoan.useWrap ? rentalFallbackPositive : true, // Only check if wrap enabled
+  ].filter(Boolean).length;
 
   let dealDecision: DealChecklistOutputs['dealDecision'];
-  if (passCount === 4) {
+  if (criteriaMet >= 4) {
     dealDecision = 'DEAL';
-  } else if (passCount >= 2) {
+  } else if (criteriaMet >= 2) {
     dealDecision = 'NEEDS REVIEW';
   } else {
     dealDecision = 'NO DEAL';
@@ -412,9 +439,10 @@ export function calculateDealChecklist(
 
   return {
     entryFeeUnder25k,
-    cashflowOver400,
+    wrapCashflowOver300,
     ltvUnder75,
     equityOver15k,
+    rentalFallbackPositive,
     dealDecision,
   };
 }
@@ -493,7 +521,9 @@ export function createDefaultPurchaseCostsInputs(
 export function createDefaultTaxInsuranceInputs(): TaxInsuranceInputs {
   return {
     annualTaxes: 0,
-    annualInsurance: 0,
+    annualHomeownersInsurance: 0,
+    annualFloodInsurance: 0,
+    hasFloodInsurance: false,
   };
 }
 
@@ -505,7 +535,7 @@ export function createDefaultOperatingInputs(
 ): OperatingInputs {
   const d = { ...DEFAULT_CALCULATOR_VALUES, ...defaults };
   return {
-    maintenancePercent: d.maintenancePercent,
+    warChestPercent: d.warChestPercent ?? d.maintenancePercent ?? 5,
     propertyMgmtPercent: d.propertyMgmtPercent,
     hoa: 0,
     utilities: 0,
@@ -528,7 +558,7 @@ export function createDefaultSubjectToInputs(): SubjectToInputs {
 }
 
 /**
- * Create default DSCR loan inputs
+ * Create default DSCR loan inputs (Funding Loan 1)
  */
 export function createDefaultDSCRLoanInputs(
   defaults?: Partial<CalculatorDefaults>
@@ -542,6 +572,7 @@ export function createDefaultDSCRLoanInputs(
     dscrBalloonYears: d.dscrBalloonYears,
     dscrPoints: d.dscrPoints,
     dscrFees: d.dscrFees,
+    dscrLtvPercent: d.dscrLtvPercent ?? 80,
   };
 }
 
@@ -592,17 +623,6 @@ export function createDefaultWrapSalesInputs(): WrapSalesInputs {
   };
 }
 
-/**
- * Create default flip inputs
- */
-export function createDefaultFlipInputs(): FlipInputs {
-  return {
-    projectMonths: 6,
-    resaleClosingCosts: 0,
-    resaleMarketing: 0,
-    contingency: 0,
-  };
-}
 
 /**
  * Create complete default inputs
@@ -634,16 +654,27 @@ export function createDefaultInputs(
     secondLoan: createDefaultSecondLoanInputs(),
     wrapLoan: createDefaultWrapLoanInputs(defaults),
     wrapSales: createDefaultWrapSalesInputs(),
-    flip: createDefaultFlipInputs(),
   };
 }
 
 // ============ UTILITY FUNCTIONS ============
 
 /**
- * Format currency for display
+ * Format currency for display (2 decimal places)
  */
 export function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+/**
+ * Format currency for display (no decimals) - for large values
+ */
+export function formatCurrencyWhole(value: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -673,4 +704,99 @@ export function parseCurrency(value: string): number {
  */
 export function cloneInputs(inputs: CalculatorInputs): CalculatorInputs {
   return JSON.parse(JSON.stringify(inputs));
+}
+
+/**
+ * Migrate old scenario inputs to new format
+ * Handles backwards compatibility for:
+ * - maintenancePercent → warChestPercent
+ * - annualInsurance → annualHomeownersInsurance (flood split)
+ * - Removes flip data if present
+ */
+export function migrateScenarioInputs(oldInputs: unknown): CalculatorInputs {
+  const inputs = oldInputs as Record<string, unknown>;
+
+  // Start with sensible defaults
+  const migrated = createDefaultInputs();
+
+  // Copy over all valid sections
+  if (inputs.name) migrated.name = inputs.name as string;
+  if (inputs.propertyRecordId) migrated.propertyRecordId = inputs.propertyRecordId as string;
+  if (inputs.propertyCode) migrated.propertyCode = inputs.propertyCode as string;
+  if (inputs.buyerRecordId) migrated.buyerRecordId = inputs.buyerRecordId as string;
+  if (inputs.contactId) migrated.contactId = inputs.contactId as string;
+
+  // Copy property basics
+  if (inputs.propertyBasics) {
+    migrated.propertyBasics = { ...migrated.propertyBasics, ...(inputs.propertyBasics as object) };
+  }
+
+  // Copy income
+  if (inputs.income) {
+    migrated.income = { ...migrated.income, ...(inputs.income as object) };
+  }
+
+  // Copy purchase costs
+  if (inputs.purchaseCosts) {
+    migrated.purchaseCosts = { ...migrated.purchaseCosts, ...(inputs.purchaseCosts as object) };
+  }
+
+  // Migrate tax & insurance (split insurance)
+  if (inputs.taxInsurance) {
+    const oldTaxIns = inputs.taxInsurance as Record<string, unknown>;
+    migrated.taxInsurance.annualTaxes = (oldTaxIns.annualTaxes as number) || 0;
+    // Map old annualInsurance to annualHomeownersInsurance
+    migrated.taxInsurance.annualHomeownersInsurance =
+      (oldTaxIns.annualHomeownersInsurance as number) ||
+      (oldTaxIns.annualInsurance as number) ||
+      0;
+    migrated.taxInsurance.annualFloodInsurance = (oldTaxIns.annualFloodInsurance as number) || 0;
+    migrated.taxInsurance.hasFloodInsurance = (oldTaxIns.hasFloodInsurance as boolean) || false;
+  }
+
+  // Migrate operating (maintenancePercent → warChestPercent)
+  if (inputs.operating) {
+    const oldOp = inputs.operating as Record<string, unknown>;
+    migrated.operating.warChestPercent =
+      (oldOp.warChestPercent as number) ||
+      (oldOp.maintenancePercent as number) ||
+      5;
+    migrated.operating.propertyMgmtPercent = (oldOp.propertyMgmtPercent as number) || 10;
+    migrated.operating.hoa = (oldOp.hoa as number) || 0;
+    migrated.operating.utilities = (oldOp.utilities as number) || 0;
+  }
+
+  // Copy subject-to
+  if (inputs.subjectTo) {
+    migrated.subjectTo = { ...migrated.subjectTo, ...(inputs.subjectTo as object) };
+  }
+
+  // Copy DSCR loan (add dscrLtvPercent if missing)
+  if (inputs.dscrLoan) {
+    const oldDscr = inputs.dscrLoan as Record<string, unknown>;
+    migrated.dscrLoan = {
+      ...migrated.dscrLoan,
+      ...oldDscr,
+      dscrLtvPercent: (oldDscr.dscrLtvPercent as number) || 80,
+    } as DSCRLoanInputs;
+  }
+
+  // Copy second loan
+  if (inputs.secondLoan) {
+    migrated.secondLoan = { ...migrated.secondLoan, ...(inputs.secondLoan as object) };
+  }
+
+  // Copy wrap loan
+  if (inputs.wrapLoan) {
+    migrated.wrapLoan = { ...migrated.wrapLoan, ...(inputs.wrapLoan as object) };
+  }
+
+  // Copy wrap sales
+  if (inputs.wrapSales) {
+    migrated.wrapSales = { ...migrated.wrapSales, ...(inputs.wrapSales as object) };
+  }
+
+  // NOTE: flip data is intentionally ignored (removed from calculator)
+
+  return migrated;
 }

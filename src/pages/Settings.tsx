@@ -1585,16 +1585,17 @@ export default function Settings() {
                     <h4 className="font-medium text-sm text-muted-foreground">Operating Expenses</h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       <div>
-                        <Label>Maintenance %</Label>
+                        <Label>War Chest %</Label>
                         <Input
                           type="number"
-                          value={localDefaults.maintenancePercent ?? 5}
-                          onChange={(e) => handleDefaultChange('maintenancePercent', parseFloat(e.target.value) || 0)}
+                          value={localDefaults.warChestPercent ?? localDefaults.maintenancePercent ?? 5}
+                          onChange={(e) => handleDefaultChange('warChestPercent', parseFloat(e.target.value) || 0)}
                           className="mt-1"
                           min={0}
                           max={50}
                           step={0.5}
                         />
+                        <p className="text-xs text-muted-foreground mt-1">Reserve fund for repairs</p>
                       </div>
                       <div>
                         <Label>Property Mgmt %</Label>
@@ -1611,10 +1612,22 @@ export default function Settings() {
                     </div>
                   </div>
 
-                  {/* DSCR Loan Defaults */}
+                  {/* Funding Loan 1 Defaults */}
                   <div className="space-y-4">
-                    <h4 className="font-medium text-sm text-muted-foreground">DSCR Loan Defaults</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <h4 className="font-medium text-sm text-muted-foreground">Funding Loan 1 Defaults</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                      <div>
+                        <Label>LTV %</Label>
+                        <Input
+                          type="number"
+                          value={localDefaults.dscrLtvPercent ?? 80}
+                          onChange={(e) => handleDefaultChange('dscrLtvPercent', parseFloat(e.target.value) || 0)}
+                          className="mt-1"
+                          min={50}
+                          max={100}
+                          step={1}
+                        />
+                      </div>
                       <div>
                         <Label>Interest Rate %</Label>
                         <Input
@@ -1624,7 +1637,7 @@ export default function Settings() {
                           className="mt-1"
                           min={0}
                           max={20}
-                          step={0.125}
+                          step={0.001}
                         />
                       </div>
                       <div>
@@ -1635,7 +1648,7 @@ export default function Settings() {
                           onChange={(e) => handleDefaultChange('dscrTermYears', parseInt(e.target.value) || 0)}
                           className="mt-1"
                           min={1}
-                          max={40}
+                          max={50}
                         />
                       </div>
                       <div>
@@ -1646,7 +1659,7 @@ export default function Settings() {
                           onChange={(e) => handleDefaultChange('dscrBalloonYears', parseInt(e.target.value) || 0)}
                           className="mt-1"
                           min={0}
-                          max={30}
+                          max={29}
                         />
                       </div>
                       <div>

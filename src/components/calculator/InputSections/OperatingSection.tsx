@@ -2,7 +2,7 @@
  * OperatingSection - Recurring operating expenses
  */
 
-import { Cog, Wrench, Users, Building, Zap } from 'lucide-react';
+import { Cog, Shield, Users, Building, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { SliderInput } from '../SliderInput';
 import { SLIDER_CONFIGS, type OperatingInputs } from '@/types/calculator';
@@ -14,9 +14,11 @@ interface OperatingSectionProps {
 }
 
 export function OperatingSection({ inputs, monthlyRent, onChange }: OperatingSectionProps) {
-  const maintenanceAmount = monthlyRent * (inputs.maintenancePercent / 100);
+  // Support both new and legacy field names
+  const warChestPercent = inputs.warChestPercent ?? inputs.maintenancePercent ?? 5;
+  const warChestAmount = monthlyRent * (warChestPercent / 100);
   const propertyMgmtAmount = monthlyRent * (inputs.propertyMgmtPercent / 100);
-  const totalMonthly = maintenanceAmount + propertyMgmtAmount + inputs.hoa + inputs.utilities;
+  const totalMonthly = warChestAmount + propertyMgmtAmount + inputs.hoa + inputs.utilities;
 
   return (
     <Card>
@@ -37,18 +39,18 @@ export function OperatingSection({ inputs, monthlyRent, onChange }: OperatingSec
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Maintenance Percent */}
+          {/* War Chest Percent (renamed from Maintenance) */}
           <div className="space-y-1">
             <SliderInput
-              label="Maintenance Reserve"
-              value={inputs.maintenancePercent}
-              onChange={(v) => onChange('maintenancePercent', v)}
-              config={SLIDER_CONFIGS.maintenancePercent}
-              icon={<Wrench className="h-4 w-4" />}
-              description="% of rent for repairs"
+              label="War Chest Reserve"
+              value={warChestPercent}
+              onChange={(v) => onChange('warChestPercent', v)}
+              config={SLIDER_CONFIGS.warChestPercent}
+              icon={<Shield className="h-4 w-4" />}
+              description="% of rent for repairs/reserves"
             />
             <p className="text-xs text-muted-foreground pl-6">
-              = ${Math.round(maintenanceAmount).toLocaleString()}/mo
+              = ${Math.round(warChestAmount).toLocaleString()}/mo
             </p>
           </div>
 
@@ -91,8 +93,8 @@ export function OperatingSection({ inputs, monthlyRent, onChange }: OperatingSec
         {/* Summary */}
         <div className="grid grid-cols-4 gap-2 p-3 rounded-lg bg-purple-50 border border-purple-200">
           <div className="text-center">
-            <span className="text-xs text-purple-700">Maint</span>
-            <p className="font-semibold text-purple-800">${Math.round(maintenanceAmount)}</p>
+            <span className="text-xs text-purple-700">War Chest</span>
+            <p className="font-semibold text-purple-800">${Math.round(warChestAmount)}</p>
           </div>
           <div className="text-center">
             <span className="text-xs text-purple-700">PM</span>
