@@ -249,7 +249,7 @@ export function QuickPostFormV2() {
 
   // Content generation state (for Professional tab)
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
-  const [generatedImagePrompt, setGeneratedImagePrompt] = useState<string | null>(null);
+  const [generatedImagePrompt, setGeneratedImagePrompt] = useState<string | Record<string, string> | null>(null);
 
   // Load QR links on mount
   useEffect(() => {
@@ -551,12 +551,33 @@ export function QuickPostFormV2() {
       const data = await response.json();
 
       if (data.success && data.content?.fields) {
-        // Update context fields with generated content
+        const fields = data.content.fields;
+
+        // Separate template-specific fields (for Value Tips) from context fields
+        const templateFields: Record<string, string> = {};
+        const contextFields: Record<string, string> = {};
+
+        // Template field keys for Value Tips
+        const templateFieldKeys = ['tipHeader', 'tip1Header', 'tip1Body', 'tip2Header', 'tip2Body', 'tip3Header', 'tip3Body'];
+
+        for (const [key, value] of Object.entries(fields)) {
+          if (templateFieldKeys.includes(key)) {
+            templateFields[key] = value as string;
+          } else {
+            contextFields[key] = value as string;
+          }
+        }
+
+        // Update state with both context and template fields
         setState(prev => ({
           ...prev,
           context: {
             ...prev.context,
-            ...data.content.fields,
+            ...contextFields,
+          },
+          templateUserInputs: {
+            ...prev.templateUserInputs,
+            ...templateFields,
           },
         }));
 
@@ -578,11 +599,24 @@ export function QuickPostFormV2() {
   };
 
   // Copy image prompt to clipboard
-  const handleCopyImagePrompt = async () => {
-    if (generatedImagePrompt) {
-      await navigator.clipboard.writeText(generatedImagePrompt);
-      toast.success('Image prompt copied to clipboard!');
+  const handleCopyImagePrompt = async (promptKey?: string) => {
+    if (!generatedImagePrompt) return;
+
+    let textToCopy: string;
+
+    if (typeof generatedImagePrompt === 'string') {
+      textToCopy = generatedImagePrompt;
+    } else if (promptKey && generatedImagePrompt[promptKey]) {
+      textToCopy = generatedImagePrompt[promptKey];
+    } else {
+      // Copy all prompts formatted
+      textToCopy = Object.entries(generatedImagePrompt)
+        .map(([key, value]) => `${key.toUpperCase()}: ${value}`)
+        .join('\n\n');
     }
+
+    await navigator.clipboard.writeText(textToCopy);
+    toast.success('Image prompt copied to clipboard!');
   };
 
   const handleGenerate = async () => {
@@ -896,24 +930,54 @@ export function QuickPostFormV2() {
               <div className="flex items-center gap-2">
                 <Wand2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                 <span className="font-medium text-sm text-purple-700 dark:text-purple-300">
-                  Image Prompt for AI
+                  {typeof generatedImagePrompt === 'string' ? 'Image Prompt for AI' : 'Image Prompts for AI'}
                 </span>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCopyImagePrompt}
-                className="h-7 px-2 text-purple-600 hover:text-purple-700 hover:bg-purple-100"
-              >
-                <Copy className="h-3.5 w-3.5 mr-1" />
-                Copy
-              </Button>
+              {typeof generatedImagePrompt === 'string' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleCopyImagePrompt()}
+                  className="h-7 px-2 text-purple-600 hover:text-purple-700 hover:bg-purple-100"
+                >
+                  <Copy className="h-3.5 w-3.5 mr-1" />
+                  Copy
+                </Button>
+              )}
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {generatedImagePrompt}
-            </p>
+
+            {typeof generatedImagePrompt === 'string' ? (
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {generatedImagePrompt}
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {Object.entries(generatedImagePrompt).map(([key, prompt]) => (
+                  <div key={key} className="p-2 rounded bg-white/50 dark:bg-slate-800/50">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium text-purple-600 dark:text-purple-400 uppercase">
+                        {key === 'tip1' ? 'Tip 1 Image' : key === 'tip2' ? 'Tip 2 Image' : 'Tip 3 Image'}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleCopyImagePrompt(key)}
+                        className="h-6 px-2 text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-100"
+                      >
+                        <Copy className="h-3 w-3 mr-1" />
+                        Copy
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {prompt}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <p className="text-xs text-muted-foreground mt-2 italic">
-              Use this prompt in ChatGPT, Gemini, Midjourney, or DALL-E to generate a matching image
+              Use these prompts in ChatGPT, Gemini, Midjourney, or DALL-E to generate matching images
             </p>
           </div>
         )}

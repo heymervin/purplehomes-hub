@@ -379,17 +379,24 @@ ${searchResults}
 
 Generate the following fields in JSON format:
 {
-  "tipTitle": "A catchy tip title (max 100 chars)",
-  "tip1Text": "First tip (1-2 sentences)",
-  "tip2Text": "Second tip (1-2 sentences)",
-  "tip3Text": "Third tip (1-2 sentences)",
-  "imagePrompt": "A detailed image generation prompt for AI tools like DALL-E, Midjourney, or Gemini"
+  "tipHeader": "Main header (e.g., 'Home buyer crucial tips' or 'First-time seller essentials')",
+  "tip1Header": "Tip 1 title - SHORT (3-4 words max, e.g., 'Get Pre-Approved First')",
+  "tip1Body": "Tip 1 description (2-3 short sentences, max 120 chars)",
+  "tip1ImagePrompt": "Image prompt for Tip 1 - describe a specific visual for this tip",
+  "tip2Header": "Tip 2 title - SHORT (3-4 words max)",
+  "tip2Body": "Tip 2 description (2-3 short sentences, max 120 chars)",
+  "tip2ImagePrompt": "Image prompt for Tip 2 - describe a specific visual for this tip",
+  "tip3Header": "Tip 3 title - SHORT (3-4 words max)",
+  "tip3Body": "Tip 3 description (2-3 short sentences, max 120 chars)",
+  "tip3ImagePrompt": "Image prompt for Tip 3 - describe a specific visual for this tip"
 }
 
 RULES:
-- Make tips practical and valuable
-- Each tip should be standalone and actionable
-- imagePrompt should describe an image that matches the tip theme (professional, clean, real estate related)`,
+- tipHeader should be natural like "Home buyer crucial tips" (topic + title format)
+- Tip titles (tip1Header, etc.) must be SHORT - max 3-4 words, punchy
+- Tip descriptions (tip1Body, etc.) must be under 120 characters
+- Make tips practical, specific, and actionable
+- Each image prompt should describe a professional, clean real estate image matching that specific tip`,
   };
 
   const prompt = fieldPrompts[intent] || fieldPrompts['value-tips'];
@@ -427,12 +434,34 @@ RULES:
     const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim();
     const parsed = JSON.parse(cleanContent);
 
-    // Extract imagePrompt separately from fields
-    const { imagePrompt, ...fields } = parsed;
+    // Extract image prompts separately from fields
+    // For single imagePrompt (most intents) or multiple tip image prompts (value-tips)
+    const {
+      imagePrompt,
+      tip1ImagePrompt,
+      tip2ImagePrompt,
+      tip3ImagePrompt,
+      ...fields
+    } = parsed;
+
+    // Build image prompts object/string based on what's available
+    let imagePrompts: string | Record<string, string> | undefined;
+
+    if (tip1ImagePrompt || tip2ImagePrompt || tip3ImagePrompt) {
+      // Multiple image prompts for tips
+      imagePrompts = {
+        ...(tip1ImagePrompt && { tip1: tip1ImagePrompt }),
+        ...(tip2ImagePrompt && { tip2: tip2ImagePrompt }),
+        ...(tip3ImagePrompt && { tip3: tip3ImagePrompt }),
+      };
+    } else if (imagePrompt) {
+      // Single image prompt
+      imagePrompts = imagePrompt;
+    }
 
     return {
       fields,
-      imagePrompt: imagePrompt || undefined,
+      imagePrompt: imagePrompts,
     };
   } catch {
     console.error('[AI API] Failed to parse generated content:', content);
