@@ -382,7 +382,9 @@ ${searchResults}
 
 Generate the following fields in JSON format:
 {
-  "tipHeader": "Main header (e.g., 'Home buyer crucial tips' or 'First-time seller essentials')",
+  "tipTitle": "Caption title for social media (e.g., '3 Must-Know Tips for Home Buyers')",
+  "tipBody": "Caption body - combine all 3 tips into 3-4 bullet points for the social media caption (max 600 chars)",
+  "tipHeader": "Main header for image template (e.g., 'Home buyer crucial tips')",
   "tip1Header": "Tip 1 title - SHORT (3-4 words max, e.g., 'Get Pre-Approved First')",
   "tip1Body": "Tip 1 description (2-3 short sentences, max 120 chars)",
   "tip1ImagePrompt": "Image prompt for Tip 1 - describe a specific visual for this tip",
@@ -395,7 +397,9 @@ Generate the following fields in JSON format:
 }
 
 RULES:
-- tipHeader should be natural like "Home buyer crucial tips" (topic + title format)
+- tipTitle is for the social media caption (catchy, engaging)
+- tipBody combines all tips into bullet points for the caption text
+- tipHeader is for the image template header (shorter, visual)
 - Tip titles (tip1Header, etc.) must be SHORT - max 3-4 words, punchy
 - Tip descriptions (tip1Body, etc.) must be under 120 characters
 - Make tips practical, specific, and actionable
