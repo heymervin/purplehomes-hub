@@ -590,11 +590,13 @@ export function QuickPostFormV2() {
       if (data.success && data.content?.fields) {
         const fields = data.content.fields;
 
+        console.log('[Generate Content] Raw fields from API:', fields);
+
         // Separate template-specific fields (for Value Tips) from context fields
         const templateFields: Record<string, string> = {};
         const contextFields: Record<string, string> = {};
 
-        // Template field keys for Value Tips
+        // Template field keys for Value Tips image template (NOT caption fields)
         const templateFieldKeys = ['tipHeader', 'tip1Header', 'tip1Body', 'tip2Header', 'tip2Body', 'tip3Header', 'tip3Body'];
 
         for (const [key, value] of Object.entries(fields)) {
@@ -604,6 +606,9 @@ export function QuickPostFormV2() {
             contextFields[key] = value as string;
           }
         }
+
+        console.log('[Generate Content] Context fields (for caption):', contextFields);
+        console.log('[Generate Content] Template fields (for image):', templateFields);
 
         // Update state with both context and template fields
         setState(prev => ({
