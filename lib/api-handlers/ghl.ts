@@ -1008,11 +1008,18 @@ if (resource === 'opportunities') {
         }
 
         if (method === 'POST') {
-          // GHL API requires type and userId fields
+          // GHL API requires type, userId, and media fields
+          // Normalize media type to image/jpeg (GHL prefers this for publishing)
+          const normalizedMedia = body.media?.map((m: { url: string; type?: string }) => ({
+            url: m.url,
+            type: m.type === 'image/png' ? 'image/jpeg' : (m.type || 'image/jpeg'),
+          })) || [];
+
           const postBody = {
             ...body,
             type: body.type || 'post',  // Default to 'post' if not specified
             userId: GHL_LOCATION_ID,     // Required by GHL API
+            media: normalizedMedia,      // Required: must be array (can be empty)
           };
           console.log('[SOCIAL POSTS] Creating post with body:', JSON.stringify(postBody, null, 2));
           const response = await fetch(
