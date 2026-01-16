@@ -167,7 +167,7 @@ interface GenerateContentRequest {
 
 interface GeneratedContent {
   fields: Record<string, string>;
-  imagePrompt?: string;
+  imagePrompt?: string | Record<string, string>;
   sources?: string[];
 }
 
