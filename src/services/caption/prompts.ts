@@ -64,6 +64,7 @@ PROPERTY DATA:
 - City: ${property.city || 'Not provided'}
 - State: ${property.state || 'Not provided'}
 - Price: ${property.price ? `$${property.price.toLocaleString()}` : 'Not provided'}
+${property.monthlyPayment ? `- Monthly Payment: $${property.monthlyPayment.toLocaleString()}/mo (IMPORTANT: Use this for affordability messaging!)` : ''}
 - Bedrooms: ${property.beds || 'Not provided'}
 - Bathrooms: ${property.baths || 'Not provided'}
 - Square Feet: ${property.sqft ? property.sqft.toLocaleString() : 'Not provided'}

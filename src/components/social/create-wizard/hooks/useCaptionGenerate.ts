@@ -273,7 +273,7 @@ DM us anytime.
 ${signature}`;
   }
 
-  const { address, beds, baths, sqft, price } = property;
+  const { address, beds, baths, sqft, price, monthlyPayment } = property;
 
   // Tone-specific body copy for property posts
   const toneBodies: Record<CaptionTone, string> = {
@@ -298,7 +298,12 @@ ${signature}`;
 
   // Property details
   if (address) caption += `📍 ${address}\n`;
-  if (price) caption += `💰 $${price.toLocaleString()}\n`;
+  // Show monthly payment prominently if available (more relatable than listing price)
+  if (monthlyPayment) {
+    caption += `💰 $${monthlyPayment.toLocaleString()}/mo\n`;
+  } else if (price) {
+    caption += `💰 $${price.toLocaleString()}\n`;
+  }
   if (beds || baths || sqft) {
     const specs: string[] = [];
     if (beds) specs.push(`${beds} Beds`);
