@@ -166,6 +166,7 @@ interface GenerateContentRequest {
 
 interface GeneratedContent {
   fields: Record<string, string>;
+  imagePrompt?: string;
   sources?: string[];
 }
 
@@ -306,14 +307,16 @@ Generate the following fields in JSON format:
 {
   "headline": "A compelling 1-line market headline (max 120 chars) with a specific stat or trend",
   "stats": "2-4 key statistics formatted as bullet points (e.g., • Median price: $285,000 • Inventory: Up 12%)",
-  "soWhat": "2-3 sentences explaining what this means for buyers/sellers in plain language"
+  "soWhat": "2-3 sentences explaining what this means for buyers/sellers in plain language",
+  "imagePrompt": "A detailed image generation prompt for AI tools like DALL-E, Midjourney, or Gemini"
 }
 
 RULES:
 - Use REAL statistics from the research (or realistic estimates for ${location})
 - headline should grab attention with a specific number or trend
 - stats should be concise, factual bullet points
-- soWhat should be actionable and relevant to the audience`,
+- soWhat should be actionable and relevant to the audience
+- imagePrompt should describe a professional real estate image that matches the market update theme (e.g., city skyline, neighborhood aerial view, charts/graphs style)`,
 
     'buyer-tips': `Based on the research below, generate content for a Buyer Tips social media post.
 
@@ -323,13 +326,15 @@ ${searchResults}
 Generate the following fields in JSON format:
 {
   "tipTitle": "A catchy tip title (max 100 chars) like '3 Things First-Time Buyers Miss'",
-  "tipBody": "3-4 detailed bullet points explaining the tip (max 600 chars total)"
+  "tipBody": "3-4 detailed bullet points explaining the tip (max 600 chars total)",
+  "imagePrompt": "A detailed image generation prompt for AI tools like DALL-E, Midjourney, or Gemini"
 }
 
 RULES:
 - Make tips specific and actionable
 - Include current market context where relevant
-- tipBody should have clear, numbered or bulleted points`,
+- tipBody should have clear, numbered or bulleted points
+- imagePrompt should describe a welcoming home buying scene (e.g., happy couple viewing home, keys handover, home inspection)`,
 
     'seller-tips': `Based on the research below, generate content for a Seller Tips social media post.
 
@@ -339,13 +344,15 @@ ${searchResults}
 Generate the following fields in JSON format:
 {
   "tipTitle": "A catchy tip title (max 100 chars) like 'How to Stage Your Home for Top Dollar'",
-  "tipBody": "3-4 detailed bullet points explaining the tip (max 600 chars total)"
+  "tipBody": "3-4 detailed bullet points explaining the tip (max 600 chars total)",
+  "imagePrompt": "A detailed image generation prompt for AI tools like DALL-E, Midjourney, or Gemini"
 }
 
 RULES:
 - Make tips specific and actionable
 - Include current market context where relevant
-- tipBody should have clear, numbered or bulleted points`,
+- tipBody should have clear, numbered or bulleted points
+- imagePrompt should describe a home selling scene (e.g., staged living room, for sale sign, curb appeal)`,
 
     'investment-insight': `Based on the research below, generate content for an Investment Insight social media post about ${location}.
 
@@ -355,13 +362,15 @@ ${searchResults}
 Generate the following fields in JSON format:
 {
   "insight": "A compelling investment insight or opportunity (max 200 chars)",
-  "metric": "Key metrics supporting the insight (e.g., cap rates, appreciation rates, rental yields)"
+  "metric": "Key metrics supporting the insight (e.g., cap rates, appreciation rates, rental yields)",
+  "imagePrompt": "A detailed image generation prompt for AI tools like DALL-E, Midjourney, or Gemini"
 }
 
 RULES:
 - Focus on data-driven insights
 - Include specific numbers where possible
-- Make it relevant to real estate investors`,
+- Make it relevant to real estate investors
+- imagePrompt should describe an investment-themed image (e.g., rental property, cash flow visualization, growing wealth)`,
 
     'value-tips': `Based on the research below, generate content for a Value Tips social media post${topic ? ` about ${topic}` : ''}.
 
@@ -373,12 +382,14 @@ Generate the following fields in JSON format:
   "tipTitle": "A catchy tip title (max 100 chars)",
   "tip1Text": "First tip (1-2 sentences)",
   "tip2Text": "Second tip (1-2 sentences)",
-  "tip3Text": "Third tip (1-2 sentences)"
+  "tip3Text": "Third tip (1-2 sentences)",
+  "imagePrompt": "A detailed image generation prompt for AI tools like DALL-E, Midjourney, or Gemini"
 }
 
 RULES:
 - Make tips practical and valuable
-- Each tip should be standalone and actionable`,
+- Each tip should be standalone and actionable
+- imagePrompt should describe an image that matches the tip theme (professional, clean, real estate related)`,
   };
 
   const prompt = fieldPrompts[intent] || fieldPrompts['value-tips'];
@@ -414,8 +425,15 @@ RULES:
   try {
     // Clean up potential markdown code blocks
     const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim();
-    const fields = JSON.parse(cleanContent);
-    return { fields };
+    const parsed = JSON.parse(cleanContent);
+
+    // Extract imagePrompt separately from fields
+    const { imagePrompt, ...fields } = parsed;
+
+    return {
+      fields,
+      imagePrompt: imagePrompt || undefined,
+    };
   } catch {
     console.error('[AI API] Failed to parse generated content:', content);
     throw new Error('Failed to parse generated content');

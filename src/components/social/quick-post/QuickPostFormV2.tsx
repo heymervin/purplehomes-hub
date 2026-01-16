@@ -52,6 +52,8 @@ import {
   Plus,
   QrCode,
   Link,
+  Copy,
+  Wand2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProperties, useSocialAccounts, useCreateSocialPost, useUploadMedia } from '@/services/ghlApi';
@@ -247,6 +249,7 @@ export function QuickPostFormV2() {
 
   // Content generation state (for Professional tab)
   const [isGeneratingContent, setIsGeneratingContent] = useState(false);
+  const [generatedImagePrompt, setGeneratedImagePrompt] = useState<string | null>(null);
 
   // Load QR links on mount
   useEffect(() => {
@@ -528,6 +531,7 @@ export function QuickPostFormV2() {
   // Generate content from AI (for Professional tab - auto-fills fields)
   const handleGenerateContent = async () => {
     setIsGeneratingContent(true);
+    setGeneratedImagePrompt(null); // Clear previous prompt
 
     try {
       const response = await fetch('/api/ai?action=generate-content', {
@@ -555,6 +559,12 @@ export function QuickPostFormV2() {
             ...data.content.fields,
           },
         }));
+
+        // Store image prompt if provided
+        if (data.content.imagePrompt) {
+          setGeneratedImagePrompt(data.content.imagePrompt);
+        }
+
         toast.success('Content generated! Review and edit as needed.');
       } else {
         throw new Error(data.error || 'Failed to generate content');
@@ -564,6 +574,14 @@ export function QuickPostFormV2() {
       toast.error(error instanceof Error ? error.message : 'Failed to generate content');
     } finally {
       setIsGeneratingContent(false);
+    }
+  };
+
+  // Copy image prompt to clipboard
+  const handleCopyImagePrompt = async () => {
+    if (generatedImagePrompt) {
+      await navigator.clipboard.writeText(generatedImagePrompt);
+      toast.success('Image prompt copied to clipboard!');
     }
   };
 
@@ -797,8 +815,8 @@ export function QuickPostFormV2() {
     if (state.tab === 'property') return null;
     if (currentIntent.fields.length === 0) return null;
 
-    // Check if this intent supports content generation
-    const supportsContentGen = ['market-update', 'buyer-tips', 'seller-tips', 'investment-insight', 'value-tips'].includes(state.intentId);
+    // Check if this intent supports content generation (Professional tab intents only)
+    const supportsContentGen = ['market-update', 'buyer-tips', 'seller-tips', 'investment-insight'].includes(state.intentId);
 
     return (
       <div className="mt-4 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
@@ -870,6 +888,35 @@ export function QuickPostFormV2() {
             </div>
           ))}
         </div>
+
+        {/* Image Prompt Section - shown after content generation */}
+        {generatedImagePrompt && state.tab === 'professional' && (
+          <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border border-purple-200 dark:border-purple-700">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Wand2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <span className="font-medium text-sm text-purple-700 dark:text-purple-300">
+                  Image Prompt for AI
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCopyImagePrompt}
+                className="h-7 px-2 text-purple-600 hover:text-purple-700 hover:bg-purple-100"
+              >
+                <Copy className="h-3.5 w-3.5 mr-1" />
+                Copy
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {generatedImagePrompt}
+            </p>
+            <p className="text-xs text-muted-foreground mt-2 italic">
+              Use this prompt in ChatGPT, Gemini, Midjourney, or DALL-E to generate a matching image
+            </p>
+          </div>
+        )}
       </div>
     );
   };
