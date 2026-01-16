@@ -850,13 +850,49 @@ export const useMedia = (folderId?: string) => {
 
 export const useUploadMedia = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (upload: { file?: File; fileUrl?: string; name: string }) =>
-      fetchGHL<GHLMedia>('media/upload', {
+    mutationFn: async (upload: { file?: File; fileUrl?: string; base64Data?: string; name: string; contentType?: string }) => {
+      // If a File is provided, convert it to base64
+      if (upload.file) {
+        const base64Data = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(upload.file!);
+        });
+
+        return fetchGHL<GHLMedia>('media/upload', {
+          method: 'POST',
+          body: JSON.stringify({
+            base64Data,
+            name: upload.name,
+            contentType: upload.file.type || 'image/png',
+          }),
+        });
+      }
+
+      // If base64Data is provided directly
+      if (upload.base64Data) {
+        return fetchGHL<GHLMedia>('media/upload', {
+          method: 'POST',
+          body: JSON.stringify({
+            base64Data: upload.base64Data,
+            name: upload.name,
+            contentType: upload.contentType || 'image/png',
+          }),
+        });
+      }
+
+      // If fileUrl is provided (hosted file)
+      return fetchGHL<GHLMedia>('media/upload', {
         method: 'POST',
-        body: JSON.stringify(upload),
-      }),
+        body: JSON.stringify({
+          fileUrl: upload.fileUrl,
+          name: upload.name,
+        }),
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ghl-media'] });
     },

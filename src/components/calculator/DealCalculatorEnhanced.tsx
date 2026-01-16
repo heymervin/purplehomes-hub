@@ -59,6 +59,15 @@ import {
 } from './InputSections';
 import { LoanCalcsPanel, DealChecklistPanel } from './OutputSections';
 
+/**
+ * Calculate buyer's maximum affordable monthly payment
+ * Standard DTI ratio is 28% of gross monthly income for housing
+ */
+function calculateBuyerMaxMonthlyPayment(monthlyIncome?: number): number | undefined {
+  if (!monthlyIncome || monthlyIncome <= 0) return undefined;
+  return Math.round(monthlyIncome * 0.28);
+}
+
 interface DealCalculatorEnhancedProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -150,12 +159,33 @@ export function DealCalculatorEnhanced({
           defaults || undefined
         );
 
-        // Pre-fill wrap sales from property fields
-        if (match.property.downPayment !== undefined) {
+        // =====================================================
+        // AUTO-POPULATE FROM BUYER DATA
+        // =====================================================
+
+        // 1. Use BUYER's down payment (not property's)
+        if (match.buyer.downPayment !== undefined && match.buyer.downPayment > 0) {
+          defaultInputs.wrapSales.buyerDownPayment = match.buyer.downPayment;
+        } else if (match.property.downPayment !== undefined) {
+          // Fallback to property's suggested down payment
           defaultInputs.wrapSales.buyerDownPayment = match.property.downPayment;
         }
+
+        // 2. Set wrap sales price from property listing price
         if (match.property.listingPrice !== undefined) {
           defaultInputs.wrapSales.wrapSalesPrice = match.property.listingPrice;
+        }
+
+        // 3. Estimate closing costs (typically 3-4% of sales price)
+        if (defaultInputs.wrapSales.wrapSalesPrice > 0) {
+          defaultInputs.wrapSales.buyerClosingCosts = Math.round(
+            defaultInputs.wrapSales.wrapSalesPrice * 0.03
+          );
+        }
+
+        // 4. Auto-enable wrap if buyer data is present
+        if (match.buyer.downPayment !== undefined && match.buyer.downPayment > 0) {
+          defaultInputs.wrapLoan.useWrap = true;
         }
 
         setInputs(defaultInputs);
@@ -446,6 +476,12 @@ export function DealCalculatorEnhanced({
                       inputs={inputs.wrapSales}
                       useWrap={inputs.wrapLoan.useWrap}
                       onChange={(field, value) => handleInputChange('wrapSales', field, value)}
+                      buyerLimits={{
+                        maxDownPayment: match.buyer.downPayment,
+                        maxMonthlyPayment: calculateBuyerMaxMonthlyPayment(match.buyer.monthlyIncome),
+                        buyerName: `${match.buyer.firstName} ${match.buyer.lastName}`,
+                      }}
+                      calculatedMonthlyPayment={outputs?.quickStats.buyerFullMonthlyPayment}
                     />
                     <WrapLoanSection
                       inputs={inputs.wrapLoan}

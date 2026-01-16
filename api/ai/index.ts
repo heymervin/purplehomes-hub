@@ -1080,15 +1080,49 @@ function validateCaptionOutput(caption: string, domain: IntentDomain, intent: st
  */
 function buildStricterSystemPrompt(domain: IntentDomain, violations: DomainViolation[], intent?: string, tone?: string): string {
   const basePrompt = buildCaptionSystemPrompt(domain, intent, tone);
-  const violationWarnings = violations
-    .map((v) => `- DO NOT use: "${v.matched}" (violates ${v.rule})`)
-    .join('\n');
 
-  return `${basePrompt}
+  // Build violation-specific guidance
+  const violationWarnings: string[] = [];
+  const additionalInstructions: string[] = [];
 
+  for (const v of violations) {
+    // Special handling for PERSONAL_REQUIRES_FIRST_PERSON
+    if (v.rule === 'PERSONAL_REQUIRES_FIRST_PERSON') {
+      additionalInstructions.push(`
+⚠️ FIRST-PERSON REQUIREMENT - YOUR CAPTION WAS REJECTED BECAUSE IT LACKED FIRST-PERSON LANGUAGE.
+
+YOU MUST:
+- Start sentences with "I" (e.g., "I learned...", "I never expected...", "I'm grateful...")
+- Use "my" to describe your experiences (e.g., "my journey", "my team", "my biggest win")
+- Write as if YOU are speaking directly from YOUR experience
+- DO NOT write in third person or use passive voice
+
+EXAMPLES OF CORRECT FIRST-PERSON:
+✅ "I never thought I'd close 100 homes..."
+✅ "My team and I worked through the night..."
+✅ "I learned that consistency beats talent..."
+✅ "10 years ago, I made a promise to myself..."
+
+EXAMPLES TO AVOID:
+❌ "100 homes. 100 dreams." (missing "I")
+❌ "Started from zero." (missing "I started")
+❌ "Never stopped." (missing "I never stopped")`);
+    } else {
+      violationWarnings.push(`- DO NOT use: "${v.matched}" (violates ${v.rule})`);
+    }
+  }
+
+  let stricterInstructions = '';
+  if (violationWarnings.length > 0) {
+    stricterInstructions = `
 ⚠️ CRITICAL: YOUR PREVIOUS OUTPUT VIOLATED DOMAIN RULES.
 You MUST avoid these specific violations:
-${violationWarnings}
+${violationWarnings.join('\n')}`;
+  }
+
+  return `${basePrompt}
+${additionalInstructions.join('\n')}
+${stricterInstructions}
 
 REGENERATE THE CAPTION FOLLOWING ALL DOMAIN CONSTRAINTS.`;
 }
@@ -1411,7 +1445,12 @@ async function handleCaption(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // Phase 4: Log success
+    // Phase 4: Post-process for property domain (add line breaks to body copy)
+    if (domain === 'property') {
+      caption = addPropertyBodyLineBreaks(caption);
+    }
+
+    // Phase 5: Log success
     const durationMs = Date.now() - startTime;
     obsLogGenerationPassed({
       intentId: postIntent,
@@ -1468,6 +1507,56 @@ async function generateCaption(systemPrompt: string, userPrompt: string, caption
   return data.choices?.[0]?.message?.content?.trim() || '';
 }
 
+/**
+ * Post-process property captions to add line breaks to body copy
+ * Adds a blank line after every 2-3 sentences in the body section
+ */
+function addPropertyBodyLineBreaks(caption: string): string {
+  const lines = caption.split('\n');
+  const result: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Skip lines that are part of the template structure (emoji prefixed, signature, CTA, empty)
+    const isTemplateLine =
+      trimmed.startsWith('🏠') ||
+      trimmed.startsWith('📍') ||
+      trimmed.startsWith('💰') ||
+      trimmed.startsWith('🏡') ||
+      trimmed.startsWith('🏆') ||
+      trimmed.startsWith('📊') ||
+      trimmed === '' ||
+      trimmed.includes('| Purple Homes') ||
+      trimmed.toLowerCase().includes('dm for') ||
+      trimmed.toLowerCase().includes('dm me') ||
+      trimmed.toLowerCase().includes('schedule a showing') ||
+      trimmed.toLowerCase().includes('link in bio');
+
+    if (!isTemplateLine && trimmed.length > 30) {
+      // This is likely body copy - add line breaks after every 2-3 sentences
+      const sentences = trimmed.match(/[^.!?]+[.!?]+/g) || [trimmed];
+
+      if (sentences.length >= 3) {
+        // Group sentences into chunks of 2
+        const chunks: string[] = [];
+        for (let j = 0; j < sentences.length; j += 2) {
+          const chunk = sentences.slice(j, Math.min(j + 2, sentences.length)).join('').trim();
+          if (chunk) chunks.push(chunk);
+        }
+        result.push(chunks.join('\n\n'));
+      } else {
+        result.push(trimmed);
+      }
+    } else {
+      result.push(line);
+    }
+  }
+
+  return result.join('\n');
+}
+
 // ============================================================================
 // SYSTEM PROMPT - Domain-specific
 // ============================================================================
@@ -1498,6 +1587,20 @@ DOMAIN: PROPERTY POSTS (Factual Only)
 - Be specific, clear, and scannable
 - Light, factual urgency is allowed ("won't last long", "generating interest")
 
+⚠️ BODY COPY LINE BREAKS - STRICTLY REQUIRED:
+Your body copy MUST have blank lines separating groups of 2-3 sentences.
+This is MANDATORY for Instagram readability. Without line breaks, your caption will be REJECTED.
+
+CORRECT FORMAT (with blank lines):
+Renovated kitchen with granite counters. Stainless appliances.
+
+New roof 2023. Corner lot with mature oaks.
+
+Owner financing with 3% down. Move-in ready.
+
+WRONG FORMAT (no blank lines - WILL BE REJECTED):
+Renovated kitchen with granite counters. Stainless appliances. New roof 2023. Corner lot with mature oaks. Owner financing with 3% down. Move-in ready.
+
 PROPERTY DOMAIN CONSTRAINTS (STRICTLY ENFORCED):
 - NO emotional storytelling
 - NO identity framing ("this could be your dream home")
@@ -1509,8 +1612,14 @@ PROPERTY DOMAIN CONSTRAINTS (STRICTLY ENFORCED):
     personal: `
 DOMAIN: PERSONAL POSTS (Story & Reflection)
 
+⚠️ MANDATORY: FIRST-PERSON VOICE
+Every personal post MUST include "I" and/or "my" pronouns. This is non-negotiable.
+- Start with "I" statements: "I learned...", "I never expected...", "I'm grateful..."
+- Use "my" for ownership: "my journey", "my team", "my biggest win"
+- Write as if the agent is speaking directly from their experience
+
 CRITICAL RULES FOR PERSONAL POSTS:
-- Write in FIRST PERSON ("I", "me", "my")
+- Write in FIRST PERSON ("I", "me", "my") - EVERY SENTENCE should reflect personal voice
 - The user's context is your SOURCE MATERIAL - incorporate their SPECIFIC details
 - Don't generate generic inspirational fluff - use THEIR story
 - For milestone posts: Use THEIR milestone, THEIR reflection
@@ -1518,15 +1627,17 @@ CRITICAL RULES FOR PERSONAL POSTS:
 - For behind-the-scenes: Describe THEIR actual experience, not imagined scenarios
 
 WHAT TO DO WITH USER CONTEXT:
-- If they say "I got 8 hours of sleep" → Write about THEIR sleep experience
-- If they say "It's my 5th year in real estate" → Write about THEIR 5 years
-- For takeaways: EXPAND and ENHANCE what they wrote, don't just copy verbatim
+- If they say "100 homes closed" → Write "I closed 100 homes" or "My 100th closing"
+- If they say "10 years of hard work" → Write "I've been at this for 10 years"
+- If they say "Started from zero" → Write "I started from zero"
+- ALWAYS convert context into first-person narrative
 
 PERSONAL DOMAIN CONSTRAINTS (STRICTLY ENFORCED):
 - NEVER mention property listings, prices, or transactions
 - NEVER use property-specific language (beds, baths, sqft, just listed, etc.)
 - NEVER sound promotional or sales-driven
 - NEVER generate generic "Imagine..." or "Picture this..." filler
+- NEVER write in third person - use "I" not "they" or "one"
 - This is about THE PERSON and THEIR specific story`,
 
     professional: `
@@ -1594,7 +1705,18 @@ INSTRUCTIONS:
 1. Use the template structure exactly
 2. Replace {placeholders} with the provided data
 3. Write {body_copy} as 2-4 short, punchy sentences in ${tone} tone
+${domain === 'property' ? `
+FOR PROPERTY BODY COPY - FORMATTING IS MANDATORY:
+- Add a BLANK LINE between every 2-3 sentences for readability
+- This is required for Instagram scanning behavior
+- Example of CORRECT body_copy format:
+  "Renovated kitchen with granite counters. Stainless appliances.
 
+  New roof 2023. Corner lot with mature oaks.
+
+  Owner financing with 3% down."
+- Do NOT write body copy as one continuous paragraph
+` : ''}
 CRITICAL - BODY COPY MUST HAVE SUBSTANCE:
 - READ the ADDITIONAL CONTEXT or PROPERTY CONTEXT above
 - Your body copy MUST include SPECIFIC details from that context

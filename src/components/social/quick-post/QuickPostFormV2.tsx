@@ -54,7 +54,7 @@ import {
   Link,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useProperties, useSocialAccounts, useCreateSocialPost } from '@/services/ghlApi';
+import { useProperties, useSocialAccounts, useCreateSocialPost, useUploadMedia } from '@/services/ghlApi';
 import { getTemplateById } from '@/lib/templates/profiles';
 import { buildImejisPayload, resolveAllFields, preparePropertyForTemplate } from '@/lib/templates/fieldMapper';
 import { renderImejisTemplate } from '@/services/imejis/api';
@@ -259,6 +259,7 @@ export function QuickPostFormV2() {
 
   const { generateCaption } = useCaptionGenerate();
   const createPost = useCreateSocialPost();
+  const uploadMedia = useUploadMedia();
 
   // Get current intent definition
   const currentIntent = useMemo(() => getIntent(state.intentId), [state.intentId]);
@@ -647,13 +648,33 @@ export function QuickPostFormV2() {
     setIsPublishing(true);
 
     try {
-      const imageUrl = state.generatedImageUrl || state.customImagePreview;
       const isNow = !state.scheduleDate && !state.scheduleTime;
       let scheduleDate: string | undefined;
 
       if (!isNow && state.scheduleDate && state.scheduleTime) {
         const combined = combineDateAndTime(state.scheduleDate, state.scheduleTime);
         scheduleDate = combined.toISOString();
+      }
+
+      // Handle image upload - blob URLs need to be uploaded to GHL first
+      let mediaUrl: string | undefined;
+
+      if (state.generatedImageBlob) {
+        // Upload Imejis-generated blob to GHL media
+        const file = new File([state.generatedImageBlob], `social-post-${Date.now()}.png`, {
+          type: 'image/png',
+        });
+        const uploadResult = await uploadMedia.mutateAsync({
+          file,
+          name: `social-post-${Date.now()}.png`,
+        });
+        mediaUrl = uploadResult.url;
+      } else if (state.customImagePreview?.startsWith('http')) {
+        // Already a valid HTTP URL (not a blob)
+        mediaUrl = state.customImagePreview;
+      } else if (state.generatedImageUrl?.startsWith('http')) {
+        // Already a valid HTTP URL (not a blob)
+        mediaUrl = state.generatedImageUrl;
       }
 
       // Append hashtags to caption (use Facebook limit as default)
@@ -666,7 +687,7 @@ export function QuickPostFormV2() {
       await createPost.mutateAsync({
         accountIds: state.selectedAccounts,
         summary: fullCaption,
-        media: imageUrl ? [{ url: imageUrl, type: 'image/png' }] : undefined,
+        media: mediaUrl ? [{ url: mediaUrl, type: 'image/png' }] : undefined,
         scheduleDate,
         status: isNow ? 'published' : 'scheduled',
       });

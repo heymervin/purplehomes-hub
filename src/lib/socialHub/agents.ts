@@ -24,7 +24,7 @@ export const TEAM_AGENTS: TeamAgent[] = [
     name: 'Krista Hartman',
     phone: '504-475-0672',
     email: 'kris@purplehomessolutions.com',
-    headshot: '/images/agents/krista-hartman.png',
+    headshot: 'https://storage.googleapis.com/msgsndr/fJgopVh0YwOMQJtUeQRk/media/696726a4b9e85c71a82bdcba.png',
     title: 'Agent',
   },
   {
@@ -32,7 +32,7 @@ export const TEAM_AGENTS: TeamAgent[] = [
     name: 'Dustin Hartman',
     phone: '504-290-0660',
     email: 'dustin@purplehomessolutions.com',
-    headshot: '/images/agents/dustin-hartman.jpg',
+    headshot: 'https://storage.googleapis.com/msgsndr/fJgopVh0YwOMQJtUeQRk/media/696726a4a3a114b6d009ec67.jpg',
     title: 'Agent',
   },
 ];
