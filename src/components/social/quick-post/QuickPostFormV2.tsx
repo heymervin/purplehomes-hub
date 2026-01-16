@@ -715,32 +715,31 @@ export function QuickPostFormV2() {
       }
 
       // Generate image if template selected
-      // DOMAIN ISOLATION: Only generate Imejis templates for Property tab
-      // Personal/Professional tabs should ONLY use custom images or text-only (none)
+      // Property templates require property data, but value-tips works for Professional tab
       const isPropertyDomain = state.tab === 'property';
+      const isProfessionalWithValueTips = state.tab === 'professional' && state.templateId === 'value-tips';
       const shouldGenerateImejisTemplate =
         selectedTemplate &&
         state.templateId !== 'custom' &&
         state.templateId !== 'none' &&
-        isPropertyDomain; // <-- CRITICAL: Only for Property domain
+        (isPropertyDomain || isProfessionalWithValueTips);
 
       if (shouldGenerateImejisTemplate) {
         // Get selected agent for template fields
         const selectedAgent = getAgentById(state.selectedAgentId);
 
-        // Prepare property with user-selected images
-        const baseProperty = state.selectedProperty
-          ? preparePropertyForTemplate(state.selectedProperty)
-          : null;
-
-        // Override hero image and supporting images if user selected them
-        const preparedProperty = baseProperty ? {
-          ...baseProperty,
-          heroImage: state.selectedHeroImage || baseProperty.heroImage,
-          images: state.selectedSupportingImages.length > 0
-            ? state.selectedSupportingImages
-            : baseProperty.images,
-        } : null;
+        // Prepare property with user-selected images (only for property domain)
+        let preparedProperty = null;
+        if (isPropertyDomain && state.selectedProperty) {
+          const baseProperty = preparePropertyForTemplate(state.selectedProperty);
+          preparedProperty = {
+            ...baseProperty,
+            heroImage: state.selectedHeroImage || baseProperty.heroImage,
+            images: state.selectedSupportingImages.length > 0
+              ? state.selectedSupportingImages
+              : baseProperty.images,
+          };
+        }
 
         const enhancedUserInputs = {
           ...state.templateUserInputs,
@@ -750,6 +749,7 @@ export function QuickPostFormV2() {
         };
 
         // Pass agent to resolveAllFields for agent name, phone, email, headshot
+        // For Professional tab, preparedProperty will be null - template uses user inputs only
         const resolvedFields = resolveAllFields(selectedTemplate, preparedProperty, enhancedUserInputs, selectedAgent);
         const payload = buildImejisPayload(selectedTemplate, resolvedFields);
 
