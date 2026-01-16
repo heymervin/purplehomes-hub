@@ -959,6 +959,7 @@ if (resource === 'opportunities') {
             `${GHL_API_URL}/social-media-posting/${GHL_LOCATION_ID}/accounts`, { headers }
           );
           const data = await response.json();
+          console.log('[SOCIAL ACCOUNTS] Raw response:', JSON.stringify(data, null, 2));
           // GHL returns { results: { accounts: [...] } }, normalize to { accounts: [...] }
           const accounts = data.results?.accounts || data.accounts || [];
           // Add isActive field based on isExpired and deleted status
@@ -967,6 +968,7 @@ if (resource === 'opportunities') {
             isActive: !acc.isExpired && !acc.deleted,
             accountName: acc.name || acc.accountName,
           }));
+          console.log('[SOCIAL ACCOUNTS] Normalized accounts:', JSON.stringify(normalizedAccounts.map((a: Record<string, unknown>) => ({ id: a.id, profileId: a.profileId, name: a.name, platform: a.platform })), null, 2));
           return res.status(response.ok ? 200 : response.status).json({ accounts: normalizedAccounts });
         }
         if (method === 'DELETE' && id) {
@@ -1006,11 +1008,18 @@ if (resource === 'opportunities') {
         }
 
         if (method === 'POST') {
+          console.log('[SOCIAL POSTS] Creating post with body:', JSON.stringify(body, null, 2));
           const response = await fetch(
             `${GHL_API_URL}/social-media-posting/${GHL_LOCATION_ID}/posts`,
             { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
           );
-          return res.status(response.ok ? 201 : response.status).json(await response.json());
+          const responseData = await response.json();
+          console.log('[SOCIAL POSTS] Response status:', response.status, response.ok ? 'OK' : 'FAILED');
+          console.log('[SOCIAL POSTS] Response data:', JSON.stringify(responseData, null, 2));
+          if (!response.ok) {
+            console.error('[SOCIAL POSTS] Error creating post:', responseData);
+          }
+          return res.status(response.ok ? 201 : response.status).json(responseData);
         }
         
         if (method === 'PUT' && id) {
@@ -1542,7 +1551,7 @@ if (resource === 'opportunities') {
               'Version': '2021-07-28',
               ...form.getHeaders()
             },
-            body: formBuffer
+            body: new Uint8Array(formBuffer)
           });
 
           const responseText = await response.text();

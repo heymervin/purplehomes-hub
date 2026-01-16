@@ -676,7 +676,8 @@ export function QuickPostFormV2() {
       setStep('form');
     } catch (error) {
       console.error('Publish error:', error);
-      toast.error('Failed to publish post');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`Failed to publish post: ${errorMessage}`);
     } finally {
       setIsPublishing(false);
     }
