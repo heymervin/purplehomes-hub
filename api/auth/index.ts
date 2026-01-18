@@ -537,15 +537,17 @@ async function handleUpdateUser(req: VercelRequest, res: VercelResponse, headers
   try {
     const updateFields: Record<string, any> = {};
 
-    if (name !== undefined) updateFields.Name = name;
+    // Only include fields that have values (Airtable rejects unknown fields)
+    if (name !== undefined && name !== '') updateFields.Name = name;
     if (isAdmin !== undefined) updateFields.IsAdmin = isAdmin === true;
     if (isActive !== undefined) updateFields.IsActive = isActive === true;
     if (permissions !== undefined) {
       updateFields.Permissions = Array.isArray(permissions) ? permissions.join(',') : '';
     }
-    if (phone !== undefined) updateFields.Phone = phone;
-    if (agentEmail !== undefined) updateFields.AgentEmail = agentEmail;
-    if (headshot !== undefined) updateFields.Headshot = headshot;
+    // Only set these if they have actual values (not empty strings)
+    if (phone !== undefined && phone !== '') updateFields.Phone = phone;
+    if (agentEmail !== undefined && agentEmail !== '') updateFields.AgentEmail = agentEmail;
+    if (headshot !== undefined && headshot !== '') updateFields.Headshot = headshot;
 
     let newTempPassword: string | undefined;
 
@@ -567,7 +569,16 @@ async function handleUpdateUser(req: VercelRequest, res: VercelResponse, headers
     if (!updateResponse.ok) {
       const errorText = await updateResponse.text();
       console.error('[Auth] Update user error:', errorText);
-      throw new Error(`Failed to update user: ${updateResponse.status}`);
+      console.error('[Auth] Fields attempted to update:', updateFields);
+      // Return more helpful error message
+      let errorMessage = `Failed to update user: ${updateResponse.status}`;
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.error?.message) {
+          errorMessage = errorData.error.message;
+        }
+      } catch {}
+      return res.status(updateResponse.status).json({ error: errorMessage });
     }
 
     const userData = await updateResponse.json();
