@@ -225,6 +225,7 @@ interface UsersResponse {
 interface CreateUserData {
   email: string;
   name: string;
+  password?: string;
   isAdmin?: boolean;
   permissions?: string[];
   phone?: string;

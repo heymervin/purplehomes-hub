@@ -103,6 +103,9 @@ import { logBatchCreated, logBatchPublished, logCaptionGenerated, logImageGenera
 // Import agent utilities
 import { getAgentById } from '@/lib/socialHub/agents';
 
+// Import agent profile override check
+import { isAgentProfileOverrideEnabled, getAgentProfileOverrides } from '@/components/settings/AgentProfile';
+
 // Interval options
 const INTERVAL_OPTIONS = [
   { value: '0', label: 'No interval' },
@@ -910,6 +913,27 @@ export function QuickBatchForm() {
             </p>
           </div>
         </div>
+
+        {/* Agent Profile Override Notice */}
+        {isAgentProfileOverrideEnabled() && (
+          <div className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg text-sm">
+            <AlertCircle className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <div className="flex-1">
+              <span className="font-medium text-amber-700 dark:text-amber-400">Agent Profile Override is ON</span>
+              <span className="text-amber-600 dark:text-amber-500 ml-1">
+                — Your custom agent info will be used in all generated images
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-amber-700 hover:text-amber-800 hover:bg-amber-100"
+              onClick={() => window.location.href = '/settings#preferences'}
+            >
+              Manage
+            </Button>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: Post List */}

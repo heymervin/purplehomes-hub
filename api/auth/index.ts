@@ -422,7 +422,7 @@ async function handleCreateUser(req: VercelRequest, res: VercelResponse, headers
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email, name, isAdmin, permissions, phone, agentEmail, headshot } = req.body;
+  const { email, name, isAdmin, permissions, phone, agentEmail, headshot, password } = req.body;
 
   if (!email || !name) {
     return res.status(400).json({
@@ -457,8 +457,8 @@ async function handleCreateUser(req: VercelRequest, res: VercelResponse, headers
       return res.status(409).json({ error: 'User with this email already exists' });
     }
 
-    // Generate a temporary password
-    const tempPassword = generateTempPassword();
+    // Use provided password or generate a temporary one
+    const tempPassword = password || generateTempPassword();
     const hashedPassword = await bcrypt.hash(tempPassword, SALT_ROUNDS);
 
     // Build fields object with all available columns

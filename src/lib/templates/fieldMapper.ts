@@ -8,6 +8,30 @@ import type {
 } from './types';
 import { COMPANY_CONSTANTS, QR_CODE_BASE_URL } from './constants';
 import { getDefaultAgent, type TeamAgent } from '@/lib/socialHub/agents';
+import { getAgentProfileOverrides } from '@/components/settings/AgentProfile';
+
+/**
+ * Get agent with profile overrides applied if enabled
+ * This allows users to override Imejis template agent fields via Settings
+ */
+function getAgentWithOverrides(agent: TeamAgent | null | undefined): TeamAgent | null {
+  const baseAgent = agent || getDefaultAgent();
+  const overrides = getAgentProfileOverrides();
+
+  if (!overrides || !overrides.enabled) {
+    return baseAgent;
+  }
+
+  // Apply overrides - only override non-empty values
+  return {
+    ...baseAgent,
+    name: overrides.name || baseAgent.name,
+    email: overrides.email || baseAgent.email,
+    phone: overrides.phone || baseAgent.phone,
+    headshot: overrides.headshot || baseAgent.headshot,
+    title: overrides.title || baseAgent.title,
+  };
+}
 
 /**
  * Get nested property value by path
@@ -180,10 +204,10 @@ export function resolveFieldValue(
         break;
 
       case 'auto-agent':
-        // Use provided agent or fall back to default
-        const selectedAgent = agent || getDefaultAgent();
+        // Use provided agent with localStorage overrides applied
+        const selectedAgent = getAgentWithOverrides(agent);
         if (fieldConfig.agentPath && selectedAgent) {
-          const agentValue = selectedAgent[fieldConfig.agentPath];
+          const agentValue = selectedAgent[fieldConfig.agentPath as keyof TeamAgent];
           if (agentValue) {
             baseResult.value = agentValue;
           } else {
