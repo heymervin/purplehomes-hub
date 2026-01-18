@@ -32,6 +32,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import {
   Loader2,
   ChevronDown,
   Check,
@@ -54,9 +68,11 @@ import {
   Link,
   Copy,
   Wand2,
+  Search,
+  FileText,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useProperties, useSocialAccounts, useCreateSocialPost, useUploadMedia } from '@/services/ghlApi';
+import { useProperties, useSocialAccounts, useCreateSocialPost, useUploadMedia, useUploadMediaToFolder, findOrCreateFolder } from '@/services/ghlApi';
 import { getTemplateById } from '@/lib/templates/profiles';
 import { buildImejisPayload, resolveAllFields, preparePropertyForTemplate } from '@/lib/templates/fieldMapper';
 import { renderImejisTemplate } from '@/services/imejis/api';
@@ -98,6 +114,8 @@ import {
 } from '@/lib/socialHub';
 import { TEAM_AGENTS, getAgentById } from '@/lib/socialHub/agents';
 import VoiceInput from '../create-wizard/components/VoiceInput';
+import { ImageUrlInput } from '../shared/ImageUrlInput';
+import { logCaptionGenerated, logImageGenerated, logAIContentGenerated, logMediaUploaded } from '@/store/useActivityStore';
 
 // ============ FORM STATE ============
 type FormStep = 'form' | 'preview';
@@ -228,6 +246,10 @@ export function QuickPostFormV2() {
   const [propertySearchOpen, setPropertySearchOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+
+  // Custom topic dialog state
+  const [showCustomTopicDialog, setShowCustomTopicDialog] = useState(false);
+  const [customTopicInput, setCustomTopicInput] = useState('');
 
   // Date/Time autocomplete state
   const [dateSuggestions, setDateSuggestions] = useState<DateSuggestion[]>([]);
@@ -565,7 +587,9 @@ export function QuickPostFormV2() {
   // ============ GENERATION & PUBLISHING ============
 
   // Generate content from AI (for Professional tab - auto-fills fields)
-  const handleGenerateContent = async () => {
+  // If customTopic is provided, it will use web search to research that specific topic
+  // If customTopic is undefined, it will auto-generate a topic
+  const handleGenerateContent = async (customTopic?: string) => {
     setIsGeneratingContent(true);
     setGeneratedImagePrompt(null); // Clear previous prompt
 
@@ -577,7 +601,7 @@ export function QuickPostFormV2() {
           intent: state.intentId,
           templateId: state.templateId, // Pass template to generate appropriate fields
           location: 'New Orleans, LA', // Could be made configurable
-          topic: state.context.topic || undefined,
+          topic: customTopic || state.context.topic || undefined, // Use custom topic if provided
         }),
       });
 
@@ -629,12 +653,16 @@ export function QuickPostFormV2() {
         }
 
         toast.success('Content generated! Review and edit as needed.');
+        // Log successful AI content generation
+        logAIContentGenerated(customTopic || state.context.topic || 'auto-generated');
       } else {
         throw new Error(data.error || 'Failed to generate content');
       }
     } catch (error) {
       console.error('Generate content error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to generate content');
+      // Log failed AI content generation
+      logAIContentGenerated(customTopic || state.context.topic || 'auto-generated', false, error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setIsGeneratingContent(false);
     }
@@ -717,6 +745,11 @@ export function QuickPostFormV2() {
 
       if (captionResult.success) {
         setState(prev => ({ ...prev, generatedCaption: captionResult.caption }));
+        // Log caption generation
+        logCaptionGenerated(state.selectedProperty?.propertyCode, state.selectedProperty?.id, state.toneId);
+      } else {
+        // Log failed caption generation
+        logCaptionGenerated(state.selectedProperty?.propertyCode, state.selectedProperty?.id, state.toneId, false);
       }
 
       // Generate image if template selected
@@ -766,6 +799,21 @@ export function QuickPostFormV2() {
             generatedImageUrl: imageResult.imageUrl!,
             generatedImageBlob: imageResult.imageBlob || null,
           }));
+          // Log successful image generation
+          logImageGenerated(
+            selectedTemplate.name,
+            state.selectedProperty?.propertyCode,
+            state.selectedProperty?.id
+          );
+        } else {
+          // Log failed image generation
+          logImageGenerated(
+            selectedTemplate.name,
+            state.selectedProperty?.propertyCode,
+            state.selectedProperty?.id,
+            false,
+            'Image render failed'
+          );
         }
       } else if (state.templateId === 'none') {
         // Text Only - clear any existing generated image
@@ -812,7 +860,11 @@ export function QuickPostFormV2() {
       }
 
       // Handle image upload - blob URLs need to be uploaded to GHL first
+      // Media organization:
+      // - Posted Now → Goes directly to "Posted to Social Media" folder
+      // - Scheduled → Goes to "Uploaded Images" folder (will be moved after posting)
       let mediaUrl: string | undefined;
+      let uploadedMediaId: string | undefined;
 
       if (state.generatedImageBlob) {
         // Upload Imejis-generated blob to GHL media
@@ -824,12 +876,29 @@ export function QuickPostFormV2() {
           name: `social-post-${Date.now()}.png`,
         });
         mediaUrl = uploadResult.url;
+        uploadedMediaId = uploadResult.id;
       } else if (state.customImagePreview?.startsWith('http')) {
         // Already a valid HTTP URL (not a blob)
         mediaUrl = state.customImagePreview;
       } else if (state.generatedImageUrl?.startsWith('http')) {
         // Already a valid HTTP URL (not a blob)
         mediaUrl = state.generatedImageUrl;
+      }
+
+      // Move uploaded media to appropriate folder
+      if (uploadedMediaId) {
+        try {
+          const folderName = isNow ? 'Posted to Social Media' : 'Uploaded Images';
+          const folderId = await findOrCreateFolder(folderName);
+          await fetch(`/api/ghl?resource=media&action=move&id=${uploadedMediaId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ folderId }),
+          });
+        } catch (folderError) {
+          // Don't fail the post if folder move fails
+          console.warn('Failed to move media to folder:', folderError);
+        }
       }
 
       // Append hashtags to caption (use Facebook limit as default)
@@ -921,25 +990,51 @@ export function QuickPostFormV2() {
             </span>
           </div>
           {supportsContentGen && state.tab === 'professional' && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleGenerateContent}
-              disabled={isGeneratingContent}
-              className="gap-1.5 text-purple-600 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
-            >
-              {isGeneratingContent ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Generate Content
-                </>
-              )}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isGeneratingContent}
+                  className="gap-1.5 text-purple-600 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+                >
+                  {isGeneratingContent ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Generate
+                      <ChevronDown className="h-3 w-3 ml-0.5" />
+                    </>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem
+                  onClick={() => handleGenerateContent()}
+                  className="gap-2"
+                >
+                  <Search className="h-4 w-4" />
+                  <div>
+                    <div className="font-medium">Auto-generate topic</div>
+                    <div className="text-xs text-muted-foreground">AI picks a trending topic</div>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setShowCustomTopicDialog(true)}
+                  className="gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  <div>
+                    <div className="font-medium">Custom topic</div>
+                    <div className="text-xs text-muted-foreground">Enter your own topic to research</div>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </div>
         <div className="space-y-4">
@@ -1072,11 +1167,10 @@ export function QuickPostFormV2() {
                   className="resize-none"
                 />
               ) : config.dataType === 'image' ? (
-                <Input
-                  type="url"
-                  placeholder={config.inputConfig?.placeholder || 'Paste image URL...'}
+                <ImageUrlInput
                   value={state.templateUserInputs[key] || ''}
-                  onChange={(e) => handleTemplateInputChange(key, e.target.value)}
+                  onChange={(url) => handleTemplateInputChange(key, url)}
+                  placeholder={config.inputConfig?.placeholder || 'Paste image URL or upload...'}
                 />
               ) : (
                 <Input
@@ -1995,6 +2089,59 @@ export function QuickPostFormV2() {
           )}
         </div>
       )}
+
+      {/* Custom Topic Dialog */}
+      <Dialog open={showCustomTopicDialog} onOpenChange={setShowCustomTopicDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-purple-600" />
+              Enter Your Topic
+            </DialogTitle>
+            <DialogDescription>
+              Describe what you want to post about. The AI will research this topic and generate content for you.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder="e.g., 5 tips for first-time homebuyers in 2025, or How to stage your home for a quick sale"
+              value={customTopicInput}
+              onChange={(e) => setCustomTopicInput(e.target.value)}
+              rows={4}
+              className="resize-none"
+              autoFocus
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              Be specific for better results. The AI will search the web for current information on your topic.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowCustomTopicDialog(false);
+                setCustomTopicInput('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (customTopicInput.trim()) {
+                  handleGenerateContent(customTopicInput.trim());
+                  setShowCustomTopicDialog(false);
+                  setCustomTopicInput('');
+                }
+              }}
+              disabled={!customTopicInput.trim()}
+              className="gap-2 bg-purple-600 hover:bg-purple-700"
+            >
+              <Search className="h-4 w-4" />
+              Research & Generate
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

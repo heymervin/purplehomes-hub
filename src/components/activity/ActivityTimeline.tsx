@@ -13,6 +13,14 @@ import {
   AlertTriangle,
   Target,
   Activity as ActivityIcon,
+  Handshake,
+  TrendingUp,
+  Image,
+  Upload,
+  Layers,
+  Zap,
+  Bot,
+  AlertCircle,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -20,36 +28,70 @@ import type { Activity, ActivityType, SyncLogEntry, SyncType } from '@/types';
 
 // Icon mapping for activity types
 const activityIcons: Record<ActivityType | SyncType | string, typeof Send> = {
+  // Social
   posted: Send,
   scheduled: Calendar,
   'caption-generated': Sparkles,
+  // Properties
   'property-added': Building2,
   'status-changed': RefreshCcw,
+  // Contacts
+  'contact-added': UserPlus,
   'buyer-added': UserPlus,
   'inventory-sent': Mail,
+  // Deals
+  'deal-created': Handshake,
+  'deal-updated': TrendingUp,
   // Sync types
   contacts: UserPlus,
   properties: Building2,
   opportunities: Target,
   'social-accounts': Send,
   documents: Mail,
+  // App activity types
+  'image-generated': Image,
+  'media-uploaded': Upload,
+  'batch-created': Layers,
+  'batch-published': Zap,
+  'ai-content-generated': Bot,
+  'property-matched': Target,
+  'email-sent': Mail,
+  'sms-sent': Mail,
+  error: AlertCircle,
 };
 
 // Color mapping for activity types
 const activityColors: Record<ActivityType | SyncType | string, string> = {
+  // Social
   posted: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
   scheduled: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
   'caption-generated': 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
+  // Properties
   'property-added': 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
   'status-changed': 'bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400',
-  'buyer-added': 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400',
+  // Contacts
+  'contact-added': 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400',
+  'buyer-added': 'bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400',
   'inventory-sent': 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400',
+  // Deals
+  'deal-created': 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
+  'deal-updated': 'bg-lime-100 dark:bg-lime-900/30 text-lime-600 dark:text-lime-400',
   // Sync types
   contacts: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400',
   properties: 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
   opportunities: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
   'social-accounts': 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400',
   documents: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400',
+  // App activity types
+  'image-generated': 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400',
+  'media-uploaded': 'bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400',
+  'batch-created': 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
+  'batch-published': 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
+  'ai-content-generated': 'bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-600 dark:text-fuchsia-400',
+  'property-matched': 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400',
+  'email-sent': 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
+  'sms-sent': 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
+  error: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
 };
 
 // Status icons
@@ -71,18 +113,36 @@ const statusColors = {
 
 // Activity type labels
 const typeLabels: Record<ActivityType | SyncType | string, string> = {
+  // Social
   posted: 'Posted',
   scheduled: 'Scheduled',
   'caption-generated': 'Caption Generated',
+  // Properties
   'property-added': 'Property Added',
   'status-changed': 'Status Changed',
+  // Contacts
+  'contact-added': 'Contact Added',
   'buyer-added': 'Buyer Added',
   'inventory-sent': 'Inventory Sent',
+  // Deals
+  'deal-created': 'Deal Created',
+  'deal-updated': 'Deal Updated',
+  // Sync
   contacts: 'Contacts Sync',
   properties: 'Properties Sync',
   opportunities: 'Opportunities Sync',
   'social-accounts': 'Social Accounts Sync',
   documents: 'Documents Sync',
+  // App activities
+  'image-generated': 'Image Generated',
+  'media-uploaded': 'Media Uploaded',
+  'batch-created': 'Batch Created',
+  'batch-published': 'Batch Published',
+  'ai-content-generated': 'AI Content Generated',
+  'property-matched': 'Property Matched',
+  'email-sent': 'Email Sent',
+  'sms-sent': 'SMS Sent',
+  error: 'Error',
 };
 
 // Unified activity item that can be either Activity or SyncLogEntry
@@ -94,7 +154,11 @@ export interface TimelineItem {
   timestamp: string;
   propertyCode?: string;
   propertyId?: string;
+  contactId?: string;
+  contactName?: string;
   user?: string;
+  // Source tracking for filtering
+  source?: 'social' | 'property' | 'contact' | 'deal' | 'sync' | 'app';
   // Sync-specific fields
   recordsProcessed?: number;
   recordsCreated?: number;

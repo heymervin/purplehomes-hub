@@ -17,6 +17,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Select,
@@ -25,6 +27,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Calendar,
   Clock,
@@ -38,7 +46,13 @@ import {
   Hash,
   Plus,
   Check,
+  Sparkles,
+  ChevronDown,
+  Search,
+  FileText,
+  Loader2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { Property } from '@/types';
 import {
@@ -81,6 +95,11 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
   // State for image expand dialog
   const [imageExpanded, setImageExpanded] = useState(false);
   const [customHashtag, setCustomHashtag] = useState('');
+
+  // State for AI content generation (Professional tab)
+  const [isGeneratingContent, setIsGeneratingContent] = useState(false);
+  const [showCustomTopicDialog, setShowCustomTopicDialog] = useState(false);
+  const [customTopicInput, setCustomTopicInput] = useState('');
 
   // Get intent definition and allowed templates
   const intentDef = useMemo(() => getIntent(item.intentId), [item.intentId]);
@@ -164,6 +183,70 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
         [key]: value,
       },
     });
+  };
+
+  // Generate content from AI (for Professional tab)
+  const handleGenerateContent = async (customTopic?: string) => {
+    setIsGeneratingContent(true);
+
+    try {
+      const response = await fetch('/api/ai?action=generate-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          intent: item.intentId,
+          templateId: item.templateId,
+          location: 'New Orleans, LA',
+          topic: customTopic || item.context.topic || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate content');
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.content?.fields) {
+        const fields = data.content.fields;
+
+        // Separate template-specific fields from context fields
+        const templateFields: Record<string, string> = {};
+        const contextFields: Record<string, string> = {};
+
+        // Template field keys for Value Tips image template
+        const templateFieldKeys = ['tipHeader', 'tip1Header', 'tip1Body', 'tip2Header', 'tip2Body', 'tip3Header', 'tip3Body'];
+
+        for (const [key, value] of Object.entries(fields)) {
+          if (templateFieldKeys.includes(key)) {
+            templateFields[key] = value as string;
+          } else {
+            contextFields[key] = value as string;
+          }
+        }
+
+        // Update batch item with generated content
+        onChange({
+          context: {
+            ...item.context,
+            ...contextFields,
+          },
+          templateUserInputs: {
+            ...(item.templateUserInputs || {}),
+            ...templateFields,
+          },
+        });
+
+        toast.success('Content generated for this post!');
+      } else {
+        throw new Error(data.error || 'Failed to generate content');
+      }
+    } catch (error) {
+      console.error('Generate content error:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to generate content');
+    } finally {
+      setIsGeneratingContent(false);
+    }
   };
 
   // Handle schedule changes (marks as custom schedule)
@@ -362,7 +445,57 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
           {/* Intent-Specific Context Fields */}
           {intentDef.fields.length > 0 && (
             <div className="space-y-4 pt-2 border-t">
-              <label className="text-xs text-muted-foreground block">Context Fields</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs text-muted-foreground block">Context Fields</label>
+                {/* Generate dropdown for Professional tab */}
+                {item.tab === 'professional' && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={isGeneratingContent}
+                        className="gap-1.5 text-purple-600 border-purple-200 hover:bg-purple-50 hover:border-purple-300 h-7 text-xs"
+                      >
+                        {isGeneratingContent ? (
+                          <>
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-3 w-3" />
+                            Generate
+                            <ChevronDown className="h-2.5 w-2.5 ml-0.5" />
+                          </>
+                        )}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-52">
+                      <DropdownMenuItem
+                        onClick={() => handleGenerateContent()}
+                        className="gap-2"
+                      >
+                        <Search className="h-3.5 w-3.5" />
+                        <div>
+                          <div className="font-medium text-sm">Auto-generate topic</div>
+                          <div className="text-xs text-muted-foreground">AI picks a trending topic</div>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setShowCustomTopicDialog(true)}
+                        className="gap-2"
+                      >
+                        <FileText className="h-3.5 w-3.5" />
+                        <div>
+                          <div className="font-medium text-sm">Custom topic</div>
+                          <div className="text-xs text-muted-foreground">Enter your own topic</div>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
               {intentDef.fields.map((field) => (
                 <div key={field.key}>
                   <label className="text-sm font-medium mb-1.5 block">
@@ -647,6 +780,59 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
           </CardContent>
         </Card>
       )}
+
+      {/* Custom Topic Dialog */}
+      <Dialog open={showCustomTopicDialog} onOpenChange={setShowCustomTopicDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-purple-600" />
+              Enter Your Topic
+            </DialogTitle>
+            <DialogDescription>
+              Describe what you want this post to be about. The AI will research this topic and generate content.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder="e.g., 5 tips for first-time homebuyers in 2025"
+              value={customTopicInput}
+              onChange={(e) => setCustomTopicInput(e.target.value)}
+              rows={4}
+              className="resize-none"
+              autoFocus
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              Be specific for better results.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowCustomTopicDialog(false);
+                setCustomTopicInput('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                if (customTopicInput.trim()) {
+                  handleGenerateContent(customTopicInput.trim());
+                  setShowCustomTopicDialog(false);
+                  setCustomTopicInput('');
+                }
+              }}
+              disabled={!customTopicInput.trim()}
+              className="gap-2 bg-purple-600 hover:bg-purple-700"
+            >
+              <Search className="h-4 w-4" />
+              Research & Generate
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

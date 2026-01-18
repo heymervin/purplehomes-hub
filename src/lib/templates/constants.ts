@@ -1,6 +1,6 @@
 // Company branding constants
 export const COMPANY_CONSTANTS = {
-  logo: 'https://your-cdn.com/purple-homes-logo.png', // TODO: Replace with actual logo URL
+  logo: 'https://storage.googleapis.com/msgsndr/fJgopVh0YwOMQJtUeQRk/media/69665d1ee58b2351ed0ae344.jpeg',
   companyName: 'Purple Homes',
   website: 'https://purplehomes.com', // TODO: Replace with actual website
   phone: '(555) 123-4567', // TODO: Replace with actual phone

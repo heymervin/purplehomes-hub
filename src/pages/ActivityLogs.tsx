@@ -11,6 +11,7 @@ import {
   LayoutList,
   Rows3,
   RefreshCcw,
+  Sparkles,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -37,26 +38,53 @@ import {
   syncLogToTimelineItem,
   type TimelineItem,
 } from '@/components/activity/ActivityTimeline';
-import { mockActivities } from '@/data/mockData.backup';
+import { useActivityLogs, type ActivityItem } from '@/services/ghlApi';
 import { useSyncStore } from '@/store/useSyncStore';
+import { useActivityStore, type AppActivityEntry } from '@/store/useActivityStore';
+import { Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { ActivityType } from '@/types';
 
 type ViewMode = 'timeline' | 'table';
-type SourceFilter = 'all' | 'activities' | 'sync';
+type SourceFilter = 'all' | 'social' | 'property' | 'contact' | 'deal' | 'sync' | 'app';
 
 const actionTypeOptions: { value: string; label: string }[] = [
   { value: 'all', label: 'All Actions' },
+  // Social
   { value: 'posted', label: 'Posted' },
   { value: 'scheduled', label: 'Scheduled' },
   { value: 'caption-generated', label: 'Caption Generated' },
+  // Properties
   { value: 'property-added', label: 'Property Added' },
   { value: 'status-changed', label: 'Status Changed' },
-  { value: 'inventory-sent', label: 'Inventory Sent' },
+  // Contacts
+  { value: 'contact-added', label: 'Contact Added' },
+  { value: 'buyer-added', label: 'Buyer Added' },
+  // Deals
+  { value: 'deal-created', label: 'Deal Created' },
+  { value: 'deal-updated', label: 'Deal Updated' },
+  // Sync
   { value: 'contacts', label: 'Contacts Sync' },
   { value: 'properties', label: 'Properties Sync' },
   { value: 'opportunities', label: 'Opportunities Sync' },
+  // App activities
+  { value: 'image-generated', label: 'Image Generated' },
+  { value: 'media-uploaded', label: 'Media Uploaded' },
+  { value: 'batch-created', label: 'Batch Created' },
+  { value: 'batch-published', label: 'Batch Published' },
+  { value: 'ai-content-generated', label: 'AI Content Generated' },
+  { value: 'error', label: 'Errors' },
+];
+
+const sourceFilterOptions: { value: SourceFilter; label: string }[] = [
+  { value: 'all', label: 'All Sources' },
+  { value: 'social', label: 'Social Media' },
+  { value: 'property', label: 'Properties' },
+  { value: 'contact', label: 'Contacts' },
+  { value: 'deal', label: 'Deals' },
+  { value: 'sync', label: 'Sync Logs' },
+  { value: 'app', label: 'App Activity' },
 ];
 
 const statusIcons = {
@@ -75,20 +103,68 @@ const statusColors = {
   partial: 'text-amber-600 dark:text-amber-400',
 };
 
-const actionLabels: Record<ActivityType | string, string> = {
+const actionLabels: Record<string, string> = {
+  // Social
   posted: 'Posted',
   scheduled: 'Scheduled',
   'caption-generated': 'Caption Generated',
+  // Properties
   'property-added': 'Property Added',
   'status-changed': 'Status Changed',
+  // Contacts
+  'contact-added': 'Contact Added',
   'buyer-added': 'Buyer Added',
+  // Deals
+  'deal-created': 'Deal Created',
+  'deal-updated': 'Deal Updated',
+  // Other
   'inventory-sent': 'Inventory Sent',
+  // Sync
   contacts: 'Contacts Sync',
   properties: 'Properties Sync',
   opportunities: 'Opportunities Sync',
   'social-accounts': 'Social Sync',
   documents: 'Documents Sync',
+  // App activities
+  'image-generated': 'Image Generated',
+  'media-uploaded': 'Media Uploaded',
+  'batch-created': 'Batch Created',
+  'batch-published': 'Batch Published',
+  'ai-content-generated': 'AI Content Generated',
+  'property-matched': 'Property Matched',
+  'email-sent': 'Email Sent',
+  'sms-sent': 'SMS Sent',
+  error: 'Error',
 };
+
+// Helper to convert ActivityItem to TimelineItem
+const activityItemToTimelineItem = (activity: ActivityItem): TimelineItem => ({
+  id: activity.id,
+  type: activity.type,
+  propertyCode: activity.propertyCode,
+  propertyId: activity.propertyId,
+  contactId: activity.contactId,
+  contactName: activity.contactName,
+  details: activity.details,
+  user: activity.user,
+  status: activity.status,
+  timestamp: activity.timestamp,
+  source: activity.source,
+});
+
+// Helper to convert AppActivityEntry to TimelineItem
+const appActivityToTimelineItem = (entry: AppActivityEntry): TimelineItem => ({
+  id: entry.id,
+  type: entry.type,
+  propertyCode: entry.propertyCode,
+  propertyId: entry.propertyId,
+  contactId: entry.contactId,
+  contactName: entry.contactName,
+  details: entry.details,
+  status: entry.status,
+  timestamp: entry.timestamp,
+  source: 'app' as const,
+});
 
 export default function ActivityLogs() {
   const navigate = useNavigate();
@@ -97,30 +173,43 @@ export default function ActivityLogs() {
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('timeline');
 
+  // Get real activity logs from GHL
+  const { data: activityData, isLoading: isLoadingActivities, refetch } = useActivityLogs(100);
+
   // Get sync logs from store
   const { syncLog, getRecentSyncLog } = useSyncStore();
   const recentSyncLogs = getRecentSyncLog(50);
 
+  // Get app activities from store
+  const { activities: appActivities, getRecentActivities } = useActivityStore();
+  const recentAppActivities = getRecentActivities(100);
+
   // Combine activities and sync logs into unified timeline items
   const allItems = useMemo((): TimelineItem[] => {
-    const activityItems = mockActivities.map(activityToTimelineItem);
-    const syncItems = recentSyncLogs.map(syncLogToTimelineItem);
+    const activities = activityData || [];
+    const activityItems = activities.map(activityItemToTimelineItem);
+    // Add source='sync' to sync items
+    const syncItems = recentSyncLogs.map((log) => ({
+      ...syncLogToTimelineItem(log),
+      source: 'sync' as const,
+    }));
+    // Convert app activities to timeline items
+    const appItems = recentAppActivities.map(appActivityToTimelineItem);
 
-    // Filter by source
-    let combined: TimelineItem[] = [];
-    if (sourceFilter === 'all') {
-      combined = [...activityItems, ...syncItems];
-    } else if (sourceFilter === 'activities') {
-      combined = activityItems;
-    } else {
-      combined = syncItems;
+    // Combine all items
+    const combined: TimelineItem[] = [...activityItems, ...syncItems, ...appItems];
+
+    // Filter by source if specified
+    let filtered = combined;
+    if (sourceFilter !== 'all') {
+      filtered = combined.filter((item) => item.source === sourceFilter);
     }
 
     // Sort by timestamp (most recent first)
-    return combined.sort(
+    return filtered.sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
-  }, [recentSyncLogs, sourceFilter]);
+  }, [activityData, recentSyncLogs, recentAppActivities, sourceFilter]);
 
   // Apply filters
   const filteredItems = useMemo(() => {
@@ -199,6 +288,18 @@ export default function ActivityLogs() {
               </TabsTrigger>
             </TabsList>
           </Tabs>
+          <Button
+            variant="outline"
+            onClick={() => refetch()}
+            disabled={isLoadingActivities}
+          >
+            {isLoadingActivities ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <RefreshCcw className="h-4 w-4 mr-2" />
+            )}
+            Refresh
+          </Button>
           <Button variant="outline" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
             Export
@@ -224,9 +325,11 @@ export default function ActivityLogs() {
             <SelectValue placeholder="Source" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Sources</SelectItem>
-            <SelectItem value="activities">User Activity</SelectItem>
-            <SelectItem value="sync">Sync Logs</SelectItem>
+            {sourceFilterOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
@@ -287,10 +390,26 @@ export default function ActivityLogs() {
             </span>
           </>
         )}
+        {appActivities.length > 0 && (
+          <>
+            <span className="text-border">|</span>
+            <span className="flex items-center gap-1">
+              <Sparkles className="h-3.5 w-3.5" />
+              {appActivities.length} app events
+            </span>
+          </>
+        )}
       </div>
 
       {/* Content */}
-      {viewMode === 'timeline' ? (
+      {isLoadingActivities ? (
+        <div className="flex items-center justify-center py-12 border border-border rounded-lg bg-card">
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Loading activity logs...</p>
+          </div>
+        </div>
+      ) : viewMode === 'timeline' ? (
         <div className="border border-border rounded-lg p-4 bg-card">
           <ActivityTimeline items={filteredItems} onItemClick={handleItemClick} />
         </div>

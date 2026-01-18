@@ -817,6 +817,7 @@ interface Property {
   city?: string;
   state?: string;
   price?: number;
+  downPayment?: number;
   beds?: number;
   baths?: number;
   sqft?: number;
@@ -2095,6 +2096,11 @@ function buildStructuredContext(
 
   // Property domain: include property data
   if (domain === 'property' && property) {
+    // Format down payment for display
+    const downPaymentDisplay = property.downPayment
+      ? `$${property.downPayment.toLocaleString()}`
+      : null;
+
     // Format monthly payment for display (this is the primary price shown)
     const monthlyPaymentDisplay = property.monthlyPayment
       ? `~$${property.monthlyPayment.toLocaleString()}/mo*`
@@ -2103,6 +2109,7 @@ function buildStructuredContext(
     sections.push(`PROPERTY DATA:
 - Address: ${property.address || 'TBD'}
 - City: ${property.city || 'TBD'}
+${downPaymentDisplay ? `- Down Payment: ${downPaymentDisplay}` : ''}
 - Monthly Payment: ${monthlyPaymentDisplay}
 - Price: $${property.price?.toLocaleString() || 'TBD'}
 - Beds: ${property.beds || 'TBD'}
@@ -2113,9 +2120,9 @@ ${property.description ? `- Description: ${property.description}` : ''}
 ${property.arv ? `- ARV: $${property.arv.toLocaleString()}` : ''}
 ${property.repairCost ? `- Repair Estimate: $${property.repairCost.toLocaleString()}` : ''}
 
-IMPORTANT: For {monthlyPayment} placeholder:
-- Use the Monthly Payment value above: "${monthlyPaymentDisplay}"
-- This is the PRIMARY price shown to buyers (not the full price)`);
+IMPORTANT: For affordability messaging:
+${downPaymentDisplay ? `- Down Payment: ${downPaymentDisplay} (use to show entry cost)` : ''}
+- Monthly Payment: "${monthlyPaymentDisplay}" (PRIMARY price shown to buyers - more relatable than listing price)`);
   }
 
   // Check parsed context for property description (from GHL "Social media property description" field)

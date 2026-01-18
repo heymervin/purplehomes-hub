@@ -26,6 +26,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
   Loader2,
   ChevronDown,
   Check,
@@ -43,6 +49,12 @@ import {
   Briefcase,
   ChevronLeft,
   ChevronRight,
+  Expand,
+  Copy,
+  Image as ImageIcon,
+  MessageSquare,
+  Hash,
+  Calendar,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProperties, useSocialAccounts, useCreateSocialPost } from '@/services/ghlApi';
@@ -84,6 +96,9 @@ import {
 
 // Import pill-based editor component
 import { BatchPostEditor } from './BatchPostEditor';
+
+// Import activity logging
+import { logBatchCreated, logBatchPublished, logCaptionGenerated, logImageGenerated } from '@/store/useActivityStore';
 
 // Import agent utilities
 import { getAgentById } from '@/lib/socialHub/agents';
@@ -214,6 +229,9 @@ export function QuickBatchForm() {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [isPublishing, setIsPublishing] = useState(false);
   const [publishProgress, setPublishProgress] = useState(0);
+
+  // State for expanded post preview dialog
+  const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
   // Pill-based navigation: track active post being edited
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
 
@@ -492,6 +510,22 @@ export function QuickBatchForm() {
         continue;
       }
 
+      // Check for required context fields
+      const missingFields: string[] = [];
+      for (const field of intent.fields) {
+        if (field.required && !item.context[field.key]?.trim()) {
+          missingFields.push(field.label);
+        }
+      }
+      if (missingFields.length > 0) {
+        updatedItems.push({
+          ...item,
+          status: 'failed',
+          error: `Missing required field${missingFields.length > 1 ? 's' : ''}: ${missingFields.join(', ')}`,
+        });
+        continue;
+      }
+
       setGenerationProgress(Math.round(((i + 0.5) / total) * 100));
 
       try {
@@ -535,9 +569,27 @@ export function QuickBatchForm() {
 
             if (imageResult.success && imageResult.imageUrl) {
               imageUrl = imageResult.imageUrl;
+              // Log successful image generation
+              logImageGenerated(
+                template?.name || item.template || 'unknown',
+                item.property?.propertyCode,
+                item.property?.id
+              );
+            } else {
+              // Log failed image generation
+              logImageGenerated(
+                template?.name || item.template || 'unknown',
+                item.property?.propertyCode,
+                item.property?.id,
+                false,
+                'Image render failed'
+              );
             }
           }
         }
+
+        // Log caption generation
+        logCaptionGenerated(item.property?.propertyCode, item.property?.id, item.tone);
 
         updatedItems.push({
           ...item,
@@ -552,6 +604,8 @@ export function QuickBatchForm() {
           status: 'failed',
           error: 'Generation failed',
         });
+        // Log error
+        logCaptionGenerated(item.property?.propertyCode, item.property?.id, item.tone, false);
       }
 
       setGenerationProgress(Math.round(((i + 1) / total) * 100));
@@ -622,6 +676,9 @@ export function QuickBatchForm() {
     setIsPublishing(false);
     toast.success(`${successCount} of ${readyItems.length} posts published!`);
 
+    // Log batch published activity
+    logBatchPublished(readyItems.length, successCount, readyItems.length - successCount);
+
     // Reset
     setState(INITIAL_STATE);
     setStep('form');
@@ -637,8 +694,10 @@ export function QuickBatchForm() {
   };
 
   const isValid = useMemo(() => {
-    return state.items.length > 0;
-  }, [state.items.length]);
+    if (state.items.length === 0) return false;
+    // All items must be complete (no draft status)
+    return state.items.every((item) => isItemComplete(item));
+  }, [state.items, isItemComplete]);
 
   // Count items by status (using computed display status)
   const statusCounts = useMemo(() => {
@@ -864,8 +923,10 @@ export function QuickBatchForm() {
                   <Card
                     key={item.id}
                     className={cn(
+                      'cursor-pointer transition-all hover:border-purple-300 hover:shadow-sm',
                       item.status === 'failed' && 'border-red-300 bg-red-50/50 dark:bg-red-950/20'
                     )}
+                    onClick={() => setExpandedPostId(item.id)}
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-4">
@@ -896,6 +957,7 @@ export function QuickBatchForm() {
                             <Badge variant="outline" className="text-xs">
                               {intent.icon} {intent.label}
                             </Badge>
+                            <span className="text-xs text-muted-foreground">Click to expand</span>
                           </div>
                           <p className="text-xs text-muted-foreground line-clamp-2">
                             {item.caption?.substring(0, 100)}...
@@ -908,10 +970,13 @@ export function QuickBatchForm() {
                           )}
                         </div>
 
-                        {/* Index */}
-                        <Badge variant="secondary" className="flex-shrink-0">
-                          #{index + 1}
-                        </Badge>
+                        {/* Index + Expand Icon */}
+                        <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                          <Badge variant="secondary">
+                            #{index + 1}
+                          </Badge>
+                          <Expand className="h-4 w-4 text-muted-foreground" />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -1046,6 +1111,126 @@ export function QuickBatchForm() {
             )}
           </div>
         </div>
+
+        {/* Expanded Post Dialog */}
+        <Dialog open={!!expandedPostId} onOpenChange={(open) => !open && setExpandedPostId(null)}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            {expandedPostId && (() => {
+              const item = state.items.find(i => i.id === expandedPostId);
+              if (!item) return null;
+              const property = item.propertyId ? propertyMap[item.propertyId] : undefined;
+              const intent = getIntent(item.intentId);
+              const scheduledAt = getScheduledAt(item);
+              const postIndex = state.items.findIndex(i => i.id === expandedPostId);
+
+              return (
+                <>
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <Badge variant="secondary">#{postIndex + 1}</Badge>
+                      {intent.icon} {property?.address || `${intent.label} Post`}
+                      {item.status === 'ready' ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      ) : item.status === 'failed' ? (
+                        <AlertCircle className="h-4 w-4 text-red-500" />
+                      ) : null}
+                    </DialogTitle>
+                  </DialogHeader>
+
+                  <div className="space-y-4 mt-4">
+                    {/* Image Preview */}
+                    {item.imageUrl && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                          <ImageIcon className="h-4 w-4" />
+                          Image
+                        </div>
+                        <div className="rounded-lg overflow-hidden border bg-muted">
+                          <img
+                            src={item.imageUrl}
+                            alt="Post preview"
+                            className="w-full max-h-[300px] object-contain"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Caption */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                          <MessageSquare className="h-4 w-4" />
+                          Caption
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 gap-1"
+                          onClick={() => {
+                            if (item.caption) {
+                              navigator.clipboard.writeText(item.caption);
+                            }
+                          }}
+                        >
+                          <Copy className="h-3 w-3" />
+                          Copy
+                        </Button>
+                      </div>
+                      <div className="p-3 rounded-lg bg-muted/50 border text-sm whitespace-pre-wrap">
+                        {item.caption || <span className="text-muted-foreground italic">No caption</span>}
+                      </div>
+                    </div>
+
+                    {/* Hashtags */}
+                    {item.hashtags && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                          <Hash className="h-4 w-4" />
+                          Hashtags
+                        </div>
+                        <div className="p-3 rounded-lg bg-muted/50 border text-sm text-purple-600 dark:text-purple-400">
+                          {item.hashtags}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Schedule */}
+                    {scheduledAt && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                          <Calendar className="h-4 w-4" />
+                          Scheduled For
+                        </div>
+                        <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 text-sm">
+                          {scheduledAt.toLocaleString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Post Type Info */}
+                    <div className="flex items-center gap-2 pt-2 border-t">
+                      <Badge variant="outline">{intent.icon} {intent.label}</Badge>
+                      {property && (
+                        <Badge variant="secondary" className="gap-1">
+                          <Building2 className="h-3 w-3" />
+                          {property.city}, {property.state}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -1353,22 +1538,33 @@ export function QuickBatchForm() {
       )}
 
       {/* Generate Button */}
-      <div className="flex items-center justify-between">
-        {state.items.length > 0 && (
-          <Button variant="ghost" size="sm" onClick={handleDeselectAll}>
-            <X className="h-3 w-3 mr-1" />
-            Clear All
-          </Button>
+      <div className="flex flex-col gap-2">
+        {/* Warning if there are draft posts */}
+        {draftCount > 0 && (
+          <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
+            <p className="text-xs text-amber-700 dark:text-amber-300">
+              <strong>{draftCount} post{draftCount > 1 ? 's' : ''}</strong> {draftCount > 1 ? 'have' : 'has'} missing required fields.
+              Fill in the required fields marked with <span className="text-red-500">*</span> before generating.
+            </p>
+          </div>
         )}
-        <Button
-          size="lg"
-          disabled={!isValid}
-          onClick={handleGenerate}
-          className="gap-2 bg-purple-600 hover:bg-purple-700 ml-auto"
-        >
-          <Sparkles className="h-4 w-4" />
-          Generate {state.items.length} Posts
-        </Button>
+        <div className="flex items-center justify-between">
+          {state.items.length > 0 && (
+            <Button variant="ghost" size="sm" onClick={handleDeselectAll}>
+              <X className="h-3 w-3 mr-1" />
+              Clear All
+            </Button>
+          )}
+          <Button
+            size="lg"
+            disabled={!isValid}
+            onClick={handleGenerate}
+            className="gap-2 bg-purple-600 hover:bg-purple-700 ml-auto"
+          >
+            <Sparkles className="h-4 w-4" />
+            {isValid ? `Generate ${state.items.length} Posts` : 'Fill Required Fields'}
+          </Button>
+        </div>
       </div>
     </div>
   );

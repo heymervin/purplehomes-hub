@@ -899,6 +899,204 @@ export const useUploadMedia = () => {
   });
 };
 
+// Media folder interface
+export interface GHLMediaFolder {
+  id: string;
+  name: string;
+  parentId: string | null;
+  altId: string;
+  altType: string;
+  type: 'folder';
+}
+
+/**
+ * Get media folders
+ */
+export const useMediaFolders = (parentId?: string) => {
+  return useQuery({
+    queryKey: ['ghl-media-folders', parentId],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      params.set('resource', 'media');
+      params.set('action', 'folders');
+      if (parentId) params.set('parentId', parentId);
+
+      const response = await fetch(`/api/ghl?${params.toString()}`, {
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch folders');
+      }
+
+      return response.json() as Promise<{ files: GHLMediaFolder[] }>;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Create a media folder
+ */
+export const useCreateMediaFolder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ name, parentId }: { name: string; parentId?: string }) => {
+      const response = await fetch('/api/ghl?resource=media&action=create-folder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, parentId }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create folder');
+      }
+
+      return response.json() as Promise<GHLMediaFolder>;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ghl-media-folders'] });
+    },
+  });
+};
+
+/**
+ * Move a media file to a folder
+ */
+export const useMoveMedia = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ fileId, folderId }: { fileId: string; folderId: string | null }) => {
+      const response = await fetch(`/api/ghl?resource=media&action=move&id=${fileId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folderId }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to move file');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ghl-media'] });
+      queryClient.invalidateQueries({ queryKey: ['ghl-media-folders'] });
+    },
+  });
+};
+
+/**
+ * Upload media to a specific folder
+ * Combines upload + move in one operation
+ */
+export const useUploadMediaToFolder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      file,
+      base64Data,
+      fileUrl,
+      name,
+      contentType,
+      folderId,
+    }: {
+      file?: File;
+      base64Data?: string;
+      fileUrl?: string;
+      name: string;
+      contentType?: string;
+      folderId?: string;
+    }) => {
+      // Step 1: Upload the file
+      let uploadBase64 = base64Data;
+
+      if (file && !uploadBase64) {
+        uploadBase64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      const uploadResponse = await fetch('/api/ghl?resource=media&action=upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          base64Data: uploadBase64,
+          fileUrl,
+          name,
+          contentType: contentType || file?.type || 'image/png',
+        }),
+      });
+
+      if (!uploadResponse.ok) {
+        const error = await uploadResponse.json();
+        throw new Error(error.message || 'Failed to upload file');
+      }
+
+      const uploadedFile = await uploadResponse.json() as GHLMedia;
+
+      // Step 2: Move to folder if specified
+      if (folderId && uploadedFile.id) {
+        const moveResponse = await fetch(`/api/ghl?resource=media&action=move&id=${uploadedFile.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ folderId }),
+        });
+
+        if (!moveResponse.ok) {
+          console.warn('File uploaded but failed to move to folder');
+        }
+      }
+
+      return uploadedFile;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['ghl-media'] });
+      queryClient.invalidateQueries({ queryKey: ['ghl-media-folders'] });
+    },
+  });
+};
+
+/**
+ * Find or create a folder by name
+ */
+export async function findOrCreateFolder(name: string): Promise<string> {
+  // First, try to find existing folder
+  const foldersResponse = await fetch('/api/ghl?resource=media&action=folders', {
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (foldersResponse.ok) {
+    const data = await foldersResponse.json() as { files: GHLMediaFolder[] };
+    const existingFolder = data.files?.find((f) => f.name === name);
+    if (existingFolder) {
+      return existingFolder.id;
+    }
+  }
+
+  // Create new folder
+  const createResponse = await fetch('/api/ghl?resource=media&action=create-folder', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+
+  if (!createResponse.ok) {
+    throw new Error(`Failed to create folder: ${name}`);
+  }
+
+  const newFolder = await createResponse.json() as GHLMediaFolder;
+  return newFolder.id;
+}
+
 // ============ SOCIAL PLANNER ============
 // Note: Social planner hooks are always enabled since API key is on server side (Vercel env vars)
 
@@ -967,6 +1165,207 @@ export const useDeleteSocialPost = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ghl-social-posts'] });
     },
+  });
+};
+
+// ============ ACTIVITY LOGS (from all GHL sources) ============
+// Transforms data from properties, contacts, opportunities, and social posts into activity items
+
+export interface ActivityItem {
+  id: string;
+  type: 'posted' | 'scheduled' | 'caption-generated' | 'property-added' | 'status-changed' | 'buyer-added' | 'inventory-sent' | 'contact-added' | 'deal-created' | 'deal-updated';
+  propertyCode?: string;
+  propertyId?: string;
+  contactId?: string;
+  contactName?: string;
+  details: string;
+  user?: string;
+  status: 'success' | 'error' | 'pending';
+  timestamp: string;
+  source: 'social' | 'property' | 'contact' | 'deal';
+}
+
+/**
+ * Fetch comprehensive activity logs from all GHL sources
+ * Combines: social posts, properties (opportunities), contacts, and deals
+ */
+export const useActivityLogs = (limit: number = 100) => {
+  return useQuery({
+    queryKey: ['ghl-activity-logs', limit],
+    queryFn: async (): Promise<ActivityItem[]> => {
+      const activities: ActivityItem[] = [];
+
+      // Fetch all data sources in parallel
+      const [socialResponse, propertiesResponse, contactsResponse, dealsResponse] = await Promise.allSettled([
+        fetchGHL<{ posts: GHLSocialPost[] }>('social/posts?limit=50'),
+        fetchGHL<{ opportunities: GHLOpportunity[] }>('opportunities?pipelineType=seller-acquisition'),
+        fetchGHL<{ contacts: GHLContact[] }>('contacts?limit=100'),
+        fetchGHL<{ opportunities: GHLOpportunity[] }>('opportunities?pipelineType=buyer-disposition'),
+      ]);
+
+      // Process social posts
+      if (socialResponse.status === 'fulfilled') {
+        const posts = socialResponse.value.posts || [];
+        for (const post of posts) {
+          let type: ActivityItem['type'] = 'posted';
+          let activityStatus: ActivityItem['status'] = 'success';
+
+          if (post.status === 'scheduled') {
+            type = 'scheduled';
+            activityStatus = 'pending';
+          } else if (post.status === 'published') {
+            type = 'posted';
+            activityStatus = 'success';
+          } else if (post.status === 'failed') {
+            type = 'posted';
+            activityStatus = 'error';
+          } else if (post.status === 'draft') {
+            type = 'caption-generated';
+            activityStatus = 'pending';
+          } else if (post.status === 'in_progress') {
+            type = 'posted';
+            activityStatus = 'pending';
+          }
+
+          let details = '';
+          const platformCount = post.accountIds?.length || 0;
+          const platforms = platformCount > 1 ? `${platformCount} accounts` : '1 account';
+
+          if (type === 'posted') {
+            details = `Post published to ${platforms}`;
+          } else if (type === 'scheduled') {
+            const scheduleDate = post.scheduleDate ? new Date(post.scheduleDate).toLocaleString() : 'future date';
+            details = `Post scheduled for ${scheduleDate}`;
+          } else if (type === 'caption-generated') {
+            details = 'Caption drafted';
+          }
+
+          if (post.summary) {
+            const preview = post.summary.length > 60 ? post.summary.substring(0, 60) + '...' : post.summary;
+            details += ` - "${preview}"`;
+          }
+
+          activities.push({
+            id: `social-${post.id}`,
+            type,
+            details,
+            user: 'System',
+            status: activityStatus,
+            timestamp: post.createdAt || new Date().toISOString(),
+            source: 'social',
+          });
+        }
+      }
+
+      // Process properties (seller acquisition opportunities)
+      if (propertiesResponse.status === 'fulfilled') {
+        const properties = propertiesResponse.value.opportunities || [];
+        for (const prop of properties) {
+          // Property added activity (using createdAt)
+          const propertyName = prop.name || 'Property';
+          const contactName = prop.contact?.name || '';
+
+          activities.push({
+            id: `property-created-${prop.id}`,
+            type: 'property-added',
+            propertyId: prop.id,
+            propertyCode: propertyName,
+            details: `Property added: ${propertyName}${contactName ? ` (${contactName})` : ''}`,
+            user: 'System',
+            status: 'success',
+            timestamp: prop.createdAt,
+            source: 'property',
+          });
+
+          // Property status change (if different from createdAt)
+          if (prop.lastStatusChangeAt && prop.lastStatusChangeAt !== prop.createdAt) {
+            activities.push({
+              id: `property-status-${prop.id}-${prop.lastStatusChangeAt}`,
+              type: 'status-changed',
+              propertyId: prop.id,
+              propertyCode: propertyName,
+              details: `Property status changed to "${prop.status}" - ${propertyName}`,
+              user: 'System',
+              status: 'success',
+              timestamp: prop.lastStatusChangeAt,
+              source: 'property',
+            });
+          }
+        }
+      }
+
+      // Process contacts
+      if (contactsResponse.status === 'fulfilled') {
+        const contacts = contactsResponse.value.contacts || [];
+        for (const contact of contacts) {
+          const name = `${contact.firstName || ''} ${contact.lastName || ''}`.trim() || 'Unknown';
+
+          // Check if contact is a buyer (has buyer tag)
+          const isBuyer = contact.tags?.some(tag =>
+            tag.toLowerCase().includes('buyer') || tag.toLowerCase().includes('interested')
+          );
+
+          activities.push({
+            id: `contact-${contact.id}`,
+            type: isBuyer ? 'buyer-added' : 'contact-added',
+            contactId: contact.id,
+            contactName: name,
+            details: isBuyer
+              ? `New buyer added: ${name}${contact.email ? ` (${contact.email})` : ''}`
+              : `New contact added: ${name}${contact.email ? ` (${contact.email})` : ''}`,
+            user: 'System',
+            status: 'success',
+            timestamp: contact.dateAdded,
+            source: 'contact',
+          });
+        }
+      }
+
+      // Process deals (buyer disposition opportunities)
+      if (dealsResponse.status === 'fulfilled') {
+        const deals = dealsResponse.value.opportunities || [];
+        for (const deal of deals) {
+          const dealName = deal.name || 'Deal';
+          const contactName = deal.contact?.name || '';
+          const value = deal.monetaryValue ? `$${deal.monetaryValue.toLocaleString()}` : '';
+
+          activities.push({
+            id: `deal-created-${deal.id}`,
+            type: 'deal-created',
+            propertyId: deal.id,
+            contactId: deal.contactId,
+            contactName,
+            details: `Deal created: ${dealName}${value ? ` - ${value}` : ''}${contactName ? ` with ${contactName}` : ''}`,
+            user: 'System',
+            status: 'success',
+            timestamp: deal.createdAt,
+            source: 'deal',
+          });
+
+          // Deal stage change
+          if (deal.lastStageChangeAt && deal.lastStageChangeAt !== deal.createdAt) {
+            activities.push({
+              id: `deal-stage-${deal.id}-${deal.lastStageChangeAt}`,
+              type: 'deal-updated',
+              propertyId: deal.id,
+              contactId: deal.contactId,
+              contactName,
+              details: `Deal stage updated: ${dealName}${contactName ? ` - ${contactName}` : ''}`,
+              user: 'System',
+              status: 'success',
+              timestamp: deal.lastStageChangeAt,
+              source: 'deal',
+            });
+          }
+        }
+      }
+
+      // Sort by timestamp (most recent first) and limit
+      return activities
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, limit);
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 };
 

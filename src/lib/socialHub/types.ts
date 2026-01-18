@@ -161,6 +161,9 @@ export interface BatchItem {
   templateId: ImageTemplateId;
   context: Record<string, string>;
 
+  // Template user inputs (for custom image template fields like Value Tips)
+  templateUserInputs?: Record<string, string>;
+
   // Agent selection (for template generation)
   selectedAgentId?: string;
 

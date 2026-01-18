@@ -70,6 +70,7 @@ PROPERTY DATA:
 - City: ${property.city || 'TBD'}
 - State: ${property.state || ''}
 - Price: $${property.price?.toLocaleString() || 'TBD'}
+${property.downPayment ? `- Down Payment: $${property.downPayment.toLocaleString()} (HIGHLIGHT THIS for entry cost - shows affordability!)` : ''}
 ${property.monthlyPayment ? `- Monthly Payment: $${property.monthlyPayment.toLocaleString()}/mo (HIGHLIGHT THIS for affordability - more relatable than listing price!)` : ''}
 - Beds: ${property.beds || 'TBD'}
 - Baths: ${property.baths || 'TBD'}

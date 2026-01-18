@@ -1278,6 +1278,59 @@ if (resource === 'opportunities') {
         );
         return res.status(response.ok ? 204 : response.status).end();
       }
+
+      // Get folders list
+      if (method === 'GET' && action === 'folders') {
+        console.log('[MEDIA] Fetching folders');
+        const params = new URLSearchParams({
+          altId: GHL_LOCATION_ID as string,
+          altType: 'location',
+          type: 'folder'
+        });
+        if (query.parentId) params.append('parentId', query.parentId as string);
+
+        const response = await fetch(`${GHL_API_URL}/medias/files?${params}`, { headers });
+        const data = await response.json();
+        console.log('[MEDIA] Folders response:', response.status, data);
+        return res.status(response.ok ? 200 : response.status).json(data);
+      }
+
+      // Create folder
+      if (method === 'POST' && action === 'create-folder') {
+        console.log('[MEDIA] Creating folder:', body.name);
+        const payload = {
+          altId: GHL_LOCATION_ID,
+          altType: 'location',
+          name: body.name,
+          parentId: body.parentId || null
+        };
+        const response = await fetch(`${GHL_API_URL}/medias/`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        console.log('[MEDIA] Create folder response:', response.status, data);
+        return res.status(response.ok ? 201 : response.status).json(data);
+      }
+
+      // Move file to folder (update file's parentId)
+      if (method === 'PUT' && action === 'move') {
+        console.log('[MEDIA] Moving file:', id, 'to folder:', body.folderId);
+        const payload = {
+          altId: GHL_LOCATION_ID,
+          altType: 'location',
+          parentId: body.folderId || null // null to move to root
+        };
+        const response = await fetch(`${GHL_API_URL}/medias/${id}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        console.log('[MEDIA] Move file response:', response.status, data);
+        return res.status(response.ok ? 200 : response.status).json(data);
+      }
     }
 
     // ============ DOCUMENTS & CONTRACTS ============
