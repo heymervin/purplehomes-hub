@@ -183,6 +183,7 @@ export interface BatchItem {
   status: 'draft' | 'pending' | 'generating' | 'ready' | 'failed';
   caption?: string;
   imageUrl?: string;
+  imagePrompt?: string | Record<string, string>; // AI image generation prompt (for Custom Image template)
   error?: string;
   // Validation errors (Phase 2 guardrails)
   validationErrors?: Array<{ rule: string; message: string }>;

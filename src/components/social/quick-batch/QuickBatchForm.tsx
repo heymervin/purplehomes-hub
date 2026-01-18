@@ -542,6 +542,33 @@ export function QuickBatchForm() {
         });
 
         let imageUrl: string | null = null;
+        let imagePrompt: string | Record<string, string> | undefined = undefined;
+
+        // For Custom Image template with Professional intents, generate an AI image prompt
+        const professionalIntentsWithImagePrompt = ['market-update', 'buyer-tips', 'seller-tips', 'investment-insight'];
+        if (item.templateId === 'custom' && professionalIntentsWithImagePrompt.includes(item.intentId)) {
+          try {
+            const contentResponse = await fetch('/api/ai?action=generate-content', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                intent: item.intentId,
+                templateId: 'custom',
+                location: 'New Orleans, LA',
+                topic: item.context.topic || item.context.headline || item.context.tipTitle,
+              }),
+            });
+            if (contentResponse.ok) {
+              const contentData = await contentResponse.json();
+              if (contentData.success && contentData.content?.imagePrompt) {
+                imagePrompt = contentData.content.imagePrompt;
+              }
+            }
+          } catch (promptError) {
+            console.warn('Failed to generate image prompt:', promptError);
+            // Non-fatal - continue without image prompt
+          }
+        }
 
         // Generate image if template is not 'none' or 'custom'
         if (item.templateId !== 'none' && item.templateId !== 'custom') {
@@ -615,6 +642,7 @@ export function QuickBatchForm() {
           ...item,
           caption: captionResult.caption,
           imageUrl,
+          imagePrompt,
           status: 'ready',
         });
       } catch (error) {

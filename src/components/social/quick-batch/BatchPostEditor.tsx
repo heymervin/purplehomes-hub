@@ -51,6 +51,8 @@ import {
   Search,
   FileText,
   Loader2,
+  Copy,
+  Wand2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -910,6 +912,54 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
           </CardHeader>
           <CardContent className="pt-0">
             <p className="text-sm whitespace-pre-wrap">{item.caption}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Image Prompt (for Custom Image template with professional intents) */}
+      {item.status === 'ready' && item.imagePrompt && item.templateId === 'custom' && (
+        <Card className="bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Wand2 className="h-4 w-4" />
+                AI Image Prompt
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-amber-600 hover:text-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50"
+                onClick={() => {
+                  const prompt = typeof item.imagePrompt === 'string'
+                    ? item.imagePrompt
+                    : Object.values(item.imagePrompt || {}).join('\n\n');
+                  navigator.clipboard.writeText(prompt);
+                  toast.success('Copied to clipboard');
+                }}
+              >
+                <Copy className="h-3.5 w-3.5 mr-1" />
+                Copy
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <p className="text-xs text-amber-600 dark:text-amber-400 mb-2">
+              Use this prompt with AI image tools like DALL-E, Midjourney, or Ideogram
+            </p>
+            <div className="bg-white dark:bg-gray-900 rounded-lg p-3 border border-amber-200 dark:border-amber-800">
+              {typeof item.imagePrompt === 'string' ? (
+                <p className="text-sm whitespace-pre-wrap">{item.imagePrompt}</p>
+              ) : (
+                <div className="space-y-3">
+                  {Object.entries(item.imagePrompt || {}).map(([key, prompt]) => (
+                    <div key={key}>
+                      <Badge variant="outline" className="mb-1 text-xs">{key}</Badge>
+                      <p className="text-sm whitespace-pre-wrap">{prompt}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
