@@ -74,7 +74,8 @@ import {
   INTENT_HASHTAGS,
   generateLocationHashtags,
 } from '@/lib/socialHub';
-import { TEAM_AGENTS, getAgentById } from '@/lib/socialHub/agents';
+import { FALLBACK_AGENTS, getAgentById } from '@/lib/socialHub/agents';
+import { useAgents } from '@/services/authApi';
 import { SupportingImagePicker } from '@/components/social/templates/SupportingImagePicker';
 import { getTemplateById } from '@/lib/templates/profiles';
 
@@ -92,6 +93,10 @@ const TAB_ICONS: Record<SocialTabId, React.ReactNode> = {
 };
 
 export function BatchPostEditor({ item, property, onChange }: BatchPostEditorProps) {
+  // Fetch dynamic agents from API (admins with profiles)
+  const { data: dynamicAgents } = useAgents();
+  const agents = dynamicAgents && dynamicAgents.length > 0 ? dynamicAgents : FALLBACK_AGENTS;
+
   // State for image expand dialog
   const [imageExpanded, setImageExpanded] = useState(false);
   const [customHashtag, setCustomHashtag] = useState('');
@@ -108,8 +113,8 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
 
   // Get selected agent for displaying contact info
   const selectedAgent = useMemo(
-    () => getAgentById(item.selectedAgentId || 'krista') || TEAM_AGENTS[0],
-    [item.selectedAgentId]
+    () => getAgentById(item.selectedAgentId || 'krista', agents) || agents[0],
+    [item.selectedAgentId, agents]
   );
 
   // Generate suggested hashtags based on intent and property

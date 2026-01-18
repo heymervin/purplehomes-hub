@@ -30,7 +30,8 @@ import {
 import { TemplateSelector } from '@/components/social/templates';
 import { SupportingImagePicker } from '@/components/social/templates/SupportingImagePicker';
 import { getTemplateById } from '@/lib/templates/profiles';
-import { TEAM_AGENTS, getAgentById } from '@/lib/socialHub/agents';
+import { FALLBACK_AGENTS, getAgentById } from '@/lib/socialHub/agents';
+import { useAgents } from '@/services/authApi';
 import { cn } from '@/lib/utils';
 import type { Property } from '@/types';
 import type { TemplateProfile } from '@/lib/templates/types';
@@ -53,6 +54,10 @@ export default function BatchImageStep({
   const [generationProgress, setGenerationProgress] = useState(0);
   const [currentGeneratingId, setCurrentGeneratingId] = useState<string | null>(null);
   const [expandedPropertyId, setExpandedPropertyId] = useState<string | null>(null);
+
+  // Fetch dynamic agents from API (admins with profiles)
+  const { data: dynamicAgents } = useAgents();
+  const agents = dynamicAgents && dynamicAgents.length > 0 ? dynamicAgents : FALLBACK_AGENTS;
 
   const selectedProperties = properties.filter((p) =>
     state.selectedPropertyIds.includes(p.id)
@@ -124,8 +129,8 @@ export default function BatchImageStep({
       try {
         const propertyState = state.propertyStates[property.id];
         const selectedAgent = state.selectedAgentId
-          ? getAgentById(state.selectedAgentId)
-          : TEAM_AGENTS[0];
+          ? getAgentById(state.selectedAgentId, agents)
+          : agents[0];
 
         // Use selected hero image or fall back to property's hero image
         const heroImage = propertyState?.selectedHeroImage || property.heroImage;
@@ -235,7 +240,7 @@ export default function BatchImageStep({
             <SelectValue placeholder="Select agent" />
           </SelectTrigger>
           <SelectContent>
-            {TEAM_AGENTS.map((agent) => (
+            {agents.map((agent) => (
               <SelectItem key={agent.id} value={agent.id}>
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{agent.name}</span>

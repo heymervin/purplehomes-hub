@@ -5,6 +5,8 @@ interface User {
   email: string;
   name: string;
   role: string;
+  isAdmin?: boolean;
+  permissions?: string[];
 }
 
 interface AuthState {
@@ -48,6 +50,8 @@ export const useAuthStore = create<AuthState>()(
               email: email || 'dev@purplehomes.com',
               name: 'Dev User',
               role: 'admin',
+              isAdmin: true,
+              permissions: [], // Admins have all permissions automatically
             },
             isAuthenticated: true,
             isLoading: false,

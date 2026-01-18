@@ -26,21 +26,36 @@ import { useGhlConnection } from '@/hooks/useGhlConnection';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Property Matching', href: '/matching', icon: Target },
-  { name: 'Properties', href: '/properties', icon: Building2 },
-  { name: 'Buyers', href: '/buyer-management', icon: UserCog },
-  { name: 'Property Pipeline', href: '/seller-acquisitions', icon: Home },
-  { name: 'Buyer Dispositions', href: '/acquisitions', icon: UserPlus },
-  { name: 'Deal Pipeline', href: '/deals', icon: Kanban },
-  { name: 'Public Listings', href: '/listings', icon: Globe },
-  { name: 'Contacts', href: '/contacts', icon: UsersRound },
-  { name: 'Documents', href: '/documents', icon: FileText },
-  { name: 'Social Hub', href: '/social', icon: Share2 },
-  { name: 'Settings', href: '/settings', icon: Settings },
-  { name: 'Activity Logs', href: '/activity', icon: Activity },
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  permission?: string; // Required permission to see this item (admins can see everything)
+}
+
+const navigation: NavItem[] = [
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard, permission: 'dashboard' },
+  { name: 'Property Matching', href: '/matching', icon: Target, permission: 'properties' },
+  { name: 'Properties', href: '/properties', icon: Building2, permission: 'properties' },
+  { name: 'Buyers', href: '/buyer-management', icon: UserCog, permission: 'buyers' },
+  { name: 'Property Pipeline', href: '/seller-acquisitions', icon: Home, permission: 'property-pipeline' },
+  { name: 'Buyer Dispositions', href: '/acquisitions', icon: UserPlus, permission: 'buyer-dispositions' },
+  { name: 'Deal Pipeline', href: '/deals', icon: Kanban, permission: 'deal-pipeline' },
+  { name: 'Public Listings', href: '/listings', icon: Globe, permission: 'public-listings' },
+  { name: 'Contacts', href: '/contacts', icon: UsersRound, permission: 'contacts' },
+  { name: 'Documents', href: '/documents', icon: FileText, permission: 'documents' },
+  { name: 'Social Hub', href: '/social', icon: Share2, permission: 'social-hub' },
+  { name: 'Settings', href: '/settings', icon: Settings, permission: 'settings' },
+  { name: 'Activity Logs', href: '/activity', icon: Activity, permission: 'activity-logs' },
 ];
+
+// Helper to check if user has permission
+function hasPermission(user: { isAdmin?: boolean; permissions?: string[] } | null, permission?: string): boolean {
+  if (!user) return false;
+  if (user.isAdmin) return true; // Admins have all permissions
+  if (!permission) return true; // No permission required
+  return user.permissions?.includes(permission) ?? false;
+}
 
 export function AppSidebar() {
   const location = useLocation();
@@ -48,6 +63,9 @@ export function AppSidebar() {
   const { sidebarCollapsed, setSidebarCollapsed } = useAppStore();
   const { user, logout } = useAuthStore();
   const { isConnected, lastChecked, manualReconnect } = useGhlConnection({ autoConnect: true });
+
+  // Filter navigation based on user permissions
+  const filteredNavigation = navigation.filter(item => hasPermission(user, item.permission));
 
   const handleLogout = () => {
     logout();
@@ -81,7 +99,7 @@ export function AppSidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 px-2 py-4 overflow-y-auto">
-          {navigation.map((item) => {
+          {filteredNavigation.map((item) => {
             const isActive = location.pathname === item.href || 
               (item.href !== '/' && location.pathname.startsWith(item.href));
             

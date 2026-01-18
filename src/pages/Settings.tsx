@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Check, X, RefreshCw, ExternalLink, Plus, Trash2, Wifi, WifiOff, Key, Save, Server, Clock, CheckCircle2, XCircle, Activity, Calculator, Loader2, Target, Home, DollarSign, Sliders } from 'lucide-react';
+import { Check, X, RefreshCw, ExternalLink, Plus, Trash2, Wifi, WifiOff, Key, Save, Server, Clock, CheckCircle2, XCircle, Activity, Calculator, Loader2, Target, Home, DollarSign, Sliders, UserPlus, Shield, Copy, Eye, EyeOff, RotateCcw, Mail, Phone, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,16 @@ import { NotificationSettings } from '@/components/settings/NotificationSettings
 import { useTestAssociationsApi } from '@/services/ghlAssociationsApi';
 import { useCalculatorDefaults, useUpdateCalculatorDefaults } from '@/services/calculatorApi';
 import { useMatchingPreferences, useUpdateMatchingPreferences } from '@/services/matchingApi';
+import { useUsers, useCreateUser, useUpdateUser, useDeleteUser, AVAILABLE_PERMISSIONS, type User } from '@/services/authApi';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import type { CalculatorDefaults } from '@/types/calculator';
 import {
   DEFAULT_AFFORDABILITY_SETTINGS,
@@ -89,6 +99,24 @@ export default function Settings() {
   const [affordabilitySettings, setAffordabilitySettings] = useState<AffordabilitySettings>(
     DEFAULT_AFFORDABILITY_SETTINGS
   );
+
+  // User Management
+  const { data: users, isLoading: isLoadingUsers, refetch: refetchUsers } = useUsers();
+  const createUser = useCreateUser();
+  const updateUser = useUpdateUser();
+  const deleteUser = useDeleteUser();
+  const [showAddUserDialog, setShowAddUserDialog] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [showTempPassword, setShowTempPassword] = useState<string | null>(null);
+  const [newUserForm, setNewUserForm] = useState({
+    name: '',
+    email: '',
+    isAdmin: false,
+    permissions: ['dashboard', 'properties', 'contacts'] as string[],
+    phone: '',
+    agentEmail: '',
+    headshot: '',
+  });
   const [hasAffordabilityChanges, setHasAffordabilityChanges] = useState(false);
   const [testDownPayment, setTestDownPayment] = useState<number>(50000);
 
@@ -852,40 +880,424 @@ export default function Settings() {
                 <div>
                   <CardTitle>Team Members</CardTitle>
                   <CardDescription>
-                    Manage who has access to this workspace
+                    Manage who has access to this workspace. Admins can configure their agent profile for Social Hub templates.
                   </CardDescription>
                 </div>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Invite Member
+                <Button onClick={() => {
+                  setNewUserForm({
+                    name: '',
+                    email: '',
+                    isAdmin: false,
+                    permissions: ['dashboard', 'properties', 'contacts'],
+                    phone: '',
+                    agentEmail: '',
+                    headshot: '',
+                  });
+                  setEditingUser(null);
+                  setShowAddUserDialog(true);
+                }}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add User
                 </Button>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              {[
-                { name: 'John Doe', email: 'john@example.com', role: 'Admin' },
-                { name: 'Jane Smith', email: 'jane@example.com', role: 'Manager' },
-                { name: 'Bob Wilson', email: 'bob@example.com', role: 'User' },
-              ].map((member, index) => (
-                <div 
-                  key={index}
-                  className="flex items-center gap-4 p-4 rounded-lg border border-border"
-                >
-                  <Avatar>
-                    <AvatarFallback>
-                      {member.name.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="font-medium">{member.name}</p>
-                    <p className="text-sm text-muted-foreground">{member.email}</p>
-                  </div>
-                  <Badge variant="secondary">{member.role}</Badge>
-                  <Button variant="ghost" size="sm">Edit</Button>
+              {isLoadingUsers ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  <span className="ml-2 text-muted-foreground">Loading users...</span>
                 </div>
-              ))}
+              ) : users && users.length > 0 ? (
+                users.map((user) => (
+                  <div
+                    key={user.id}
+                    className={cn(
+                      "flex items-center gap-4 p-4 rounded-lg border",
+                      user.isActive === false ? "opacity-50 bg-muted/30" : "border-border"
+                    )}
+                  >
+                    <Avatar className="h-12 w-12">
+                      {user.headshot ? (
+                        <AvatarImage src={user.headshot} alt={user.name} />
+                      ) : null}
+                      <AvatarFallback className={user.isAdmin ? "bg-primary/10 text-primary" : ""}>
+                        {user.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '??'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium truncate">{user.name}</p>
+                        {user.isAdmin && (
+                          <Badge className="bg-primary/10 text-primary border-primary/20">
+                            <Shield className="h-3 w-3 mr-1" />
+                            Admin
+                          </Badge>
+                        )}
+                        {user.isActive === false && (
+                          <Badge variant="secondary">Inactive</Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                      {user.isAdmin && (user.phone || user.agentEmail) && (
+                        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                          {user.phone && (
+                            <span className="flex items-center gap-1">
+                              <Phone className="h-3 w-3" />
+                              {user.phone}
+                            </span>
+                          )}
+                          {user.agentEmail && (
+                            <span className="flex items-center gap-1">
+                              <Mail className="h-3 w-3" />
+                              {user.agentEmail}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      {!user.isAdmin && user.permissions && user.permissions.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {user.permissions.slice(0, 3).map((perm) => (
+                            <Badge key={perm} variant="outline" className="text-xs py-0">
+                              {perm}
+                            </Badge>
+                          ))}
+                          {user.permissions.length > 3 && (
+                            <Badge variant="outline" className="text-xs py-0">
+                              +{user.permissions.length - 3} more
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setEditingUser(user);
+                          setNewUserForm({
+                            name: user.name || '',
+                            email: user.email || '',
+                            isAdmin: user.isAdmin || false,
+                            permissions: user.permissions || [],
+                            phone: user.phone || '',
+                            agentEmail: user.agentEmail || '',
+                            headshot: user.headshot || '',
+                          });
+                          setShowAddUserDialog(true);
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>No users found. Add your first team member!</p>
+                </div>
+              )}
             </CardContent>
           </Card>
+
+          {/* Add/Edit User Dialog */}
+          <Dialog open={showAddUserDialog} onOpenChange={(open) => {
+            if (!open) {
+              setShowAddUserDialog(false);
+              setEditingUser(null);
+              setShowTempPassword(null);
+            }
+          }}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
+                <DialogDescription>
+                  {editingUser
+                    ? 'Update user details and permissions.'
+                    : 'Create a new user account. A temporary password will be generated.'}
+                </DialogDescription>
+              </DialogHeader>
+
+              {showTempPassword ? (
+                <div className="space-y-4">
+                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
+                    <p className="text-sm font-medium text-green-600 dark:text-green-400 mb-2">
+                      User created successfully!
+                    </p>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Share this temporary password with the user. They should change it after their first login.
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={showTempPassword}
+                        readOnly
+                        className="font-mono"
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          navigator.clipboard.writeText(showTempPassword);
+                          toast.success('Password copied to clipboard');
+                        }}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button onClick={() => {
+                      setShowAddUserDialog(false);
+                      setShowTempPassword(null);
+                    }}>
+                      Done
+                    </Button>
+                  </DialogFooter>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Basic Info */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="userName">Name *</Label>
+                      <Input
+                        id="userName"
+                        value={newUserForm.name}
+                        onChange={(e) => setNewUserForm({ ...newUserForm, name: e.target.value })}
+                        placeholder="John Doe"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="userEmail">Email *</Label>
+                      <Input
+                        id="userEmail"
+                        type="email"
+                        value={newUserForm.email}
+                        onChange={(e) => setNewUserForm({ ...newUserForm, email: e.target.value })}
+                        placeholder="john@example.com"
+                        disabled={!!editingUser}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Admin Toggle */}
+                  <div className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="space-y-0.5">
+                      <Label className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-primary" />
+                        Admin Access
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Admins have full access and can configure their agent profile for Social Hub templates.
+                      </p>
+                    </div>
+                    <Switch
+                      checked={newUserForm.isAdmin}
+                      onCheckedChange={(checked) => setNewUserForm({ ...newUserForm, isAdmin: checked })}
+                    />
+                  </div>
+
+                  {/* Agent Profile (Admin only) */}
+                  {newUserForm.isAdmin && (
+                    <div className="space-y-4 p-4 border rounded-lg bg-primary/5">
+                      <Label className="text-sm font-medium">Agent Profile (for Social Hub templates)</Label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="agentPhone" className="text-xs flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            Phone
+                          </Label>
+                          <Input
+                            id="agentPhone"
+                            value={newUserForm.phone}
+                            onChange={(e) => setNewUserForm({ ...newUserForm, phone: e.target.value })}
+                            placeholder="504-123-4567"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="agentEmail" className="text-xs flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            Agent Email
+                          </Label>
+                          <Input
+                            id="agentEmail"
+                            type="email"
+                            value={newUserForm.agentEmail}
+                            onChange={(e) => setNewUserForm({ ...newUserForm, agentEmail: e.target.value })}
+                            placeholder="agent@company.com"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="headshot" className="text-xs flex items-center gap-1">
+                          <ImageIcon className="h-3 w-3" />
+                          Headshot URL
+                        </Label>
+                        <Input
+                          id="headshot"
+                          value={newUserForm.headshot}
+                          onChange={(e) => setNewUserForm({ ...newUserForm, headshot: e.target.value })}
+                          placeholder="https://example.com/headshot.jpg"
+                        />
+                        {newUserForm.headshot && (
+                          <div className="mt-2">
+                            <img
+                              src={newUserForm.headshot}
+                              alt="Headshot preview"
+                              className="h-16 w-16 rounded-full object-cover border"
+                              onError={(e) => (e.currentTarget.style.display = 'none')}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Permissions (Staff only) */}
+                  {!newUserForm.isAdmin && (
+                    <div className="space-y-3">
+                      <Label>Permissions</Label>
+                      <div className="grid grid-cols-2 gap-2 p-4 border rounded-lg max-h-[300px] overflow-y-auto">
+                        {AVAILABLE_PERMISSIONS.map((perm) => (
+                          <div key={perm.id} className="flex items-start space-x-2">
+                            <Checkbox
+                              id={`perm-${perm.id}`}
+                              checked={newUserForm.permissions.includes(perm.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setNewUserForm({
+                                    ...newUserForm,
+                                    permissions: [...newUserForm.permissions, perm.id],
+                                  });
+                                } else {
+                                  setNewUserForm({
+                                    ...newUserForm,
+                                    permissions: newUserForm.permissions.filter(p => p !== perm.id),
+                                  });
+                                }
+                              }}
+                            />
+                            <div className="grid gap-0.5 leading-none">
+                              <label
+                                htmlFor={`perm-${perm.id}`}
+                                className="text-sm font-medium cursor-pointer"
+                              >
+                                {perm.label}
+                              </label>
+                              <p className="text-xs text-muted-foreground">
+                                {perm.description}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Actions for existing user */}
+                  {editingUser && (
+                    <div className="flex items-center gap-2 pt-4 border-t">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          if (confirm('Reset password? A new temporary password will be generated.')) {
+                            try {
+                              const result = await updateUser.mutateAsync({
+                                id: editingUser.id,
+                                resetPassword: true,
+                              });
+                              if (result.tempPassword) {
+                                setShowTempPassword(result.tempPassword);
+                              }
+                              toast.success('Password reset successfully');
+                            } catch (error: any) {
+                              toast.error(error.message || 'Failed to reset password');
+                            }
+                          }
+                        }}
+                        disabled={updateUser.isPending}
+                      >
+                        <RotateCcw className="h-4 w-4 mr-2" />
+                        Reset Password
+                      </Button>
+                      {editingUser.isActive !== false && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                          onClick={async () => {
+                            if (confirm('Deactivate this user? They will no longer be able to log in.')) {
+                              try {
+                                await deleteUser.mutateAsync(editingUser.id);
+                                toast.success('User deactivated');
+                                setShowAddUserDialog(false);
+                              } catch (error: any) {
+                                toast.error(error.message || 'Failed to deactivate user');
+                              }
+                            }
+                          }}
+                          disabled={deleteUser.isPending}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Deactivate
+                        </Button>
+                      )}
+                    </div>
+                  )}
+
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setShowAddUserDialog(false)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={async () => {
+                        if (!newUserForm.name || !newUserForm.email) {
+                          toast.error('Name and email are required');
+                          return;
+                        }
+
+                        try {
+                          if (editingUser) {
+                            await updateUser.mutateAsync({
+                              id: editingUser.id,
+                              name: newUserForm.name,
+                              isAdmin: newUserForm.isAdmin,
+                              permissions: newUserForm.isAdmin ? [] : newUserForm.permissions,
+                              phone: newUserForm.phone,
+                              agentEmail: newUserForm.agentEmail,
+                              headshot: newUserForm.headshot,
+                            });
+                            toast.success('User updated successfully');
+                            setShowAddUserDialog(false);
+                          } else {
+                            const result = await createUser.mutateAsync({
+                              email: newUserForm.email,
+                              name: newUserForm.name,
+                              isAdmin: newUserForm.isAdmin,
+                              permissions: newUserForm.isAdmin ? [] : newUserForm.permissions,
+                              phone: newUserForm.phone,
+                              agentEmail: newUserForm.agentEmail,
+                              headshot: newUserForm.headshot,
+                            });
+                            setShowTempPassword(result.tempPassword);
+                          }
+                        } catch (error: any) {
+                          toast.error(error.message || 'Failed to save user');
+                        }
+                      }}
+                      disabled={createUser.isPending || updateUser.isPending}
+                    >
+                      {(createUser.isPending || updateUser.isPending) && (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      )}
+                      {editingUser ? 'Save Changes' : 'Create User'}
+                    </Button>
+                  </DialogFooter>
+                </div>
+              )}
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         {/* Preferences Tab */}

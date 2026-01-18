@@ -112,7 +112,8 @@ import {
   generateLocationHashtags,
   PLATFORM_HASHTAG_RULES,
 } from '@/lib/socialHub';
-import { TEAM_AGENTS, getAgentById } from '@/lib/socialHub/agents';
+import { TEAM_AGENTS, FALLBACK_AGENTS, getAgentById } from '@/lib/socialHub/agents';
+import { useAgents } from '@/services/authApi';
 import VoiceInput from '../create-wizard/components/VoiceInput';
 import { ImageUrlInput } from '../shared/ImageUrlInput';
 import { logCaptionGenerated, logImageGenerated, logAIContentGenerated, logMediaUploaded } from '@/store/useActivityStore';
@@ -246,6 +247,10 @@ export function QuickPostFormV2() {
   const [propertySearchOpen, setPropertySearchOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
+
+  // Fetch dynamic agents from API (admins with profiles)
+  const { data: dynamicAgents } = useAgents();
+  const agents = dynamicAgents && dynamicAgents.length > 0 ? dynamicAgents : FALLBACK_AGENTS;
 
   // Custom topic dialog state
   const [showCustomTopicDialog, setShowCustomTopicDialog] = useState(false);
@@ -764,7 +769,7 @@ export function QuickPostFormV2() {
 
       if (shouldGenerateImejisTemplate) {
         // Get selected agent for template fields
-        const selectedAgent = getAgentById(state.selectedAgentId);
+        const selectedAgent = getAgentById(state.selectedAgentId, agents);
 
         // Prepare property with user-selected images (only for property domain)
         let preparedProperty = null;
@@ -1444,7 +1449,7 @@ export function QuickPostFormV2() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {TEAM_AGENTS.map((agent) => (
+                      {agents.map((agent) => (
                         <SelectItem key={agent.id} value={agent.id}>
                           <span className="font-medium">{agent.name}</span>
                         </SelectItem>
@@ -1459,7 +1464,7 @@ export function QuickPostFormV2() {
             {state.tab === 'property' && (
               <div className="flex items-center gap-4 text-sm text-muted-foreground pl-1">
                 {(() => {
-                  const agent = getAgentById(state.selectedAgentId) || TEAM_AGENTS[0];
+                  const agent = getAgentById(state.selectedAgentId, agents) || agents[0];
                   return (
                     <>
                       <span>{agent.phone}</span>

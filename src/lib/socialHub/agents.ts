@@ -4,6 +4,9 @@
  * This defines the team members who can be selected for template generation.
  * The selected agent's info (name, phone, email, headshot) will be used
  * in the Imejis API call for template field population.
+ *
+ * Agents are now fetched dynamically from Airtable Users table (admins only).
+ * The hardcoded list below serves as a fallback if the API is unavailable.
  */
 
 export interface TeamAgent {
@@ -16,9 +19,10 @@ export interface TeamAgent {
 }
 
 /**
- * Purple Homes team members
+ * Fallback team members (used if API is unavailable)
+ * These should match the admin users in Airtable
  */
-export const TEAM_AGENTS: TeamAgent[] = [
+export const FALLBACK_AGENTS: TeamAgent[] = [
   {
     id: 'krista',
     name: 'Krista Hartman',
@@ -37,16 +41,19 @@ export const TEAM_AGENTS: TeamAgent[] = [
   },
 ];
 
+// Keep TEAM_AGENTS for backward compatibility
+export const TEAM_AGENTS = FALLBACK_AGENTS;
+
 /**
- * Get agent by ID
+ * Get agent by ID from a list of agents
  */
-export function getAgentById(id: string): TeamAgent | undefined {
-  return TEAM_AGENTS.find(agent => agent.id === id);
+export function getAgentById(id: string, agents: TeamAgent[] = FALLBACK_AGENTS): TeamAgent | undefined {
+  return agents.find(agent => agent.id === id);
 }
 
 /**
- * Get default agent
+ * Get default agent from a list of agents
  */
-export function getDefaultAgent(): TeamAgent {
-  return TEAM_AGENTS[0];
+export function getDefaultAgent(agents: TeamAgent[] = FALLBACK_AGENTS): TeamAgent {
+  return agents[0] || FALLBACK_AGENTS[0];
 }

@@ -8,7 +8,8 @@ import { ChevronRight, Sparkles, Loader2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WizardState, PostIntent, CaptionLength } from '../../types';
 import { POST_INTENTS, CAPTION_LENGTHS } from '../../types';
-import { TEAM_AGENTS } from '@/lib/socialHub/agents';
+import { FALLBACK_AGENTS } from '@/lib/socialHub/agents';
+import { useAgents } from '@/services/authApi';
 import VoiceInput from '../../components/VoiceInput';
 
 // ============================================
@@ -121,6 +122,10 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
   const [isGeneratingFields, setIsGeneratingFields] = useState(false);
   const [rawContext, setRawContext] = useState('');
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+
+  // Fetch dynamic agents from API (admins with profiles)
+  const { data: dynamicAgents } = useAgents();
+  const agents = dynamicAgents && dynamicAgents.length > 0 ? dynamicAgents : FALLBACK_AGENTS;
 
   const handleSelect = (intentId: PostIntent) => {
     updateState({ postIntent: intentId });
@@ -335,7 +340,7 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
               Who is posting?
             </Label>
             <div className="flex gap-3">
-              {TEAM_AGENTS.map((agent) => (
+              {agents.map((agent) => (
                 <button
                   key={agent.id}
                   type="button"

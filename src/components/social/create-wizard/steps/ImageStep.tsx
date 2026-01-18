@@ -18,7 +18,8 @@ import {
 import { TemplateSelector, TemplateConfigurator } from '@/components/social/templates';
 import { getTemplateById } from '@/lib/templates/profiles';
 import { extractTemplateFieldsFromCaption } from '@/services/openai/captionExtractor';
-import { TEAM_AGENTS, getAgentById } from '@/lib/socialHub/agents';
+import { FALLBACK_AGENTS, getAgentById } from '@/lib/socialHub/agents';
+import { useAgents } from '@/services/authApi';
 import { cn } from '@/lib/utils';
 import type { TemplateProfile } from '@/lib/templates/types';
 import type { WizardState } from '../types';
@@ -33,6 +34,10 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateProfile | null>(null);
   const [userInputs, setUserInputs] = useState<Record<string, string>>(state.templateUserInputs || {});
   const [isExtractingFields, setIsExtractingFields] = useState(false);
+
+  // Fetch dynamic agents from API (admins with profiles)
+  const { data: dynamicAgents } = useAgents();
+  const agents = dynamicAgents && dynamicAgents.length > 0 ? dynamicAgents : FALLBACK_AGENTS;
 
   const isPropertyPost = state.postType === 'property' && state.selectedProperty;
 
@@ -156,7 +161,7 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
             onUserInputChange={handleUserInputChange}
             selectedSupportingImages={state.selectedSupportingImages}
             onSupportingImagesChange={handleSupportingImagesChange}
-            selectedAgent={state.selectedAgentId ? getAgentById(state.selectedAgentId) : undefined}
+            selectedAgent={state.selectedAgentId ? getAgentById(state.selectedAgentId, agents) : undefined}
             onBack={handleBackToSelector}
             onGenerate={() => {}} // No-op: generation happens at publish
             isGenerating={false}
@@ -207,7 +212,7 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
                 <SelectValue placeholder="Select agent" />
               </SelectTrigger>
               <SelectContent>
-                {TEAM_AGENTS.map((agent) => (
+                {agents.map((agent) => (
                   <SelectItem key={agent.id} value={agent.id}>
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{agent.name}</span>
