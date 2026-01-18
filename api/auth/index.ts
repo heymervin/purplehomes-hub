@@ -305,16 +305,15 @@ async function handleLogin(req: VercelRequest, res: VercelResponse, headers: any
 
     console.log(`[Auth] Login successful: ${email}`);
 
-    // Check if user is active
-    if (user.fields.IsActive === false || user.fields.IsActive === 'false') {
+    // Check if user is active (field name is 'isActive' in Airtable)
+    if (user.fields.isActive === false || user.fields.isActive === 'false') {
       console.log(`[Auth] User is deactivated: ${email}`);
       return res.status(401).json({ error: 'Account is deactivated' });
     }
 
     // Return user data (without password) including permissions
-    // Check both IsAdmin field and legacy Role field for admin status
-    const isAdmin = user.fields.IsAdmin === true || user.fields.IsAdmin === 'true' ||
-                    user.fields.Role?.toLowerCase() === 'admin';
+    // Use Role field to determine admin status
+    const isAdmin = user.fields.Role?.toLowerCase() === 'admin';
 
     return res.status(200).json({
       success: true,
@@ -398,10 +397,9 @@ async function handleListUsers(req: VercelRequest, res: VercelResponse, headers:
       email: record.fields.Email,
       name: record.fields.Name,
       role: record.fields.Role,
-      // Check both IsAdmin field and legacy Role field for admin status
-      isAdmin: record.fields.IsAdmin === true || record.fields.IsAdmin === 'true' ||
-               record.fields.Role?.toLowerCase() === 'admin',
-      isActive: record.fields.IsActive !== false && record.fields.IsActive !== 'false',
+      // Use Role field to determine admin status
+      isAdmin: record.fields.Role?.toLowerCase() === 'admin',
+      isActive: record.fields.isActive !== false && record.fields.isActive !== 'false',
       permissions: parsePermissions(record.fields.Permissions),
       phone: record.fields.Phone || null,
       agentEmail: record.fields.AgentEmail || null,
@@ -463,8 +461,20 @@ async function handleCreateUser(req: VercelRequest, res: VercelResponse, headers
     const tempPassword = generateTempPassword();
     const hashedPassword = await bcrypt.hash(tempPassword, SALT_ROUNDS);
 
-    // Prepare permissions string
-    const permissionsString = Array.isArray(permissions) ? permissions.join(',') : '';
+    // Build fields object with all available columns
+    const fields: Record<string, any> = {
+      Email: email,
+      Password: hashedPassword,
+      Name: name,
+      Role: isAdmin === true ? 'Admin' : 'User',
+      isActive: true, // New users are active by default
+    };
+
+    // Optional fields
+    if (permissions && permissions.length > 0) fields.Permissions = permissions.join(',');
+    if (phone) fields.Phone = phone;
+    if (agentEmail) fields.AgentEmail = agentEmail;
+    if (headshot) fields.Headshot = headshot;
 
     // Create the user
     const createResponse = await fetchWithRetry(
@@ -472,20 +482,7 @@ async function handleCreateUser(req: VercelRequest, res: VercelResponse, headers
       {
         method: 'POST',
         headers,
-        body: JSON.stringify({
-          fields: {
-            Email: email,
-            Password: hashedPassword,
-            Name: name,
-            IsAdmin: isAdmin === true,
-            IsActive: true,
-            Permissions: permissionsString,
-            Phone: phone || '',
-            AgentEmail: agentEmail || '',
-            Headshot: headshot || '',
-            CreatedAt: new Date().toISOString(),
-          },
-        }),
+        body: JSON.stringify({ fields }),
       }
     );
 
@@ -505,9 +502,13 @@ async function handleCreateUser(req: VercelRequest, res: VercelResponse, headers
         id: userData.id,
         email: userData.fields.Email,
         name: userData.fields.Name,
-        isAdmin: userData.fields.IsAdmin === true,
+        role: userData.fields.Role,
+        isAdmin: userData.fields.Role?.toLowerCase() === 'admin',
         isActive: true,
         permissions: parsePermissions(userData.fields.Permissions),
+        phone: userData.fields.Phone || null,
+        agentEmail: userData.fields.AgentEmail || null,
+        headshot: userData.fields.Headshot || null,
       },
       tempPassword, // Return temp password so admin can share it
     });
@@ -537,17 +538,22 @@ async function handleUpdateUser(req: VercelRequest, res: VercelResponse, headers
   try {
     const updateFields: Record<string, any> = {};
 
-    // Only include fields that have values (Airtable rejects unknown fields)
+    // Core fields that exist in Airtable
     if (name !== undefined && name !== '') updateFields.Name = name;
-    if (isAdmin !== undefined) updateFields.IsAdmin = isAdmin === true;
-    if (isActive !== undefined) updateFields.IsActive = isActive === true;
-    if (permissions !== undefined) {
-      updateFields.Permissions = Array.isArray(permissions) ? permissions.join(',') : '';
+
+    // Use Role field for admin status (Admin/User)
+    if (isAdmin !== undefined) {
+      updateFields.Role = isAdmin === true ? 'Admin' : 'User';
     }
-    // Only set these if they have actual values (not empty strings)
-    if (phone !== undefined && phone !== '') updateFields.Phone = phone;
-    if (agentEmail !== undefined && agentEmail !== '') updateFields.AgentEmail = agentEmail;
-    if (headshot !== undefined && headshot !== '') updateFields.Headshot = headshot;
+
+    // Optional fields
+    if (isActive !== undefined) updateFields.isActive = isActive === true;
+    if (permissions !== undefined && Array.isArray(permissions)) {
+      updateFields.Permissions = permissions.length > 0 ? permissions.join(',') : '';
+    }
+    if (phone !== undefined) updateFields.Phone = phone || '';
+    if (agentEmail !== undefined) updateFields.AgentEmail = agentEmail || '';
+    if (headshot !== undefined) updateFields.Headshot = headshot || '';
 
     let newTempPassword: string | undefined;
 
@@ -591,8 +597,9 @@ async function handleUpdateUser(req: VercelRequest, res: VercelResponse, headers
         id: userData.id,
         email: userData.fields.Email,
         name: userData.fields.Name,
-        isAdmin: userData.fields.IsAdmin === true,
-        isActive: userData.fields.IsActive !== false,
+        role: userData.fields.Role,
+        isAdmin: userData.fields.Role?.toLowerCase() === 'admin',
+        isActive: userData.fields.isActive !== false,
         permissions: parsePermissions(userData.fields.Permissions),
         phone: userData.fields.Phone || null,
         agentEmail: userData.fields.AgentEmail || null,
@@ -630,7 +637,7 @@ async function handleDeleteUser(req: VercelRequest, res: VercelResponse, headers
         method: 'PATCH',
         headers,
         body: JSON.stringify({
-          fields: { IsActive: false },
+          fields: { isActive: false },
         }),
       }
     );
@@ -660,8 +667,8 @@ async function handleGetAgents(req: VercelRequest, res: VercelResponse, headers:
 
   try {
     // Get only admin users who are active
-    // Check both IsAdmin field and legacy Role field
-    const formula = encodeURIComponent(`AND(OR({IsAdmin} = TRUE(), LOWER({Role}) = 'admin'), OR({IsActive} = TRUE(), {IsActive} = BLANK()))`);
+    // Use Role field for admin status and isActive for active status
+    const formula = encodeURIComponent(`AND(LOWER({Role}) = 'admin', OR({isActive} = TRUE(), {isActive} = BLANK()))`);
     const response = await fetchWithRetry(
       `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Users?filterByFormula=${formula}`,
       { headers }
