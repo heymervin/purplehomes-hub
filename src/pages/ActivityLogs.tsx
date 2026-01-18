@@ -261,7 +261,12 @@ export default function ActivityLogs() {
       // So we navigate to the list and let user find the property
       navigate('/properties');
     } else if (item.source === 'contact' || item.type === 'contact-added' || item.type === 'buyer-added') {
-      navigate('/contacts');
+      // Navigate to contacts with the contact ID to auto-open the detail modal
+      if (item.contactId) {
+        navigate(`/contacts?id=${item.contactId}`);
+      } else {
+        navigate('/contacts');
+      }
     } else if (item.source === 'deal' || item.type === 'deal-created' || item.type === 'deal-updated') {
       navigate('/deal-pipeline');
     } else if (item.source === 'social' || item.type === 'posted' || item.type === 'scheduled') {

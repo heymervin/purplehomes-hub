@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { 
   Search, 
   Filter, 
@@ -111,14 +112,15 @@ export default function Contacts() {
     notes: ''
   });
 
+  const [searchParams, setSearchParams] = useSearchParams();
   const ghlConfig = getApiConfig();
   const hasLocalConfig = !!(ghlConfig.apiKey && ghlConfig.locationId);
 
-  const { 
-    data: ghlContactsData, 
-    isLoading: isLoadingContacts, 
+  const {
+    data: ghlContactsData,
+    isLoading: isLoadingContacts,
     isError: isContactsError,
-    refetch: refetchContacts 
+    refetch: refetchContacts
   } = useContacts();
   
   const isGhlConnected = hasLocalConfig || (ghlContactsData?.contacts && ghlContactsData.contacts.length >= 0);
@@ -251,6 +253,19 @@ export default function Contacts() {
   }, [ghlContactsData, isGhlConnected]);
 
   const baseContacts = ghlContacts;
+
+  // Auto-open contact from URL param (e.g., /contacts?id=abc123)
+  useEffect(() => {
+    const contactId = searchParams.get('id');
+    if (contactId && ghlContacts.length > 0) {
+      const contact = ghlContacts.find(c => c.id === contactId);
+      if (contact) {
+        setSelectedContact(contact);
+        // Clear the URL param after opening
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [searchParams, ghlContacts, setSearchParams]);
 
   const filteredContacts = useMemo(() => {
     let result = [...baseContacts];
