@@ -50,9 +50,10 @@ const navigation: NavItem[] = [
 ];
 
 // Helper to check if user has permission
-function hasPermission(user: { isAdmin?: boolean; permissions?: string[] } | null, permission?: string): boolean {
+function hasPermission(user: { isAdmin?: boolean; permissions?: string[]; role?: string } | null, permission?: string): boolean {
   if (!user) return false;
-  if (user.isAdmin) return true; // Admins have all permissions
+  // Check if user is admin (either via isAdmin flag or legacy role field)
+  if (user.isAdmin || user.role === 'admin') return true;
   if (!permission) return true; // No permission required
   // If user has no permissions defined at all (legacy/old session), show all items
   // This handles backwards compatibility for users who logged in before the permissions update

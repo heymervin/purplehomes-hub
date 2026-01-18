@@ -312,6 +312,10 @@ async function handleLogin(req: VercelRequest, res: VercelResponse, headers: any
     }
 
     // Return user data (without password) including permissions
+    // Check both IsAdmin field and legacy Role field for admin status
+    const isAdmin = user.fields.IsAdmin === true || user.fields.IsAdmin === 'true' ||
+                    user.fields.Role?.toLowerCase() === 'admin';
+
     return res.status(200).json({
       success: true,
       user: {
@@ -319,7 +323,7 @@ async function handleLogin(req: VercelRequest, res: VercelResponse, headers: any
         email: user.fields.Email,
         name: user.fields.Name,
         role: user.fields.Role,
-        isAdmin: user.fields.IsAdmin === true || user.fields.IsAdmin === 'true',
+        isAdmin,
         permissions: parsePermissions(user.fields.Permissions),
       },
     });
@@ -393,7 +397,10 @@ async function handleListUsers(req: VercelRequest, res: VercelResponse, headers:
       id: record.id,
       email: record.fields.Email,
       name: record.fields.Name,
-      isAdmin: record.fields.IsAdmin === true || record.fields.IsAdmin === 'true',
+      role: record.fields.Role,
+      // Check both IsAdmin field and legacy Role field for admin status
+      isAdmin: record.fields.IsAdmin === true || record.fields.IsAdmin === 'true' ||
+               record.fields.Role?.toLowerCase() === 'admin',
       isActive: record.fields.IsActive !== false && record.fields.IsActive !== 'false',
       permissions: parsePermissions(record.fields.Permissions),
       phone: record.fields.Phone || null,
@@ -642,7 +649,8 @@ async function handleGetAgents(req: VercelRequest, res: VercelResponse, headers:
 
   try {
     // Get only admin users who are active
-    const formula = encodeURIComponent(`AND({IsAdmin} = TRUE(), {IsActive} = TRUE())`);
+    // Check both IsAdmin field and legacy Role field
+    const formula = encodeURIComponent(`AND(OR({IsAdmin} = TRUE(), LOWER({Role}) = 'admin'), OR({IsActive} = TRUE(), {IsActive} = BLANK()))`);
     const response = await fetchWithRetry(
       `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Users?filterByFormula=${formula}`,
       { headers }
