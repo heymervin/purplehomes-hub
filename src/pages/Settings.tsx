@@ -48,6 +48,8 @@ import {
   calculateFixedTotal
 } from '@/lib/affordability';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { isAgentProfileOverrideEnabled, setAgentProfileOverrideEnabled } from '@/lib/agentProfileToggle';
+import { User } from 'lucide-react';
 
 // Collapsible Section Component
 function SettingsSection({
@@ -148,6 +150,9 @@ export default function Settings() {
     DEFAULT_MATCH_FLEXIBILITY
   );
   const [hasFlexibilityChanges, setHasFlexibilityChanges] = useState(false);
+
+  // Agent profile override toggle
+  const [agentProfileOverride, setAgentProfileOverride] = useState(() => isAgentProfileOverrideEnabled());
 
   // Sync local defaults when API data loads
   useEffect(() => {
@@ -423,6 +428,29 @@ export default function Settings() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+            </div>
+          </SettingsSection>
+
+          {/* Agent Profile Override */}
+          <SettingsSection title="Social Hub" icon={User}>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/30">
+                <div>
+                  <Label className="text-sm font-medium">Use Agent Profiles</Label>
+                  <p className="text-sm text-muted-foreground">
+                    When enabled, generated images will use agent data from Team settings.
+                    When disabled, Imejis templates use their default values.
+                  </p>
+                </div>
+                <Switch
+                  checked={agentProfileOverride}
+                  onCheckedChange={(checked) => {
+                    setAgentProfileOverride(checked);
+                    setAgentProfileOverrideEnabled(checked);
+                    toast.success(checked ? 'Agent profiles enabled' : 'Using template defaults');
+                  }}
+                />
               </div>
             </div>
           </SettingsSection>

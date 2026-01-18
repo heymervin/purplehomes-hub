@@ -8,6 +8,7 @@ import type {
 } from './types';
 import { COMPANY_CONSTANTS, QR_CODE_BASE_URL } from './constants';
 import { getDefaultAgent, type TeamAgent } from '@/lib/socialHub/agents';
+import { isAgentProfileOverrideEnabled } from '@/lib/agentProfileToggle';
 
 /**
  * Get nested property value by path
@@ -180,6 +181,13 @@ export function resolveFieldValue(
         break;
 
       case 'auto-agent':
+        // Check if agent profile override is enabled
+        // If disabled, return empty value so Imejis uses template defaults
+        if (!isAgentProfileOverrideEnabled()) {
+          baseResult.value = '';
+          break;
+        }
+
         // Use provided agent or fall back to default agent
         const selectedAgent = agent || getDefaultAgent();
         if (fieldConfig.agentPath && selectedAgent) {
@@ -187,9 +195,8 @@ export function resolveFieldValue(
           if (agentValue) {
             baseResult.value = agentValue;
           } else {
-            // Agent field is empty (e.g., headshot not set)
-            baseResult.isValid = !!fieldConfig.optional;
-            baseResult.error = fieldConfig.optional ? undefined : `Missing agent data: ${fieldConfig.agentPath}`;
+            // Agent field is empty - let Imejis use template defaults
+            baseResult.value = '';
           }
         }
         break;
