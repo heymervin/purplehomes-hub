@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Camera, Loader2, User, Briefcase, Shield } from 'lucide-react';
+import { ArrowLeft, Camera, Loader2, User, Briefcase, Shield, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,7 +31,9 @@ interface UserWizardProps {
     isAdmin: boolean;
     permissions: string[];
   }) => Promise<void>;
+  onResetPassword?: (userId: string) => Promise<void>;
   isSaving: boolean;
+  isResettingPassword?: boolean;
 }
 
 const WIZARD_STEPS: { id: WizardStep; label: string; icon: React.ElementType }[] = [
@@ -40,7 +42,7 @@ const WIZARD_STEPS: { id: WizardStep; label: string; icon: React.ElementType }[]
   { id: 'roles-permissions', label: 'Roles & Permissions', icon: Shield },
 ];
 
-export function UserWizard({ editingUser, onBack, onSave, isSaving }: UserWizardProps) {
+export function UserWizard({ editingUser, onBack, onSave, onResetPassword, isSaving, isResettingPassword }: UserWizardProps) {
   const [currentStep, setCurrentStep] = useState<WizardStep>('user-info');
   const [formData, setFormData] = useState<UserFormData>({
     // Login credentials
@@ -233,6 +235,31 @@ export function UserWizard({ editingUser, onBack, onSave, isSaving }: UserWizard
                   <p className="text-xs text-muted-foreground">
                     If left blank, a temporary password will be generated.
                   </p>
+                </div>
+              )}
+
+              {/* Reset Password - only for existing users */}
+              {editingUser && onResetPassword && (
+                <div className="space-y-2">
+                  <Label>Password</Label>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => onResetPassword(editingUser.id)}
+                      disabled={isResettingPassword}
+                    >
+                      {isResettingPassword ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <KeyRound className="h-4 w-4 mr-2" />
+                      )}
+                      Reset Password
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      Generate a new temporary password for this user
+                    </p>
+                  </div>
                 </div>
               )}
 

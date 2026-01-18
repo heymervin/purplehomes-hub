@@ -317,7 +317,7 @@ export default function Settings() {
           <SettingsSection
             title="Integrations"
             icon={Link2}
-            defaultOpen={true}
+            defaultOpen={false}
             badge={
               isConnected ? (
                 <Badge className="bg-success text-xs">Connected</Badge>

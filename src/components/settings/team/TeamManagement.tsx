@@ -32,6 +32,7 @@ export function TeamManagement({ enabled }: TeamManagementProps) {
   const [editingUser, setEditingUser] = useState<TeamMember | null>(null);
   const [tempPassword, setTempPassword] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
 
   // Convert API users to TeamMember format
   const teamMembers: TeamMember[] = (users || []).map((user: User) => ({
@@ -161,6 +162,26 @@ export function TeamManagement({ enabled }: TeamManagementProps) {
     setView('list');
   };
 
+  const handleResetPassword = async (userId: string) => {
+    setIsResettingPassword(true);
+    try {
+      const result = await updateUser.mutateAsync({
+        id: userId,
+        resetPassword: true,
+      });
+
+      if (result.tempPassword) {
+        setTempPassword(result.tempPassword);
+      } else {
+        toast.success('Password reset successfully');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to reset password');
+    } finally {
+      setIsResettingPassword(false);
+    }
+  };
+
   return (
     <div>
       {view === 'list' ? (
@@ -176,7 +197,9 @@ export function TeamManagement({ enabled }: TeamManagementProps) {
           editingUser={editingUser}
           onBack={handleBack}
           onSave={handleSave}
+          onResetPassword={handleResetPassword}
           isSaving={createUser.isPending || updateUser.isPending}
+          isResettingPassword={isResettingPassword}
         />
       )}
 
@@ -184,9 +207,11 @@ export function TeamManagement({ enabled }: TeamManagementProps) {
       <Dialog open={!!tempPassword} onOpenChange={() => setTempPassword(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>User Created Successfully</DialogTitle>
+            <DialogTitle>
+              {editingUser ? 'Password Reset' : 'User Created Successfully'}
+            </DialogTitle>
             <DialogDescription>
-              Share this temporary password with the new user. They should change it after their first login.
+              Share this temporary password with the user. They should change it after their next login.
             </DialogDescription>
           </DialogHeader>
 
