@@ -119,8 +119,21 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
   );
 
   // Get template profile for user input fields
+  // Map UI template IDs to profile IDs
   const selectedTemplateProfile = useMemo(() => {
-    return getTemplateById(item.templateId);
+    if (item.templateId === 'custom' || item.templateId === 'none') return null;
+    // Map template IDs to profile IDs (UI uses different IDs than template profiles)
+    const templateToProfile: Record<string, string> = {
+      'just-listed': 'just-listed',
+      'just-sold': 'just-sold',
+      'open-house': 'open-house',
+      'price-drop': 'price-drop',
+      'coming-soon': 'coming-soon',
+      'value-tips': 'personal-value',
+      'success-story': 'success-story',
+    };
+    const profileId = templateToProfile[item.templateId];
+    return profileId ? getTemplateById(profileId) : null;
   }, [item.templateId]);
 
   // Get user input fields for selected template (for custom template inputs like Value Tips)

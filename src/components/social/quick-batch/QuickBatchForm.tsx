@@ -545,7 +545,18 @@ export function QuickBatchForm() {
 
         // Generate image if template is not 'none' or 'custom'
         if (item.templateId !== 'none' && item.templateId !== 'custom') {
-          const template = getTemplateById(item.templateId);
+          // Map UI template IDs to profile IDs
+          const templateToProfile: Record<string, string> = {
+            'just-listed': 'just-listed',
+            'just-sold': 'just-sold',
+            'open-house': 'open-house',
+            'price-drop': 'price-drop',
+            'coming-soon': 'coming-soon',
+            'value-tips': 'personal-value',
+            'success-story': 'success-story',
+          };
+          const profileId = templateToProfile[item.templateId] || item.templateId;
+          const template = getTemplateById(profileId);
           if (template) {
             // Get selected agent for template fields
             const selectedAgent = item.selectedAgentId ? getAgentById(item.selectedAgentId) : undefined;
