@@ -546,24 +546,33 @@ export function QuickBatchForm() {
         // Generate image if template is not 'none' or 'custom'
         if (item.templateId !== 'none' && item.templateId !== 'custom') {
           const template = getTemplateById(item.templateId);
-          if (template && property) {
+          if (template) {
             // Get selected agent for template fields
             const selectedAgent = item.selectedAgentId ? getAgentById(item.selectedAgentId) : undefined;
 
             // Prepare property with user-selected images (if any)
-            const preparedProperty = preparePropertyForTemplate(property);
-            const propertyWithSelectedImages = {
-              ...preparedProperty,
-              // Override hero image if user selected one
-              heroImage: item.selectedHeroImage || preparedProperty.heroImage,
-              // Override supporting images if user selected any
-              images: item.selectedSupportingImages?.length
-                ? item.selectedSupportingImages
-                : preparedProperty.images,
-            };
+            // For non-property posts (personal/professional), property may be null
+            let propertyWithSelectedImages = null;
+            if (property) {
+              const preparedProperty = preparePropertyForTemplate(property);
+              propertyWithSelectedImages = {
+                ...preparedProperty,
+                // Override hero image if user selected one
+                heroImage: item.selectedHeroImage || preparedProperty.heroImage,
+                // Override supporting images if user selected any
+                images: item.selectedSupportingImages?.length
+                  ? item.selectedSupportingImages
+                  : preparedProperty.images,
+              };
+            }
 
             // Resolve fields with agent and selected images
-            const resolvedFields = resolveAllFields(template, propertyWithSelectedImages, item.context, selectedAgent);
+            // Merge context fields with template-specific user inputs (e.g., Value Tips fields)
+            const allUserInputs = {
+              ...item.context,
+              ...(item.templateUserInputs || {}),
+            };
+            const resolvedFields = resolveAllFields(template, propertyWithSelectedImages, allUserInputs, selectedAgent);
             const payload = buildImejisPayload(template, resolvedFields);
             const imageResult = await renderImejisTemplate(payload);
 

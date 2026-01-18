@@ -78,6 +78,7 @@ import { FALLBACK_AGENTS, getAgentById } from '@/lib/socialHub/agents';
 import { useAgents } from '@/services/authApi';
 import { SupportingImagePicker } from '@/components/social/templates/SupportingImagePicker';
 import { getTemplateById } from '@/lib/templates/profiles';
+import { ImageUrlInput } from '@/components/social/shared/ImageUrlInput';
 
 interface BatchPostEditorProps {
   item: BatchItem;
@@ -116,6 +117,29 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
     () => getAgentById(item.selectedAgentId || 'krista', agents) || agents[0],
     [item.selectedAgentId, agents]
   );
+
+  // Get template profile for user input fields
+  const selectedTemplateProfile = useMemo(() => {
+    return getTemplateById(item.templateId);
+  }, [item.templateId]);
+
+  // Get user input fields for selected template (for custom template inputs like Value Tips)
+  const userInputFields = useMemo(() => {
+    if (!selectedTemplateProfile) return [];
+    return Object.entries(selectedTemplateProfile.fields)
+      .filter(([, config]) => config.source === 'user-input')
+      .map(([key, config]) => ({ key, config }));
+  }, [selectedTemplateProfile]);
+
+  // Handle template input changes
+  const handleTemplateInputChange = (key: string, value: string) => {
+    onChange({
+      templateUserInputs: {
+        ...(item.templateUserInputs || {}),
+        [key]: value,
+      },
+    });
+  };
 
   // Generate suggested hashtags based on intent and property
   const suggestedHashtags = useMemo(() => {
@@ -299,7 +323,7 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {TEAM_AGENTS.map((agent) => (
+                    {agents.map((agent) => (
                       <SelectItem key={agent.id} value={agent.id}>
                         <span className="font-medium">{agent.name}</span>
                       </SelectItem>
@@ -637,6 +661,56 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
               Templates are filtered based on your selected intent.
             </p>
           </div>
+
+          {/* Template-Specific Input Fields (e.g., Value Tips fields) */}
+          {userInputFields.length > 0 && (
+            <div className="mt-4 p-4 rounded-lg bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800">
+              <div className="flex items-center gap-2 mb-3">
+                <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <span className="font-medium text-sm">{selectedTemplateProfile?.name} Fields</span>
+                <Badge variant="secondary" className="text-xs">
+                  {userInputFields.length} field{userInputFields.length > 1 ? 's' : ''}
+                </Badge>
+              </div>
+              <div className="space-y-3">
+                {userInputFields.map(({ key, config }) => (
+                  <div key={key} className="space-y-1">
+                    <label className="text-sm font-medium text-foreground">
+                      {config.inputConfig?.label || key}
+                      {config.inputConfig?.required && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                    {config.dataType === 'textarea' ? (
+                      <Textarea
+                        placeholder={config.inputConfig?.placeholder}
+                        value={(item.templateUserInputs || {})[key] || ''}
+                        onChange={(e) => handleTemplateInputChange(key, e.target.value)}
+                        rows={config.inputConfig?.rows || 2}
+                        maxLength={config.inputConfig?.maxLength}
+                        className="resize-none"
+                      />
+                    ) : config.dataType === 'image' ? (
+                      <ImageUrlInput
+                        value={(item.templateUserInputs || {})[key] || ''}
+                        onChange={(url) => handleTemplateInputChange(key, url)}
+                        placeholder={config.inputConfig?.placeholder || 'Paste image URL or upload...'}
+                      />
+                    ) : (
+                      <Input
+                        type="text"
+                        placeholder={config.inputConfig?.placeholder}
+                        value={(item.templateUserInputs || {})[key] || ''}
+                        onChange={(e) => handleTemplateInputChange(key, e.target.value)}
+                        maxLength={config.inputConfig?.maxLength}
+                      />
+                    )}
+                    {config.inputConfig?.helpText && (
+                      <p className="text-xs text-muted-foreground">{config.inputConfig.helpText}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Hero Image Selection - shown for property posts with images */}
           {item.tab === 'property' && property && (property.heroImage || (property.images && property.images.length > 0)) && (

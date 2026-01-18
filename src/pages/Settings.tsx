@@ -437,10 +437,9 @@ export default function Settings() {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/30">
                 <div>
-                  <Label className="text-sm font-medium">Use Agent Profiles</Label>
+                  <Label className="text-sm font-medium">Use My Agent Profile</Label>
                   <p className="text-sm text-muted-foreground">
-                    When enabled, generated images will use agent data from Team settings.
-                    When disabled, Imejis templates use their default values.
+                    ON: Your agent info appears on images. OFF: Default Hartman branding.
                   </p>
                 </div>
                 <Switch
