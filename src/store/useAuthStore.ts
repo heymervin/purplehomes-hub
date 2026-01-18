@@ -17,6 +17,7 @@ interface AuthState {
   login: (email: string, password: string, rememberMe?: boolean) => Promise<boolean>;
   logout: () => void;
   checkSession: () => boolean;
+  updateCurrentUser: (updates: Partial<User>) => void;
 }
 
 const API_BASE = '/api/auth';
@@ -104,14 +105,21 @@ export const useAuthStore = create<AuthState>()(
         if (!isAuthenticated || !sessionExpiry) {
           return false;
         }
-        
+
         if (Date.now() > sessionExpiry) {
           // Session expired
           set({ user: null, isAuthenticated: false, sessionExpiry: null });
           return false;
         }
-        
+
         return true;
+      },
+
+      updateCurrentUser: (updates: Partial<User>) => {
+        const { user } = get();
+        if (user) {
+          set({ user: { ...user, ...updates } });
+        }
       },
     }),
     {

@@ -17,6 +17,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAppStore } from '@/store/useAppStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { getApiConfig, setApiConfig, useTestConnection, useSocialAccounts } from '@/services/ghlApi';
@@ -52,6 +53,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function Settings() {
   const { connectionStatus, setConnectionStatus, propertiesPerPage, setPropertiesPerPage } = useAppStore();
+  const { user: currentUser, updateCurrentUser } = useAuthStore();
   const { isConnected, lastChecked, manualReconnect, checkConnection } = useGhlConnection({ autoConnect: false });
   const [isTestingConnection, setIsTestingConnection] = useState<string | null>(null);
   const [connectionHistory, setConnectionHistory] = useState<Array<{ time: string; success: boolean }>>([]);
@@ -1259,7 +1261,7 @@ export default function Settings() {
 
                         try {
                           if (editingUser) {
-                            await updateUser.mutateAsync({
+                            const updatedData = {
                               id: editingUser.id,
                               name: newUserForm.name,
                               isAdmin: newUserForm.isAdmin,
@@ -1267,7 +1269,19 @@ export default function Settings() {
                               phone: newUserForm.phone,
                               agentEmail: newUserForm.agentEmail,
                               headshot: newUserForm.headshot,
-                            });
+                            };
+                            await updateUser.mutateAsync(updatedData);
+
+                            // If updating the current user, refresh their session data
+                            if (currentUser && editingUser.email === currentUser.email) {
+                              updateCurrentUser({
+                                name: newUserForm.name,
+                                role: newUserForm.isAdmin ? 'Admin' : 'User',
+                                isAdmin: newUserForm.isAdmin,
+                                permissions: newUserForm.isAdmin ? [] : newUserForm.permissions,
+                              });
+                            }
+
                             toast.success('User updated successfully');
                             setShowAddUserDialog(false);
                           } else {
