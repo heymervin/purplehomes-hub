@@ -102,7 +102,8 @@ export default function Settings() {
     DEFAULT_AFFORDABILITY_SETTINGS
   );
 
-  // User Management
+  // User Management - only enabled if user can manage users
+  const canManageUsers = currentUser?.isAdmin || currentUser?.role?.toLowerCase() === 'admin' || currentUser?.permissions?.includes('manage-users');
   const { data: users, isLoading: isLoadingUsers, refetch: refetchUsers } = useUsers();
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
@@ -296,7 +297,7 @@ export default function Settings() {
           <TabsTrigger value="status">Connection Status</TabsTrigger>
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
           <TabsTrigger value="social">Social Accounts</TabsTrigger>
-          <TabsTrigger value="team">Team</TabsTrigger>
+          {canManageUsers && <TabsTrigger value="team">Team</TabsTrigger>}
           <TabsTrigger value="preferences">Preferences</TabsTrigger>
         </TabsList>
 
@@ -874,7 +875,8 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
-        {/* Team Tab */}
+        {/* Team Tab - Only visible if user can manage users */}
+        {canManageUsers && (
         <TabsContent value="team" className="space-y-6">
           <Card>
             <CardHeader>
@@ -1313,6 +1315,7 @@ export default function Settings() {
             </DialogContent>
           </Dialog>
         </TabsContent>
+        )}
 
         {/* Preferences Tab */}
         <TabsContent value="preferences" className="space-y-6">
