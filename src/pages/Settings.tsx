@@ -49,7 +49,10 @@ import {
 } from '@/lib/affordability';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { isAgentProfileOverrideEnabled, setAgentProfileOverrideEnabled } from '@/lib/agentProfileToggle';
-import { User } from 'lucide-react';
+import { User, Calendar } from 'lucide-react';
+import { logSettingsChanged } from '@/store/useActivityStore';
+import { useQueueSettings } from '@/hooks/useQueueSettings';
+import { DAY_LABELS, AVAILABLE_TIME_SLOTS } from '@/lib/queue/constants';
 
 // Collapsible Section Component
 function SettingsSection({
@@ -98,8 +101,29 @@ function SettingsSection({
   );
 }
 
+// Common US timezones for the dropdown
+const TIMEZONE_OPTIONS = [
+  { value: 'America/New_York', label: 'Eastern Time (ET)' },
+  { value: 'America/Chicago', label: 'Central Time (CT)' },
+  { value: 'America/Denver', label: 'Mountain Time (MT)' },
+  { value: 'America/Phoenix', label: 'Arizona (MST - no DST)' },
+  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
+  { value: 'America/Anchorage', label: 'Alaska Time (AKT)' },
+  { value: 'Pacific/Honolulu', label: 'Hawaii Time (HST)' },
+];
+
+// Available social platforms
+const PLATFORM_OPTIONS = [
+  { id: 'facebook', label: 'Facebook', icon: '📘' },
+  { id: 'instagram', label: 'Instagram', icon: '📷' },
+  { id: 'linkedin', label: 'LinkedIn', icon: '💼' },
+  { id: 'twitter', label: 'X (Twitter)', icon: '🐦' },
+  { id: 'tiktok', label: 'TikTok', icon: '🎵' },
+  { id: 'google', label: 'Google Business', icon: '🔍' },
+];
+
 export default function Settings() {
-  const { propertiesPerPage, setPropertiesPerPage } = useAppStore();
+  const { propertiesPerPage, setPropertiesPerPage, timezone, setTimezone, defaultPlatforms, setDefaultPlatforms } = useAppStore();
   const { user: currentUser } = useAuthStore();
   const { isConnected, manualReconnect } = useGhlConnection({ autoConnect: false });
 
@@ -153,6 +177,9 @@ export default function Settings() {
 
   // Agent profile override toggle
   const [agentProfileOverride, setAgentProfileOverride] = useState(() => isAgentProfileOverrideEnabled());
+
+  // Queue settings
+  const { settings: queueSettings, updateSettings: updateQueueSettings } = useQueueSettings();
 
   // Sync local defaults when API data loads
   useEffect(() => {
@@ -209,6 +236,7 @@ export default function Settings() {
     try {
       await updateCalculatorDefaults.mutateAsync(localDefaults as CalculatorDefaults);
       setHasDefaultsChanges(false);
+      logSettingsChanged('Calculator Defaults');
       toast.success('Calculator defaults saved');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to save defaults');
@@ -219,6 +247,7 @@ export default function Settings() {
     try {
       await updateMatchingPreferences.mutateAsync({ budgetMultiplier: localBudgetMultiplier });
       setHasMatchingPrefsChanges(false);
+      logSettingsChanged('Budget Multiplier', `${localBudgetMultiplier}x`);
       toast.success('Matching preferences saved');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to save preferences');
@@ -233,6 +262,7 @@ export default function Settings() {
         zillowKeywords: localZillowKeywords,
       });
       setHasZillowChanges(false);
+      logSettingsChanged('Zillow Search Settings');
       toast.success('Zillow settings saved');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to save settings');
@@ -245,6 +275,7 @@ export default function Settings() {
         affordability: affordabilitySettings
       });
       setHasAffordabilityChanges(false);
+      logSettingsChanged('Affordability Formula');
       toast.success('Affordability settings saved');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to save affordability settings');
@@ -257,6 +288,7 @@ export default function Settings() {
         matchFlexibility: matchFlexibility
       });
       setHasFlexibilityChanges(false);
+      logSettingsChanged('Match Flexibility');
       toast.success('Match flexibility settings saved');
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to save flexibility settings');
@@ -417,14 +449,23 @@ export default function Settings() {
                 </div>
                 <div>
                   <Label className="text-sm">Time zone</Label>
-                  <Select defaultValue="america-phoenix">
+                  <Select
+                    value={timezone}
+                    onValueChange={(tz) => {
+                      setTimezone(tz);
+                      logSettingsChanged('Time Zone', tz);
+                      toast.success(`Time zone set to ${TIMEZONE_OPTIONS.find(t => t.value === tz)?.label || tz}`);
+                    }}
+                  >
                     <SelectTrigger className="mt-1">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="america-phoenix">America/Phoenix (MST)</SelectItem>
-                      <SelectItem value="america-los-angeles">America/Los Angeles (PST)</SelectItem>
-                      <SelectItem value="america-new-york">America/New York (EST)</SelectItem>
+                      {TIMEZONE_OPTIONS.map((tz) => (
+                        <SelectItem key={tz.value} value={tz.value}>
+                          {tz.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -432,9 +473,10 @@ export default function Settings() {
             </div>
           </SettingsSection>
 
-          {/* Agent Profile Override */}
+          {/* Social Hub Settings */}
           <SettingsSection title="Social Hub" icon={User}>
             <div className="space-y-4">
+              {/* Agent Profile Override */}
               <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/30">
                 <div>
                   <Label className="text-sm font-medium">Use My Agent Profile</Label>
@@ -447,9 +489,183 @@ export default function Settings() {
                   onCheckedChange={(checked) => {
                     setAgentProfileOverride(checked);
                     setAgentProfileOverrideEnabled(checked);
+                    logSettingsChanged('Agent Profile Override', checked);
                     toast.success(checked ? 'Agent profiles enabled' : 'Using template defaults');
                   }}
                 />
+              </div>
+
+              {/* Default Platforms */}
+              <div className="p-4 border rounded-lg bg-muted/30">
+                <Label className="text-sm font-medium">Default Platforms</Label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Pre-selected platforms when creating new posts
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {PLATFORM_OPTIONS.map((platform) => {
+                    const isSelected = defaultPlatforms.includes(platform.id);
+                    return (
+                      <button
+                        key={platform.id}
+                        type="button"
+                        onClick={() => {
+                          const newPlatforms = isSelected
+                            ? defaultPlatforms.filter(p => p !== platform.id)
+                            : [...defaultPlatforms, platform.id];
+                          setDefaultPlatforms(newPlatforms);
+                          logSettingsChanged('Default Platforms', newPlatforms.join(', '));
+                        }}
+                        className={cn(
+                          'px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5',
+                          isSelected
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                        )}
+                      >
+                        <span>{platform.icon}</span>
+                        {platform.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {defaultPlatforms.length === 0 && (
+                  <p className="text-xs text-amber-600 mt-2">
+                    Select at least one platform
+                  </p>
+                )}
+              </div>
+            </div>
+          </SettingsSection>
+
+          {/* Queue Configuration */}
+          <SettingsSection title="Posting Schedule" icon={Calendar}>
+            <div className="space-y-6">
+              {/* Posting Days */}
+              <div>
+                <Label className="text-sm font-medium">Posting Days</Label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Select which days of the week to schedule posts
+                </p>
+                <div className="flex gap-2">
+                  {[0, 1, 2, 3, 4, 5, 6].map((day) => {
+                    const isSelected = queueSettings.postingDays.includes(day);
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => {
+                          const newDays = isSelected
+                            ? queueSettings.postingDays.filter(d => d !== day)
+                            : [...queueSettings.postingDays, day].sort((a, b) => a - b);
+                          updateQueueSettings({ postingDays: newDays });
+                          logSettingsChanged('Posting Days', newDays.map(d => DAY_LABELS[d]).join(', '));
+                        }}
+                        className={cn(
+                          'w-10 h-10 rounded-lg text-sm font-medium transition-colors',
+                          isSelected
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                        )}
+                      >
+                        {DAY_LABELS[day]}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Time Slots */}
+              <div>
+                <Label className="text-sm font-medium">Posting Times</Label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Select preferred times for scheduled posts
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {AVAILABLE_TIME_SLOTS.map((slot) => {
+                    const isSelected = queueSettings.timeSlots.includes(slot.time);
+                    return (
+                      <button
+                        key={slot.time}
+                        type="button"
+                        onClick={() => {
+                          const newSlots = isSelected
+                            ? queueSettings.timeSlots.filter(t => t !== slot.time)
+                            : [...queueSettings.timeSlots, slot.time].sort();
+                          updateQueueSettings({ timeSlots: newSlots });
+                          logSettingsChanged('Posting Times', newSlots.join(', '));
+                        }}
+                        className={cn(
+                          'px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2',
+                          isSelected
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                        )}
+                      >
+                        <span>{slot.icon}</span>
+                        <span>{slot.label}</span>
+                        <span className="opacity-70">({slot.time})</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Max Posts & Min Hours */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium">Max Posts Per Day</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Limit daily scheduled posts
+                  </p>
+                  <Select
+                    value={queueSettings.maxPostsPerDay.toString()}
+                    onValueChange={(v) => {
+                      updateQueueSettings({ maxPostsPerDay: parseInt(v) });
+                      logSettingsChanged('Max Posts Per Day', v);
+                    }}
+                  >
+                    <SelectTrigger className="w-24">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2">2</SelectItem>
+                      <SelectItem value="3">3</SelectItem>
+                      <SelectItem value="4">4</SelectItem>
+                      <SelectItem value="5">5</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Min Hours Between Posts</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Gap between consecutive posts
+                  </p>
+                  <Select
+                    value={queueSettings.minHoursBetween.toString()}
+                    onValueChange={(v) => {
+                      updateQueueSettings({ minHoursBetween: parseInt(v) });
+                      logSettingsChanged('Min Hours Between Posts', `${v} hours`);
+                    }}
+                  >
+                    <SelectTrigger className="w-24">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 hr</SelectItem>
+                      <SelectItem value="2">2 hrs</SelectItem>
+                      <SelectItem value="3">3 hrs</SelectItem>
+                      <SelectItem value="4">4 hrs</SelectItem>
+                      <SelectItem value="6">6 hrs</SelectItem>
+                      <SelectItem value="8">8 hrs</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Info box */}
+              <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-blue-700 dark:text-blue-300">
+                These settings control how Quick Batch schedules posts. Changes apply immediately to new batches.
               </div>
             </div>
           </SettingsSection>

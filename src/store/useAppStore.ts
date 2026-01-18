@@ -11,6 +11,8 @@ interface AppState {
   setPropertiesPerPage: (count: number) => void;
   defaultPlatforms: string[];
   setDefaultPlatforms: (platforms: string[]) => void;
+  timezone: string;
+  setTimezone: (tz: string) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -32,6 +34,8 @@ export const useAppStore = create<AppState>()(
       setPropertiesPerPage: (count) => set({ propertiesPerPage: count }),
       defaultPlatforms: ['facebook', 'instagram'],
       setDefaultPlatforms: (platforms) => set({ defaultPlatforms: platforms }),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      setTimezone: (tz) => set({ timezone: tz }),
     }),
     {
       name: 'app-settings',

@@ -15,6 +15,10 @@ export type AppActivityType =
   | 'batch-published'
   | 'ai-content-generated'
   | 'media-uploaded'
+  | 'settings-changed'
+  | 'user-created'
+  | 'user-updated'
+  | 'password-reset'
   | 'error';
 
 export interface AppActivityEntry {
@@ -251,5 +255,67 @@ export function logError(details: string, metadata?: Record<string, unknown>) {
     status: 'error',
     details,
     metadata,
+  });
+}
+
+/**
+ * Log a settings change
+ */
+export function logSettingsChanged(
+  settingName: string,
+  newValue?: string | boolean | number,
+  oldValue?: string | boolean | number
+) {
+  let details = `Settings updated: ${settingName}`;
+  if (newValue !== undefined) {
+    if (typeof newValue === 'boolean') {
+      details = `${settingName} ${newValue ? 'enabled' : 'disabled'}`;
+    } else {
+      details = `${settingName} changed to "${newValue}"`;
+    }
+  }
+
+  useActivityStore.getState().logActivity({
+    type: 'settings-changed',
+    status: 'success',
+    details,
+    metadata: { settingName, newValue, oldValue },
+  });
+}
+
+/**
+ * Log user creation
+ */
+export function logUserCreated(userName: string, userEmail: string, isAdmin: boolean) {
+  useActivityStore.getState().logActivity({
+    type: 'user-created',
+    status: 'success',
+    details: `User created: ${userName} (${userEmail})${isAdmin ? ' as Admin' : ''}`,
+    metadata: { userName, userEmail, isAdmin },
+  });
+}
+
+/**
+ * Log user update
+ */
+export function logUserUpdated(userName: string, changes?: string[]) {
+  const changeList = changes && changes.length > 0 ? `: ${changes.join(', ')}` : '';
+  useActivityStore.getState().logActivity({
+    type: 'user-updated',
+    status: 'success',
+    details: `User updated: ${userName}${changeList}`,
+    metadata: { userName, changes },
+  });
+}
+
+/**
+ * Log password reset
+ */
+export function logPasswordReset(userName: string) {
+  useActivityStore.getState().logActivity({
+    type: 'password-reset',
+    status: 'success',
+    details: `Password reset for ${userName}`,
+    metadata: { userName },
   });
 }

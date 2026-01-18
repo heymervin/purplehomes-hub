@@ -4,6 +4,7 @@ import { StaffList } from './StaffList';
 import { UserWizard } from './UserWizard';
 import { useUsers, useCreateUser, useUpdateUser, useDeleteUser, User } from '@/services/authApi';
 import { useAuthStore } from '@/store/useAuthStore';
+import { logUserCreated, logUserUpdated, logPasswordReset } from '@/store/useActivityStore';
 import {
   Dialog,
   DialogContent,
@@ -117,6 +118,15 @@ export function TeamManagement({ enabled }: TeamManagementProps) {
           });
         }
 
+        // Log the update
+        const changes: string[] = [];
+        if (data.name !== editingUser.name) changes.push('name');
+        if (data.isAdmin !== editingUser.isAdmin) changes.push('role');
+        if (data.agentName !== editingUser.agentName) changes.push('agent name');
+        if (data.agentEmail !== editingUser.agentEmail) changes.push('agent email');
+        if (data.agentTitle !== editingUser.agentTitle) changes.push('agent title');
+        logUserUpdated(data.name, changes.length > 0 ? changes : undefined);
+
         toast.success('User updated successfully');
         setView('list');
         setEditingUser(null);
@@ -134,6 +144,9 @@ export function TeamManagement({ enabled }: TeamManagementProps) {
           agentTitle: data.agentTitle,
           headshot: data.headshot,
         });
+
+        // Log the creation
+        logUserCreated(data.name, data.email, data.isAdmin);
 
         // Show temp password if one was generated
         if (result.tempPassword && !data.password) {
@@ -169,6 +182,12 @@ export function TeamManagement({ enabled }: TeamManagementProps) {
         id: userId,
         resetPassword: true,
       });
+
+      // Log password reset - find the user name
+      const userToReset = teamMembers.find(m => m.id === userId);
+      if (userToReset) {
+        logPasswordReset(userToReset.name);
+      }
 
       if (result.tempPassword) {
         setTempPassword(result.tempPassword);
