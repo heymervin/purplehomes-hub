@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Mail, Phone, MapPin, Building2, Bed, Bath, Maximize2, Tag, Calendar, X, Plus, Search, Loader2, Check, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Mail, Phone, MapPin, Building2, Bed, Bath, Maximize2, Tag, Calendar, X, Plus, Search, Loader2, Check, Sparkles, Home, Handshake, ShoppingBag, ExternalLink, ChevronRight } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { useTags, useUpdateContactTags } from '@/services/ghlApi';
+import { useTags, useUpdateContactTags, useContactRelationships } from '@/services/ghlApi';
 import { useRunBuyerMatching } from '@/services/matchingApi';
 import { toast } from 'sonner';
 import type { Contact } from '@/types';
@@ -30,14 +31,17 @@ interface ContactDetailModalProps {
 }
 
 export function ContactDetailModal({ contact, open, onOpenChange, onUpdate }: ContactDetailModalProps) {
+  const navigate = useNavigate();
   const [tagSearch, setTagSearch] = useState('');
   const [tagsOpen, setTagsOpen] = useState(false);
   const [savingTagId, setSavingTagId] = useState<string | null>(null);
   const [localTags, setLocalTags] = useState<string[] | null>(null); // Local state for optimistic updates
-  const [runningMatching, setRunningMatching] = useState(false);
 
   // Fetch all available tags
   const { data: tagsData } = useTags();
+
+  // Fetch contact relationships
+  const { data: relationships, isLoading: isLoadingRelationships } = useContactRelationships(contact?.id);
   const availableTags = tagsData?.tags || [];
 
   // Update contact tags mutation
@@ -408,6 +412,129 @@ export function ContactDetailModal({ contact, open, onOpenChange, onUpdate }: Co
                 </div>
               </PopoverContent>
             </Popover>
+          </div>
+
+          {/* Connected To Section - Shows related properties, deals, buyer dispositions */}
+          <Separator />
+          <div className="space-y-3">
+            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+              <ExternalLink className="h-4 w-4" />
+              Connected To
+            </h3>
+
+            {isLoadingRelationships ? (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-sm text-muted-foreground">Loading relationships...</span>
+              </div>
+            ) : relationships && relationships.totalCount > 0 ? (
+              <div className="space-y-2">
+                {/* Properties (Seller Acquisition) */}
+                {relationships.properties.length > 0 && (
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                      <Home className="h-3 w-3" />
+                      Properties ({relationships.properties.length})
+                    </p>
+                    {relationships.properties.map((prop) => (
+                      <button
+                        key={prop.id}
+                        onClick={() => {
+                          onOpenChange(false);
+                          navigate('/property-pipeline');
+                        }}
+                        className="w-full flex items-center justify-between p-2 bg-orange-500/5 hover:bg-orange-500/10 border border-orange-500/20 rounded-lg text-left transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Home className="h-4 w-4 text-orange-500" />
+                          <div>
+                            <p className="text-sm font-medium">{prop.name}</p>
+                            {prop.value && prop.value > 0 && (
+                              <p className="text-xs text-muted-foreground">
+                                ${prop.value.toLocaleString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Deals */}
+                {relationships.deals.length > 0 && (
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                      <Handshake className="h-3 w-3" />
+                      Deals ({relationships.deals.length})
+                    </p>
+                    {relationships.deals.map((deal) => (
+                      <button
+                        key={deal.id}
+                        onClick={() => {
+                          onOpenChange(false);
+                          navigate('/deal-pipeline');
+                        }}
+                        className="w-full flex items-center justify-between p-2 bg-green-500/5 hover:bg-green-500/10 border border-green-500/20 rounded-lg text-left transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Handshake className="h-4 w-4 text-green-500" />
+                          <div>
+                            <p className="text-sm font-medium">{deal.name}</p>
+                            {deal.value && deal.value > 0 && (
+                              <p className="text-xs text-muted-foreground">
+                                ${deal.value.toLocaleString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Buyer Dispositions */}
+                {relationships.buyerDispositions.length > 0 && (
+                  <div className="space-y-1">
+                    <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                      <ShoppingBag className="h-3 w-3" />
+                      Buyer Interests ({relationships.buyerDispositions.length})
+                    </p>
+                    {relationships.buyerDispositions.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          onOpenChange(false);
+                          navigate('/buyer-dispositions');
+                        }}
+                        className="w-full flex items-center justify-between p-2 bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/20 rounded-lg text-left transition-colors"
+                      >
+                        <div className="flex items-center gap-2">
+                          <ShoppingBag className="h-4 w-4 text-blue-500" />
+                          <div>
+                            <p className="text-sm font-medium">{item.name}</p>
+                            {item.value && item.value > 0 && (
+                              <p className="text-xs text-muted-foreground">
+                                ${item.value.toLocaleString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-3 bg-muted/30 rounded-lg border border-dashed">
+                <p className="text-sm text-muted-foreground text-center">
+                  No connections found in pipelines
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Notes */}

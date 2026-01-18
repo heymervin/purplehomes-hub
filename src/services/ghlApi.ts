@@ -1866,13 +1866,132 @@ export const useSubmitForm = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(error.message || "Failed to submit form");
       }
-      
+
       return response.json();
     },
+  });
+};
+
+// ==================== CONTACT RELATIONSHIPS ====================
+// Fetches all entities related to a contact (properties, deals, buyer dispositions)
+
+export interface ContactRelationship {
+  id: string;
+  type: 'property' | 'deal' | 'buyer-disposition';
+  name: string;
+  status: string;
+  pipelineStage?: string;
+  value?: number;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ContactRelationshipsResult {
+  properties: ContactRelationship[];
+  deals: ContactRelationship[];
+  buyerDispositions: ContactRelationship[];
+  totalCount: number;
+}
+
+/**
+ * Hook to fetch all relationships for a contact
+ * Searches across seller acquisition (properties), deal acquisition, and buyer disposition pipelines
+ */
+export const useContactRelationships = (contactId: string | undefined) => {
+  return useQuery({
+    queryKey: ['contact-relationships', contactId],
+    queryFn: async (): Promise<ContactRelationshipsResult> => {
+      if (!contactId) {
+        return { properties: [], deals: [], buyerDispositions: [], totalCount: 0 };
+      }
+
+      const result: ContactRelationshipsResult = {
+        properties: [],
+        deals: [],
+        buyerDispositions: [],
+        totalCount: 0,
+      };
+
+      // Fetch from all three pipelines in parallel
+      const [sellerResponse, dealResponse, buyerResponse] = await Promise.allSettled([
+        // Seller Acquisition Pipeline (Properties the contact is selling)
+        fetchGHL<{ opportunities: GHLOpportunity[] }>(
+          `opportunities?pipelineId=${SELLER_ACQUISITION_PIPELINE_ID}&contactId=${contactId}`
+        ),
+        // Deal Acquisition Pipeline (Deals involving this contact)
+        fetchGHL<{ opportunities: GHLOpportunity[] }>(
+          `opportunities?pipelineId=${DEAL_ACQUISITION_PIPELINE_ID}&contactId=${contactId}`
+        ),
+        // Buyer Disposition Pipeline (Properties the contact is interested in as buyer)
+        fetchGHL<{ opportunities: GHLOpportunity[] }>(
+          `opportunities?pipelineId=${BUYER_DISPOSITION_PIPELINE_ID}&contactId=${contactId}`
+        ),
+      ]);
+
+      // Process seller acquisition (properties)
+      if (sellerResponse.status === 'fulfilled') {
+        const opportunities = sellerResponse.value.opportunities || [];
+        for (const opp of opportunities) {
+          result.properties.push({
+            id: opp.id,
+            type: 'property',
+            name: opp.name || 'Property',
+            status: opp.status,
+            pipelineStage: opp.pipelineStageId,
+            value: opp.monetaryValue,
+            createdAt: opp.createdAt,
+            updatedAt: opp.updatedAt,
+          });
+        }
+      }
+
+      // Process deal acquisition
+      if (dealResponse.status === 'fulfilled') {
+        const opportunities = dealResponse.value.opportunities || [];
+        for (const opp of opportunities) {
+          result.deals.push({
+            id: opp.id,
+            type: 'deal',
+            name: opp.name || 'Deal',
+            status: opp.status,
+            pipelineStage: opp.pipelineStageId,
+            value: opp.monetaryValue,
+            createdAt: opp.createdAt,
+            updatedAt: opp.updatedAt,
+          });
+        }
+      }
+
+      // Process buyer disposition
+      if (buyerResponse.status === 'fulfilled') {
+        const opportunities = buyerResponse.value.opportunities || [];
+        for (const opp of opportunities) {
+          result.buyerDispositions.push({
+            id: opp.id,
+            type: 'buyer-disposition',
+            name: opp.name || 'Property Interest',
+            status: opp.status,
+            pipelineStage: opp.pipelineStageId,
+            value: opp.monetaryValue,
+            createdAt: opp.createdAt,
+            updatedAt: opp.updatedAt,
+          });
+        }
+      }
+
+      result.totalCount =
+        result.properties.length +
+        result.deals.length +
+        result.buyerDispositions.length;
+
+      return result;
+    },
+    enabled: !!contactId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
