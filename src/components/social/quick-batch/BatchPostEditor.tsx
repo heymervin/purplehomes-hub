@@ -372,6 +372,56 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
         </Card>
       )}
 
+      {/* Agent Selection for Non-Property Posts (when template has agent fields) */}
+      {item.tab !== 'property' && selectedTemplateProfile && (
+        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border-purple-200 dark:border-purple-800">
+          <CardContent className="p-4 space-y-4">
+            <div className="flex items-center gap-2 flex-wrap">
+              <User className="h-5 w-5 text-purple-600" />
+              <span className="text-sm font-medium">Post as</span>
+              <Select
+                value={item.selectedAgentId || 'krista'}
+                onValueChange={(value) => onChange({ selectedAgentId: value })}
+              >
+                <SelectTrigger className="w-auto h-8 px-3 bg-white dark:bg-gray-900 border-purple-300">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {agents.map((agent) => (
+                    <SelectItem key={agent.id} value={agent.id}>
+                      <span className="font-medium">{agent.name}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Agent Contact Info (Read-only) */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Phone</Label>
+                <Input
+                  value={selectedAgent.phone}
+                  readOnly
+                  className="h-8 text-sm bg-muted/50 cursor-not-allowed"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Email</Label>
+                <Input
+                  value={selectedAgent.email}
+                  readOnly
+                  className="h-8 text-sm bg-muted/50 cursor-not-allowed"
+                />
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Agent info will appear on the generated image footer
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Schedule Section */}
       <Card>
         <CardHeader className="pb-3">
