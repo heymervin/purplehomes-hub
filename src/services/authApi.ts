@@ -262,8 +262,9 @@ interface AgentsResponse {
 
 /**
  * Hook to fetch all users (admin only)
+ * @param enabled - Whether to enable the query (default: true). Set to false to prevent fetching.
  */
-export const useUsers = () => {
+export const useUsers = (enabled: boolean = true) => {
   return useQuery({
     queryKey: ['users'],
     queryFn: async (): Promise<User[]> => {
@@ -271,6 +272,7 @@ export const useUsers = () => {
       return response.users;
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
+    enabled,
   });
 };
 

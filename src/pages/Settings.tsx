@@ -104,7 +104,9 @@ export default function Settings() {
 
   // User Management - only enabled if user can manage users
   const canManageUsers = currentUser?.isAdmin || currentUser?.role?.toLowerCase() === 'admin' || currentUser?.permissions?.includes('manage-users');
-  const { data: users, isLoading: isLoadingUsers, refetch: refetchUsers } = useUsers();
+
+  // Only fetch users if user has permission to manage them
+  const { data: users, isLoading: isLoadingUsers, refetch: refetchUsers } = useUsers(canManageUsers);
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
