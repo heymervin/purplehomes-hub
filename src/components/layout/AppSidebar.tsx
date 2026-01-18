@@ -54,7 +54,10 @@ function hasPermission(user: { isAdmin?: boolean; permissions?: string[] } | nul
   if (!user) return false;
   if (user.isAdmin) return true; // Admins have all permissions
   if (!permission) return true; // No permission required
-  return user.permissions?.includes(permission) ?? false;
+  // If user has no permissions defined at all (legacy/old session), show all items
+  // This handles backwards compatibility for users who logged in before the permissions update
+  if (!user.permissions || user.permissions.length === 0) return true;
+  return user.permissions.includes(permission);
 }
 
 export function AppSidebar() {

@@ -305,7 +305,13 @@ async function handleLogin(req: VercelRequest, res: VercelResponse, headers: any
 
     console.log(`[Auth] Login successful: ${email}`);
 
-    // Return user data (without password)
+    // Check if user is active
+    if (user.fields.IsActive === false || user.fields.IsActive === 'false') {
+      console.log(`[Auth] User is deactivated: ${email}`);
+      return res.status(401).json({ error: 'Account is deactivated' });
+    }
+
+    // Return user data (without password) including permissions
     return res.status(200).json({
       success: true,
       user: {
@@ -313,6 +319,8 @@ async function handleLogin(req: VercelRequest, res: VercelResponse, headers: any
         email: user.fields.Email,
         name: user.fields.Name,
         role: user.fields.Role,
+        isAdmin: user.fields.IsAdmin === true || user.fields.IsAdmin === 'true',
+        permissions: parsePermissions(user.fields.Permissions),
       },
     });
   } catch (error: any) {
