@@ -117,25 +117,6 @@ export function ImageUrlInput({
 
   return (
     <div className={cn('flex gap-2', className)}>
-      <div className="flex-1 relative">
-        <Input
-          type="url"
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className={cn(value && 'pr-10')}
-          disabled={disabled || isUploading}
-        />
-        {value && !disabled && (
-          <button
-            type="button"
-            onClick={() => onChange('')}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </div>
       <input
         ref={fileInputRef}
         type="file"
@@ -158,6 +139,25 @@ export function ImageUrlInput({
           <Upload className="h-4 w-4" />
         )}
       </Button>
+      <div className="flex-1 relative">
+        <Input
+          type="url"
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={cn(value && 'pr-10')}
+          disabled={disabled || isUploading}
+        />
+        {value && !disabled && (
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
       {value && value.startsWith('http') && (
         <Button
           type="button"
