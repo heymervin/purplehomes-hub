@@ -12,6 +12,8 @@ export interface User {
   permissions?: string[];
   phone?: string | null;
   agentEmail?: string | null;
+  agentName?: string | null;
+  agentTitle?: string | null;
   headshot?: string | null;
   createdAt?: string;
 }
@@ -230,6 +232,8 @@ interface CreateUserData {
   permissions?: string[];
   phone?: string;
   agentEmail?: string;
+  agentName?: string;
+  agentTitle?: string;
   headshot?: string;
 }
 
@@ -246,6 +250,8 @@ interface UpdateUserData {
   permissions?: string[];
   phone?: string;
   agentEmail?: string;
+  agentName?: string;
+  agentTitle?: string;
   headshot?: string;
   resetPassword?: boolean;
 }

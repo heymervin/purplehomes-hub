@@ -119,8 +119,6 @@ import { useAgents } from '@/services/authApi';
 import VoiceInput from '../create-wizard/components/VoiceInput';
 import { ImageUrlInput } from '../shared/ImageUrlInput';
 import { logCaptionGenerated, logImageGenerated, logAIContentGenerated, logMediaUploaded } from '@/store/useActivityStore';
-import { getAgentProfileOverrides, isAgentProfileOverrideEnabled } from '@/components/settings/AgentProfile';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // ============ FORM STATE ============
 type FormStep = 'form' | 'preview';
@@ -1469,41 +1467,11 @@ export function QuickPostFormV2() {
               <div className="flex items-center gap-4 text-sm text-muted-foreground pl-1">
                 {(() => {
                   const agent = getAgentById(state.selectedAgentId, agents) || agents[0];
-                  const overrides = getAgentProfileOverrides();
-                  const isOverrideEnabled = overrides?.enabled;
-
-                  // Use overridden values if enabled
-                  const displayPhone = isOverrideEnabled && overrides?.phone ? overrides.phone : agent.phone;
-                  const displayEmail = isOverrideEnabled && overrides?.email ? overrides.email : agent.email;
-
                   return (
                     <>
-                      <span>{displayPhone}</span>
+                      <span>{agent.phone}</span>
                       <span>•</span>
-                      <span>{displayEmail}</span>
-                      {isOverrideEnabled && (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <button
-                                type="button"
-                                onClick={() => window.location.href = '/settings#preferences'}
-                                className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-full transition-colors"
-                              >
-                                <AlertCircle className="h-3 w-3" />
-                                <span>Override ON</span>
-                              </button>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs">
-                              <p className="font-medium mb-1">Agent Profile Override is enabled</p>
-                              <p className="text-xs text-muted-foreground">
-                                Your custom agent info will be used in generated images instead of the selected agent.
-                              </p>
-                              <p className="text-xs text-primary mt-1">Click to manage in Settings</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      )}
+                      <span>{agent.email}</span>
                     </>
                   );
                 })()}

@@ -11,18 +11,26 @@ export interface TeamMember {
   isActive: boolean;
   permissions: string[];
   agentEmail?: string | null;
+  agentName?: string | null;
+  agentTitle?: string | null;
   createdAt?: string;
 }
 
-export type WizardStep = 'user-info' | 'roles-permissions';
+export type WizardStep = 'user-info' | 'agent-profile' | 'roles-permissions';
 
 export interface UserFormData {
+  // Login credentials
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
   password: string;
+  // Agent profile (for marketing/images)
+  agentName: string;
+  agentEmail: string;
+  agentPhone: string;
+  agentTitle: string;
   headshot: string;
+  // Permissions
   isAdmin: boolean;
   permissions: PermissionState;
 }

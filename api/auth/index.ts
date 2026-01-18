@@ -403,6 +403,8 @@ async function handleListUsers(req: VercelRequest, res: VercelResponse, headers:
       permissions: parsePermissions(record.fields.Permissions),
       phone: record.fields.Phone || null,
       agentEmail: record.fields.AgentEmail || null,
+      agentName: record.fields.AgentName || null,
+      agentTitle: record.fields.AgentTitle || null,
       headshot: record.fields.Headshot || null,
       createdAt: record.fields.CreatedAt || record.createdTime,
     }));
@@ -422,7 +424,7 @@ async function handleCreateUser(req: VercelRequest, res: VercelResponse, headers
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { email, name, isAdmin, permissions, phone, agentEmail, headshot, password } = req.body;
+  const { email, name, isAdmin, permissions, phone, agentEmail, agentName, agentTitle, headshot, password } = req.body;
 
   if (!email || !name) {
     return res.status(400).json({
@@ -474,6 +476,8 @@ async function handleCreateUser(req: VercelRequest, res: VercelResponse, headers
     if (permissions && permissions.length > 0) fields.Permissions = permissions.join(',');
     if (phone) fields.Phone = phone;
     if (agentEmail) fields.AgentEmail = agentEmail;
+    if (agentName) fields.AgentName = agentName;
+    if (agentTitle) fields.AgentTitle = agentTitle;
     if (headshot) fields.Headshot = headshot;
 
     // Create the user
@@ -508,6 +512,8 @@ async function handleCreateUser(req: VercelRequest, res: VercelResponse, headers
         permissions: parsePermissions(userData.fields.Permissions),
         phone: userData.fields.Phone || null,
         agentEmail: userData.fields.AgentEmail || null,
+        agentName: userData.fields.AgentName || null,
+        agentTitle: userData.fields.AgentTitle || null,
         headshot: userData.fields.Headshot || null,
       },
       tempPassword, // Return temp password so admin can share it
@@ -527,7 +533,7 @@ async function handleUpdateUser(req: VercelRequest, res: VercelResponse, headers
   }
 
   const { id } = req.query;
-  const { name, isAdmin, isActive, permissions, phone, agentEmail, headshot, resetPassword } = req.body;
+  const { name, isAdmin, isActive, permissions, phone, agentEmail, agentName, agentTitle, headshot, resetPassword } = req.body;
 
   if (!id || typeof id !== 'string') {
     return res.status(400).json({ error: 'User ID is required' });
@@ -553,6 +559,8 @@ async function handleUpdateUser(req: VercelRequest, res: VercelResponse, headers
     }
     if (phone !== undefined) updateFields.Phone = phone || '';
     if (agentEmail !== undefined) updateFields.AgentEmail = agentEmail || '';
+    if (agentName !== undefined) updateFields.AgentName = agentName || '';
+    if (agentTitle !== undefined) updateFields.AgentTitle = agentTitle || '';
     if (headshot !== undefined) updateFields.Headshot = headshot || '';
 
     let newTempPassword: string | undefined;
@@ -603,6 +611,8 @@ async function handleUpdateUser(req: VercelRequest, res: VercelResponse, headers
         permissions: parsePermissions(userData.fields.Permissions),
         phone: userData.fields.Phone || null,
         agentEmail: userData.fields.AgentEmail || null,
+        agentName: userData.fields.AgentName || null,
+        agentTitle: userData.fields.AgentTitle || null,
         headshot: userData.fields.Headshot || null,
       },
       ...(newTempPassword && { tempPassword: newTempPassword }),
@@ -686,11 +696,13 @@ async function handleGetAgents(req: VercelRequest, res: VercelResponse, headers:
       })
       .map((record: any) => ({
         id: record.id,
-        name: record.fields.Name,
+        // Use AgentName if set, otherwise fall back to login Name for dropdown display
+        name: record.fields.AgentName || record.fields.Name,
+        // Don't add defaults - let Imejis template use its hardcoded values if empty
         phone: record.fields.Phone || '',
-        email: record.fields.AgentEmail || record.fields.Email || '',
+        email: record.fields.AgentEmail || '',
         headshot: record.fields.Headshot || '',
-        title: 'Agent',
+        title: record.fields.AgentTitle || '',
       }));
 
     return res.status(200).json({ success: true, agents });

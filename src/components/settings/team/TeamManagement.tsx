@@ -45,6 +45,8 @@ export function TeamManagement({ enabled }: TeamManagementProps) {
     isActive: user.isActive !== false,
     permissions: user.permissions || [],
     agentEmail: user.agentEmail,
+    agentName: user.agentName,
+    agentTitle: user.agentTitle,
     createdAt: user.createdAt,
   }));
 
@@ -77,6 +79,9 @@ export function TeamManagement({ enabled }: TeamManagementProps) {
     email: string;
     password?: string;
     phone?: string;
+    agentName?: string;
+    agentEmail?: string;
+    agentTitle?: string;
     headshot?: string;
     isAdmin: boolean;
     permissions: string[];
@@ -90,6 +95,9 @@ export function TeamManagement({ enabled }: TeamManagementProps) {
           isAdmin: data.isAdmin,
           permissions: data.permissions,
           phone: data.phone,
+          agentName: data.agentName,
+          agentEmail: data.agentEmail,
+          agentTitle: data.agentTitle,
           headshot: data.headshot,
         });
 
@@ -100,6 +108,11 @@ export function TeamManagement({ enabled }: TeamManagementProps) {
             role: data.isAdmin ? 'Admin' : 'User',
             isAdmin: data.isAdmin,
             permissions: data.isAdmin ? [] : data.permissions,
+            agentName: data.agentName,
+            agentEmail: data.agentEmail,
+            agentTitle: data.agentTitle,
+            headshot: data.headshot,
+            phone: data.phone,
           });
         }
 
@@ -115,6 +128,9 @@ export function TeamManagement({ enabled }: TeamManagementProps) {
           isAdmin: data.isAdmin,
           permissions: data.permissions,
           phone: data.phone,
+          agentName: data.agentName,
+          agentEmail: data.agentEmail,
+          agentTitle: data.agentTitle,
           headshot: data.headshot,
         });
 

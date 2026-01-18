@@ -35,7 +35,6 @@ import { useGhlConnection } from '@/hooks/useGhlConnection';
 import { useCalculatorDefaults, useUpdateCalculatorDefaults } from '@/services/calculatorApi';
 import { useMatchingPreferences, useUpdateMatchingPreferences } from '@/services/matchingApi';
 import { TeamManagement } from '@/components/settings/team';
-import { AgentProfile } from '@/components/settings/AgentProfile';
 import type { CalculatorDefaults } from '@/types/calculator';
 import {
   DEFAULT_AFFORDABILITY_SETTINGS,
@@ -427,9 +426,6 @@ export default function Settings() {
               </div>
             </div>
           </SettingsSection>
-
-          {/* Agent Profile Override */}
-          <AgentProfile />
 
           {/* Matching Preferences */}
           <SettingsSection
