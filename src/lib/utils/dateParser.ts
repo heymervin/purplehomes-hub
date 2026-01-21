@@ -18,8 +18,6 @@ import {
   isToday,
   isTomorrow,
   format,
-  parse,
-  isValid,
 } from 'date-fns';
 
 export interface ParsedDateTime {
@@ -62,6 +60,19 @@ export function parseDateTimeString(input: string): ParsedDateTime | null {
   }
 
   const now = new Date();
+
+  // "today" or "today 9am" patterns
+  if (trimmed === 'today' || trimmed.startsWith('today ')) {
+    const result = parseTodayPattern(trimmed, now);
+    if (result) {
+      return {
+        date: result,
+        isNow: false,
+        formatted: formatParsedDate(result),
+        confidence: 'high',
+      };
+    }
+  }
   let result: Date | null = null;
   let confidence: 'high' | 'medium' | 'low' = 'medium';
 
@@ -180,6 +191,25 @@ function parseAbsoluteDatePattern(input: string, now: Date): Date | null {
   }
 
   return null;
+}
+
+/**
+ * Parse "today" or "today 9am" patterns
+ */
+function parseTodayPattern(input: string, now: Date): Date | null {
+  if (!input.startsWith('today')) {
+    return null;
+  }
+
+  const today = startOfDay(now);
+  const timeMatch = input.match(/today\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+
+  if (timeMatch) {
+    return applyTime(today, timeMatch);
+  }
+
+  // Default to 9am
+  return setHours(setMinutes(today, 0), 9);
 }
 
 /**
