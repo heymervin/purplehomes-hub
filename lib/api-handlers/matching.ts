@@ -1486,11 +1486,9 @@ async function handleAggregatedBuyers(
   console.log(`[Aggregated] Fetched ${allMatches.length} matches in ${Date.now() - startTime}ms`);
 
   // Step 3: Get unique property IDs and batch fetch properties
-  const propertyIds = [
-    ...new Set(
-      allMatches.flatMap((m: any) => m.fields['Property Code'] || [])
-    ),
-  ];
+  const propertyIds = Array.from(new Set(
+    allMatches.flatMap((m: any) => m.fields['Property Code'] || [])
+  ));
 
   let propertiesMap: Record<string, any> = {};
 
@@ -1712,11 +1710,9 @@ async function handleAggregatedProperties(
   console.log(`[Aggregated] Fetched ${allMatches.length} matches in ${Date.now() - startTime}ms`);
 
   // Step 3: Get unique buyer Contact IDs and batch fetch buyers
-  const buyerContactIds = [
-    ...new Set(
-      allMatches.map((m: any) => m.fields['Contact ID (for GHL)']).filter(Boolean)
-    ),
-  ];
+  const buyerContactIds = Array.from(new Set(
+    allMatches.map((m: any) => m.fields['Contact ID (for GHL)']).filter(Boolean)
+  ));
 
   let buyersMap: Record<string, any> = {};
 

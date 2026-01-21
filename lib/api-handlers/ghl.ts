@@ -22,6 +22,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import * as FormData from 'form-data';
 
 const GHL_API_URL = 'https://services.leadconnectorhq.com';
 const GHL_API_KEY = process.env.GHL_API_KEY;
@@ -1216,9 +1217,7 @@ if (resource === 'opportunities') {
           console.log('[MEDIA] File buffer size:', fileBuffer.length, 'bytes');
 
           // Create form data for multipart upload
-          const formDataModule = await import('form-data');
-          const FormDataClass = formDataModule.default || formDataModule;
-          const form = new FormDataClass();
+          const form = new FormData();
           form.append('file', fileBuffer, {
             filename: body.name || `image-${Date.now()}.png`,
             contentType: body.contentType || 'image/png'
@@ -1661,9 +1660,7 @@ if (resource === 'opportunities') {
           console.log('[MESSAGES] File buffer size:', fileBuffer.length, 'bytes');
 
           // Create form data for multipart upload
-          const formDataModule = await import('form-data');
-          const FormDataClass = formDataModule.default || formDataModule;
-          const form = new FormDataClass();
+          const form = new FormData();
           form.append('fileAttachment', fileBuffer, {
             filename: fileName || 'attachment.pdf',
             contentType: fileType || 'application/pdf'

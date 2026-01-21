@@ -58,18 +58,24 @@ export async function cacheHandler(req: VercelRequest, res: VercelResponse) {
 
       // Build status response
       const cacheRecords = cacheData.records || [];
-      const status = {
-        properties: extractCacheMetadata(cacheRecords, 'properties', propertiesCount),
-        buyers: extractCacheMetadata(cacheRecords, 'buyers', buyersCount),
-        matches: extractCacheMetadata(cacheRecords, 'matches', matchesCount),
-        lastChecked: new Date().toISOString(),
-      };
+      const propertiesMeta = extractCacheMetadata(cacheRecords, 'properties', propertiesCount);
+      const buyersMeta = extractCacheMetadata(cacheRecords, 'buyers', buyersCount);
+      const matchesMeta = extractCacheMetadata(cacheRecords, 'matches', matchesCount);
 
-      // Calculate new available
-      status.newPropertiesAvailable = Math.max(0, propertiesCount - status.properties.recordCount);
-      status.newBuyersAvailable = Math.max(0, buyersCount - status.buyers.recordCount);
-      status.isStale = !status.properties.isValid || !status.buyers.isValid ||
-                       status.newPropertiesAvailable > 0 || status.newBuyersAvailable > 0;
+      const newPropertiesAvailable = Math.max(0, propertiesCount - propertiesMeta.recordCount);
+      const newBuyersAvailable = Math.max(0, buyersCount - buyersMeta.recordCount);
+      const isStale = !propertiesMeta.isValid || !buyersMeta.isValid ||
+                      newPropertiesAvailable > 0 || newBuyersAvailable > 0;
+
+      const status = {
+        properties: propertiesMeta,
+        buyers: buyersMeta,
+        matches: matchesMeta,
+        lastChecked: new Date().toISOString(),
+        newPropertiesAvailable,
+        newBuyersAvailable,
+        isStale,
+      };
 
       return res.status(200).json(status);
     }

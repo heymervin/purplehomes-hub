@@ -23,7 +23,7 @@ export function FieldSection({
       {/* Section Header */}
       <div className="flex items-center gap-2">
         <Icon className={cn('h-4 w-4', iconColor)} aria-hidden="true" />
-        <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
           {title}
         </h4>
       </div>

@@ -152,8 +152,8 @@ export function LocationFields({
       <div className="space-y-4">
         {/* Section Header */}
         <div className="flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-purple-600" />
-          <h4 className="text-sm font-semibold text-purple-700 uppercase tracking-wide">
+          <MapPin className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+          <h4 className="text-sm font-semibold text-purple-700 dark:text-purple-300 uppercase tracking-wide">
             Location
           </h4>
         </div>

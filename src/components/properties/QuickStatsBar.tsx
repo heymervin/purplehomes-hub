@@ -13,15 +13,15 @@ interface QuickStatsBarProps {
 
 export function QuickStatsBar({ price, beds, baths, sqft, address }: QuickStatsBarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-lg border border-purple-100">
+    <div className="flex flex-wrap items-center gap-4 p-4 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 rounded-lg border border-purple-100 dark:border-purple-800/50">
       {/* Price */}
       <div className="flex items-center gap-2">
-        <div className="p-2 bg-white rounded-lg shadow-sm">
-          <DollarSign className="h-4 w-4 text-green-600" />
+        <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <DollarSign className="h-4 w-4 text-green-600 dark:text-green-400" />
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Price</p>
-          <p className="font-semibold text-green-700">
+          <p className="font-semibold text-green-700 dark:text-green-400">
             {price ? `$${price.toLocaleString()}` : '—'}
           </p>
         </div>
@@ -31,8 +31,8 @@ export function QuickStatsBar({ price, beds, baths, sqft, address }: QuickStatsB
 
       {/* Beds */}
       <div className="flex items-center gap-2">
-        <div className="p-2 bg-white rounded-lg shadow-sm">
-          <Bed className="h-4 w-4 text-purple-600" />
+        <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <Bed className="h-4 w-4 text-purple-600 dark:text-purple-400" />
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Beds</p>
@@ -44,8 +44,8 @@ export function QuickStatsBar({ price, beds, baths, sqft, address }: QuickStatsB
 
       {/* Baths */}
       <div className="flex items-center gap-2">
-        <div className="p-2 bg-white rounded-lg shadow-sm">
-          <Bath className="h-4 w-4 text-blue-600" />
+        <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <Bath className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Baths</p>
@@ -57,8 +57,8 @@ export function QuickStatsBar({ price, beds, baths, sqft, address }: QuickStatsB
 
       {/* Sqft */}
       <div className="flex items-center gap-2">
-        <div className="p-2 bg-white rounded-lg shadow-sm">
-          <Square className="h-4 w-4 text-amber-600" />
+        <div className="p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+          <Square className="h-4 w-4 text-amber-600 dark:text-amber-400" />
         </div>
         <div>
           <p className="text-xs text-muted-foreground">Sqft</p>

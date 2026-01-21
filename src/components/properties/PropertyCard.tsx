@@ -1,12 +1,16 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bed, Bath, Clock, Square } from 'lucide-react';
+import { Bed, Bath, Clock, Square, Share2, Check } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { StatusBadge } from '@/components/ui/status-badge';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Property } from '@/types';
 import { format } from 'date-fns';
+import { getPropertyShareUrl } from '@/lib/utils/slug';
+import { toast } from 'sonner';
 
 interface PropertyCardProps {
   property: Property;
@@ -22,6 +26,30 @@ export function PropertyCard({
   onViewDetail,
 }: PropertyCardProps) {
   const navigate = useNavigate();
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const url = getPropertyShareUrl(property.address, property.city);
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${property.address} - $${property.price.toLocaleString()}`,
+          url,
+        });
+        return;
+      } catch (err) {
+        // User cancelled or share failed, fall back to copy
+      }
+    }
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    toast.success('Link copied to clipboard!');
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleCardClick = () => {
     if (onViewDetail) {
@@ -86,21 +114,34 @@ export function PropertyCard({
             )}
           </div>
           
-          {/* Selection Checkbox */}
-          {onSelect && (
-            <div onClick={(e) => e.stopPropagation()}>
-              <Checkbox
-                checked={selected}
-                onCheckedChange={() => onSelect(property.id)}
-                className={cn(
-                  "h-5 w-5 rounded-full border-2 transition-all",
-                  selected 
-                    ? "bg-primary border-primary" 
-                    : "bg-black/40 border-white/60 hover:border-white"
-                )}
-              />
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {/* Share Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleShare}
+              className="h-8 w-8 bg-black/40 backdrop-blur-sm hover:bg-black/60 text-white rounded-full"
+              title="Share property link"
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+            </Button>
+
+            {/* Selection Checkbox */}
+            {onSelect && (
+              <div onClick={(e) => e.stopPropagation()}>
+                <Checkbox
+                  checked={selected}
+                  onCheckedChange={() => onSelect(property.id)}
+                  className={cn(
+                    "h-5 w-5 rounded-full border-2 transition-all",
+                    selected
+                      ? "bg-primary border-primary"
+                      : "bg-black/40 border-white/60 hover:border-white"
+                  )}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Bottom info on image */}

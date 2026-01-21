@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   Save, Loader2, Home, Bed, Bath, Square, DollarSign,
   Image as ImageIcon, Tag, Calendar, RefreshCw, Calculator,
-  ExternalLink, Share2, MessageSquare, CheckCircle
+  ExternalLink, Share2, MessageSquare, CheckCircle, FileText
 } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { QuickStatsBar } from './QuickStatsBar';
@@ -48,6 +48,7 @@ import type { Property, PropertyCondition, PropertyType, PropertyStatus } from '
 import { useUpdateProperty, useProperty, PROPERTY_CUSTOM_FIELDS } from '@/services/ghlApi';
 import { useUpdateAirtableProperty } from '@/services/matchingApi';
 import { PropertyCalculator } from '@/components/calculator';
+import { FunnelContentEditor } from './FunnelContentEditor';
 
 interface PropertyDetailModalProps {
   property: Property | null;
@@ -117,6 +118,11 @@ export function PropertyDetailModal({
   const [isLoading] = useState(false);
   const [calculatorOpen, setCalculatorOpen] = useState(false);
   const [showCloseWarning, setShowCloseWarning] = useState(false);
+  const [activeTab, setActiveTab] = useState('details');
+  // Funnel tab save state
+  const [funnelHasChanges, setFunnelHasChanges] = useState(false);
+  const [funnelIsSaving, setFunnelIsSaving] = useState(false);
+  const [funnelSaveHandler, setFunnelSaveHandler] = useState<(() => void) | null>(null);
 
   // Populate form when property changes
   useEffect(() => {
@@ -322,21 +328,28 @@ export function PropertyDetailModal({
                 }}
               />
 
-              <Tabs defaultValue="details" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-purple-50/50 p-1 rounded-lg">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-3 bg-purple-50/50 dark:bg-purple-950/30 p-1 rounded-lg">
                   <TabsTrigger
                     value="details"
-                    className="data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm rounded-md transition-all"
+                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300 data-[state=active]:shadow-sm rounded-md transition-all"
                   >
                     <Home className="h-4 w-4 mr-2" aria-hidden="true" />
-                    Property Details
+                    Details
                   </TabsTrigger>
                   <TabsTrigger
                     value="social"
-                    className="data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-sm rounded-md transition-all"
+                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300 data-[state=active]:shadow-sm rounded-md transition-all"
                   >
                     <Share2 className="h-4 w-4 mr-2" aria-hidden="true" />
-                    Social Media
+                    Social
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="funnel"
+                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300 data-[state=active]:shadow-sm rounded-md transition-all"
+                  >
+                    <FileText className="h-4 w-4 mr-2" aria-hidden="true" />
+                    Funnel
                   </TabsTrigger>
                 </TabsList>
 
@@ -624,13 +637,25 @@ export function PropertyDetailModal({
                     </div>
                   </FieldSection>
                 </TabsContent>
+
+                {/* Funnel Tab */}
+                <TabsContent value="funnel" className="mt-4">
+                  <FunnelContentEditor
+                    property={property}
+                    onSaveStateChange={(hasChanges, isSaving, onSave) => {
+                      setFunnelHasChanges(hasChanges);
+                      setFunnelIsSaving(isSaving);
+                      setFunnelSaveHandler(() => onSave);
+                    }}
+                  />
+                </TabsContent>
               </Tabs>
             </div>
           </ScrollArea>
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between gap-4 p-4 sm:p-6 border-t bg-gray-50/50">
+        <div className="flex items-center justify-between gap-4 p-4 sm:p-6 border-t bg-gray-50/50 dark:bg-gray-900/50">
           {/* Left Side - Secondary Actions */}
           <div className="flex items-center gap-2 flex-wrap">
             <Button
@@ -638,7 +663,7 @@ export function PropertyDetailModal({
               variant="outline"
               size="sm"
               onClick={() => setCalculatorOpen(true)}
-              className="border-purple-200 text-purple-700 hover:bg-purple-50"
+              className="border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950"
             >
               <Calculator className="h-4 w-4 mr-2" />
               Calculator
@@ -673,25 +698,48 @@ export function PropertyDetailModal({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              size="sm"
-              onClick={handleSave}
-              disabled={updateProperty.isPending || updateAirtableProperty.isPending || !hasChanges}
-              className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"
-            >
-              {(updateProperty.isPending || updateAirtableProperty.isPending) ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save
-                </>
-              )}
-            </Button>
+            {/* Show appropriate save button based on active tab */}
+            {activeTab === 'funnel' ? (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => funnelSaveHandler?.()}
+                disabled={funnelIsSaving || !funnelHasChanges}
+                className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"
+              >
+                {funnelIsSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Funnel
+                  </>
+                )}
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                size="sm"
+                onClick={handleSave}
+                disabled={updateProperty.isPending || updateAirtableProperty.isPending || !hasChanges}
+                className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"
+              >
+                {(updateProperty.isPending || updateAirtableProperty.isPending) ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Save
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>
