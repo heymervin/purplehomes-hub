@@ -6,7 +6,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import path from 'path';
+import * as path from 'path';
 
 // Load environment variables
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
@@ -88,6 +88,7 @@ app.all('/api/zillow', (req, res) => handleApiRequest(req, res, 'zillow'));
 app.all('/api/auth', (req, res) => handleApiRequest(req, res, 'auth'));
 app.all('/api/calculator', (req, res) => handleApiRequest(req, res, 'calculator'));
 app.all('/api/proxy-image', (req, res) => handleApiRequest(req, res, 'proxy-image'));
+app.all('/api/funnel', (req, res) => handleApiRequest(req, res, 'funnel'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -106,6 +107,7 @@ app.listen(PORT, () => {
   console.log(`  - GET/POST /api/zillow    -> Zillow operations`);
   console.log(`  - GET/POST /api/auth      -> Authentication`);
   console.log(`  - GET/POST /api/calculator-> Deal calculator`);
+  console.log(`  - GET/POST /api/funnel   -> Funnel content (generate, get, save)`);
   console.log(`  - GET     /api/health`);
   console.log(`\nMake sure you have .env with your API keys configured.`);
 });

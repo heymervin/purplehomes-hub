@@ -1,0 +1,798 @@
+{
+  "version": "2.0",
+  "name": "Purple Homes AI Funnel Generation System",
+  "description": "Unified AI system for generating high-converting property funnels and social media content",
+
+  "avatarResearchChain": {
+    "description": "Pre-generation research to deeply understand the target buyer before writing copy",
+    "steps": [
+      {
+        "step": 1,
+        "name": "27-Word Persuasion Analysis",
+        "source": "Blair Warren",
+        "prompt": "Based on the buyer segment '{buyerSegment}' and property type '{propertyType}', identify:\n\n1. DREAMS: What do they secretly dream about regarding homeownership?\n2. FEARS: What are they most afraid of in the buying process?\n3. SUSPICIONS: What do they suspect about agents/lenders that's actually true?\n4. FAILURES: Where have they failed before that you can help justify?\n5. ENEMIES: Who or what can you help them fight against?",
+        "outputKeys": ["dreams", "fears", "suspicions", "failures", "enemies"]
+      },
+      {
+        "step": 2,
+        "name": "Day in the Life Diary",
+        "source": "PDF Framework",
+        "prompt": "Write a 100-word diary entry from the perspective of a {buyerSegment} BEFORE they found their solution. Include:\n- Their morning routine frustrations\n- Specific emotional moments\n- What keeps them up at night\n- The conversation they had with their spouse/family",
+        "outputKeys": ["diaryEntry", "keyFrustrations", "emotionalTriggers"]
+      },
+      {
+        "step": 3,
+        "name": "Before/After State Mapping",
+        "source": "PDF Framework",
+        "prompt": "Map the transformation from BEFORE to AFTER state:\n\nBEFORE:\n- Feelings: (frustrated, stuck, hopeless)\n- Daily reality: (what does their day look like?)\n- Status: (how do others see them?)\n\nAFTER (with Purple Homes):\n- Feelings: (proud, secure, accomplished)\n- Daily reality: (what changes?)\n- Status: (how do others see them now?)",
+        "outputKeys": ["beforeState", "afterState", "transformationNarrative"]
+      },
+      {
+        "step": 4,
+        "name": "Objection Mining",
+        "source": "PDF 27 Objections Framework",
+        "prompt": "List the top 5 objections this buyer segment has:\n1. [Objection]\n   - Why they believe it\n   - Counter-argument\n   - Proof point",
+        "outputKeys": ["objections", "counterArguments"]
+      }
+    ]
+  },
+
+  "buyerAvatars": {
+    "first-time-buyer": {
+      "label": "First-Time Homebuyer",
+      "dreams": ["Stop paying landlord's mortgage", "Build equity", "Have their own space", "Start a family in a real home"],
+      "fears": ["Rejection by banks", "Making a huge mistake", "Hidden costs", "Being house poor"],
+      "suspicions": ["Agents just want commission", "Banks favor the wealthy", "There must be a catch"],
+      "failures": ["Denied by traditional lenders", "Lost bidding wars", "Couldn't save 20% down"],
+      "enemies": ["Big banks", "Unfair credit scoring", "Rising rent prices", "Greedy landlords"],
+      "beforeState": {
+        "feelings": "Trapped, frustrated, invisible",
+        "daily": "Paying someone else's mortgage, no stability",
+        "status": "Still renting at 30+"
+      },
+      "afterState": {
+        "feelings": "Proud, secure, accomplished",
+        "daily": "Building equity, decorating THEIR home",
+        "status": "Homeowner"
+      },
+      "topObjections": [
+        {"objection": "My credit isn't good enough", "counter": "We work with scores as low as 580. Your income and commitment matter more."},
+        {"objection": "I can't afford 20% down", "counter": "Our average down payment is 10%. Some programs go as low as 3.5%."},
+        {"objection": "The market is too expensive", "counter": "Your rent is already expensive. At least a mortgage builds equity."},
+        {"objection": "What if I lose my job?", "counter": "We have options. Let's discuss reserves and safety nets."},
+        {"objection": "The process seems complicated", "counter": "That's why you have us. We handle everything."}
+      ]
+    },
+    "credit-challenged": {
+      "label": "Credit-Challenged Buyer",
+      "dreams": ["Second chance", "Prove everyone wrong", "Stability for family", "Stop being judged by a number"],
+      "fears": ["Another rejection", "Being stuck forever", "Judgment from others", "Losing opportunity"],
+      "suspicions": ["Banks don't care about circumstances", "Credit scores are rigged", "Only rich people get approved"],
+      "failures": ["Medical debt", "Divorce", "Job loss", "Past financial mistakes"],
+      "enemies": ["Credit bureaus", "Predatory lenders", "Judgmental system", "Their past selves"],
+      "beforeState": {
+        "feelings": "Ashamed, defeated, hopeless",
+        "daily": "Avoiding credit conversations, feeling stuck",
+        "status": "The one who 'can't qualify'"
+      },
+      "afterState": {
+        "feelings": "Redeemed, empowered, hopeful",
+        "daily": "Building credit through mortgage payments",
+        "status": "Homeowner despite the odds"
+      },
+      "topObjections": [
+        {"objection": "I've been rejected too many times", "counter": "Banks use algorithms. We use common sense. Let's look at YOUR story."},
+        {"objection": "My credit is too damaged", "counter": "We've helped buyers with scores in the 500s. What matters is your trajectory."},
+        {"objection": "I'm embarrassed about my situation", "counter": "Life happens. Medical bills. Divorce. Job loss. We've seen it all. No judgment here."},
+        {"objection": "Is this too good to be true?", "counter": "It's just a different path. Owner financing has existed for decades."},
+        {"objection": "Will I pay more in interest?", "counter": "Possibly slightly higher rates, but you're building equity instead of throwing rent away."}
+      ]
+    },
+    "investor": {
+      "label": "Real Estate Investor",
+      "dreams": ["Passive income", "Financial freedom", "Building a portfolio", "Leaving a legacy"],
+      "fears": ["Bad deals", "Cash flow problems", "Market timing", "Management headaches"],
+      "suspicions": ["Most 'deals' aren't deals", "Agents push properties for commission", "Numbers are often inflated"],
+      "failures": ["Missed opportunities", "Analysis paralysis", "Bad property managers"],
+      "enemies": ["Bad deals dressed as opportunities", "Inexperienced agents", "Overpriced markets"],
+      "beforeState": {
+        "feelings": "Skeptical, calculating, cautious",
+        "daily": "Analyzing deals, often walking away",
+        "status": "Wants to scale but stuck"
+      },
+      "afterState": {
+        "feelings": "Confident, strategic, expanding",
+        "daily": "Managing growing portfolio, reviewing cashflow",
+        "status": "Serious investor with real assets"
+      },
+      "topObjections": [
+        {"objection": "What's the cap rate?", "counter": "Let me run the real numbers with you - including vacancy, maintenance, and management."},
+        {"objection": "Phoenix is overpriced", "counter": "Cash flow is tighter, but appreciation is strong. Let's match strategy to your goals."},
+        {"objection": "I've maxed out conventional loans", "counter": "That's exactly when creative financing shines. Owner finance, subject-to, lease options."},
+        {"objection": "Management is a hassle", "counter": "We can connect you with vetted property managers. Hands-off if you want."},
+        {"objection": "Is now the right time?", "counter": "Time in market beats timing the market. Let's find the right deal, not the perfect moment."}
+      ]
+    },
+    "move-up-buyer": {
+      "label": "Move-Up Buyer",
+      "dreams": ["More space", "Better neighborhood", "Dream home finally", "Room to grow"],
+      "fears": ["Selling and buying timing", "Being homeless between homes", "Overpaying", "Market timing"],
+      "suspicions": ["Agents oversell home values", "Better homes will appear after buying", "Something will go wrong"],
+      "failures": ["Previous homes felt like settling", "Missed upgrades due to bad timing"],
+      "enemies": ["Coordination complexity", "Double mortgage payments", "Market uncertainty"],
+      "beforeState": {
+        "feelings": "Cramped, outgrown, ready for change",
+        "daily": "Wishing for more space, dreaming of upgrade",
+        "status": "Comfortable but not fulfilled"
+      },
+      "afterState": {
+        "feelings": "Arrived, satisfied, proud",
+        "daily": "Enjoying dream home features",
+        "status": "Living the upgrade"
+      },
+      "topObjections": [
+        {"objection": "How do I sell and buy at the same time?", "counter": "We coordinate timelines. Rent-backs, bridge financing, contingent offers. We've done this hundreds of times."},
+        {"objection": "What if my home doesn't sell?", "counter": "We price right and market aggressively. Your home will sell."},
+        {"objection": "I don't want two mortgages", "counter": "Neither do we. Let's structure this to avoid that entirely."},
+        {"objection": "Is it worth the hassle?", "counter": "You'll spend 10+ years in this home. One stressful month for years of happiness? Worth it."},
+        {"objection": "Market feels uncertain", "counter": "It always does. But your equity position is strong, and we'll negotiate hard on the buy side."}
+      ]
+    },
+    "self-employed": {
+      "label": "Self-Employed/Business Owner",
+      "dreams": ["Recognition that income is real", "Same access as W-2 employees", "Using business success for personal growth"],
+      "fears": ["Endless documentation requests", "Being penalized for write-offs", "Denial after weeks of paperwork"],
+      "suspicions": ["Banks don't understand entrepreneurship", "Tax efficiency hurts mortgage chances", "System favors employees"],
+      "failures": ["Denied due to 'insufficient income' despite making six figures", "Paperwork nightmares"],
+      "enemies": ["Rigid underwriting guidelines", "W-2 bias", "Banks that don't get business income"],
+      "beforeState": {
+        "feelings": "Frustrated, unrecognized, penalized for success",
+        "daily": "Making great money but can't prove it to banks",
+        "status": "Successful business, unsuccessful mortgage applicant"
+      },
+      "afterState": {
+        "feelings": "Validated, relieved, accomplished",
+        "daily": "Homeowner who built it themselves",
+        "status": "Business owner AND homeowner"
+      },
+      "topObjections": [
+        {"objection": "I write everything off", "counter": "We have bank statement programs. Deposits matter more than tax returns."},
+        {"objection": "My income is inconsistent", "counter": "We look at 12-24 month averages. Ups and downs are normal."},
+        {"objection": "The documentation is a nightmare", "counter": "We'll tell you exactly what's needed upfront. No surprises."},
+        {"objection": "I've been denied before", "counter": "Traditional lenders often don't understand business income. We do."},
+        {"objection": "Will I pay higher rates?", "counter": "Possibly slightly higher, but programs exist specifically for self-employed buyers."}
+      ]
+    }
+  },
+
+  "viralHookTemplates": {
+    "description": "105+ viral hook templates adapted for real estate from PDF",
+    "categories": {
+      "pattern-interrupt": [
+        "Stop scrolling if you've been rejected by a bank",
+        "This isn't what you think it is...",
+        "Wait. Before you keep house hunting...",
+        "Forget everything you know about buying a home",
+        "Delete Zillow. Here's why.",
+        "The lie every first-time buyer believes",
+        "Nobody's talking about this in real estate"
+      ],
+      "curiosity-gap": [
+        "The one thing banks don't want you to know",
+        "What 580 credit score buyers know that you don't",
+        "The secret path to homeownership",
+        "Why some buyers NEVER get approved (and how to not be them)",
+        "The buying strategy agents keep quiet about",
+        "What happens when a bank says no",
+        "The question that changes everything"
+      ],
+      "social-proof": [
+        "She was rejected 4 times. Then this happened.",
+        "100 families. 100 stories. 100 keys.",
+        "He had a 580 credit score. Now he's a homeowner.",
+        "From eviction notice to front door keys",
+        "The call that changed their lives",
+        "What they said after closing",
+        "5 years of rejection. 30 days to approved."
+      ],
+      "contrarian": [
+        "Your credit score doesn't matter (here's what does)",
+        "Stop saving for 20% down",
+        "Why I tell clients to stop looking at houses",
+        "The worst time to buy a home (it's not what you think)",
+        "Why some 'bad' credit buyers close faster than 'good' ones",
+        "The myth of the perfect time to buy"
+      ],
+      "fear-urgency": [
+        "Your rent payment just bought your landlord a vacation",
+        "Every month you rent, you lose $_____",
+        "The cost of waiting (actual numbers)",
+        "What happens when rates hit 8%",
+        "Your landlord hopes you never see this",
+        "The math nobody shows renters"
+      ],
+      "direct-benefit": [
+        "How to buy a home with $5,000 down",
+        "Get pre-approved in 48 hours (even with bad credit)",
+        "Own your first home by [specific date]",
+        "Turn your $1,500 rent into equity this month",
+        "The 3-step path from renter to owner",
+        "Home buying for people who've been told no"
+      ],
+      "story-hooks": [
+        "At 11pm, my phone buzzed. 'We got it.'",
+        "I almost quit real estate after this deal",
+        "The lesson one client taught me about persistence",
+        "What I told the single mom who'd been rejected 5 times",
+        "The deal that changed how I do everything",
+        "I made a $50,000 mistake. Here's what I learned."
+      ],
+      "question-hooks": [
+        "What if you could own a home for less than rent?",
+        "Ever wonder why some buyers always win?",
+        "What would change if you stopped renting tomorrow?",
+        "Can you really buy a home with bad credit?",
+        "What's your rent money actually buying?",
+        "Ready to stop making your landlord rich?"
+      ]
+    }
+  },
+
+  "landingPageFormulas": {
+    "description": "Complete landing page frameworks for conversion-focused funnels - 12 proven formulas",
+    "formulas": [
+      {
+        "id": "epiphany-bridge",
+        "name": "Epiphany Bridge",
+        "source": "Russell Brunson - Expert Secrets",
+        "description": "Lead with a story of transformation, create an 'aha moment' that changes beliefs",
+        "structure": {
+          "hook": "Start with backstory - where you/client were before the discovery",
+          "problem": "Describe the external/internal journey and struggles",
+          "solution": "Reveal the EPIPHANY - the moment everything changed",
+          "propertyShowcase": "Show how this property IS the bridge to their transformation",
+          "socialProof": "Third-party validation of the epiphany working for others",
+          "callToAction": "Invite them to experience their own epiphany"
+        },
+        "bestFor": ["credit-challenged", "first-time-buyer"],
+        "conversionStrength": "high"
+      },
+      {
+        "id": "star-story-solution",
+        "name": "Star, Story, Solution",
+        "source": "Perry Belcher",
+        "description": "Character-driven framework: introduce the hero, their journey, and the resolution",
+        "structure": {
+          "hook": "Introduce the STAR (relatable person in same situation)",
+          "problem": "Tell their STORY (struggle, failures, frustrations)",
+          "solution": "Reveal the SOLUTION (how they overcame + how you do it)",
+          "propertyShowcase": "Position the property as the 'reward' of the journey",
+          "socialProof": "Mini-stories of other 'stars' who found their solution",
+          "callToAction": "You could be the next star in our story"
+        },
+        "bestFor": ["first-time-buyer", "self-employed"],
+        "conversionStrength": "high"
+      },
+      {
+        "id": "hook-story-offer",
+        "name": "Hook, Story, Offer",
+        "source": "Russell Brunson - Dotcom Secrets",
+        "description": "Simple 3-part structure: capture attention, build connection, make irresistible offer",
+        "structure": {
+          "hook": "Pattern interrupt + big promise specific to their situation",
+          "problem": "Story that validates their struggles (you understand them)",
+          "solution": "The OFFER - what they get + unique mechanism",
+          "propertyShowcase": "Stack the value - everything included with this property",
+          "socialProof": "Proof the offer delivers (testimonials, numbers)",
+          "callToAction": "Time-limited element + clear next step"
+        },
+        "bestFor": ["investor", "general"],
+        "conversionStrength": "very-high"
+      },
+      {
+        "id": "4-day-cash-machine",
+        "name": "4-Day Cash Machine",
+        "source": "Frank Kern",
+        "description": "Build trust through value before the ask - education-first approach",
+        "structure": {
+          "hook": "Valuable insight/education that changes their perspective",
+          "problem": "Deeper dive into WHY their current approach isn't working",
+          "solution": "Your unique process/method (give away the 'what', sell the 'how')",
+          "propertyShowcase": "Position property as the implementation of the method",
+          "socialProof": "Case study with specific timeline and results",
+          "callToAction": "Urgency through deadline or limited availability"
+        },
+        "bestFor": ["investor", "self-employed"],
+        "conversionStrength": "high"
+      },
+      {
+        "id": "before-after-bridge",
+        "name": "Before-After-Bridge",
+        "source": "Ryan Deiss",
+        "description": "Paint the current pain, show the dream future, bridge with your solution",
+        "structure": {
+          "hook": "BEFORE state - vivid picture of current frustration",
+          "problem": "Amplify the pain - what happens if nothing changes",
+          "solution": "AFTER state - dream scenario achieved + BRIDGE (how you get them there)",
+          "propertyShowcase": "The property IS the after state made real",
+          "socialProof": "Before/after story of real family",
+          "callToAction": "Step onto the bridge today"
+        },
+        "bestFor": ["move-up-buyer", "first-time-buyer"],
+        "conversionStrength": "very-high"
+      },
+      {
+        "id": "problem-agitate-solve",
+        "name": "Problem-Agitate-Solve (PAS)",
+        "source": "Dan Kennedy",
+        "description": "Classic direct response: identify problem, twist the knife, offer relief",
+        "structure": {
+          "hook": "Name the problem directly (they feel seen)",
+          "problem": "AGITATE - make the problem feel urgent, painful, unbearable",
+          "solution": "SOLVE - present your solution as the only logical answer",
+          "propertyShowcase": "Property features as solutions to agitated problems",
+          "socialProof": "Someone who had the problem, felt the pain, found relief",
+          "callToAction": "Don't live with this problem another day"
+        },
+        "bestFor": ["credit-challenged", "self-employed"],
+        "conversionStrength": "very-high"
+      },
+      {
+        "id": "aida-classic",
+        "name": "AIDA Classic",
+        "source": "Elias St. Elmo Lewis (1898)",
+        "description": "Attention, Interest, Desire, Action - the original conversion formula",
+        "structure": {
+          "hook": "ATTENTION - interrupt with surprising fact/stat",
+          "problem": "INTEREST - keep them reading with relevant pain/dream",
+          "solution": "DESIRE - make them want your specific solution",
+          "propertyShowcase": "Stack benefits that fuel desire",
+          "socialProof": "Proof that builds confidence to act",
+          "callToAction": "ACTION - single clear step with urgency"
+        },
+        "bestFor": ["general", "first-time-buyer"],
+        "conversionStrength": "high"
+      },
+      {
+        "id": "quest-formula",
+        "name": "QUEST Formula",
+        "source": "Michel Fortin",
+        "description": "Qualify, Understand, Educate, Stimulate, Transition",
+        "structure": {
+          "hook": "QUALIFY - speak directly to your ideal buyer (filter others out)",
+          "problem": "UNDERSTAND - show you get their specific situation deeply",
+          "solution": "EDUCATE - teach them something new about their options",
+          "propertyShowcase": "STIMULATE - paint emotional picture of life with this solution",
+          "socialProof": "Validation that this path works",
+          "callToAction": "TRANSITION - guide them to take action"
+        },
+        "bestFor": ["self-employed", "investor"],
+        "conversionStrength": "high"
+      },
+      {
+        "id": "4ps-formula",
+        "name": "4 P's Formula",
+        "source": "Henry Hoke Sr.",
+        "description": "Picture, Promise, Prove, Push",
+        "structure": {
+          "hook": "PICTURE - paint vivid image of dream outcome",
+          "problem": "Show the gap between where they are and the picture",
+          "solution": "PROMISE - what you guarantee they'll get",
+          "propertyShowcase": "PROVE - evidence, specifics, numbers",
+          "socialProof": "Additional proof through testimonials",
+          "callToAction": "PUSH - urgency and clear action"
+        },
+        "bestFor": ["move-up-buyer", "investor"],
+        "conversionStrength": "high"
+      },
+      {
+        "id": "pastor-formula",
+        "name": "PASTOR Formula",
+        "source": "Ray Edwards",
+        "description": "Problem, Amplify, Story, Transformation, Offer, Response",
+        "structure": {
+          "hook": "PROBLEM - state their core problem in their words",
+          "problem": "AMPLIFY - show consequences of not solving + STORY of someone similar",
+          "solution": "TRANSFORMATION - what life looks like after + how you deliver it",
+          "propertyShowcase": "OFFER - stack everything they get",
+          "socialProof": "Transformation stories from real people",
+          "callToAction": "RESPONSE - tell them exactly what to do"
+        },
+        "bestFor": ["credit-challenged", "first-time-buyer"],
+        "conversionStrength": "very-high"
+      },
+      {
+        "id": "soap-opera-sequence",
+        "name": "Soap Opera Sequence",
+        "source": "André Chaperon",
+        "description": "Cliffhanger-driven narrative that builds anticipation",
+        "structure": {
+          "hook": "Start in the middle of action/drama (in media res)",
+          "problem": "Flashback to the backstory and struggles",
+          "solution": "The turning point moment (what changed everything)",
+          "propertyShowcase": "The resolution - life now with the solution",
+          "socialProof": "Tease more stories like this",
+          "callToAction": "Don't miss YOUR turning point"
+        },
+        "bestFor": ["first-time-buyer", "credit-challenged"],
+        "conversionStrength": "high"
+      },
+      {
+        "id": "unique-mechanism",
+        "name": "Unique Mechanism",
+        "source": "Eugene Schwartz",
+        "description": "Introduce a proprietary method/system that makes you different",
+        "structure": {
+          "hook": "Name your unique mechanism (The [X] Method/System)",
+          "problem": "Why other solutions fail (they lack this mechanism)",
+          "solution": "Explain what makes your mechanism different and why it works",
+          "propertyShowcase": "How this property exemplifies your mechanism",
+          "socialProof": "Results achieved through this mechanism",
+          "callToAction": "Experience the [X] difference"
+        },
+        "bestFor": ["investor", "self-employed"],
+        "conversionStrength": "very-high"
+      }
+    ]
+  },
+
+  "funnelFormulas": {
+    "description": "Section-specific copywriting formulas with IDs for tracking",
+
+    "hook": {
+      "formulas": [
+        {
+          "id": "aida-hook",
+          "name": "AIDA Hook",
+          "pattern": "[Attention-grabbing stat/fact] + [Interest-building promise] + [Desire trigger] + [Soft action]",
+          "example": "$5,000 down. No bank needed. Your keys in 30 days. This {city} home won't last."
+        },
+        {
+          "id": "pas-hook",
+          "name": "PAS Hook",
+          "pattern": "[Problem in 3 words] + [Agitation] + [Solution preview]",
+          "example": "Rejected by banks? We get it. There's another way in."
+        },
+        {
+          "id": "curiosity-gap",
+          "name": "Curiosity Gap",
+          "pattern": "[Unexpected statement] + [Loop opener]",
+          "example": "This home isn't listed anywhere. Here's why that's your opportunity."
+        },
+        {
+          "id": "social-proof-hook",
+          "name": "Social Proof Hook",
+          "pattern": "[Result achieved] + [Relatable person] + [Implied 'you too']",
+          "example": "Maria was rejected 4 times. She just got her keys. Your turn."
+        },
+        {
+          "id": "contrarian-hook",
+          "name": "Contrarian Hook",
+          "pattern": "[Challenge conventional wisdom] + [Promise better way]",
+          "example": "Stop saving for 20% down. There's a faster path to homeownership."
+        },
+        {
+          "id": "number-hook",
+          "name": "Specific Number Hook",
+          "pattern": "[Specific number] + [Benefit] + [Timeframe]",
+          "example": "127 families. $0 bank involvement. Keys in 30 days or less."
+        },
+        {
+          "id": "question-hook",
+          "name": "Question Hook",
+          "pattern": "[Challenge assumption as question] + [Promise answer]",
+          "example": "What if your credit score didn't matter? Here's how."
+        },
+        {
+          "id": "story-hook",
+          "name": "Story Opening Hook",
+          "pattern": "[Start mid-action] + [Create curiosity]",
+          "example": "The bank said no for the third time. Then she found a different door."
+        }
+      ],
+      "powerWords": ["finally", "secret", "exclusive", "limited", "last chance", "unlock", "discover", "proven", "insider", "breakthrough"]
+    },
+
+    "problem": {
+      "formulas": [
+        {
+          "id": "pasa-table",
+          "name": "PASA Table",
+          "pattern": "Problem: [state it]\nAgitation: [make it hurt]\nSolution: [preview relief]\nAdvantage: [why us]",
+          "example": "Banks see a number. A score. A risk profile. They don't see you working overtime. Saving every dollar. Dreaming of keys in hand. Traditional lending wasn't built for you. Purple Homes was."
+        },
+        {
+          "id": "enemy-alliance",
+          "name": "Enemy + Alliance",
+          "pattern": "[Name the enemy] + [Show you're on their side] + [Shared frustration]",
+          "example": "Big banks have turned homeownership into an exclusive club. Credit scores determine your worth. Down payments lock out the working class. It's not fair. And we're here to change it."
+        },
+        {
+          "id": "future-fear",
+          "name": "Future Fear",
+          "pattern": "[Project current pain forward] + [What happens if nothing changes]",
+          "example": "Another year of rent. Another year of building someone else's wealth. Another year of 'maybe next time.' How many more years can you afford to wait?"
+        },
+        {
+          "id": "mirror-moment",
+          "name": "Mirror Moment",
+          "pattern": "[Reflect their exact thoughts] + [Validate them] + [Offer hope]",
+          "example": "You've done the math. You make enough. You pay your bills. Yet somehow you're still 'not qualified.' We see it every day. And we built a different path."
+        }
+      ],
+      "emotionalTriggers": ["frustration", "injustice", "being overlooked", "feeling stuck", "watching others succeed", "time running out", "wasted effort"]
+    },
+
+    "solution": {
+      "formulas": [
+        {
+          "id": "bridge-formula",
+          "name": "Bridge Formula",
+          "pattern": "[Current painful state] → [What we do] → [Desired future state]",
+          "example": "From bank rejection to keys in hand. We connect sellers who offer flexible financing with buyers who deserve a chance. No credit score gatekeeping. No 20% down requirements. Just real paths to real homeownership."
+        },
+        {
+          "id": "how-it-works",
+          "name": "How It Works",
+          "pattern": "[Step 1: Simple] → [Step 2: We handle hard part] → [Step 3: You win]",
+          "example": "1. Tell us what you're looking for. 2. We match you with owner-financed properties. 3. Close in as little as 30 days. The banks said no. We say let's figure it out."
+        },
+        {
+          "id": "unique-mechanism-solution",
+          "name": "Unique Mechanism",
+          "pattern": "[Name your method] + [Why it's different] + [Why it works]",
+          "example": "The Owner Finance Pathway isn't a loan hack. It's a direct relationship with a seller who believes in your future. No middle-man bank. No algorithms. Just humans helping humans."
+        },
+        {
+          "id": "contrast-stack",
+          "name": "Contrast Stack",
+          "pattern": "[Traditional way - pain] vs [Your way - gain] repeated 3x",
+          "example": "Banks need 20% down. We need 10%. Banks take 60 days. We close in 30. Banks see your past. We see your potential."
+        }
+      ],
+      "trustSignals": ["helped 100+ families", "15 years experience", "local experts", "no upfront fees", "A+ BBB rating", "featured in [press]"]
+    },
+
+    "propertyShowcase": {
+      "formulas": [
+        {
+          "id": "sensory-future-pacing",
+          "name": "Sensory-Future Pacing",
+          "pattern": "[Sensory detail now] + [Future-paced lifestyle] + [Specific features]",
+          "example": "Picture this: Morning coffee on your covered patio. Kids playing in the fenced backyard. Sunday BBQs with space to actually host. This 3-bedroom home in {neighborhood} has the open kitchen you've dreamed of, updated bathrooms, and a 2-car garage."
+        },
+        {
+          "id": "feature-benefit-bridge",
+          "name": "Feature-Benefit Bridge",
+          "pattern": "[Feature] = [What it means for your life]",
+          "example": "4 bedrooms = everyone gets their own space. Updated kitchen = hosting holidays proudly. Corner lot = extra parking, more privacy. Each detail was chosen for how you'll actually live."
+        },
+        {
+          "id": "day-in-the-life",
+          "name": "Day in the Life",
+          "pattern": "[Walk through a typical day in this home]",
+          "example": "Wake up in your own master suite. Coffee in the kitchen YOU own. Kids catch the bus from YOUR front yard. Come home to YOUR garage. This isn't a dream. It's Tuesday at 1207 Kepler."
+        },
+        {
+          "id": "investment-stack",
+          "name": "Investment Stack",
+          "pattern": "[Price] + [What you're really getting] + [Value comparison]",
+          "example": "At $189,000, you're not just buying a house. You're buying 1,400 sqft of space. 3 bedrooms for growing families. A neighborhood with rising values. Monthly payments lower than the apartment down the street."
+        }
+      ],
+      "keyElements": ["specific numbers", "lifestyle painting", "neighborhood benefits", "unique selling points", "value comparison"]
+    },
+
+    "socialProof": {
+      "formulas": [
+        {
+          "id": "before-after-bridge-testimonial",
+          "name": "Before-After-Bridge",
+          "pattern": "[Where they were] → [What happened] → [Where they are now]",
+          "example": "\"We'd been rejected by 3 banks. Credit wasn't great. Purple Homes found us an owner-financed home in 45 days. Now we're building equity instead of throwing away rent.\" — The Martinez Family"
+        },
+        {
+          "id": "specific-result",
+          "name": "Specific Result",
+          "pattern": "[Name] + [Specific challenge] + [Specific result] + [Emotion]",
+          "example": "\"$1,800/month rent for 6 years. Now my $1,750 payment builds equity. Same money, totally different future. I wish I'd found Purple Homes sooner.\" — David T., First-Time Buyer"
+        },
+        {
+          "id": "objection-crusher",
+          "name": "Objection Crusher",
+          "pattern": "[Address specific objection] + [How they overcame] + [Result]",
+          "example": "\"I thought my 580 score made homeownership impossible. Purple Homes showed me score isn't everything. I closed in 38 days.\" — Angela M., Now Homeowner"
+        },
+        {
+          "id": "timeline-proof",
+          "name": "Timeline Proof",
+          "pattern": "[Starting point] + [Key milestones] + [End result with date]",
+          "example": "\"January: rejected again. February: found Purple Homes. April: got keys. Four months from hopeless to homeowner.\" — The Johnson Family"
+        }
+      ],
+      "credibilityMarkers": ["full name", "specific numbers", "relatable challenge", "emotional payoff", "timeline", "location"]
+    },
+
+    "callToAction": {
+      "formulas": [
+        {
+          "id": "scarcity-easy-action",
+          "name": "Scarcity + Easy Action",
+          "pattern": "[Limited availability signal] + [Single clear action] + [What happens next]",
+          "example": "This property is getting inquiries daily. Call (504) 475-0672 now to schedule your private showing. We'll answer every question and check if you qualify—no obligation."
+        },
+        {
+          "id": "risk-reversal",
+          "name": "Risk Reversal",
+          "pattern": "[Remove fear] + [Promise] + [Action]",
+          "example": "No commitment. No credit check just to talk. Call (504) 475-0672 or DM 'DETAILS' and we'll send you the full property package within an hour."
+        },
+        {
+          "id": "deadline-urgency",
+          "name": "Deadline Urgency",
+          "pattern": "[Specific deadline] + [What they lose if they miss it] + [Action]",
+          "example": "Showing slots for this week are filling up. Miss this window and you'll be competing with more buyers. Call (504) 475-0672 to lock in your time."
+        },
+        {
+          "id": "next-step-clarity",
+          "name": "Next Step Clarity",
+          "pattern": "[Exactly what to do] + [What happens immediately after] + [What that leads to]",
+          "example": "Text 'KEPLER' to (504) 475-0672. You'll get the full property packet in 5 minutes. Then we schedule your private tour. That simple."
+        },
+        {
+          "id": "soft-commit",
+          "name": "Soft Commitment",
+          "pattern": "[Low-barrier ask] + [No pressure promise] + [Benefit of acting]",
+          "example": "Just curious? That's okay. Call (504) 475-0672 for a no-pressure conversation. The worst that happens? You learn your options."
+        }
+      ],
+      "urgencyTriggers": ["daily inquiries", "limited availability", "price won't last", "motivated seller", "other buyers interested", "showing slots limited"]
+    }
+  },
+
+  "editingProtocols": {
+    "description": "Post-generation editing checks from PDF frameworks",
+
+    "CUBA": {
+      "name": "Confusing, Unbelievable, Boring, Awkward",
+      "checks": [
+        {"flag": "Confusing", "question": "Can a 6th grader understand this?", "fix": "Simplify language, break up complex sentences"},
+        {"flag": "Unbelievable", "question": "Would a skeptic roll their eyes?", "fix": "Add proof, be more specific, remove hyperbole"},
+        {"flag": "Boring", "question": "Would someone stop reading here?", "fix": "Add story, emotion, stakes, or surprising fact"},
+        {"flag": "Awkward", "question": "Does this sound like a human talking?", "fix": "Read aloud, rewrite conversationally"}
+      ]
+    },
+
+    "NESB": {
+      "name": "New, Easy, Safe, Big",
+      "checks": [
+        {"element": "New", "question": "Does this feel fresh or generic?", "enhance": "Add unique angle or unexpected twist"},
+        {"element": "Easy", "question": "Does the path forward feel simple?", "enhance": "Break into clear steps, remove friction"},
+        {"element": "Safe", "question": "Have we addressed fears?", "enhance": "Add risk reversal, testimonials, guarantees"},
+        {"element": "Big", "question": "Is the transformation meaningful?", "enhance": "Paint the after state vividly"}
+      ]
+    },
+
+    "powerWordInjection": {
+      "byEmotion": {
+        "greed": ["bargain", "bonus", "cash", "discount", "double", "free", "jackpot", "profit", "savings", "value"],
+        "fear": ["alarm", "beware", "caution", "danger", "deadline", "mistake", "risk", "warning", "never", "avoid"],
+        "curiosity": ["backdoor", "bizarre", "confidential", "hidden", "insider", "private", "secret", "strange", "underground", "unusual"],
+        "trust": ["authentic", "certified", "endorsed", "guaranteed", "lifetime", "official", "proven", "research", "verified", "backed"],
+        "urgency": ["deadline", "expires", "final", "hurry", "immediate", "instant", "last", "limited", "now", "today"]
+      }
+    },
+
+    "antiPatterns": {
+      "description": "Phrases that weaken copy and should be removed or replaced",
+      "avoid": [
+        "I think", "I believe", "In my opinion",
+        "Very", "Really", "Extremely", "Actually",
+        "Kind of", "Sort of", "Basically",
+        "I wanted to share", "I'm excited to announce",
+        "As you know", "Obviously", "Clearly",
+        "To be honest", "Honestly", "Frankly",
+        "I just wanted to", "Feel free to",
+        "For all intents and purposes",
+        "At the end of the day",
+        "It goes without saying"
+      ],
+      "replacements": {
+        "We offer the best": "Our clients close 3x faster than industry average",
+        "Great opportunity": "Seller motivated - $10K below comps",
+        "Beautiful home": "Natural light floods the open floor plan",
+        "Perfect for families": "4 beds, fenced yard, 3 min to schools",
+        "Don't miss out": "3 inquiries today. Showing slots filling up."
+      }
+    }
+  },
+
+  "marketSophisticationLevels": {
+    "description": "From PDF - Eugene Schwartz's 5 stages of market awareness",
+    "levels": [
+      {
+        "stage": 1,
+        "name": "Direct Promise",
+        "market": "Unaware market, no competition",
+        "approach": "Make the big promise directly",
+        "example": "Own a home for less than rent. No bank required."
+      },
+      {
+        "stage": 2,
+        "name": "Enlarged Promise",
+        "market": "Some awareness, few competitors",
+        "approach": "Make the promise bigger, more specific",
+        "example": "Own a 3-bedroom home in [city] for $1,500/mo. Zero bank involvement. Keys in 30 days."
+      },
+      {
+        "stage": 3,
+        "name": "Unique Mechanism",
+        "market": "Aware market, many competitors",
+        "approach": "Introduce HOW you do it differently",
+        "example": "The Owner Finance Pathway: How 100+ families bypassed banks and got keys in 30-60 days."
+      },
+      {
+        "stage": 4,
+        "name": "Enhanced Mechanism",
+        "market": "Sophisticated market, saturated competition",
+        "approach": "Improve or elaborate on the mechanism",
+        "example": "Our Triple-Match System: We find owner-financed homes, negotiate terms, and close in under 45 days—guaranteed."
+      },
+      {
+        "stage": 5,
+        "name": "Identity Transformation",
+        "market": "Exhausted market, promise fatigue",
+        "approach": "Focus on who they become, not what they get",
+        "example": "From 'permanently renting' to 'proud homeowner.' The journey 100+ families have made with us."
+      }
+    ]
+  },
+
+  "staccatoPatterns": {
+    "description": "Punchy writing patterns that increase engagement",
+    "patterns": [
+      {"name": "contrast-flip", "formula": "X said no? We say yes.", "examples": ["Bank said no? We say yes.", "Market's slow? Time to move."]},
+      {"name": "same-different", "formula": "Same X. Different Y.", "examples": ["Same monthly payment. Different outcome.", "Same effort. Different results."]},
+      {"name": "not-about", "formula": "Not about X. About Y.", "examples": ["Not about transactions. About trust.", "Not about price. About value."]},
+      {"name": "arrow-list", "formula": "→ Point 1\n→ Point 2\n→ Point 3", "examples": ["→ No bank required\n→ Close in 30 days\n→ Build equity immediately"]},
+      {"name": "triple-stack", "formula": "X. Y. Z.", "examples": ["Real people. Real solutions. Real results.", "Fast. Flexible. Fair."]},
+      {"name": "stop-start", "formula": "Stop X. Start Y.", "examples": ["Stop renting. Start owning.", "Stop waiting. Start building."]},
+      {"name": "question-answer", "formula": "Question? Answer.", "examples": ["Bad credit? Not a problem.", "Self-employed? We get it."]}
+    ]
+  },
+
+  "abTestingVariants": {
+    "description": "Generate A/B test variants for key elements",
+    "elements": [
+      {
+        "element": "hook",
+        "variants": [
+          {"type": "curiosity", "pattern": "What [unexpected group] knows that you don't about [topic]"},
+          {"type": "social-proof", "pattern": "[Name] was [their challenge]. Now they're [result]."},
+          {"type": "direct-benefit", "pattern": "[Specific benefit] + [Timeframe] + [Without common pain point]"},
+          {"type": "contrarian", "pattern": "Stop [common advice]. Here's why."}
+        ]
+      },
+      {
+        "element": "cta",
+        "variants": [
+          {"type": "scarcity", "pattern": "Only [X] showing slots this week. Call now."},
+          {"type": "easy-action", "pattern": "DM '[KEYWORD]' and we'll send full details within an hour."},
+          {"type": "risk-reversal", "pattern": "No commitment. No pressure. Just answers. Call [phone]."},
+          {"type": "direct", "pattern": "Call (504) 475-0672. Let's get you home."}
+        ]
+      }
+    ]
+  },
+
+  "qualityChecklist": {
+    "description": "Final checks before output",
+    "checks": [
+      {"category": "Clarity", "items": ["No jargon", "One idea per sentence", "6th grade reading level"]},
+      {"category": "Specificity", "items": ["Real numbers used", "Specific timeframes", "Named locations"]},
+      {"category": "Emotion", "items": ["Addresses fear", "Creates desire", "Builds trust"]},
+      {"category": "Action", "items": ["Clear next step", "Phone number visible", "Low friction"]},
+      {"category": "Brand", "items": ["Purple Homes mentioned", "Consistent tone", "No hyperbole without proof"]}
+    ]
+  }
+}

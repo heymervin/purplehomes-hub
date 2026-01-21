@@ -1,0 +1,942 @@
+/**
+ * Funnel Content API v2.0
+ *
+ * Enhanced AI-powered funnel generation using the Purple Homes Unified Prompt System.
+ * Integrates 600+ copywriting techniques, avatar research, and advanced frameworks.
+ *
+ * Content is stored as markdown files in /public/content/properties/
+ */
+
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import OpenAI from 'openai';
+import * as fs from 'fs';
+import * as path from 'path';
+
+// Import the unified prompt system (use require for JSON to avoid TS issues)
+const promptSystemPath = path.resolve(process.cwd(), 'src/data/ai-funnel-prompt-system.json');
+const promptSystem = JSON.parse(fs.readFileSync(promptSystemPath, 'utf-8'));
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// Content directory path
+const CONTENT_DIR = path.resolve(process.cwd(), 'public/content/properties');
+
+type BuyerSegment = 'first-time-buyer' | 'credit-challenged' | 'investor' | 'move-up-buyer' | 'self-employed' | 'general';
+
+interface FunnelInputs {
+  financingType: string;
+  termLength: string;
+  interestRate: string;
+  availabilityStatus: string;
+  specialOffer: string;
+  neighborhoodHighlights: string;
+  idealBuyerProfile: string;
+  uniqueFeatures: string;
+  // Optional section inputs
+  nearbyPlaces?: string;
+  paymentNotes?: string;
+  virtualTourUrl?: string;
+  // Enhanced inputs
+  buyerSegment?: BuyerSegment;
+  generateVariants?: boolean; // Generate A/B test variants
+}
+
+const DEFAULT_INPUTS: FunnelInputs = {
+  financingType: 'Owner Finance',
+  termLength: '', // User must fill this in
+  interestRate: '',
+  availabilityStatus: 'Available',
+  specialOffer: '',
+  neighborhoodHighlights: '',
+  idealBuyerProfile: '',
+  uniqueFeatures: '',
+  nearbyPlaces: '',
+  paymentNotes: '',
+  virtualTourUrl: '',
+  buyerSegment: 'first-time-buyer',
+  generateVariants: false,
+};
+
+interface FunnelContentRequest {
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  price: number;
+  downPayment?: number;
+  monthlyPayment?: number;
+  beds: number;
+  baths: number;
+  sqft?: number;
+  propertyType?: string;
+  condition?: string;
+  description?: string;
+  inputs?: FunnelInputs;
+}
+
+interface FormulaSelection {
+  landingPageFormula: string;
+  hookFormula: string;
+  problemFormula: string;
+  solutionFormula: string;
+  showcaseFormula: string;
+  proofFormula: string;
+  ctaFormula: string;
+}
+
+interface FunnelContent {
+  propertySlug: string;
+  generatedAt: string;
+  propertyHash: string;
+  inputs: FunnelInputs;
+  hook: string;
+  problem: string;
+  solution: string;
+  propertyShowcase: string;
+  socialProof: string;
+  callToAction: string;
+  // Optional sections
+  locationNearby?: string;
+  qualifier?: string;
+  pricingOptions?: string;
+  virtualTourUrl?: string;
+  faq?: string;
+  // A/B test variants
+  hookVariantB?: string;
+  ctaVariantB?: string;
+  // Avatar Research Link (Persist & Grow)
+  avatarResearchId?: string;
+  // Formula Tracking (Strategy Learning)
+  formulasUsed?: FormulaSelection;
+}
+
+/**
+ * Get avatar data for prompt enhancement
+ */
+function getAvatarContext(segment: BuyerSegment): string {
+  const avatars = promptSystem.buyerAvatars as Record<string, typeof promptSystem.buyerAvatars['first-time-buyer']>;
+  const avatar = avatars[segment];
+
+  if (!avatar) {
+    return '';
+  }
+
+  return `
+TARGET BUYER AVATAR: ${avatar.label}
+- Dreams: ${avatar.dreams.join(', ')}
+- Fears: ${avatar.fears.join(', ')}
+- Suspicions: ${avatar.suspicions.join(', ')}
+- Past Failures: ${avatar.failures.join(', ')}
+- Enemies (who/what they fight against): ${avatar.enemies.join(', ')}
+
+EMOTIONAL TRANSFORMATION:
+- Before State: ${avatar.beforeState.feelings} | ${avatar.beforeState.daily} | "${avatar.beforeState.status}"
+- After State: ${avatar.afterState.feelings} | ${avatar.afterState.daily} | "${avatar.afterState.status}"
+
+TOP OBJECTIONS TO ADDRESS:
+${avatar.topObjections.map((o, i) => `${i + 1}. "${o.objection}" → Counter: "${o.counter}"`).join('\n')}
+`;
+}
+
+/**
+ * Get viral hooks for the segment
+ */
+function getViralHooks(segment: BuyerSegment): string[] {
+  const hooks: string[] = [];
+  const templates = promptSystem.viralHookTemplates.categories;
+
+  // Select hooks based on segment
+  if (segment === 'credit-challenged') {
+    hooks.push(...templates['social-proof'].slice(0, 2));
+    hooks.push(...templates['contrarian'].slice(0, 2));
+  } else if (segment === 'first-time-buyer') {
+    hooks.push(...templates['fear-urgency'].slice(0, 2));
+    hooks.push(...templates['direct-benefit'].slice(0, 2));
+  } else if (segment === 'investor') {
+    hooks.push(...templates['curiosity-gap'].slice(0, 2));
+    hooks.push(...templates['direct-benefit'].slice(0, 2));
+  } else {
+    hooks.push(...templates['pattern-interrupt'].slice(0, 2));
+    hooks.push(...templates['question-hooks'].slice(0, 2));
+  }
+
+  return hooks;
+}
+
+/**
+ * Get staccato patterns for punchy writing
+ */
+function getStaccatoPatterns(): string {
+  return promptSystem.staccatoPatterns.patterns
+    .map(p => `- ${p.name}: "${p.formula}" (e.g., "${p.examples[0]}")`)
+    .join('\n');
+}
+
+/**
+ * Get anti-patterns to avoid
+ */
+function getAntiPatterns(): string {
+  return promptSystem.editingProtocols.antiPatterns.avoid.slice(0, 15).join(', ');
+}
+
+/**
+ * Get CUBA Protocol editing checklist
+ */
+function getCUBAProtocol(): string {
+  const cuba = promptSystem.editingProtocols.CUBA;
+  return `${cuba.name} - Quality Checklist:
+${cuba.checks.map(c => `• ${c.flag}: ${c.question} → ${c.fix}`).join('\n')}`;
+}
+
+/**
+ * Get power words based on emotional appeal
+ */
+function getPowerWords(emotions: string[]): string {
+  const powerWords = promptSystem.editingProtocols.powerWordInjection.byEmotion;
+  const selectedWords: string[] = [];
+
+  emotions.forEach(emotion => {
+    if (powerWords[emotion as keyof typeof powerWords]) {
+      selectedWords.push(...powerWords[emotion as keyof typeof powerWords].slice(0, 5));
+    }
+  });
+
+  return selectedWords.length > 0
+    ? `Power Words to Use: ${selectedWords.join(', ')}`
+    : '';
+}
+
+/**
+ * Detect market sophistication level based on buyer segment
+ */
+function getMarketSophisticationLevel(segment: BuyerSegment): string {
+  // Map segments to sophistication levels
+  const segmentToLevel: Record<BuyerSegment, number> = {
+    'first-time-buyer': 2, // Enlarged Promise - some awareness
+    'credit-challenged': 3, // Unique Mechanism - aware of challenges
+    'investor': 4, // Enhanced Mechanism - sophisticated buyers
+    'move-up-buyer': 3, // Unique Mechanism - experienced but looking for value
+    'self-employed': 3, // Unique Mechanism - aware of their challenges
+    'general': 2, // Enlarged Promise - mixed awareness
+  };
+
+  const levelIndex = segmentToLevel[segment] || 2;
+  const level = promptSystem.marketSophisticationLevels.levels[levelIndex - 1];
+
+  return `Market Sophistication: Stage ${level.stage} - ${level.name}
+Approach: ${level.approach}
+Example: "${level.example}"`;
+}
+
+/**
+ * Select formulas using exploration/exploitation strategy
+ * - Early stage (< 20 rated): 70% exploration, 30% exploitation
+ * - Mature stage (20+): 30% exploration, 70% exploitation
+ */
+async function selectFormulas(segment: BuyerSegment): Promise<FormulaSelection> {
+  // Get landing page formulas and section formulas from prompt system
+  const lpFormulas = (promptSystem as any).landingPageFormulas?.formulas || [];
+  const hookFormulas = (promptSystem as any).funnelFormulas?.hook?.formulas || [];
+  const problemFormulas = (promptSystem as any).funnelFormulas?.problem?.formulas || [];
+  const solutionFormulas = (promptSystem as any).funnelFormulas?.solution?.formulas || [];
+  const showcaseFormulas = (promptSystem as any).funnelFormulas?.propertyShowcase?.formulas || [];
+  const proofFormulas = (promptSystem as any).funnelFormulas?.socialProof?.formulas || [];
+  const ctaFormulas = (promptSystem as any).funnelFormulas?.callToAction?.formulas || [];
+
+  // Try to get learned insights for exploitation
+  let formulaStats: any = null;
+  let totalRated = 0;
+  try {
+    const avatarResearchModule = await import('./avatar-research');
+    const history = await avatarResearchModule.loadResearchHistory(segment);
+    formulaStats = history?.insights?.formulaStats;
+    totalRated = history?.insights?.totalRated || 0;
+  } catch (error) {
+    console.warn('[Formula Selection] Could not load formula stats:', error);
+  }
+
+  // Determine exploration rate based on data maturity
+  const explorationRate = totalRated < 20 ? 0.7 : 0.3;
+  const shouldExplore = Math.random() < explorationRate;
+
+  // Helper to select formula: exploit best or explore randomly
+  const selectFormula = (
+    formulas: Array<{ id: string; name: string }>,
+    stats: any[] | undefined,
+    segmentBestFor?: string[]
+  ): string => {
+    if (!formulas.length) return '';
+
+    // Filter by segment preference if available
+    let candidates = formulas;
+    if (segmentBestFor) {
+      const preferred = formulas.filter((f: any) =>
+        f.bestFor?.includes(segment)
+      );
+      if (preferred.length > 0) candidates = preferred;
+    }
+
+    // Exploit: use best performing formula
+    if (!shouldExplore && stats && stats.length > 0) {
+      const sorted = [...stats].sort((a, b) => b.avgEffectiveness - a.avgEffectiveness);
+      const bestId = sorted[0]?.formulaId;
+      if (bestId && candidates.find((f: any) => f.id === bestId)) {
+        console.log(`[Formula Selection] Exploiting ${sorted[0].formulaName} (avg: ${sorted[0].avgEffectiveness.toFixed(1)})`);
+        return bestId;
+      }
+    }
+
+    // Explore: random selection
+    const randomIndex = Math.floor(Math.random() * candidates.length);
+    console.log(`[Formula Selection] Exploring ${candidates[randomIndex].name || candidates[randomIndex].id}`);
+    return candidates[randomIndex].id || '';
+  };
+
+  const selection: FormulaSelection = {
+    landingPageFormula: selectFormula(lpFormulas, formulaStats?.landingPage, [segment]),
+    hookFormula: selectFormula(hookFormulas, formulaStats?.hook),
+    problemFormula: selectFormula(problemFormulas, formulaStats?.problem),
+    solutionFormula: selectFormula(solutionFormulas, formulaStats?.solution),
+    showcaseFormula: selectFormula(showcaseFormulas, formulaStats?.showcase),
+    proofFormula: selectFormula(proofFormulas, formulaStats?.proof),
+    ctaFormula: selectFormula(ctaFormulas, formulaStats?.cta),
+  };
+
+  console.log(`[Formula Selection] Mode: ${shouldExplore ? 'EXPLORE' : 'EXPLOIT'} (rated: ${totalRated})`);
+  console.log(`[Formula Selection] Selected:`, selection);
+
+  return selection;
+}
+
+/**
+ * Get formula details for prompt injection
+ */
+function getFormulaContext(selection: FormulaSelection): string {
+  const lpFormulas = (promptSystem as any).landingPageFormulas?.formulas || [];
+  const hookFormulas = (promptSystem as any).funnelFormulas?.hook?.formulas || [];
+  const problemFormulas = (promptSystem as any).funnelFormulas?.problem?.formulas || [];
+  const solutionFormulas = (promptSystem as any).funnelFormulas?.solution?.formulas || [];
+  const showcaseFormulas = (promptSystem as any).funnelFormulas?.propertyShowcase?.formulas || [];
+  const proofFormulas = (promptSystem as any).funnelFormulas?.socialProof?.formulas || [];
+  const ctaFormulas = (promptSystem as any).funnelFormulas?.callToAction?.formulas || [];
+
+  const lpFormula = lpFormulas.find((f: any) => f.id === selection.landingPageFormula);
+  const hookFormula = hookFormulas.find((f: any) => f.id === selection.hookFormula);
+  const problemFormula = problemFormulas.find((f: any) => f.id === selection.problemFormula);
+  const solutionFormula = solutionFormulas.find((f: any) => f.id === selection.solutionFormula);
+  const showcaseFormula = showcaseFormulas.find((f: any) => f.id === selection.showcaseFormula);
+  const proofFormula = proofFormulas.find((f: any) => f.id === selection.proofFormula);
+  const ctaFormula = ctaFormulas.find((f: any) => f.id === selection.ctaFormula);
+
+  let context = `=== 📋 SELECTED FORMULAS (You MUST follow these) ===\n\n`;
+
+  if (lpFormula) {
+    context += `LANDING PAGE FRAMEWORK: ${lpFormula.name} (${lpFormula.source})
+Description: ${lpFormula.description}
+Structure:
+${Object.entries(lpFormula.structure || {}).map(([section, instruction]) => `  - ${section}: ${instruction}`).join('\n')}
+
+`;
+  }
+
+  if (hookFormula) {
+    context += `HOOK FORMULA: ${hookFormula.name}
+Pattern: ${hookFormula.pattern}
+Example: ${hookFormula.example}
+
+`;
+  }
+
+  if (problemFormula) {
+    context += `PROBLEM FORMULA: ${problemFormula.name}
+Pattern: ${problemFormula.pattern}
+Example: ${problemFormula.example}
+
+`;
+  }
+
+  if (solutionFormula) {
+    context += `SOLUTION FORMULA: ${solutionFormula.name}
+Pattern: ${solutionFormula.pattern}
+Example: ${solutionFormula.example}
+
+`;
+  }
+
+  if (showcaseFormula) {
+    context += `PROPERTY SHOWCASE FORMULA: ${showcaseFormula.name}
+Pattern: ${showcaseFormula.pattern}
+Example: ${showcaseFormula.example}
+
+`;
+  }
+
+  if (proofFormula) {
+    context += `SOCIAL PROOF FORMULA: ${proofFormula.name}
+Pattern: ${proofFormula.pattern}
+Example: ${proofFormula.example}
+
+`;
+  }
+
+  if (ctaFormula) {
+    context += `CTA FORMULA: ${ctaFormula.name}
+Pattern: ${ctaFormula.pattern}
+Example: ${ctaFormula.example}
+
+`;
+  }
+
+  return context;
+}
+
+/**
+ * Generate a URL-safe slug from property address and city
+ */
+function generateSlug(address: string, city: string, state: string, zipCode: string): string {
+  const combined = `${address}-${city}-${state}-${zipCode}`;
+  return combined
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+/**
+ * Generate a hash from property data to detect changes
+ */
+function generatePropertyHash(data: FunnelContentRequest): string {
+  const keyFields = [
+    data.address,
+    data.city,
+    data.price,
+    data.downPayment,
+    data.monthlyPayment,
+    data.beds,
+    data.baths,
+  ].join('|');
+
+  let hash = 0;
+  for (let i = 0; i < keyFields.length; i++) {
+    const char = keyFields.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(16);
+}
+
+/**
+ * Parse markdown file to FunnelContent object
+ */
+function parseMarkdownContent(content: string): FunnelContent | null {
+  try {
+    // Extract frontmatter
+    const frontmatterMatch = content.match(/^---\n([\s\S]*?)\n---/);
+    if (!frontmatterMatch) return null;
+
+    const frontmatter = frontmatterMatch[1];
+    const body = content.slice(frontmatterMatch[0].length).trim();
+
+    // Parse frontmatter
+    const propertySlug = frontmatter.match(/propertySlug:\s*"([^"]+)"/)?.[1] || '';
+    const generatedAt = frontmatter.match(/generatedAt:\s*"([^"]+)"/)?.[1] || '';
+    const propertyHash = frontmatter.match(/propertyHash:\s*"([^"]+)"/)?.[1] || '';
+    const avatarResearchId = frontmatter.match(/avatarResearchId:\s*"([^"]+)"/)?.[1] || undefined;
+
+    // Parse inputs from frontmatter (JSON format)
+    let inputs: FunnelInputs = { ...DEFAULT_INPUTS };
+    const inputsMatch = frontmatter.match(/inputs:\s*(\{[\s\S]*?\})\n/);
+    if (inputsMatch) {
+      try {
+        inputs = { ...DEFAULT_INPUTS, ...JSON.parse(inputsMatch[1]) };
+      } catch {
+        // Keep defaults if parse fails
+      }
+    }
+
+    // Parse sections
+    const sections: Record<string, string> = {};
+    const sectionRegex = /^#\s+(\w+)\n([\s\S]*?)(?=^#\s+\w+|\Z)/gm;
+    let match;
+    while ((match = sectionRegex.exec(body + '\n# END')) !== null) {
+      if (match[1] !== 'END') {
+        sections[match[1].toLowerCase()] = match[2].trim();
+      }
+    }
+
+    return {
+      propertySlug,
+      generatedAt,
+      propertyHash,
+      inputs,
+      hook: sections['hook'] || '',
+      problem: sections['problem'] || '',
+      solution: sections['solution'] || '',
+      propertyShowcase: sections['propertyshowcase'] || sections['property'] || '',
+      socialProof: sections['socialproof'] || sections['social'] || '',
+      callToAction: sections['calltoaction'] || sections['cta'] || '',
+      // Optional sections
+      locationNearby: sections['locationnearby'] || sections['location'] || undefined,
+      qualifier: sections['qualifier'] || undefined,
+      pricingOptions: sections['pricingoptions'] || sections['pricing'] || undefined,
+      virtualTourUrl: sections['virtualtoururl'] || sections['virtualtour'] || inputs.virtualTourUrl || undefined,
+      faq: sections['faq'] || undefined,
+      // Avatar Research Link (Persist & Grow)
+      avatarResearchId,
+    };
+  } catch (error) {
+    console.error('Error parsing markdown:', error);
+    return null;
+  }
+}
+
+/**
+ * Convert FunnelContent to markdown string
+ */
+function contentToMarkdown(content: FunnelContent): string {
+  // Build optional sections
+  const optionalSections: string[] = [];
+
+  if (content.locationNearby) {
+    optionalSections.push(`# LocationNearby\n${content.locationNearby}`);
+  }
+  if (content.qualifier) {
+    optionalSections.push(`# Qualifier\n${content.qualifier}`);
+  }
+  if (content.pricingOptions) {
+    optionalSections.push(`# PricingOptions\n${content.pricingOptions}`);
+  }
+  if (content.virtualTourUrl) {
+    optionalSections.push(`# VirtualTourUrl\n${content.virtualTourUrl}`);
+  }
+  if (content.faq) {
+    optionalSections.push(`# FAQ\n${content.faq}`);
+  }
+
+  const optionalContent = optionalSections.length > 0
+    ? '\n' + optionalSections.join('\n\n') + '\n'
+    : '';
+
+  return `---
+propertySlug: "${content.propertySlug}"
+generatedAt: "${content.generatedAt}"
+propertyHash: "${content.propertyHash}"
+inputs: ${JSON.stringify(content.inputs)}${content.avatarResearchId ? `\navatarResearchId: "${content.avatarResearchId}"` : ''}
+---
+
+# Hook
+${content.hook}
+
+# Problem
+${content.problem}
+
+# Solution
+${content.solution}
+
+# PropertyShowcase
+${content.propertyShowcase}
+
+# SocialProof
+${content.socialProof}
+
+# CallToAction
+${content.callToAction}
+${optionalContent}`;
+}
+
+/**
+ * Generate funnel content using AI v2.1
+ *
+ * Enhanced with:
+ * - 27-Word Persuasion buyer avatars
+ * - Viral hook templates
+ * - Staccato writing patterns
+ * - CUBA/NESB editing protocols
+ * - Market sophistication awareness
+ * - Optional A/B test variants
+ * - 🆕 Formula Selection with Exploration/Exploitation
+ * - 🆕 12 Landing Page Frameworks
+ */
+async function generateFunnelContent(data: FunnelContentRequest, avatarResearchId?: string): Promise<FunnelContent> {
+  const slug = generateSlug(data.address, data.city, data.state, data.zipCode);
+  const hash = generatePropertyHash(data);
+  const inputs = { ...DEFAULT_INPUTS, ...data.inputs };
+  const buyerSegment = inputs.buyerSegment || 'first-time-buyer';
+
+  // Build context from inputs
+  const termContext = inputs.termLength
+    ? (inputs.interestRate
+        ? `Terms: ${inputs.termLength} at ${inputs.interestRate} interest.`
+        : `Terms: ${inputs.termLength}.`)
+    : (inputs.interestRate ? `Interest Rate: ${inputs.interestRate}.` : '');
+
+  // Get avatar-based context
+  const avatarContext = getAvatarContext(buyerSegment);
+  const viralHooks = getViralHooks(buyerSegment);
+  const staccatoPatterns = getStaccatoPatterns();
+  const antiPatterns = getAntiPatterns();
+
+  // 🎨 ADVANCED COPYWRITING TECHNIQUES (600+ frameworks)
+  const cubaProtocol = getCUBAProtocol();
+  const marketSophistication = getMarketSophisticationLevel(buyerSegment);
+  const powerWords = getPowerWords(['urgency', 'trust', 'curiosity']); // Default emotions
+
+  // 🎯 FORMULA SELECTION: Exploration/Exploitation Strategy
+  const selectedFormulas = await selectFormulas(buyerSegment);
+  const formulaContext = getFormulaContext(selectedFormulas);
+
+  // 🧠 LEARNING INJECTION: Get learned insights from rated research
+  let learnedInsights = '';
+  try {
+    const avatarResearchModule = await import('./avatar-research');
+    learnedInsights = avatarResearchModule.getLearnedInsightsForPrompt(buyerSegment);
+  } catch (error) {
+    console.warn('[Funnel API] Could not load learned insights:', error);
+  }
+
+  const prompt = `You are a master real estate copywriter for Purple Homes Solutions - the TOP conversion-focused funnel writer in creative financing. You specialize in owner financing and helping buyers who don't qualify for traditional mortgages.
+
+=== YOUR MISSION ===
+Generate a HIGH-CONVERTING funnel that makes the reader feel understood, builds trust, and compels action. This isn't generic real estate copy - this is emotionally intelligent persuasion.
+
+=== PROPERTY DATA ===
+Address: ${data.address}, ${data.city}, ${data.state} ${data.zipCode}
+Price: $${data.price.toLocaleString()}
+Down Payment: ${data.downPayment ? `$${data.downPayment.toLocaleString()}` : 'Contact for details'}
+Monthly Payment: ${data.monthlyPayment ? `$${data.monthlyPayment.toLocaleString()}/mo` : 'Contact for details'}
+Beds: ${data.beds} | Baths: ${data.baths} | Sqft: ${data.sqft ? data.sqft.toLocaleString() : 'N/A'}
+Type: ${data.propertyType || 'Single Family'} | Condition: ${data.condition || 'Good'}
+Financing: ${inputs.financingType}
+${termContext}
+${data.description ? `Description: ${data.description}` : ''}
+${inputs.neighborhoodHighlights ? `Neighborhood: ${inputs.neighborhoodHighlights}` : ''}
+${inputs.uniqueFeatures ? `Features: ${inputs.uniqueFeatures}` : ''}
+${inputs.specialOffer ? `SPECIAL OFFER: ${inputs.specialOffer}` : ''}
+${inputs.availabilityStatus !== 'Available' ? `URGENCY: "${inputs.availabilityStatus}"` : ''}
+
+=== BUYER AVATAR (27-WORD PERSUASION FRAMEWORK) ===
+${avatarContext}
+
+${learnedInsights ? `=== 🧠 LEARNED INSIGHTS (From High-Performing Past Funnels) ===
+${learnedInsights}
+👆 CRITICAL: Use these proven patterns - they've been validated by real buyer behavior!
+` : ''}
+
+=== VIRAL HOOK INSPIRATION ===
+Draw from these patterns (adapt, don't copy):
+${viralHooks.map(h => `• "${h}"`).join('\n')}
+
+=== WRITING STYLE: STACCATO ===
+Use punchy, short sentences. Fragment when powerful. Patterns to use:
+${staccatoPatterns}
+
+=== 🎯 MARKET SOPHISTICATION STRATEGY ===
+${marketSophistication}
+
+=== 💥 POWER WORDS TO INJECT ===
+${powerWords}
+Use these strategically throughout your copy to trigger emotional responses.
+
+${formulaContext}
+🚨 IMPORTANT: You MUST follow the specific formulas selected above. These have been chosen by our learning algorithm.
+
+=== CRITICAL: WHAT TO AVOID ===
+Never use these weak phrases: ${antiPatterns}
+
+Instead of vague language, use SPECIFICITY:
+• "affordable" → "$1,450/month"
+• "beautiful home" → "Natural light floods the open floor plan"
+• "great opportunity" → "$10K below comps, seller motivated"
+
+=== EDITING CHECK (APPLY BEFORE OUTPUT) ===
+${cubaProtocol}
+
+After writing, review each section using CUBA before finalizing.
+
+=== OUTPUT REQUIREMENTS ===
+
+Generate these sections in JSON format:
+
+1. **hook** (2-3 punchy sentences): Attention-grabbing, specific numbers, speaks to avatar's dreams/fears
+${inputs.specialOffer ? 'MUST include the special offer.' : ''}
+
+2. **problem** (3-4 sentences using staccato): Address avatar's fears, suspicions, past failures. Make them feel SEEN.
+
+3. **solution** (3-4 sentences): Bridge from pain to Purple Homes. Address their top objection. Build trust.
+
+4. **propertyShowcase** (4-5 sentences): Paint the AFTER state. Sensory language. Future pace their life in this home.
+
+5. **socialProof** (2-3 sentences): Realistic testimonial with name, specific challenge, specific result, emotion.
+
+6. **callToAction** (2-3 sentences): Urgency + easy action + what happens next. Phone: (504) 475-0672
+
+7. **locationNearby**: ${inputs.nearbyPlaces ? `Based on: ${inputs.nearbyPlaces}. ` : ''}Format as bullet points like "• Walmart - 5 min drive"
+
+8. **qualifier**: "This home is perfect for you if..." - 4 bullets based on avatar profile
+
+9. **pricingOptions**: Clean breakdown with all payment details
+
+10. **faq**: 4-5 Q&A pairs addressing common objections for ${inputs.financingType.toLowerCase()}
+
+${inputs.generateVariants ? `
+11. **hookVariantB**: A/B Test Variant - Use a DIFFERENT formula than hook:
+   - If hook is curiosity → variant is social-proof: "[Name] was [challenge]. Now they're [result]."
+   - If hook is direct-benefit → variant is contrarian: "Stop [common advice]. Here's why."
+   - Make it distinctly different to test which resonates more
+
+12. **ctaVariantB**: A/B Test Variant - Use a DIFFERENT urgency type than callToAction:
+   - Scarcity: "Only [X] showing slots this week. Call now: (504) 475-0672"
+   - Risk-Reversal: "No commitment. No pressure. Just answers. Call (504) 475-0672"
+   - Easy-Action: "Text 'HOME' to schedule your private tour"
+   - Direct: "Call (504) 475-0672. Let's get you home."
+` : ''}
+
+Respond ONLY in valid JSON with these exact keys.`;
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.75,
+    response_format: { type: 'json_object' },
+  });
+
+  const generatedContent = JSON.parse(response.choices[0].message.content || '{}');
+
+  // Helper to ensure a value is a string (AI sometimes returns arrays/objects)
+  const ensureString = (value: unknown): string => {
+    if (typeof value === 'string') return value;
+    if (value === null || value === undefined) return '';
+
+    if (Array.isArray(value)) {
+      // For FAQ arrays, format as Q/A pairs
+      if (value.length > 0 && typeof value[0] === 'object') {
+        const first = value[0] as Record<string, unknown>;
+        if ('question' in first || 'Q' in first) {
+          return value.map((item: Record<string, unknown>) => {
+            const q = String(item.question || item.Q || '');
+            const a = String(item.answer || item.A || '');
+            return `Q: ${q}\nA: ${a}`;
+          }).join('\n\n');
+        }
+        // For pricing arrays or other object arrays, format nicely
+        return value.map((item: Record<string, unknown>) => {
+          return Object.entries(item)
+            .map(([key, val]) => `${key}: ${val}`)
+            .join('\n');
+        }).join('\n\n');
+      }
+      // For simple string arrays (bullet points)
+      return value.map(item => typeof item === 'string' ? `• ${item}` : `• ${String(item)}`).join('\n');
+    }
+
+    // For objects (like pricing), format as key-value pairs
+    if (value && typeof value === 'object') {
+      const obj = value as Record<string, unknown>;
+      return Object.entries(obj)
+        .map(([key, val]) => {
+          // Format key nicely (camelCase to Title Case)
+          const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          return `${formattedKey}: ${val}`;
+        })
+        .join('\n');
+    }
+
+    return String(value);
+  };
+
+  return {
+    propertySlug: slug,
+    generatedAt: new Date().toISOString(),
+    propertyHash: hash,
+    inputs,
+    hook: ensureString(generatedContent.hook),
+    problem: ensureString(generatedContent.problem),
+    solution: ensureString(generatedContent.solution),
+    propertyShowcase: ensureString(generatedContent.propertyShowcase),
+    socialProof: ensureString(generatedContent.socialProof),
+    callToAction: ensureString(generatedContent.callToAction),
+    // Optional sections
+    locationNearby: generatedContent.locationNearby ? ensureString(generatedContent.locationNearby) : undefined,
+    qualifier: generatedContent.qualifier ? ensureString(generatedContent.qualifier) : undefined,
+    pricingOptions: generatedContent.pricingOptions ? ensureString(generatedContent.pricingOptions) : undefined,
+    virtualTourUrl: inputs.virtualTourUrl || undefined,
+    faq: generatedContent.faq ? ensureString(generatedContent.faq) : undefined,
+    // A/B variants
+    hookVariantB: generatedContent.hookVariantB || undefined,
+    ctaVariantB: generatedContent.ctaVariantB || undefined,
+    // Avatar Research Link
+    avatarResearchId: avatarResearchId || undefined,
+    // Formula Tracking (Strategy Learning)
+    formulasUsed: selectedFormulas,
+  };
+}
+
+/**
+ * Generate avatar research and get the research ID
+ */
+/**
+ * Generate full avatar research by directly calling the avatar research generation logic
+ * This ensures research entries are complete, not stubs with null data
+ */
+async function generateAvatarResearchAndGetId(
+  buyerSegment: BuyerSegment,
+  propertyType?: string,
+  propertyCity?: string,
+  propertyPrice?: number
+): Promise<string | undefined> {
+  try {
+    // Import the avatar research module dynamically
+    const avatarResearchModule = await import('./avatar-research');
+
+    // Build property context
+    const propertyContext = {
+      type: propertyType,
+      city: propertyCity,
+      priceRange: propertyPrice ? `$${Math.floor(propertyPrice / 50000) * 50}k-$${Math.ceil(propertyPrice / 50000) * 50}k` : undefined,
+    };
+
+    // Generate full avatar research (not a stub!)
+    // This will call the actual AI generation and save complete research
+    const research = await avatarResearchModule.generateAvatarResearchEntry(
+      buyerSegment,
+      propertyContext
+    );
+
+    if (research && research.id) {
+      console.log('[Funnel API] Full avatar research generated:', research.id);
+      return research.id;
+    }
+
+    console.warn('[Funnel API] Avatar research generation returned no ID');
+    return undefined;
+  } catch (error) {
+    console.error('[Funnel API] Error generating avatar research:', error);
+    // Don't fail funnel generation if avatar research fails - continue without it
+    return undefined;
+  }
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const action = req.query.action as string;
+
+  try {
+    // Ensure content directory exists
+    if (!fs.existsSync(CONTENT_DIR)) {
+      fs.mkdirSync(CONTENT_DIR, { recursive: true });
+    }
+
+    switch (action) {
+      case 'generate': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+
+        const propertyData = req.body as FunnelContentRequest;
+
+        if (!propertyData.address || !propertyData.city) {
+          return res.status(400).json({ error: 'Missing required fields: address, city' });
+        }
+
+        console.log('[Funnel API] Generating content for:', propertyData.address);
+
+        // Persist & Grow: Generate and save avatar research first
+        const inputs = { ...DEFAULT_INPUTS, ...propertyData.inputs };
+        const avatarResearchId = await generateAvatarResearchAndGetId(
+          inputs.buyerSegment || 'first-time-buyer',
+          propertyData.propertyType,
+          propertyData.city,
+          propertyData.price
+        );
+
+        if (avatarResearchId) {
+          console.log('[Funnel API] Avatar research saved with ID:', avatarResearchId);
+        }
+
+        const content = await generateFunnelContent(propertyData, avatarResearchId);
+
+        // Auto-save the generated content
+        const filePath = path.join(CONTENT_DIR, `${content.propertySlug}.md`);
+        fs.writeFileSync(filePath, contentToMarkdown(content), 'utf-8');
+
+        console.log('[Funnel API] Content saved to:', filePath);
+
+        return res.json({ success: true, content, filePath: `/content/properties/${content.propertySlug}.md` });
+      }
+
+      case 'get': {
+        const slug = req.query.slug as string;
+
+        if (!slug) {
+          return res.status(400).json({ error: 'Missing slug parameter' });
+        }
+
+        const filePath = path.join(CONTENT_DIR, `${slug}.md`);
+
+        if (!fs.existsSync(filePath)) {
+          return res.json({ success: true, content: null, exists: false });
+        }
+
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        const content = parseMarkdownContent(fileContent);
+
+        return res.json({ success: true, content, exists: true });
+      }
+
+      case 'save': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+
+        const { slug, content } = req.body as { slug: string; content: FunnelContent };
+
+        if (!slug || !content) {
+          return res.status(400).json({ error: 'Missing slug or content' });
+        }
+
+        const filePath = path.join(CONTENT_DIR, `${slug}.md`);
+        fs.writeFileSync(filePath, contentToMarkdown(content), 'utf-8');
+
+        console.log('[Funnel API] Content manually saved to:', filePath);
+
+        return res.json({ success: true, filePath: `/content/properties/${slug}.md` });
+      }
+
+      case 'delete': {
+        if (req.method !== 'POST' && req.method !== 'DELETE') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+
+        const slug = req.query.slug as string || req.body?.slug;
+
+        if (!slug) {
+          return res.status(400).json({ error: 'Missing slug parameter' });
+        }
+
+        const filePath = path.join(CONTENT_DIR, `${slug}.md`);
+
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+          console.log('[Funnel API] Content deleted:', filePath);
+        }
+
+        return res.json({ success: true });
+      }
+
+      case 'list': {
+        const files = fs.readdirSync(CONTENT_DIR)
+          .filter(f => f.endsWith('.md'))
+          .map(f => f.replace('.md', ''));
+
+        return res.json({ success: true, slugs: files });
+      }
+
+      default:
+        return res.status(400).json({ error: 'Unknown action', validActions: ['generate', 'get', 'save', 'delete', 'list'] });
+    }
+  } catch (error) {
+    console.error('[Funnel API] Error:', error);
+    return res.status(500).json({ error: 'Internal server error', details: String(error) });
+  }
+}

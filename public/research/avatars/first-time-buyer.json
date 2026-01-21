@@ -1,0 +1,333 @@
+{
+  "segment": "first-time-buyer",
+  "version": 1,
+  "lastUpdated": "2026-01-21T15:16:50.476Z",
+  "entries": [
+    {
+      "id": "7313a572-7f68-4dc9-87ab-84932ade72d5",
+      "createdAt": "2026-01-21T15:16:50.476Z",
+      "buyerSegment": "first-time-buyer",
+      "propertyContext": {
+        "type": "Single Family",
+        "city": "Gretna",
+        "priceRange": "$200k-$250k"
+      },
+      "research": {
+        "buyerSegment": "first-time-buyer",
+        "dreams": [
+          "Stop paying landlord's mortgage",
+          "Build equity",
+          "Have their own space",
+          "Start a family in a real home"
+        ],
+        "fears": [
+          "Rejection by banks",
+          "Making a huge mistake",
+          "Hidden costs",
+          "Being house poor"
+        ],
+        "suspicions": [
+          "Agents just want commission",
+          "Banks favor the wealthy",
+          "There must be a catch"
+        ],
+        "failures": [
+          "Denied by traditional lenders",
+          "Lost bidding wars",
+          "Couldn't save 20% down"
+        ],
+        "enemies": [
+          "Big banks",
+          "Unfair credit scoring",
+          "Rising rent prices",
+          "Greedy landlords"
+        ],
+        "diaryEntry": "I woke up today feeling anxious about my future. I’m tired of throwing money away on rent, but I fear getting rejected by banks. Every night, I lie awake, dreaming of a place I can call my own, but doubts creep in. Am I ready? Will I make a costly mistake? I wish I could find a way to escape this cycle of renting. How can I build a life when I’m stuck paying someone else’s mortgage?",
+        "keyFrustrations": [
+          "High rent prices",
+          "Limited savings for a down payment",
+          "Lack of trust in real estate agents",
+          "Fear of hidden fees",
+          "Feeling overwhelmed by the buying process"
+        ],
+        "emotionalTriggers": [
+          "Hope for a brighter future",
+          "Fear of being trapped in renting",
+          "Desire for stability and belonging"
+        ],
+        "beforeState": {
+          "feelings": "Frustrated and anxious about the future",
+          "daily": "Waking up in a rental, frustrated by lack of space, and feeling stuck in a cycle of paying rent",
+          "status": "A renter who feels powerless in the current housing market"
+        },
+        "afterState": {
+          "feelings": "Empowered and proud of their new home",
+          "daily": "Waking up in a space they own, making memories, and feeling secure about their financial future",
+          "status": "A homeowner who has built equity and stability for themselves and their family"
+        },
+        "transformationNarrative": "From feeling trapped in a cycle of renting and fear of rejection, they transform into a confident homeowner, celebrating their newfound freedom and financial security.",
+        "objections": [
+          {
+            "objection": "I can't afford the down payment.",
+            "counter": "There are various programs available that require as little as 3% down.",
+            "proofPoint": "Over 80% of first-time buyers qualify for some form of assistance."
+          },
+          {
+            "objection": "What if the market crashes after I buy?",
+            "counter": "Real estate typically appreciates over time, and buying now can secure your future against rising rent.",
+            "proofPoint": "Historically, home values have increased by an average of 3-5% annually."
+          },
+          {
+            "objection": "I don’t trust real estate agents.",
+            "counter": "Our agents prioritize your needs and focus on transparency throughout the process.",
+            "proofPoint": "We have a 95% satisfaction rate from first-time homebuyers."
+          },
+          {
+            "objection": "What if I get rejected by banks?",
+            "counter": "We work with lenders who specialize in first-time buyers and understand your unique situation.",
+            "proofPoint": "We’ve helped over 300 clients secure financing despite previous rejections."
+          },
+          {
+            "objection": "I’m worried about hidden costs.",
+            "counter": "We provide a comprehensive guide to all potential expenses upfront, ensuring you’re fully informed.",
+            "proofPoint": "Our clients report feeling 75% more prepared for costs before closing."
+          }
+        ],
+        "recommendedHooks": [
+          "Unlock the door to your dreams with just 3% down!",
+          "Tired of renting? Discover how easy it is to own your first home!",
+          "Don’t let the bank turn you down—let us help you secure financing!",
+          "Say goodbye to landlord worries and hello to your own space!",
+          "Take the first step toward homeownership—your dream home awaits!"
+        ],
+        "recommendedAppeals": [
+          "The joy of owning your first home and creating lasting memories",
+          "The peace of mind that comes from building equity and stability",
+          "The empowerment of breaking free from the rental cycle"
+        ]
+      },
+      "usedInFunnels": []
+    },
+    {
+      "id": "f364662b-1c36-4516-b0c1-3b4cff13ea22",
+      "createdAt": "2026-01-21T15:05:47.514Z",
+      "buyerSegment": "first-time-buyer",
+      "propertyContext": {
+        "type": "Single Family",
+        "city": "Gretna",
+        "priceRange": "$200k-$250k"
+      },
+      "research": {
+        "buyerSegment": "first-time-buyer",
+        "dreams": [
+          "Stop paying landlord's mortgage",
+          "Build equity",
+          "Have their own space",
+          "Start a family in a real home"
+        ],
+        "fears": [
+          "Rejection by banks",
+          "Making a huge mistake",
+          "Hidden costs",
+          "Being house poor"
+        ],
+        "suspicions": [
+          "Agents just want commission",
+          "Banks favor the wealthy",
+          "There must be a catch"
+        ],
+        "failures": [
+          "Denied by traditional lenders",
+          "Lost bidding wars",
+          "Couldn't save 20% down"
+        ],
+        "enemies": [
+          "Big banks",
+          "Unfair credit scoring",
+          "Rising rent prices",
+          "Greedy landlords"
+        ],
+        "diaryEntry": "I woke up feeling anxious again. Another month of rent is due, and I’m still stuck in this tiny apartment. I dream of a real home, but the thought of rejection from banks keeps me up at night. I want to start a family, but what if I make a mistake? I can’t shake the feeling that I might be stuck paying someone else’s mortgage forever.",
+        "keyFrustrations": [
+          "Feeling trapped in a rental",
+          "Constantly rising rent prices",
+          "Uncertainty about the mortgage process",
+          "Fear of hidden costs",
+          "Lack of guidance from real estate agents"
+        ],
+        "emotionalTriggers": [
+          "Hope for a better future",
+          "Desire for stability",
+          "Fear of making a wrong decision"
+        ],
+        "beforeState": {
+          "feelings": "Frustrated and anxious about finances",
+          "daily": "Waking up in a rented space, feeling confined and burdened by monthly rent payments",
+          "status": "Regarded as just another tenant with no real stake in their living situation"
+        },
+        "afterState": {
+          "feelings": "Empowered and secure in their investment",
+          "daily": "Waking up in their own home, feeling proud and excited about building a future",
+          "status": "Viewed as a homeowner, with a sense of accomplishment and stability"
+        },
+        "transformationNarrative": "By becoming a homeowner, they transitioned from feeling trapped and anxious to empowered and secure, finally building equity and a future they can call their own.",
+        "objections": [
+          {
+            "objection": "I’m worried I won’t qualify for a mortgage.",
+            "counter": "Our specialized lenders work with first-time buyers and can help you understand your options.",
+            "proofPoint": "Over 80% of first-time buyers qualify for some form of financing."
+          },
+          {
+            "objection": "What if I find hidden costs after I buy?",
+            "counter": "We provide a thorough home inspection and transparent breakdown of all costs upfront.",
+            "proofPoint": "Our clients report a 95% satisfaction rate with their purchase experience."
+          },
+          {
+            "objection": "I can’t save enough for a 20% down payment.",
+            "counter": "There are many programs available that allow for lower down payments, even as low as 3%.",
+            "proofPoint": "According to the National Association of Realtors, 66% of first-time buyers put down less than 20%."
+          },
+          {
+            "objection": "I’m afraid of making a huge financial mistake.",
+            "counter": "Our team offers personalized guidance throughout the buying process to help you make informed decisions.",
+            "proofPoint": "Clients who work with us report feeling more confident and informed in their decisions."
+          },
+          {
+            "objection": "Real estate agents are just looking to make a commission.",
+            "counter": "Our mission is to empower first-time buyers; your success is our priority, not just a sale.",
+            "proofPoint": "We have a 4.9-star rating based on client feedback focusing on our dedication to their needs."
+          }
+        ],
+        "recommendedHooks": [
+          "Unlock the door to your dream home with just 3% down!",
+          "Stop paying rent and start building equity today!",
+          "Discover how easy homeownership can be with our expert guidance!",
+          "Don’t let fear stop you—find your perfect home now!",
+          "Join countless first-time buyers who turned their dreams into reality!"
+        ],
+        "recommendedAppeals": [
+          "The joy of homeownership and the freedom it brings",
+          "The fear of missing out on opportunities for investment",
+          "The safety and stability of having a place to call home"
+        ]
+      },
+      "usedInFunnels": []
+    },
+    {
+      "id": "be2b637f-c168-4c0d-bec8-a4b4be894ae9",
+      "createdAt": "2026-01-21T15:01:17.222Z",
+      "buyerSegment": "first-time-buyer",
+      "propertyContext": {
+        "type": "Single Family",
+        "city": "Gretna",
+        "priceRange": "$200k-$250k"
+      },
+      "research": {
+        "buyerSegment": "first-time-buyer",
+        "dreams": [
+          "Stop paying landlord's mortgage",
+          "Build equity",
+          "Have their own space",
+          "Start a family in a real home"
+        ],
+        "fears": [
+          "Rejection by banks",
+          "Making a huge mistake",
+          "Hidden costs",
+          "Being house poor"
+        ],
+        "suspicions": [
+          "Agents just want commission",
+          "Banks favor the wealthy",
+          "There must be a catch"
+        ],
+        "failures": [
+          "Denied by traditional lenders",
+          "Lost bidding wars",
+          "Couldn't save 20% down"
+        ],
+        "enemies": [
+          "Big banks",
+          "Unfair credit scoring",
+          "Rising rent prices",
+          "Greedy landlords"
+        ],
+        "diaryEntry": "It's 7 AM, and I'm already feeling anxious. Another month of rent is due, and I can't shake the feeling that I'm just lining my landlord's pockets. I dream of having my own space, but the thought of approaching a bank terrifies me. What if I get rejected again? As I scroll through listings, I wonder if I'll ever be able to afford a place in Gretna. I can't sleep; I keep thinking about hidden costs and making a mistake that could haunt me for years.",
+        "keyFrustrations": [
+          "Endless rent payments",
+          "Lack of control over living space",
+          "Fear of missing out on homes",
+          "Difficulty saving for a down payment",
+          "Feeling overwhelmed by the buying process"
+        ],
+        "emotionalTriggers": [
+          "Desire for stability",
+          "Fear of being trapped in a rental cycle",
+          "Hope for a better future for their family"
+        ],
+        "beforeState": {
+          "feelings": "Frustrated and anxious about the future.",
+          "daily": "Waking up in a rented apartment, feeling limited and unsure about finances.",
+          "status": "Feeling stuck as a renter with dreams of homeownership."
+        },
+        "afterState": {
+          "feelings": "Empowered and secure in their investment.",
+          "daily": "Waking up in their own home, excited to decorate and make memories.",
+          "status": "Proud homeowner, building equity and creating a family space."
+        },
+        "transformationNarrative": "Transitioning from a frustrated renter to a proud homeowner, they now wake up each day feeling secure, knowing their investment builds equity and fulfills their dreams of family and stability.",
+        "objections": [
+          {
+            "objection": "I don't think I can afford the down payment.",
+            "counter": "There are many programs available for first-time buyers that require as little as 3% down.",
+            "proofPoint": "According to the National Association of Realtors, 56% of first-time buyers made a down payment of 6% or less."
+          },
+          {
+            "objection": "What if I get rejected by a lender?",
+            "counter": "Our team specializes in helping first-time buyers navigate the lending process, increasing your chances of approval.",
+            "proofPoint": "We have a 90% approval rate for first-time buyers."
+          },
+          {
+            "objection": "I fear making a huge mistake.",
+            "counter": "We provide thorough education and support throughout the buying process, ensuring you're informed and confident.",
+            "proofPoint": "Clients who work with us report feeling 80% more confident in their home-buying decisions."
+          },
+          {
+            "objection": "What if there are hidden costs I didn't anticipate?",
+            "counter": "We offer a complete breakdown of potential costs and help you budget accordingly to avoid surprises.",
+            "proofPoint": "Our clients appreciate transparency, with 95% rating us 5-stars for communication."
+          },
+          {
+            "objection": "I worry about being house poor.",
+            "counter": "We focus on finding homes that fit your budget and long-term financial goals, not just your immediate desires.",
+            "proofPoint": "Clients who follow our budget guidelines report increased financial satisfaction post-purchase."
+          }
+        ],
+        "recommendedHooks": [
+          "Unlock the door to your first home with just 3% down!",
+          "Stop renting and start building your future today!",
+          "Your dream home in Gretna is within reach – let us show you how!",
+          "Tired of paying your landlord's mortgage? Let's change that!",
+          "Don't let fear hold you back from homeownership – we're here to help!"
+        ],
+        "recommendedAppeals": [
+          "The security of owning your own home",
+          "The joy of creating a family space",
+          "The empowerment that comes with building equity"
+        ]
+      },
+      "usedInFunnels": []
+    }
+  ],
+  "insights": {
+    "topDreams": [],
+    "topFears": [],
+    "topSuspicions": [],
+    "topObjections": [],
+    "mostEffectiveHooks": [],
+    "avgEffectiveness": 0,
+    "totalResearches": 3,
+    "totalRated": 0,
+    "lastUpdated": "2026-01-19T00:00:00.000Z"
+  }
+}

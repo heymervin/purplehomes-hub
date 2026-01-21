@@ -20,6 +20,7 @@ import Settings from "@/pages/Settings";
 import ActivityLogs from "@/pages/ActivityLogs";
 import BuyerManagement from "@/pages/BuyerManagement";
 import PublicListings from "@/pages/PublicListings";
+import PublicPropertyDetail from "@/pages/PublicPropertyDetail";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 
@@ -35,8 +36,9 @@ const App = () => (
             {/* Auth Route */}
             <Route path="/auth" element={<Auth />} />
             
-            {/* Public Route (embeddable, no sidebar) */}
+            {/* Public Routes (embeddable, no sidebar) */}
             <Route path="/listings" element={<PublicListings />} />
+            <Route path="/listing/:slug" element={<PublicPropertyDetail />} />
             
             {/* Protected Internal Routes (with sidebar) */}
             <Route element={<ProtectedRoute />}>
