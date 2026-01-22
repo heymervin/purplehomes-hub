@@ -29,6 +29,7 @@ export interface FunnelInputs {
 
   // Urgency & Scarcity
   availabilityStatus: string; // Default: "Available"
+  urgencyMessage: string;     // Custom urgency text for funnel (e.g., "Only 2 spots left!")
   specialOffer: string;       // Optional promo/bonus
 
   // Lifestyle/Emotional
@@ -51,6 +52,7 @@ export const DEFAULT_FUNNEL_INPUTS: FunnelInputs = {
   termLength: '', // User must fill this in
   interestRate: '',
   availabilityStatus: 'Available',
+  urgencyMessage: '',
   specialOffer: '',
   neighborhoodHighlights: '',
   idealBuyerProfile: '',

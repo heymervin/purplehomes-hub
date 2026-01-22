@@ -327,13 +327,14 @@ ${searchResults}
 
 Generate the following fields in JSON format:
 {
-  "headline": "A compelling 1-line market headline (max 120 chars) with a specific stat or trend",
+  "headline": "SHORT punchy headline - MAX 5 WORDS (e.g., 'Inventory Up 12%', 'Rates Hit 6.5%')",
   "stats": "2-4 key statistics formatted as bullet points (e.g., • Median price: $285,000 • Inventory: Up 12%)",
   "soWhat": "2-3 sentences explaining what this means for buyers/sellers in plain language",
   "imagePrompt": "A detailed image generation prompt for AI tools like DALL-E, Midjourney, or Gemini"
 }
 
 RULES:
+- CRITICAL: headline MUST be 3-5 words MAX for image templates (will break if longer!)
 - Use REAL statistics from the research (or realistic estimates for ${location})
 - headline should grab attention with a specific number or trend
 - stats should be concise, factual bullet points
@@ -347,12 +348,13 @@ ${searchResults}
 
 Generate the following fields in JSON format:
 {
-  "tipTitle": "A catchy tip title (max 100 chars) like '3 Things First-Time Buyers Miss'",
+  "tipTitle": "SHORT punchy title - MAX 5 WORDS (e.g., '3 Buyer Mistakes', 'First-Time Buyer Tips')",
   "tipBody": "3-4 detailed bullet points explaining the tip (max 600 chars total)",
   "imagePrompt": "A detailed image generation prompt for AI tools like DALL-E, Midjourney, or Gemini"
 }
 
 RULES:
+- CRITICAL: tipTitle MUST be 3-5 words MAX for image templates (will break if longer!)
 - Make tips specific and actionable
 - Include current market context where relevant
 - tipBody should have clear, numbered or bulleted points
@@ -365,12 +367,13 @@ ${searchResults}
 
 Generate the following fields in JSON format:
 {
-  "tipTitle": "A catchy tip title (max 100 chars) like 'How to Stage Your Home for Top Dollar'",
+  "tipTitle": "SHORT punchy title - MAX 5 WORDS (e.g., 'Staging Secrets', 'Price Your Home Right')",
   "tipBody": "3-4 detailed bullet points explaining the tip (max 600 chars total)",
   "imagePrompt": "A detailed image generation prompt for AI tools like DALL-E, Midjourney, or Gemini"
 }
 
 RULES:
+- CRITICAL: tipTitle MUST be 3-5 words MAX for image templates (will break if longer!)
 - Make tips specific and actionable
 - Include current market context where relevant
 - tipBody should have clear, numbered or bulleted points
@@ -403,8 +406,8 @@ Generate the following fields in JSON format:
 {
   "tipTitle": "Caption title for social media (e.g., '3 Must-Know Tips for Home Buyers')",
   "tipBody": "Caption body - combine all 3 tips into 3-4 bullet points for the social media caption (max 600 chars)",
-  "tipHeader": "Main header for image template (e.g., 'Home buyer crucial tips')",
-  "tip1Header": "Tip 1 title - SHORT (3-4 words max, e.g., 'Get Pre-Approved First')",
+  "tipHeader": "Main header for image - MAX 4 WORDS (e.g., 'Smart Buyer Tips', 'Sell Fast Secrets')",
+  "tip1Header": "Tip 1 title - SHORT (3-4 words max, e.g., 'Get Pre-Approved')",
   "tip1Body": "Tip 1 description (2-3 short sentences, max 120 chars)",
   "tip1ImagePrompt": "Image prompt for Tip 1 - describe a specific visual for this tip",
   "tip2Header": "Tip 2 title - SHORT (3-4 words max)",

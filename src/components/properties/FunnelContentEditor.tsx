@@ -627,14 +627,24 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="specialOffer">Special Offer (optional)</Label>
+                  <Label htmlFor="urgencyMessage">Urgency Message (optional)</Label>
                   <Input
-                    id="specialOffer"
-                    value={inputs.specialOffer}
-                    onChange={(e) => updateInput('specialOffer', e.target.value)}
-                    placeholder="e.g., $1,000 off closing costs"
+                    id="urgencyMessage"
+                    value={inputs.urgencyMessage}
+                    onChange={(e) => updateInput('urgencyMessage', e.target.value)}
+                    placeholder="e.g., Only 2 viewing slots left this week!"
                   />
+                  <p className="text-xs text-muted-foreground">Custom scarcity text for funnel copy</p>
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="specialOffer">Special Offer (optional)</Label>
+                <Input
+                  id="specialOffer"
+                  value={inputs.specialOffer}
+                  onChange={(e) => updateInput('specialOffer', e.target.value)}
+                  placeholder="e.g., $1,000 off closing costs"
+                />
               </div>
 
               {/* Lifestyle/Emotional */}

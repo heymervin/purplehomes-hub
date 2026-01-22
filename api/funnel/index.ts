@@ -30,6 +30,7 @@ interface FunnelInputs {
   termLength: string;
   interestRate: string;
   availabilityStatus: string;
+  urgencyMessage: string;
   specialOffer: string;
   neighborhoodHighlights: string;
   idealBuyerProfile: string;
@@ -48,6 +49,7 @@ const DEFAULT_INPUTS: FunnelInputs = {
   termLength: '', // User must fill this in
   interestRate: '',
   availabilityStatus: 'Available',
+  urgencyMessage: '',
   specialOffer: '',
   neighborhoodHighlights: '',
   idealBuyerProfile: '',
@@ -614,7 +616,7 @@ ${data.description ? `Description: ${data.description}` : ''}
 ${inputs.neighborhoodHighlights ? `Neighborhood: ${inputs.neighborhoodHighlights}` : ''}
 ${inputs.uniqueFeatures ? `Features: ${inputs.uniqueFeatures}` : ''}
 ${inputs.specialOffer ? `SPECIAL OFFER: ${inputs.specialOffer}` : ''}
-${inputs.availabilityStatus !== 'Available' ? `URGENCY: "${inputs.availabilityStatus}"` : ''}
+${inputs.urgencyMessage ? `URGENCY/SCARCITY: "${inputs.urgencyMessage}"` : (inputs.availabilityStatus !== 'Available' ? `STATUS: "${inputs.availabilityStatus}"` : '')}
 
 === BUYER AVATAR (27-WORD PERSUASION FRAMEWORK) ===
 ${avatarContext}
