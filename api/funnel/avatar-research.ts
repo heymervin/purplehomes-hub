@@ -1208,6 +1208,48 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
         }
 
+        // Also try a test write if requested
+        if (req.query.testWrite === 'true') {
+          try {
+            const testFields = {
+              'ID': `test-${Date.now()}`,
+              'Segment': 'first-time-buyer',
+              'Research': JSON.stringify({ test: true }),
+              'PropertyContext': JSON.stringify({ test: true }),
+              'UsedInFunnels': '',
+              'CreatedAt': new Date().toISOString(),
+            };
+
+            console.log('[Test] Attempting to write test record with fields:', Object.keys(testFields));
+
+            const writeResponse = await fetch(
+              `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_RESEARCH_TABLE}`,
+              {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ fields: testFields }),
+              }
+            );
+
+            if (writeResponse.ok) {
+              const writeData = await writeResponse.json();
+              testResults.testWrite = 'success';
+              testResults.testWriteRecordId = writeData.id;
+            } else {
+              const errorText = await writeResponse.text();
+              testResults.testWrite = 'failed';
+              testResults.testWriteError = errorText;
+              testResults.testWriteStatus = writeResponse.status;
+            }
+          } catch (writeError) {
+            testResults.testWrite = 'error';
+            testResults.testWriteError = String(writeError);
+          }
+        }
+
         return res.json({
           success: true,
           message: 'Avatar Research API test',
