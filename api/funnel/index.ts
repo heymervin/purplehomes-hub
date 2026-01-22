@@ -1316,8 +1316,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       }
 
+      case 'test':
+        // Simple test to verify function loads
+        return res.json({
+          success: true,
+          message: 'Funnel API is working',
+          environment: IS_VERCEL ? 'vercel' : 'local',
+          hasPromptSystem: !!promptSystem,
+          hasAirtableConfig: !!(AIRTABLE_API_KEY && AIRTABLE_BASE_ID),
+        });
+
       default:
-        return res.status(400).json({ error: 'Unknown action', validActions: ['generate', 'get', 'save', 'delete', 'list'] });
+        return res.status(400).json({ error: 'Unknown action', validActions: ['generate', 'get', 'save', 'delete', 'list', 'test'] });
     }
   } catch (error) {
     console.error('[Funnel API] Error:', error);
