@@ -229,6 +229,9 @@ async function airtableSaveEntry(entry: AvatarResearchEntry): Promise<boolean> {
     const existingRecord = await airtableFindEntryById(entry.id);
     console.log('[airtableSaveEntry] Existing record:', existingRecord || 'NOT FOUND');
 
+    // Format CreatedAt as YYYY-MM-DD for Airtable Date field compatibility
+    const createdAtDate = entry.createdAt.split('T')[0]; // Extract just the date portion
+
     const fields = {
       'ID': entry.id,
       'Segment': entry.buyerSegment,
@@ -237,7 +240,7 @@ async function airtableSaveEntry(entry: AvatarResearchEntry): Promise<boolean> {
       'PropertyContext': JSON.stringify(entry.propertyContext),
       'Feedback': entry.feedback ? JSON.stringify(entry.feedback) : null,
       'UsedInFunnels': entry.usedInFunnels.join(','),
-      'CreatedAt': entry.createdAt,
+      'CreatedAt': createdAtDate,
     };
     console.log('[airtableSaveEntry] Fields prepared, Research length:', fields.Research?.length || 0);
 
@@ -1217,7 +1220,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               'Research': JSON.stringify({ test: true }),
               'PropertyContext': JSON.stringify({ test: true }),
               'UsedInFunnels': '',
-              'CreatedAt': new Date().toISOString(),
+              'CreatedAt': new Date().toISOString().split('T')[0], // YYYY-MM-DD format for Airtable
             };
 
             console.log('[Test] Attempting to write test record with fields:', Object.keys(testFields));
