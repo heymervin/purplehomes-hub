@@ -351,7 +351,7 @@ export default function PublicPropertyDetail() {
 
         {/* Hook Section - Attention Grabber */}
         {funnelContent?.hook && (
-          <FunnelSection variant="purple" padding="lg" blendTo="gray">
+          <FunnelSection variant="purple" padding="lg" blendTo="light">
             <div className="text-center max-w-4xl mx-auto">
               <span className="inline-block px-4 py-1.5 bg-white/20 text-white/90 rounded-full text-sm font-semibold uppercase tracking-wide mb-6">
                 Your Dream Home Awaits
@@ -717,7 +717,7 @@ export default function PublicPropertyDetail() {
 
         {/* Final CTA Section */}
         {funnelContent?.callToAction && (
-          <FunnelSection variant="purple" padding="lg" blendTo="gray">
+          <FunnelSection variant="purple" padding="lg" blendTo="light">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Ready to Stop Renting and Start Owning?
