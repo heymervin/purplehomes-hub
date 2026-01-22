@@ -351,7 +351,7 @@ export default function PublicPropertyDetail() {
 
         {/* Hook Section - Attention Grabber */}
         {funnelContent?.hook && (
-          <FunnelSection variant="purple" padding="lg">
+          <FunnelSection variant="purple" padding="lg" blendTo="gray">
             <div className="text-center max-w-4xl mx-auto">
               <span className="inline-block px-4 py-1.5 bg-white/20 text-white/90 rounded-full text-sm font-semibold uppercase tracking-wide mb-6">
                 Your Dream Home Awaits
@@ -368,7 +368,7 @@ export default function PublicPropertyDetail() {
 
         {/* Problem Section */}
         {funnelContent?.problem && (
-          <FunnelSection variant="light" padding="lg">
+          <FunnelSection variant="light" padding="lg" blendTo="dark">
             <TwoColumnLayout
               emphasis="right"
               left={
@@ -411,7 +411,7 @@ export default function PublicPropertyDetail() {
 
         {/* Solution Section */}
         {funnelContent?.solution && (
-          <FunnelSection variant="dark" padding="lg">
+          <FunnelSection variant="dark" padding="lg" blendTo="white">
             <SectionHeader
               overline="There's a Better Way"
               title="Rent-to-Own: Your Path to Homeownership"
@@ -533,11 +533,12 @@ export default function PublicPropertyDetail() {
           </FunnelSection>
         )}
 
-        {/* Comparison Table */}
-        <FunnelSection variant="white" padding="lg">
+        {/* Comparison Table - Luxury Cards */}
+        <FunnelSection variant="luxury-cream" padding="lg" blendTo="white">
           <ComparisonTable
             title="Renting vs. Owning With Purple Homes"
             subtitle="See why hundreds of families are making the switch"
+            variant="luxury-cards"
             rows={[
               { feature: "Monthly payment goes to", optionA: "Landlord's pocket", optionB: "YOUR equity" },
               { feature: "Build wealth over time", optionA: false, optionB: true },
@@ -550,14 +551,14 @@ export default function PublicPropertyDetail() {
           />
         </FunnelSection>
 
-        {/* Process Steps */}
-        <FunnelSection variant="gray" padding="lg">
+        {/* Process Steps - Luxury */}
+        <FunnelSection variant="white" padding="lg" blendTo="dark">
           <ProcessSteps
             title="3 Simple Steps to Homeownership"
             subtitle="Our streamlined process makes becoming a homeowner easy"
-            variant="cards"
+            variant="luxury"
           />
-          <div className="text-center mt-10">
+          <div className="text-center mt-14">
             <CTAButton onClick={scrollToForm} size="xl">
               Start Your Application
             </CTAButton>
@@ -589,7 +590,7 @@ export default function PublicPropertyDetail() {
 
         {/* Location & Nearby */}
         {funnelContent?.locationNearby && (
-          <FunnelSection variant="white" padding="lg">
+          <FunnelSection variant="white" padding="lg" blendFrom="dark">
             <SectionHeader
               overline="Location"
               title="Your New Neighborhood"
@@ -703,7 +704,7 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* Urgency / Countdown - Premium */}
-        <FunnelSection variant="white" padding="lg">
+        <FunnelSection variant="white" padding="lg" blendTo="purple">
           <div className="max-w-2xl mx-auto">
             <CountdownTimer
               hoursFromNow={48}
@@ -716,7 +717,7 @@ export default function PublicPropertyDetail() {
 
         {/* Final CTA Section */}
         {funnelContent?.callToAction && (
-          <FunnelSection variant="purple" padding="lg">
+          <FunnelSection variant="purple" padding="lg" blendTo="gray">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Ready to Stop Renting and Start Owning?
@@ -910,11 +911,11 @@ export default function PublicPropertyDetail() {
         variant="simple"
       />
 
-      {/* Floating Action Button (Desktop) */}
+      {/* Floating Action Button (Desktop) - SMS for better conversion */}
       <FloatingActionButton
-        icon="phone"
-        href="tel:+15044750672"
-        label="Call Now"
+        icon="message"
+        href="sms:+15044750672"
+        label="Text Us"
       />
     </div>
   );

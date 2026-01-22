@@ -22,6 +22,12 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Airtable configuration
+const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
+const AIRTABLE_API_URL = 'https://api.airtable.com/v0';
+const AVATAR_RESEARCH_TABLE = 'AvatarResearch';
+
 // Check if running on Vercel
 const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
 
@@ -84,6 +90,24 @@ interface InsightItem {
   lastSeen: string;
 }
 
+interface FormulaStatsEntry {
+  formulaId: string;
+  formulaName: string;
+  usageCount: number;
+  avgEffectiveness: number;
+  lastUsed: string;
+}
+
+interface FormulaStats {
+  landingPage: FormulaStatsEntry[];
+  hook: FormulaStatsEntry[];
+  problem: FormulaStatsEntry[];
+  solution: FormulaStatsEntry[];
+  showcase: FormulaStatsEntry[];
+  proof: FormulaStatsEntry[];
+  cta: FormulaStatsEntry[];
+}
+
 interface SegmentInsights {
   topDreams: InsightItem[];
   topFears: InsightItem[];
@@ -94,6 +118,17 @@ interface SegmentInsights {
   totalResearches: number;
   totalRated: number;
   lastUpdated: string;
+  formulaStats?: FormulaStats;
+}
+
+interface FormulaSelection {
+  landingPageFormula: string;
+  hookFormula: string;
+  problemFormula: string;
+  solutionFormula: string;
+  showcaseFormula: string;
+  proofFormula: string;
+  ctaFormula: string;
 }
 
 interface AvatarResearchEntry {
@@ -105,6 +140,7 @@ interface AvatarResearchEntry {
   effectiveness?: number;
   feedback?: ResearchFeedback;
   usedInFunnels: string[];
+  formulasUsed?: FormulaSelection;
 }
 
 interface AvatarResearchHistory {
@@ -123,45 +159,347 @@ const MIN_RATING_FOR_INSIGHTS = 7;
 const MIN_ENTRIES_FOR_PATTERNS = 3;
 
 // ============================================================
-// FILE OPERATIONS
+// AIRTABLE OPERATIONS
 // ============================================================
+
+/**
+ * Fetch with automatic retry on rate limit errors (429)
+ */
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  maxRetries = 3
+): Promise<Response> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      if (attempt > 0) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+        console.log(`[Avatar Research] Airtable retry ${attempt}/${maxRetries} after ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+
+      const response = await fetch(url, options);
+
+      if (response.status === 429 && attempt < maxRetries) {
+        console.warn(`[Avatar Research] Airtable rate limited (429) on attempt ${attempt + 1}/${maxRetries + 1}`);
+        lastError = new Error(`Rate limited: ${response.statusText}`);
+        continue;
+      }
+
+      return response;
+    } catch (error) {
+      console.error(`[Avatar Research] Airtable fetch error on attempt ${attempt + 1}:`, error);
+      lastError = error as Error;
+
+      if (attempt === maxRetries) {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError || new Error('Failed after retries');
+}
+
+/**
+ * Save a single avatar research entry to Airtable
+ */
+async function airtableSaveEntry(entry: AvatarResearchEntry): Promise<boolean> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    console.warn('[Avatar Research] Airtable credentials not configured');
+    return false;
+  }
+
+  try {
+    // Check if entry already exists
+    const existingRecord = await airtableFindEntryById(entry.id);
+
+    const fields = {
+      'ID': entry.id,
+      'Segment': entry.buyerSegment,
+      'Research': JSON.stringify(entry.research),
+      'Effectiveness': entry.effectiveness || null,
+      'PropertyContext': JSON.stringify(entry.propertyContext),
+      'Feedback': entry.feedback ? JSON.stringify(entry.feedback) : null,
+      'UsedInFunnels': entry.usedInFunnels.join(','),
+      'CreatedAt': entry.createdAt,
+    };
+
+    if (existingRecord) {
+      // Update existing record
+      const response = await fetchWithRetry(
+        `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_RESEARCH_TABLE}/${existingRecord}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fields }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[Avatar Research] Airtable update error:', errorText);
+        return false;
+      }
+    } else {
+      // Create new record
+      const response = await fetchWithRetry(
+        `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_RESEARCH_TABLE}`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fields }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[Avatar Research] Airtable create error:', errorText);
+        return false;
+      }
+    }
+
+    console.log('[Avatar Research] Entry saved to Airtable:', entry.id);
+    return true;
+  } catch (error) {
+    console.error('[Avatar Research] Airtable save failed:', error);
+    return false;
+  }
+}
+
+/**
+ * Find Airtable record ID by our entry ID
+ */
+async function airtableFindEntryById(entryId: string): Promise<string | null> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    return null;
+  }
+
+  try {
+    const formula = encodeURIComponent(`{ID}="${entryId}"`);
+    const response = await fetchWithRetry(
+      `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_RESEARCH_TABLE}?filterByFormula=${formula}&maxRecords=1`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    if (data.records && data.records.length > 0) {
+      return data.records[0].id;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('[Avatar Research] Airtable find by ID failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Load all entries for a segment from Airtable
+ */
+async function airtableLoadEntriesBySegment(segment: BuyerSegment): Promise<AvatarResearchEntry[]> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    console.warn('[Avatar Research] Airtable credentials not configured');
+    return [];
+  }
+
+  try {
+    const formula = encodeURIComponent(`{Segment}="${segment}"`);
+    const response = await fetchWithRetry(
+      `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_RESEARCH_TABLE}?filterByFormula=${formula}&sort%5B0%5D%5Bfield%5D=CreatedAt&sort%5B0%5D%5Bdirection%5D=desc&maxRecords=${MAX_ENTRIES}`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error('[Avatar Research] Airtable load error:', response.status, response.statusText);
+      return [];
+    }
+
+    const data = await response.json();
+    const entries: AvatarResearchEntry[] = [];
+
+    for (const record of data.records || []) {
+      try {
+        const entry: AvatarResearchEntry = {
+          id: record.fields['ID'] || record.id,
+          createdAt: record.fields['CreatedAt'] || new Date().toISOString(),
+          buyerSegment: record.fields['Segment'] || segment,
+          propertyContext: record.fields['PropertyContext'] ? JSON.parse(record.fields['PropertyContext']) : {},
+          research: record.fields['Research'] ? JSON.parse(record.fields['Research']) : null,
+          effectiveness: record.fields['Effectiveness'] || undefined,
+          feedback: record.fields['Feedback'] ? JSON.parse(record.fields['Feedback']) : undefined,
+          usedInFunnels: record.fields['UsedInFunnels'] ? record.fields['UsedInFunnels'].split(',').filter(Boolean) : [],
+        };
+        entries.push(entry);
+      } catch (parseError) {
+        console.warn('[Avatar Research] Error parsing Airtable record:', parseError);
+      }
+    }
+
+    console.log(`[Avatar Research] Loaded ${entries.length} entries from Airtable for segment: ${segment}`);
+    return entries;
+  } catch (error) {
+    console.error('[Avatar Research] Airtable load failed:', error);
+    return [];
+  }
+}
+
+/**
+ * Get a single entry by ID from Airtable
+ */
+async function airtableGetEntry(entryId: string, segment: BuyerSegment): Promise<AvatarResearchEntry | null> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    return null;
+  }
+
+  try {
+    const formula = encodeURIComponent(`AND({ID}="${entryId}",{Segment}="${segment}")`);
+    const response = await fetchWithRetry(
+      `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_RESEARCH_TABLE}?filterByFormula=${formula}&maxRecords=1`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    if (!data.records || data.records.length === 0) {
+      return null;
+    }
+
+    const record = data.records[0];
+    return {
+      id: record.fields['ID'] || record.id,
+      createdAt: record.fields['CreatedAt'] || new Date().toISOString(),
+      buyerSegment: record.fields['Segment'] || segment,
+      propertyContext: record.fields['PropertyContext'] ? JSON.parse(record.fields['PropertyContext']) : {},
+      research: record.fields['Research'] ? JSON.parse(record.fields['Research']) : null,
+      effectiveness: record.fields['Effectiveness'] || undefined,
+      feedback: record.fields['Feedback'] ? JSON.parse(record.fields['Feedback']) : undefined,
+      usedInFunnels: record.fields['UsedInFunnels'] ? record.fields['UsedInFunnels'].split(',').filter(Boolean) : [],
+    };
+  } catch (error) {
+    console.error('[Avatar Research] Airtable get entry failed:', error);
+    return null;
+  }
+}
+
+// ============================================================
+// UNIFIED LOAD/SAVE (Airtable primary, filesystem fallback)
+// ============================================================
+
+async function loadHistoryAsync(segment: BuyerSegment): Promise<AvatarResearchHistory> {
+  // Try Airtable first
+  const airtableEntries = await airtableLoadEntriesBySegment(segment);
+
+  if (airtableEntries.length > 0) {
+    // Build history from Airtable entries
+    const history = createEmptyHistory(segment);
+    history.entries = airtableEntries;
+    history.insights = calculateInsights(airtableEntries);
+    history.lastUpdated = new Date().toISOString();
+    return history;
+  }
+
+  // Fallback to filesystem (local dev)
+  if (!IS_VERCEL) {
+    const filePath = getHistoryFilePath(segment);
+    try {
+      if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        return JSON.parse(content);
+      }
+    } catch (error) {
+      console.error(`[Avatar Research] Error loading history for ${segment}:`, error);
+    }
+  }
+
+  return createEmptyHistory(segment);
+}
+
+// Sync version for backwards compatibility (tries filesystem only)
+function loadHistory(segment: BuyerSegment): AvatarResearchHistory {
+  if (!IS_VERCEL) {
+    const filePath = getHistoryFilePath(segment);
+    try {
+      if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        return JSON.parse(content);
+      }
+    } catch (error) {
+      console.error(`[Avatar Research] Error loading history for ${segment}:`, error);
+    }
+  }
+
+  return createEmptyHistory(segment);
+}
 
 function getHistoryFilePath(segment: BuyerSegment): string {
   return path.join(RESEARCH_DIR, `${segment}.json`);
 }
 
-function loadHistory(segment: BuyerSegment): AvatarResearchHistory {
-  if (IS_VERCEL) {
-    // On Vercel, return empty history (can't read from filesystem)
-    return createEmptyHistory(segment);
-  }
+async function saveEntryAsync(entry: AvatarResearchEntry): Promise<boolean> {
+  // Try Airtable first
+  const savedToAirtable = await airtableSaveEntry(entry);
 
-  const filePath = getHistoryFilePath(segment);
-  try {
-    if (fs.existsSync(filePath)) {
-      const content = fs.readFileSync(filePath, 'utf-8');
-      return JSON.parse(content);
+  // Also save to filesystem if not on Vercel (for local dev)
+  if (!IS_VERCEL) {
+    try {
+      const history = loadHistory(entry.buyerSegment);
+      const existingIndex = history.entries.findIndex(e => e.id === entry.id);
+
+      if (existingIndex >= 0) {
+        history.entries[existingIndex] = entry;
+      } else {
+        history.entries.unshift(entry);
+        if (history.entries.length > MAX_ENTRIES) {
+          history.entries = history.entries.slice(0, MAX_ENTRIES);
+        }
+      }
+
+      history.insights = calculateInsights(history.entries);
+      history.lastUpdated = new Date().toISOString();
+
+      if (!fs.existsSync(RESEARCH_DIR)) {
+        fs.mkdirSync(RESEARCH_DIR, { recursive: true });
+      }
+      fs.writeFileSync(getHistoryFilePath(entry.buyerSegment), JSON.stringify(history, null, 2), 'utf-8');
+    } catch (error) {
+      console.warn('[Avatar Research] Could not save to filesystem:', error);
     }
-  } catch (error) {
-    console.error(`[Avatar Research] Error loading history for ${segment}:`, error);
   }
 
-  // Return empty history if file doesn't exist or is invalid
-  return createEmptyHistory(segment);
-}
-
-function saveHistory(history: AvatarResearchHistory): void {
-  if (IS_VERCEL) {
-    console.log('[Avatar Research] Skipping history save on Vercel (read-only filesystem)');
-    return;
-  }
-
-  const filePath = getHistoryFilePath(history.segment);
-  try {
-    fs.writeFileSync(filePath, JSON.stringify(history, null, 2), 'utf-8');
-  } catch (error) {
-    console.warn('[Avatar Research] Could not save history:', error);
-  }
+  return savedToAirtable;
 }
 
 function createEmptyHistory(segment: BuyerSegment): AvatarResearchHistory {
@@ -282,14 +620,6 @@ function calculateInsights(entries: AvatarResearchEntry[]): SegmentInsights {
  * Calculate formula effectiveness stats from rated entries
  * Tracks which formulas work best for this segment
  */
-interface FormulaStatsEntry {
-  formulaId: string;
-  formulaName: string;
-  usageCount: number;
-  avgEffectiveness: number;
-  lastUsed: string;
-}
-
 function calculateFormulaStats(ratedEntries: AvatarResearchEntry[]): {
   landingPage: FormulaStatsEntry[];
   hook: FormulaStatsEntry[];
@@ -611,25 +941,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           usedInFunnels: [],
         };
 
-        // Load history, add entry, enforce max limit
-        const history = loadHistory(buyerSegment);
-        history.entries.unshift(entry); // Add to beginning
-        if (history.entries.length > MAX_ENTRIES) {
-          history.entries = history.entries.slice(0, MAX_ENTRIES);
-        }
-        history.lastUpdated = new Date().toISOString();
-        history.insights.totalResearches = history.entries.length;
+        // Save to Airtable (and filesystem as fallback)
+        const saved = await saveEntryAsync(entry);
 
-        // Save
-        saveHistory(history);
-
-        console.log('[Avatar Research API] Research saved with ID:', entry.id);
+        console.log('[Avatar Research API] Research saved with ID:', entry.id, 'Airtable:', saved);
 
         return res.json({
           success: true,
           researchId: entry.id,
           avatarResearch: research,
           savedAt: entry.createdAt,
+          savedToAirtable: saved,
         });
       }
 
@@ -643,7 +965,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Missing required parameter: segment' });
         }
 
-        const history = loadHistory(segment);
+        const history = await loadHistoryAsync(segment);
 
         return res.json({
           success: true,
@@ -669,8 +991,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'effectiveness must be between 1 and 10' });
         }
 
-        const history = loadHistory(segment);
-        const entry = history.entries.find(e => e.id === researchId);
+        // Try to get entry from Airtable first
+        let entry = await airtableGetEntry(researchId, segment);
+
+        // Fallback to filesystem
+        if (!entry && !IS_VERCEL) {
+          const history = loadHistory(segment);
+          entry = history.entries.find(e => e.id === researchId) || null;
+        }
 
         if (!entry) {
           return res.status(404).json({ error: 'Research entry not found' });
@@ -682,18 +1010,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           entry.feedback = feedback;
         }
 
-        // Recalculate insights
-        history.insights = calculateInsights(history.entries);
-        history.lastUpdated = new Date().toISOString();
+        // Save updated entry
+        const saved = await saveEntryAsync(entry);
 
-        // Save
-        saveHistory(history);
+        // Reload history to get updated insights
+        const history = await loadHistoryAsync(segment);
 
-        console.log('[Avatar Research API] Research rated:', researchId, 'Effectiveness:', effectiveness);
+        console.log('[Avatar Research API] Research rated:', researchId, 'Effectiveness:', effectiveness, 'Saved:', saved);
 
         return res.json({
           success: true,
           updated: true,
+          savedToAirtable: saved,
           newInsights: history.insights,
         });
       }
@@ -708,7 +1036,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Missing required parameter: segment' });
         }
 
-        const history = loadHistory(segment);
+        const history = await loadHistoryAsync(segment);
 
         return res.json({
           success: true,
@@ -730,8 +1058,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Missing required fields: researchId, segment, propertySlug' });
         }
 
-        const history = loadHistory(segment);
-        const entry = history.entries.find(e => e.id === researchId);
+        // Try to get entry from Airtable first
+        let entry = await airtableGetEntry(researchId, segment);
+
+        // Fallback to filesystem
+        if (!entry && !IS_VERCEL) {
+          const history = loadHistory(segment);
+          entry = history.entries.find(e => e.id === researchId) || null;
+        }
 
         if (!entry) {
           return res.status(404).json({ error: 'Research entry not found' });
@@ -740,8 +1074,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Add property slug if not already linked
         if (!entry.usedInFunnels.includes(propertySlug)) {
           entry.usedInFunnels.push(propertySlug);
-          history.lastUpdated = new Date().toISOString();
-          saveHistory(history);
+          await saveEntryAsync(entry);
         }
 
         return res.json({
@@ -761,8 +1094,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Missing required parameters: id, segment' });
         }
 
-        const history = loadHistory(segment);
-        const entry = history.entries.find(e => e.id === researchId);
+        // Try Airtable first
+        let entry = await airtableGetEntry(researchId, segment);
+
+        // Fallback to filesystem
+        if (!entry && !IS_VERCEL) {
+          const history = loadHistory(segment);
+          entry = history.entries.find(e => e.id === researchId) || null;
+        }
 
         if (!entry) {
           return res.status(404).json({ error: 'Research entry not found' });
@@ -791,7 +1130,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 /**
  * EXPORTED FUNCTION for direct use by funnel generation
- * Generates full avatar research entry and saves it
+ * Generates full avatar research entry and saves it to Airtable
  * Returns the complete entry with ID
  */
 export async function generateAvatarResearchEntry(
@@ -805,29 +1144,20 @@ export async function generateAvatarResearchEntry(
     // Generate the actual AI research
     const research = await generateAvatarResearch(buyerSegment, propertyContext, customDescription);
 
-    // Create complete entry (not a stub!)
+    // Create complete entry
     const entry: AvatarResearchEntry = {
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
       buyerSegment,
       propertyContext,
-      research, // ← Full research data, not null!
+      research,
       usedInFunnels: [],
     };
 
-    // Load history, add entry, enforce max limit
-    const history = loadHistory(buyerSegment);
-    history.entries.unshift(entry); // Add to beginning
-    if (history.entries.length > MAX_ENTRIES) {
-      history.entries = history.entries.slice(0, MAX_ENTRIES);
-    }
-    history.lastUpdated = new Date().toISOString();
-    history.insights.totalResearches = history.entries.length;
+    // Save to Airtable (and filesystem as fallback)
+    const saved = await saveEntryAsync(entry);
 
-    // Save to file system
-    saveHistory(history);
-
-    console.log('[Avatar Research] Full research saved with ID:', entry.id);
+    console.log('[Avatar Research] Full research saved with ID:', entry.id, 'Airtable:', saved);
 
     return entry;
   } catch (error) {
@@ -839,10 +1169,11 @@ export async function generateAvatarResearchEntry(
 /**
  * EXPORTED FUNCTION to get learned insights for a buyer segment
  * Returns formatted insights string for injection into AI prompts
+ * Now async to support Airtable
  */
-export function getLearnedInsightsForPrompt(buyerSegment: BuyerSegment): string {
+export async function getLearnedInsightsForPrompt(buyerSegment: BuyerSegment): Promise<string> {
   try {
-    const history = loadHistory(buyerSegment);
+    const history = await loadHistoryAsync(buyerSegment);
     const formatted = formatLearnedInsights(history.insights);
 
     if (formatted) {
@@ -858,7 +1189,8 @@ export function getLearnedInsightsForPrompt(buyerSegment: BuyerSegment): string 
 
 /**
  * Load research history for a segment (exported for formula selection)
+ * Now async to support Airtable
  */
-export function loadResearchHistory(buyerSegment: BuyerSegment): AvatarResearchHistory {
-  return loadHistory(buyerSegment);
+export async function loadResearchHistory(buyerSegment: BuyerSegment): Promise<AvatarResearchHistory> {
+  return loadHistoryAsync(buyerSegment);
 }

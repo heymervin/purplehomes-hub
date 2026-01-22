@@ -516,7 +516,7 @@ function getViralHooks(segment: BuyerSegment): string[] {
  */
 function getStaccatoPatterns(): string {
   return getPromptSystem().staccatoPatterns.patterns
-    .map(p => `- ${p.name}: "${p.formula}" (e.g., "${p.examples[0]}")`)
+    .map((p: { name: string; formula: string; examples: string[] }) => `- ${p.name}: "${p.formula}" (e.g., "${p.examples[0]}")`)
     .join('\n');
 }
 
@@ -533,7 +533,7 @@ function getAntiPatterns(): string {
 function getCUBAProtocol(): string {
   const cuba = getPromptSystem().editingProtocols.CUBA;
   return `${cuba.name} - Quality Checklist:
-${cuba.checks.map(c => `• ${c.flag}: ${c.question} → ${c.fix}`).join('\n')}`;
+${cuba.checks.map((c: { flag: string; question: string; fix: string }) => `• ${c.flag}: ${c.question} → ${c.fix}`).join('\n')}`;
 }
 
 /**
@@ -597,7 +597,7 @@ async function selectFormulas(segment: BuyerSegment): Promise<FormulaSelection> 
   try {
     const avatarResearchModule = await import('./avatar-research');
     const history = await avatarResearchModule.loadResearchHistory(segment);
-    formulaStats = history?.insights?.formulaStats;
+    formulaStats = (history?.insights as any)?.formulaStats;
     totalRated = history?.insights?.totalRated || 0;
   } catch (error) {
     console.warn('[Formula Selection] Could not load formula stats:', error);
@@ -937,7 +937,7 @@ async function generateFunnelContent(data: FunnelContentRequest, avatarResearchI
   let learnedInsights = '';
   try {
     const avatarResearchModule = await import('./avatar-research');
-    learnedInsights = avatarResearchModule.getLearnedInsightsForPrompt(buyerSegment);
+    learnedInsights = await avatarResearchModule.getLearnedInsightsForPrompt(buyerSegment);
   } catch (error) {
     console.warn('[Funnel API] Could not load learned insights:', error);
   }
@@ -1184,11 +1184,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         console.log('[Funnel API] Generating content for:', propertyData.address);
 
-        // Persist & Grow: Generate and save avatar research first (skip on Vercel for now)
+        // Persist & Grow: Generate avatar research first
         const inputs = { ...DEFAULT_INPUTS, ...propertyData.inputs };
         let avatarResearchId: string | undefined;
 
-        if (!IS_VERCEL) {
+        try {
           avatarResearchId = await generateAvatarResearchAndGetId(
             inputs.buyerSegment || 'first-time-buyer',
             propertyData.propertyType,
@@ -1196,8 +1196,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             propertyData.price
           );
           if (avatarResearchId) {
-            console.log('[Funnel API] Avatar research saved with ID:', avatarResearchId);
+            console.log('[Funnel API] Avatar research generated with ID:', avatarResearchId);
           }
+        } catch (error) {
+          // Don't fail funnel generation if avatar research fails
+          console.warn('[Funnel API] Avatar research generation failed (non-critical):', error);
         }
 
         const content = await generateFunnelContent(propertyData, avatarResearchId);

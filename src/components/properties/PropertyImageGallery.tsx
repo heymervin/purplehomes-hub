@@ -92,7 +92,7 @@ export function PropertyImageGallery({
     e.dataTransfer.setData('text/plain', index.toString());
   };
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
+  const handleDragOver = (e: React.DragEvent, _index: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
   };
@@ -258,86 +258,82 @@ export function PropertyImageGallery({
         </div>
       </div>
 
-      {/* Thumbnail Navigation with Drag & Drop */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {allImages.map((img, index) => {
-          const originalImg = allOriginalImages[index] || '';
-          const isHero = originalImg === heroImage;
+      {/* Thumbnail Navigation with Drag & Drop - Only show in editable mode */}
+      {editable && (
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {allImages.map((img, index) => {
+            const originalImg = allOriginalImages[index] || '';
+            const isHero = originalImg === heroImage;
 
-          return (
-            <button
-              key={`${originalImg}-${index}`}
-              draggable={editable}
-              onDragStart={(e) => handleDragStart(e, index)}
-              onDragOver={(e) => handleDragOver(e, index)}
-              onDrop={(e) => handleDrop(e, index)}
-              onDragEnd={handleDragEnd}
-              onClick={() => setSelectedIndex(index)}
-              className={cn(
-                "relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all duration-200 group/thumb",
-                selectedIndex === index
-                  ? "border-primary ring-2 ring-primary/30"
-                  : "border-border hover:border-muted-foreground/50",
-                draggedIndex === index && "opacity-50 scale-95",
-                editable && "cursor-grab active:cursor-grabbing"
-              )}
-            >
-              <img
-                src={img}
-                alt={`Thumbnail ${index + 1}`}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/placeholder.svg';
-                }}
-              />
-              {isHero && (
-                <div className="absolute inset-0 bg-yellow-500/20 flex items-center justify-center">
-                  <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                </div>
-              )}
-              {/* Drag handle indicator */}
-              {editable && (
+            return (
+              <button
+                key={`${originalImg}-${index}`}
+                draggable={editable}
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragEnd={handleDragEnd}
+                onClick={() => setSelectedIndex(index)}
+                className={cn(
+                  "relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all duration-200 group/thumb",
+                  selectedIndex === index
+                    ? "border-primary ring-2 ring-primary/30"
+                    : "border-border hover:border-muted-foreground/50",
+                  draggedIndex === index && "opacity-50 scale-95",
+                  "cursor-grab active:cursor-grabbing"
+                )}
+              >
+                <img
+                  src={img}
+                  alt={`Thumbnail ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/placeholder.svg';
+                  }}
+                />
+                {isHero && (
+                  <div className="absolute inset-0 bg-yellow-500/20 flex items-center justify-center">
+                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                  </div>
+                )}
+                {/* Drag handle indicator */}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
                   <GripVertical className="h-4 w-4 text-white" />
                 </div>
-              )}
-            </button>
-          );
-        })}
+              </button>
+            );
+          })}
 
-        {/* Add Image Buttons */}
-        {editable && (
-          <>
-            {/* URL Input Button */}
-            <button
-              onClick={() => setShowAddInput(true)}
-              className="flex-shrink-0 w-16 h-16 rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 flex flex-col items-center justify-center transition-colors gap-1"
-            >
-              <Plus className="h-4 w-4 text-muted-foreground" />
-              <span className="text-[10px] text-muted-foreground">URL</span>
-            </button>
+          {/* Add Image Buttons */}
+          {/* URL Input Button */}
+          <button
+            onClick={() => setShowAddInput(true)}
+            className="flex-shrink-0 w-16 h-16 rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 flex flex-col items-center justify-center transition-colors gap-1"
+          >
+            <Plus className="h-4 w-4 text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground">URL</span>
+          </button>
 
-            {/* File Upload Button */}
-            <label className="flex-shrink-0 w-16 h-16 rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 flex flex-col items-center justify-center transition-colors cursor-pointer gap-1">
-              {isUploading ? (
-                <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
-              ) : (
-                <>
-                  <Upload className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-[10px] text-muted-foreground">File</span>
-                </>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-                disabled={isUploading}
-              />
-            </label>
-          </>
-        )}
-      </div>
+          {/* File Upload Button */}
+          <label className="flex-shrink-0 w-16 h-16 rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 flex flex-col items-center justify-center transition-colors cursor-pointer gap-1">
+            {isUploading ? (
+              <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+            ) : (
+              <>
+                <Upload className="h-4 w-4 text-muted-foreground" />
+                <span className="text-[10px] text-muted-foreground">File</span>
+              </>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+              disabled={isUploading}
+            />
+          </label>
+        </div>
+      )}
 
       {/* Drag hint */}
       {editable && allImages.length > 1 && (

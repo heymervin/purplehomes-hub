@@ -17,7 +17,7 @@ interface ComparisonTableProps {
   optionBHighlight?: boolean;
   rows: ComparisonRow[];
   className?: string;
-  variant?: "default" | "detailed" | "compact";
+  variant?: "default" | "detailed" | "compact" | "cards" | "luxury-cards";
 }
 
 const defaultRows: ComparisonRow[] = [
@@ -88,6 +88,140 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
             <div className="p-3 bg-purple-50">{renderValue(row.optionB, optionBHighlight)}</div>
           </div>
         ))}
+      </div>
+    );
+  }
+
+  // Premium side-by-side cards variant
+  if (variant === "cards" || variant === "luxury-cards") {
+    const isLuxury = variant === "luxury-cards";
+
+    return (
+      <div className={cn("", className)}>
+        {/* Header */}
+        {title && (
+          <div className="text-center mb-12">
+            <h2 className={cn(
+              "text-3xl md:text-4xl lg:text-5xl mb-4",
+              isLuxury ? "font-light tracking-tight text-gray-900" : "font-bold text-gray-900"
+            )}>
+              {isLuxury ? (
+                <>
+                  <span className="font-light">Renting vs. </span>
+                  <span className="font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
+                    Owning
+                  </span>
+                </>
+              ) : title}
+            </h2>
+            {subtitle && <p className="text-gray-500 text-lg">{subtitle}</p>}
+          </div>
+        )}
+
+        {/* Side-by-side Cards */}
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-10 max-w-5xl mx-auto">
+          {/* Option A Card (Muted/Renting) */}
+          <div className={cn(
+            "rounded-2xl p-8 transition-all duration-300",
+            isLuxury
+              ? "bg-gray-50/80 border border-gray-200/50 opacity-75"
+              : "bg-gray-100 opacity-70"
+          )}>
+            <div className={cn(
+              "text-sm uppercase tracking-wider font-medium mb-6",
+              isLuxury ? "text-gray-400" : "text-gray-500"
+            )}>
+              {optionALabel}
+            </div>
+            <div className="space-y-5">
+              {rows.map((row, index) => (
+                <div key={index} className="flex items-center justify-between py-3 border-b border-gray-200/50 last:border-0">
+                  <span className="text-gray-500 text-sm">{row.feature}</span>
+                  <span className={cn(
+                    "text-sm font-medium",
+                    typeof row.optionA === "boolean"
+                      ? row.optionA
+                        ? "text-red-400"
+                        : "text-gray-400"
+                      : "text-gray-600"
+                  )}>
+                    {typeof row.optionA === "boolean" ? (
+                      row.optionA ? (
+                        <X className="h-5 w-5 text-red-400" />
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )
+                    ) : (
+                      <span className="line-through opacity-60">{row.optionA}</span>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Option B Card (Highlighted/Purple Homes) */}
+          <div className={cn(
+            "rounded-2xl p-8 relative transition-all duration-300",
+            isLuxury
+              ? "bg-white shadow-[0_8px_40px_rgba(30,27,75,0.16)] border border-purple-100"
+              : "bg-white shadow-2xl border-2 border-purple-200"
+          )}>
+            {/* Recommended Badge */}
+            <div className={cn(
+              "absolute -top-3 left-6 text-white text-xs font-semibold uppercase tracking-wider px-4 py-1.5 rounded-full",
+              isLuxury
+                ? "bg-gradient-to-r from-purple-600 to-purple-800"
+                : "bg-purple-600"
+            )}>
+              Recommended
+            </div>
+
+            <div className={cn(
+              "text-sm uppercase tracking-wider font-semibold mb-6",
+              isLuxury
+                ? "text-purple-600"
+                : "text-purple-700"
+            )}>
+              {optionBLabel}
+            </div>
+            <div className="space-y-5">
+              {rows.map((row, index) => (
+                <div key={index} className="flex items-center justify-between py-3 border-b border-purple-100/50 last:border-0">
+                  <span className="text-gray-700 text-sm font-medium">{row.feature}</span>
+                  <span className="text-sm font-semibold">
+                    {typeof row.optionB === "boolean" ? (
+                      row.optionB ? (
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100">
+                          <Check className="h-4 w-4 text-green-600" />
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100">
+                          <X className="h-4 w-4 text-gray-400" />
+                        </div>
+                      )
+                    ) : (
+                      <span className="text-green-600 font-bold">{row.optionB}</span>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Card Footer CTA */}
+            <div className="mt-8 pt-6 border-t border-purple-100">
+              <button className={cn(
+                "w-full py-4 rounded-xl font-semibold text-white transition-all duration-300 flex items-center justify-center gap-2",
+                isLuxury
+                  ? "bg-gradient-to-r from-purple-600 to-purple-800 hover:shadow-lg hover:shadow-purple-500/25 hover:-translate-y-0.5"
+                  : "bg-purple-600 hover:bg-purple-700"
+              )}>
+                Get Started Today
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

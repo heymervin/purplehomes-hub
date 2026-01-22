@@ -24,7 +24,7 @@ interface ProcessStepsProps {
   subtitle?: string;
   steps?: Step[];
   className?: string;
-  variant?: "horizontal" | "vertical" | "cards" | "timeline";
+  variant?: "horizontal" | "vertical" | "cards" | "timeline" | "luxury";
 }
 
 const defaultSteps: Step[] = [
@@ -195,6 +195,64 @@ const ProcessSteps: React.FC<ProcessStepsProps> = ({
                     </h3>
                     <p className="text-gray-600 text-sm">{step.description}</p>
                   </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Luxury variant - Premium elegant design
+  if (variant === "luxury") {
+    return (
+      <div className={className}>
+        {title && (
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-gray-900 mb-4">
+              <span className="font-light">3 Simple Steps to </span>
+              <span className="font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
+                Homeownership
+              </span>
+            </h2>
+            {subtitle && (
+              <p className="text-gray-500 text-lg max-w-2xl mx-auto">{subtitle}</p>
+            )}
+          </div>
+        )}
+
+        <div className="relative max-w-5xl mx-auto">
+          {/* Connecting line */}
+          <div className="hidden md:block absolute top-16 left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-purple-200 via-purple-300 to-purple-200" />
+
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+            {steps.map((step, index) => {
+              return (
+                <div key={index} className="relative text-center group">
+                  {/* Luxury number circle */}
+                  <div className="relative mx-auto mb-8">
+                    <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#f8f5ff] to-white flex items-center justify-center mx-auto shadow-[0_4px_20px_rgba(109,40,217,0.12)] border border-purple-100/50 transition-all duration-500 group-hover:shadow-[0_8px_40px_rgba(109,40,217,0.2)] group-hover:-translate-y-1">
+                      <span className="text-4xl md:text-5xl font-light text-purple-600">
+                        {index + 1}
+                      </span>
+                    </div>
+                    {/* Decorative ring on hover */}
+                    <div className="absolute inset-0 rounded-full border-2 border-purple-200/0 group-hover:border-purple-200/50 scale-110 transition-all duration-500" />
+                  </div>
+
+                  {/* Content */}
+                  <h3 className="text-xl md:text-2xl font-semibold text-gray-900 mb-3">
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-500 leading-relaxed max-w-xs mx-auto">
+                    {step.description}
+                  </p>
+                  {step.duration && (
+                    <span className="inline-block mt-4 px-4 py-1.5 bg-purple-50 text-purple-600 rounded-full text-sm font-medium">
+                      {step.duration}
+                    </span>
+                  )}
                 </div>
               );
             })}

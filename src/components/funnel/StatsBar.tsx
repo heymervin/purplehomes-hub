@@ -92,43 +92,57 @@ const StatsBar: React.FC<StatsBarProps> = ({
     );
   }
 
-  // Premium/Luxury variant with dividers
+  // Premium/Luxury variant with dividers - Enhanced
   if (variant === "premium" || variant === "luxury") {
     return (
       <div
         className={cn(
-          "py-14 px-6",
-          style.container,
+          "py-20 md:py-24 px-6",
+          variant === "premium"
+            ? "bg-gradient-to-b from-[#0f172a] via-[#1e1b4b] to-[#0f172a]"
+            : style.container,
           className
         )}
       >
-        <div className="max-w-5xl mx-auto">
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-0">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
             {stats.map((stat, index) => (
-              <React.Fragment key={index}>
-                <div className="text-center px-8 md:px-12">
-                  {stat.icon && (
-                    <stat.icon className={cn(
-                      "h-6 w-6 mx-auto mb-2",
-                      variant === "premium" ? "text-amber-400" : "text-amber-600"
-                    )} />
-                  )}
-                  <div className={cn("text-4xl md:text-5xl font-extrabold tracking-tight", style.value)}>
-                    {stat.prefix}
-                    {stat.value}
-                    {stat.suffix}
-                  </div>
-                  <div className={cn("text-sm mt-2 uppercase tracking-wider font-medium", style.label)}>
-                    {stat.label}
-                  </div>
-                </div>
-                {index < stats.length - 1 && (
-                  <div className={cn(
-                    "hidden md:block h-16 w-px",
-                    variant === "premium" ? "bg-amber-500/20" : "bg-amber-300"
+              <div
+                key={index}
+                className={cn(
+                  "text-center relative",
+                  "before:hidden before:md:block before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2 before:h-16 before:w-px",
+                  variant === "premium"
+                    ? "before:bg-gradient-to-b before:from-transparent before:via-purple-500/30 before:to-transparent"
+                    : "before:bg-amber-300",
+                  index === stats.length - 1 && "before:hidden"
+                )}
+              >
+                {stat.icon && (
+                  <stat.icon className={cn(
+                    "h-6 w-6 mx-auto mb-3",
+                    variant === "premium" ? "text-amber-400" : "text-amber-600"
                   )} />
                 )}
-              </React.Fragment>
+                <div className={cn(
+                  "text-4xl md:text-5xl lg:text-6xl font-extralight tracking-tight",
+                  variant === "premium"
+                    ? "text-white/95"
+                    : style.value
+                )}>
+                  {stat.prefix}
+                  {stat.value}
+                  {stat.suffix}
+                </div>
+                <div className={cn(
+                  "text-xs mt-3 uppercase tracking-[0.15em] font-medium",
+                  variant === "premium"
+                    ? "text-amber-400/80"
+                    : style.label
+                )}>
+                  {stat.label}
+                </div>
+              </div>
             ))}
           </div>
         </div>

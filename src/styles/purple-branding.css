@@ -342,3 +342,608 @@
     transform: translateY(0);
   }
 }
+
+/* ============================================
+   LUXURY / PREMIUM DESIGN SYSTEM
+   ============================================ */
+
+:root {
+  /* Luxury Color Palette */
+  --luxury-primary: #1e1b4b;      /* Deep indigo-black */
+  --luxury-accent: #c9a962;       /* Warm gold */
+  --luxury-purple: #6d28d9;       /* Rich purple */
+  --luxury-cream: #faf8f5;        /* Warm white background */
+  --luxury-charcoal: #2d2d2d;     /* Sophisticated dark */
+  --luxury-gold-light: #f5e6c8;   /* Light gold tint */
+
+  /* Premium Gradients */
+  --gradient-luxury: linear-gradient(135deg, #1e1b4b 0%, #3730a3 50%, #6d28d9 100%);
+  --gradient-gold: linear-gradient(135deg, #c9a962 0%, #f5d89a 50%, #c9a962 100%);
+  --gradient-premium-dark: linear-gradient(180deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%);
+  --gradient-warm-light: linear-gradient(180deg, #faf8f5 0%, #fff 100%);
+
+  /* Premium Shadows */
+  --shadow-luxury-sm: 0 2px 10px rgba(30, 27, 75, 0.08);
+  --shadow-luxury-md: 0 4px 20px rgba(30, 27, 75, 0.12);
+  --shadow-luxury-lg: 0 8px 40px rgba(30, 27, 75, 0.16);
+  --shadow-luxury-xl: 0 16px 60px rgba(30, 27, 75, 0.20);
+  --shadow-gold-glow: 0 0 30px rgba(201, 169, 98, 0.3);
+}
+
+/* ============================================
+   LUXURY TYPOGRAPHY
+   ============================================ */
+
+/* Light weight headline for elegance */
+.headline-luxury {
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* Bold accent text */
+.headline-bold {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Gradient text effect */
+.text-gradient-purple {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #c9a962 0%, #f5d89a 50%, #c9a962 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-luxury {
+  background: linear-gradient(135deg, #1e1b4b 0%, #6d28d9 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Premium text shadow for readability on images */
+.text-shadow-luxury {
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5), 0 4px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Uppercase tracking for labels */
+.label-luxury {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ============================================
+   LUXURY SECTION SPACING
+   ============================================ */
+
+.section-luxury {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 768px) {
+  .section-luxury {
+    padding-top: 8rem;
+    padding-bottom: 8rem;
+  }
+}
+
+.section-luxury-sm {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .section-luxury-sm {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
+/* ============================================
+   LUXURY CARD STYLES
+   ============================================ */
+
+.card-luxury {
+  background: white;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-luxury-md);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-luxury:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-luxury-xl);
+}
+
+.card-luxury-elevated {
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow-luxury-lg);
+  border: 1px solid rgba(109, 40, 217, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-luxury-elevated::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+}
+
+.card-luxury-muted {
+  background: var(--luxury-cream);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  opacity: 0.8;
+}
+
+/* ============================================
+   LUXURY BUTTONS
+   ============================================ */
+
+.btn-luxury-gold {
+  background: var(--gradient-gold);
+  color: var(--luxury-primary);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: none;
+  box-shadow: var(--shadow-gold-glow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-luxury-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 40px rgba(201, 169, 98, 0.5);
+}
+
+.btn-luxury-dark {
+  background: var(--gradient-luxury);
+  color: white;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(201, 169, 98, 0.3);
+  box-shadow: var(--shadow-luxury-md);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-luxury-dark:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-luxury-lg);
+  border-color: var(--luxury-accent);
+}
+
+/* ============================================
+   LUXURY HOVER EFFECTS
+   ============================================ */
+
+.hover-lift {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-luxury-lg);
+}
+
+.hover-glow-gold:hover {
+  box-shadow: var(--shadow-gold-glow);
+}
+
+.hover-scale {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* ============================================
+   LUXURY BACKGROUNDS
+   ============================================ */
+
+.bg-luxury-cream {
+  background: var(--luxury-cream);
+}
+
+.bg-luxury-dark {
+  background: var(--gradient-premium-dark);
+}
+
+.bg-luxury-gradient {
+  background: var(--gradient-luxury);
+}
+
+/* Warm light gradient for sections */
+.bg-warm-gradient {
+  background: linear-gradient(180deg, #faf8f5 0%, #ffffff 100%);
+}
+
+/* Premium dark section */
+.bg-premium-dark {
+  background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+}
+
+/* ============================================
+   LUXURY BORDERS & DIVIDERS
+   ============================================ */
+
+.border-luxury {
+  border: 1px solid rgba(109, 40, 217, 0.15);
+}
+
+.border-gold {
+  border: 1px solid rgba(201, 169, 98, 0.4);
+}
+
+.divider-luxury {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(109, 40, 217, 0.2), transparent);
+}
+
+.divider-gold {
+  height: 2px;
+  background: var(--gradient-gold);
+  border-radius: 1px;
+  width: 60px;
+}
+
+/* ============================================
+   SCROLL REVEAL ANIMATIONS
+   ============================================ */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ============================================
+   LUXURY NUMBER STYLING
+   ============================================ */
+
+.number-luxury {
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.number-stat {
+  font-size: 3rem;
+  font-weight: 300;
+  background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@media (min-width: 768px) {
+  .number-stat {
+    font-size: 4rem;
+  }
+}
+
+/* ============================================
+   COMPARISON CARD STYLES
+   ============================================ */
+
+.comparison-card-muted {
+  background: #f8f9fa;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  opacity: 0.7;
+  border: 1px solid #e9ecef;
+}
+
+.comparison-card-highlighted {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: var(--shadow-luxury-lg);
+  border: 2px solid rgba(109, 40, 217, 0.2);
+  position: relative;
+}
+
+.comparison-badge {
+  position: absolute;
+  top: -12px;
+  left: 24px;
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+/* ============================================
+   PROCESS STEP STYLING
+   ============================================ */
+
+.step-number-luxury {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f8f5ff 0%, #ffffff 100%);
+  box-shadow: var(--shadow-luxury-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(109, 40, 217, 0.1);
+}
+
+.step-number-luxury span {
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--luxury-purple);
+}
+
+.step-connector {
+  position: absolute;
+  top: 2.5rem;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    rgba(109, 40, 217, 0.1) 0%,
+    rgba(109, 40, 217, 0.3) 50%,
+    rgba(109, 40, 217, 0.1) 100%
+  );
+}
+
+/* ============================================
+   STATS BAR PREMIUM
+   ============================================ */
+
+.stats-bar-premium {
+  background: var(--gradient-premium-dark);
+  padding: 4rem 0;
+}
+
+.stat-item-premium {
+  text-align: center;
+  color: white;
+}
+
+.stat-value-premium {
+  font-size: 3rem;
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label-premium {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(201, 169, 98, 0.9);
+}
+
+@media (min-width: 768px) {
+  .stat-value-premium {
+    font-size: 4rem;
+  }
+}
+
+/* ============================================
+   SMOOTH GLOBAL TRANSITIONS
+   ============================================ */
+
+.transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-slow {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Image zoom on hover */
+.image-zoom {
+  overflow: hidden;
+}
+
+.image-zoom img {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.image-zoom:hover img {
+  transform: scale(1.05);
+}
+
+/* ============================================
+   SECTION TRANSITION BLENDING
+   ============================================ */
+
+/* Fade into next section - add to bottom of current section */
+.section-fade-to-white::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, #ffffff);
+  pointer-events: none;
+}
+
+.section-fade-to-cream::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, #faf8f5);
+  pointer-events: none;
+}
+
+.section-fade-to-gray::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, #f3f4f6);
+  pointer-events: none;
+}
+
+.section-fade-to-dark::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, #0f172a);
+  pointer-events: none;
+}
+
+.section-fade-to-purple::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, rgb(124, 58, 237));
+  pointer-events: none;
+}
+
+/* Fade from previous section - add to top of current section */
+.section-fade-from-white::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to top, transparent, #ffffff);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.section-fade-from-cream::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to top, transparent, #faf8f5);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.section-fade-from-dark::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to top, transparent, #0f172a);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Seamless blend sections - full gradient backgrounds */
+.section-blend-white-to-cream {
+  background: linear-gradient(180deg, #ffffff 0%, #faf8f5 100%);
+}
+
+.section-blend-cream-to-white {
+  background: linear-gradient(180deg, #faf8f5 0%, #ffffff 100%);
+}
+
+.section-blend-white-to-gray {
+  background: linear-gradient(180deg, #ffffff 0%, #f3f4f6 100%);
+}
+
+.section-blend-gray-to-white {
+  background: linear-gradient(180deg, #f3f4f6 0%, #ffffff 100%);
+}
+
+.section-blend-cream-to-dark {
+  background: linear-gradient(180deg, #faf8f5 0%, #0f172a 100%);
+}
+
+.section-blend-dark-to-cream {
+  background: linear-gradient(180deg, #0f172a 0%, #faf8f5 100%);
+}
+
+.section-blend-white-to-dark {
+  background: linear-gradient(180deg, #ffffff 0%, #0f172a 100%);
+}
+
+.section-blend-dark-to-white {
+  background: linear-gradient(180deg, #0f172a 0%, #ffffff 100%);
+}
+
+.section-blend-white-to-purple {
+  background: linear-gradient(180deg, #ffffff 0%, rgb(124, 58, 237) 100%);
+}
+
+.section-blend-purple-to-white {
+  background: linear-gradient(180deg, rgb(124, 58, 237) 0%, #ffffff 100%);
+}
+
+.section-blend-cream-to-purple {
+  background: linear-gradient(180deg, #faf8f5 0%, rgb(124, 58, 237) 100%);
+}
+
+/* Wavy divider between sections */
+.section-wave-divider {
+  position: relative;
+}
+
+.section-wave-divider::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='%23ffffff' d='M0,30 C360,60 720,0 1080,30 C1260,45 1380,45 1440,30 L1440,60 L0,60 Z'/%3E%3C/svg%3E") no-repeat bottom;
+  background-size: cover;
+  pointer-events: none;
+}
+
+.section-wave-divider-cream::after {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='%23faf8f5' d='M0,30 C360,60 720,0 1080,30 C1260,45 1380,45 1440,30 L1440,60 L0,60 Z'/%3E%3C/svg%3E") no-repeat bottom;
+  background-size: cover;
+}
+
+.section-wave-divider-dark::after {
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='%230f172a' d='M0,30 C360,60 720,0 1080,30 C1260,45 1380,45 1440,30 L1440,60 L0,60 Z'/%3E%3C/svg%3E") no-repeat bottom;
+  background-size: cover;
+}
