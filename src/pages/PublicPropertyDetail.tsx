@@ -704,7 +704,7 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* Urgency / Countdown - Premium */}
-        <FunnelSection variant="white" padding="lg" blendTo="purple">
+        <FunnelSection variant="white" padding="lg" blendTo={funnelContent?.callToAction ? "purple" : undefined}>
           <div className="max-w-2xl mx-auto">
             <CountdownTimer
               hoursFromNow={48}
