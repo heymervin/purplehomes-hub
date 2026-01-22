@@ -121,7 +121,9 @@ function getPromptSystem(): any {
 let openaiClient: OpenAI | null = null;
 function getOpenAI(): OpenAI {
   if (!openaiClient) {
-    openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    // Check both OPENAI_API_KEY and VITE_OPENAI_API_KEY for compatibility
+    const apiKey = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
+    openaiClient = new OpenAI({ apiKey });
   }
   return openaiClient;
 }
