@@ -26,6 +26,172 @@ const CONTENT_DIR = path.resolve(process.cwd(), 'public/content/properties');
 // Check if running on Vercel (read-only filesystem)
 const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
 
+// Airtable configuration
+const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
+const AIRTABLE_API_URL = 'https://api.airtable.com/v0';
+
+/**
+ * Fetch with automatic retry on rate limit errors (429)
+ */
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  maxRetries = 3
+): Promise<Response> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      if (attempt > 0) {
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+        console.log(`[Funnel API] Airtable retry ${attempt}/${maxRetries} after ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+
+      const response = await fetch(url, options);
+
+      if (response.status === 429 && attempt < maxRetries) {
+        console.warn(`[Funnel API] Airtable rate limited (429) on attempt ${attempt + 1}/${maxRetries + 1}`);
+        lastError = new Error(`Rate limited: ${response.statusText}`);
+        continue;
+      }
+
+      return response;
+    } catch (error) {
+      console.error(`[Funnel API] Airtable fetch error on attempt ${attempt + 1}:`, error);
+      lastError = error as Error;
+
+      if (attempt === maxRetries) {
+        throw error;
+      }
+    }
+  }
+
+  throw lastError || new Error('Failed after retries');
+}
+
+/**
+ * Save funnel content to Airtable by record ID
+ */
+async function airtableSaveContent(recordId: string, content: FunnelContent): Promise<boolean> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    console.warn('[Funnel API] Airtable credentials not configured');
+    return false;
+  }
+
+  try {
+    const response = await fetchWithRetry(
+      `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Properties/${recordId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fields: {
+            'FunnelContent': JSON.stringify(content),
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Funnel API] Airtable save error:', errorText);
+      return false;
+    }
+
+    console.log('[Funnel API] Content saved to Airtable record:', recordId);
+    return true;
+  } catch (error) {
+    console.error('[Funnel API] Airtable save failed:', error);
+    return false;
+  }
+}
+
+/**
+ * Read funnel content from Airtable by record ID
+ */
+async function airtableReadContent(recordId: string): Promise<FunnelContent | null> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    console.warn('[Funnel API] Airtable credentials not configured');
+    return null;
+  }
+
+  try {
+    const response = await fetchWithRetry(
+      `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Properties/${recordId}`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error('[Funnel API] Airtable read error:', response.status, response.statusText);
+      return null;
+    }
+
+    const data = await response.json();
+    const funnelContentStr = data.fields?.['FunnelContent'];
+
+    if (!funnelContentStr) {
+      console.log('[Funnel API] No FunnelContent in Airtable record:', recordId);
+      return null;
+    }
+
+    const content = JSON.parse(funnelContentStr) as FunnelContent;
+    console.log('[Funnel API] Content loaded from Airtable record:', recordId);
+    return content;
+  } catch (error) {
+    console.error('[Funnel API] Airtable read failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Find Airtable record by address
+ */
+async function airtableFindByAddress(address: string, city: string): Promise<string | null> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    return null;
+  }
+
+  try {
+    // Search by address (use formula to find matching record)
+    const formula = encodeURIComponent(`AND({Address}="${address}",{City}="${city}")`);
+    const response = await fetchWithRetry(
+      `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Properties?filterByFormula=${formula}&maxRecords=1`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    if (data.records && data.records.length > 0) {
+      return data.records[0].id;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('[Funnel API] Airtable find by address failed:', error);
+    return null;
+  }
+}
+
 /**
  * Try to write content to filesystem (local dev only)
  * Returns true if successful, false if filesystem is read-only (Vercel)
@@ -899,7 +1065,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(405).json({ error: 'Method not allowed' });
         }
 
-        const propertyData = req.body as FunnelContentRequest;
+        const propertyData = req.body as FunnelContentRequest & { recordId?: string };
 
         if (!propertyData.address || !propertyData.city) {
           return res.status(400).json({ error: 'Missing required fields: address, city' });
@@ -925,32 +1091,57 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const content = await generateFunnelContent(propertyData, avatarResearchId);
 
-        // Try to auto-save (works on local, skipped on Vercel)
-        const saved = tryWriteContent(content.propertySlug, content);
+        // Try to auto-save to filesystem (works on local, skipped on Vercel)
+        const savedToFile = tryWriteContent(content.propertySlug, content);
+
+        // Also save to Airtable if recordId provided
+        let savedToAirtable = false;
+        const recordId = propertyData.recordId || (req.query.recordId as string);
+        if (recordId) {
+          savedToAirtable = await airtableSaveContent(recordId, content);
+        } else {
+          // Try to find property by address
+          const foundRecordId = await airtableFindByAddress(propertyData.address, propertyData.city);
+          if (foundRecordId) {
+            savedToAirtable = await airtableSaveContent(foundRecordId, content);
+          }
+        }
 
         return res.json({
           success: true,
           content,
-          filePath: saved ? `/content/properties/${content.propertySlug}.md` : null,
-          savedToFile: saved,
-          note: IS_VERCEL ? 'Content generated but not persisted (Vercel read-only). Save to browser storage.' : undefined,
+          filePath: savedToFile ? `/content/properties/${content.propertySlug}.md` : null,
+          savedToFile,
+          savedToAirtable,
+          note: !savedToFile && !savedToAirtable ? 'Content generated. Pass recordId to persist to Airtable.' : undefined,
         });
       }
 
       case 'get': {
         const slug = req.query.slug as string;
+        const recordId = req.query.recordId as string;
 
-        if (!slug) {
-          return res.status(400).json({ error: 'Missing slug parameter' });
+        if (!slug && !recordId) {
+          return res.status(400).json({ error: 'Missing slug or recordId parameter' });
         }
 
-        const content = tryReadContent(slug);
-
-        if (!content) {
-          return res.json({ success: true, content: null, exists: false });
+        // Try Airtable first if recordId provided
+        if (recordId) {
+          const airtableContent = await airtableReadContent(recordId);
+          if (airtableContent) {
+            return res.json({ success: true, content: airtableContent, exists: true, source: 'airtable' });
+          }
         }
 
-        return res.json({ success: true, content, exists: true });
+        // Fall back to filesystem
+        if (slug) {
+          const fileContent = tryReadContent(slug);
+          if (fileContent) {
+            return res.json({ success: true, content: fileContent, exists: true, source: 'file' });
+          }
+        }
+
+        return res.json({ success: true, content: null, exists: false });
       }
 
       case 'save': {
@@ -958,26 +1149,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(405).json({ error: 'Method not allowed' });
         }
 
-        const { slug, content } = req.body as { slug: string; content: FunnelContent };
+        const { slug, content, recordId } = req.body as { slug: string; content: FunnelContent; recordId?: string };
 
-        if (!slug || !content) {
-          return res.status(400).json({ error: 'Missing slug or content' });
+        if (!content) {
+          return res.status(400).json({ error: 'Missing content' });
         }
 
-        const saved = tryWriteContent(slug, content);
+        // Try filesystem save (local dev only)
+        const savedToFile = slug ? tryWriteContent(slug, content) : false;
 
-        if (IS_VERCEL && !saved) {
-          // On Vercel, we can't save to filesystem - return success anyway
-          // The frontend should handle persistence (localStorage, Airtable, etc.)
+        // Save to Airtable if recordId provided
+        let savedToAirtable = false;
+        const targetRecordId = recordId || (req.query.recordId as string);
+        if (targetRecordId) {
+          savedToAirtable = await airtableSaveContent(targetRecordId, content);
+        }
+
+        if (!savedToFile && !savedToAirtable) {
           return res.json({
             success: true,
             filePath: null,
             savedToFile: false,
-            note: 'Vercel read-only filesystem. Content returned but not persisted server-side.',
+            savedToAirtable: false,
+            note: 'Content not persisted. Provide recordId to save to Airtable.',
           });
         }
 
-        return res.json({ success: true, filePath: `/content/properties/${slug}.md`, savedToFile: saved });
+        return res.json({
+          success: true,
+          filePath: savedToFile ? `/content/properties/${slug}.md` : null,
+          savedToFile,
+          savedToAirtable,
+        });
       }
 
       case 'delete': {

@@ -193,7 +193,7 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
   // Load existing content on mount
   useEffect(() => {
     loadContent();
-  }, [slug]);
+  }, [slug, property.id]);
 
   // Notify parent about save state changes
   useEffect(() => {
@@ -205,7 +205,8 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
   const loadContent = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/funnel?action=get&slug=${slug}`);
+      // Include recordId for Airtable lookup
+      const response = await fetch(`/api/funnel?action=get&slug=${slug}&recordId=${property.id}`);
       const data = await response.json();
 
       if (data.success && data.content) {
@@ -251,6 +252,7 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
           condition: property.condition,
           description: property.description,
           inputs, // Include the user-editable inputs
+          recordId: property.id, // Airtable record ID for persistence
         }),
       });
 
@@ -286,7 +288,11 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
       const response = await fetch('/api/funnel?action=save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, content: contentToSave }),
+        body: JSON.stringify({
+          slug,
+          content: contentToSave,
+          recordId: property.id, // Airtable record ID for persistence
+        }),
       });
 
       const data = await response.json();
@@ -294,7 +300,8 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
       if (data.success) {
         setContent(contentToSave);
         setHasChanges(false);
-        toast.success('Content saved!');
+        const saveLocation = data.savedToAirtable ? 'Airtable' : (data.savedToFile ? 'file' : 'memory');
+        toast.success(`Content saved to ${saveLocation}!`);
       } else {
         throw new Error(data.error || 'Failed to save content');
       }
