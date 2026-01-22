@@ -1212,6 +1212,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const content = await generateFunnelContent(propertyData, avatarResearchId);
+        console.log('[Funnel API] Content generated, avatarResearchId in content:', content.avatarResearchId || 'NOT SET');
 
         // Try to auto-save to filesystem (works on local, skipped on Vercel)
         const savedToFile = tryWriteContent(content.propertySlug, content);
@@ -1228,6 +1229,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             savedToAirtable = await airtableSaveContent(foundRecordId, content);
           }
         }
+
+        console.log('[Funnel API] ====== GENERATE COMPLETE ======');
+        console.log('[Funnel API] Response avatarResearchId:', content.avatarResearchId || 'NOT SET');
+        console.log('[Funnel API] savedToFile:', savedToFile);
+        console.log('[Funnel API] savedToAirtable:', savedToAirtable);
 
         return res.json({
           success: true,
