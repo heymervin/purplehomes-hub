@@ -1132,9 +1132,14 @@ async function generateAvatarResearchAndGetId(
   propertyCity?: string,
   propertyPrice?: number
 ): Promise<string | undefined> {
+  console.log('[Avatar Research Generation] ====== STARTING ======');
+  console.log('[Avatar Research Generation] Input:', { buyerSegment, propertyType, propertyCity, propertyPrice });
+
   try {
     // Import the avatar research module dynamically
+    console.log('[Avatar Research Generation] Importing avatar-research module...');
     const avatarResearchModule = await import('./avatar-research');
+    console.log('[Avatar Research Generation] Module imported successfully');
 
     // Build property context
     const propertyContext = {
@@ -1142,23 +1147,26 @@ async function generateAvatarResearchAndGetId(
       city: propertyCity,
       priceRange: propertyPrice ? `$${Math.floor(propertyPrice / 50000) * 50}k-$${Math.ceil(propertyPrice / 50000) * 50}k` : undefined,
     };
+    console.log('[Avatar Research Generation] Property context:', propertyContext);
 
     // Generate full avatar research (not a stub!)
     // This will call the actual AI generation and save complete research
+    console.log('[Avatar Research Generation] Calling generateAvatarResearchEntry...');
     const research = await avatarResearchModule.generateAvatarResearchEntry(
       buyerSegment,
       propertyContext
     );
+    console.log('[Avatar Research Generation] generateAvatarResearchEntry returned:', research ? { id: research.id, hasResearch: !!research.research } : 'null');
 
     if (research && research.id) {
-      console.log('[Funnel API] Full avatar research generated:', research.id);
+      console.log('[Avatar Research Generation] ====== SUCCESS ====== ID:', research.id);
       return research.id;
     }
 
-    console.warn('[Funnel API] Avatar research generation returned no ID');
+    console.warn('[Avatar Research Generation] ====== FAILED ====== No ID returned');
     return undefined;
   } catch (error) {
-    console.error('[Funnel API] Error generating avatar research:', error);
+    console.error('[Avatar Research Generation] ====== ERROR ======', error);
     // Don't fail funnel generation if avatar research fails - continue without it
     return undefined;
   }

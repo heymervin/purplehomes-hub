@@ -212,14 +212,22 @@ async function fetchWithRetry(
  * Save a single avatar research entry to Airtable
  */
 async function airtableSaveEntry(entry: AvatarResearchEntry): Promise<boolean> {
+  console.log('[airtableSaveEntry] ====== STARTING ======');
+  console.log('[airtableSaveEntry] Entry ID:', entry.id);
+  console.log('[airtableSaveEntry] Has AIRTABLE_API_KEY:', !!AIRTABLE_API_KEY);
+  console.log('[airtableSaveEntry] Has AIRTABLE_BASE_ID:', !!AIRTABLE_BASE_ID);
+  console.log('[airtableSaveEntry] Table name:', AVATAR_RESEARCH_TABLE);
+
   if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
-    console.warn('[Avatar Research] Airtable credentials not configured');
+    console.warn('[airtableSaveEntry] Airtable credentials not configured - ABORTING');
     return false;
   }
 
   try {
     // Check if entry already exists
+    console.log('[airtableSaveEntry] Checking for existing record...');
     const existingRecord = await airtableFindEntryById(entry.id);
+    console.log('[airtableSaveEntry] Existing record:', existingRecord || 'NOT FOUND');
 
     const fields = {
       'ID': entry.id,
@@ -231,51 +239,63 @@ async function airtableSaveEntry(entry: AvatarResearchEntry): Promise<boolean> {
       'UsedInFunnels': entry.usedInFunnels.join(','),
       'CreatedAt': entry.createdAt,
     };
+    console.log('[airtableSaveEntry] Fields prepared, Research length:', fields.Research?.length || 0);
 
     if (existingRecord) {
       // Update existing record
-      const response = await fetchWithRetry(
-        `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_RESEARCH_TABLE}/${existingRecord}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ fields }),
-        }
-      );
+      console.log('[airtableSaveEntry] UPDATING existing record...');
+      const url = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_RESEARCH_TABLE}/${existingRecord}`;
+      console.log('[airtableSaveEntry] PATCH URL:', url);
 
+      const response = await fetchWithRetry(url, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fields }),
+      });
+
+      console.log('[airtableSaveEntry] PATCH response status:', response.status);
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('[Avatar Research] Airtable update error:', errorText);
+        console.error('[airtableSaveEntry] Airtable PATCH error:', errorText);
         return false;
       }
+      console.log('[airtableSaveEntry] PATCH SUCCESS');
     } else {
       // Create new record
-      const response = await fetchWithRetry(
-        `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_RESEARCH_TABLE}`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ fields }),
-        }
-      );
+      console.log('[airtableSaveEntry] CREATING new record...');
+      const url = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_RESEARCH_TABLE}`;
+      console.log('[airtableSaveEntry] POST URL:', url);
 
+      const response = await fetchWithRetry(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fields }),
+      });
+
+      console.log('[airtableSaveEntry] POST response status:', response.status);
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('[Avatar Research] Airtable create error:', errorText);
+        console.error('[airtableSaveEntry] Airtable POST error:', errorText);
         return false;
       }
+
+      const responseData = await response.json();
+      console.log('[airtableSaveEntry] POST SUCCESS - Airtable record ID:', responseData?.id);
     }
 
-    console.log('[Avatar Research] Entry saved to Airtable:', entry.id);
+    console.log('[airtableSaveEntry] ====== SUCCESS ====== Entry ID:', entry.id);
     return true;
   } catch (error) {
-    console.error('[Avatar Research] Airtable save failed:', error);
+    console.error('[airtableSaveEntry] ====== ERROR ======');
+    console.error('[airtableSaveEntry] Error type:', (error as Error)?.name);
+    console.error('[airtableSaveEntry] Error message:', (error as Error)?.message);
+    console.error('[airtableSaveEntry] Full error:', error);
     return false;
   }
 }
@@ -475,11 +495,19 @@ function getHistoryFilePath(segment: BuyerSegment): string {
 }
 
 async function saveEntryAsync(entry: AvatarResearchEntry): Promise<boolean> {
+  console.log('[saveEntryAsync] ====== STARTING ======');
+  console.log('[saveEntryAsync] Entry ID:', entry.id);
+  console.log('[saveEntryAsync] Entry segment:', entry.buyerSegment);
+  console.log('[saveEntryAsync] IS_VERCEL:', IS_VERCEL);
+
   // Try Airtable first
+  console.log('[saveEntryAsync] Calling airtableSaveEntry...');
   const savedToAirtable = await airtableSaveEntry(entry);
+  console.log('[saveEntryAsync] airtableSaveEntry result:', savedToAirtable);
 
   // Also save to filesystem if not on Vercel (for local dev)
   if (!IS_VERCEL) {
+    console.log('[saveEntryAsync] Saving to filesystem (local dev)...');
     try {
       const history = loadHistory(entry.buyerSegment);
       const existingIndex = history.entries.findIndex(e => e.id === entry.id);
@@ -500,11 +528,13 @@ async function saveEntryAsync(entry: AvatarResearchEntry): Promise<boolean> {
         fs.mkdirSync(RESEARCH_DIR, { recursive: true });
       }
       fs.writeFileSync(getHistoryFilePath(entry.buyerSegment), JSON.stringify(history, null, 2), 'utf-8');
+      console.log('[saveEntryAsync] Filesystem save SUCCESS');
     } catch (error) {
-      console.warn('[Avatar Research] Could not save to filesystem:', error);
+      console.warn('[saveEntryAsync] Filesystem save FAILED:', error);
     }
   }
 
+  console.log('[saveEntryAsync] ====== DONE ====== Airtable result:', savedToAirtable);
   return savedToAirtable;
 }
 
@@ -775,9 +805,18 @@ async function generateAvatarResearch(
   propertyContext: PropertyContext,
   customDescription?: string
 ): Promise<AvatarResearchResult> {
+  console.log('[generateAvatarResearch] ====== STARTING OpenAI generation ======');
+  console.log('[generateAvatarResearch] Segment:', segment);
+  console.log('[generateAvatarResearch] PropertyContext:', JSON.stringify(propertyContext));
+
   const baseAvatar = getBaseAvatar(segment);
+  console.log('[generateAvatarResearch] Base avatar loaded:', baseAvatar ? 'YES' : 'NO');
+
   const history = loadHistory(segment);
+  console.log('[generateAvatarResearch] History entries:', history.entries.length);
+
   const learnedInsights = formatLearnedInsights(history.insights);
+  console.log('[generateAvatarResearch] Has learned insights:', learnedInsights.length > 0);
 
   const propertyContextStr = [
     propertyContext.type && `Property Type: ${propertyContext.type}`,
@@ -854,6 +893,9 @@ Respond in JSON format with these exact keys:
   "recommendedAppeals": ["string array"]
 }`;
 
+  console.log('[generateAvatarResearch] Calling OpenAI (gpt-4o-mini)...');
+  console.log('[generateAvatarResearch] Prompt length:', prompt.length);
+
   const response = await getOpenAI().chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
@@ -861,7 +903,12 @@ Respond in JSON format with these exact keys:
     response_format: { type: 'json_object' },
   });
 
+  console.log('[generateAvatarResearch] OpenAI response received');
+  console.log('[generateAvatarResearch] Response content length:', response.choices[0]?.message?.content?.length || 0);
+
   const generated = JSON.parse(response.choices[0].message.content || '{}');
+  console.log('[generateAvatarResearch] Parsed JSON, has dreams:', generated.dreams?.length || 0);
+  console.log('[generateAvatarResearch] ====== OpenAI generation COMPLETE ======');
 
   return {
     buyerSegment: segment,
@@ -1192,30 +1239,44 @@ export async function generateAvatarResearchEntry(
   propertyContext: PropertyContext,
   customDescription?: string
 ): Promise<AvatarResearchEntry | null> {
-  try {
-    console.log('[Avatar Research] Generating full research for:', buyerSegment);
+  console.log('[Avatar Research Entry] ====== STARTING generateAvatarResearchEntry ======');
+  console.log('[Avatar Research Entry] Input segment:', buyerSegment);
+  console.log('[Avatar Research Entry] Input propertyContext:', JSON.stringify(propertyContext));
+  console.log('[Avatar Research Entry] Has customDescription:', !!customDescription);
 
+  try {
     // Generate the actual AI research
+    console.log('[Avatar Research Entry] Calling generateAvatarResearch (OpenAI call)...');
     const research = await generateAvatarResearch(buyerSegment, propertyContext, customDescription);
+    console.log('[Avatar Research Entry] OpenAI research generated:', research ? 'SUCCESS' : 'NULL');
+    console.log('[Avatar Research Entry] Research has dreams:', research?.dreams?.length || 0);
 
     // Create complete entry
+    const entryId = crypto.randomUUID();
+    console.log('[Avatar Research Entry] Generated entry ID:', entryId);
+
     const entry: AvatarResearchEntry = {
-      id: crypto.randomUUID(),
+      id: entryId,
       createdAt: new Date().toISOString(),
       buyerSegment,
       propertyContext,
       research,
       usedInFunnels: [],
     };
+    console.log('[Avatar Research Entry] Entry created with ID:', entry.id);
 
     // Save to Airtable (and filesystem as fallback)
+    console.log('[Avatar Research Entry] Calling saveEntryAsync...');
     const saved = await saveEntryAsync(entry);
+    console.log('[Avatar Research Entry] saveEntryAsync result:', saved);
 
-    console.log('[Avatar Research] Full research saved with ID:', entry.id, 'Airtable:', saved);
-
+    console.log('[Avatar Research Entry] ====== SUCCESS ====== ID:', entry.id, 'Saved to Airtable:', saved);
     return entry;
   } catch (error) {
-    console.error('[Avatar Research] Error generating entry:', error);
+    console.error('[Avatar Research Entry] ====== ERROR ======');
+    console.error('[Avatar Research Entry] Error type:', (error as Error)?.name);
+    console.error('[Avatar Research Entry] Error message:', (error as Error)?.message);
+    console.error('[Avatar Research Entry] Full error:', error);
     return null;
   }
 }
