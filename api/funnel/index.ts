@@ -217,10 +217,15 @@ function tryWriteContent(slug: string, content: FunnelContent): boolean {
 }
 
 /**
- * Try to read content from filesystem
+ * Try to read content from filesystem (local dev only)
  * Returns null if file doesn't exist or filesystem error
  */
 function tryReadContent(slug: string): FunnelContent | null {
+  // Skip file operations on Vercel - use Airtable instead
+  if (IS_VERCEL) {
+    return null;
+  }
+
   try {
     const filePath = path.join(CONTENT_DIR, `${slug}.md`);
     if (!fs.existsSync(filePath)) {
