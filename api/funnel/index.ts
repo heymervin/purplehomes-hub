@@ -12,9 +12,105 @@ import OpenAI from 'openai';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Import the unified prompt system (use require for JSON to avoid TS issues)
-const promptSystemPath = path.resolve(process.cwd(), 'src/data/ai-funnel-prompt-system.json');
-const promptSystem = JSON.parse(fs.readFileSync(promptSystemPath, 'utf-8'));
+// Check if running on Vercel (read-only filesystem)
+const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
+
+// Import the unified prompt system with fallback for Vercel
+let promptSystem: any = null;
+try {
+  const promptSystemPath = path.resolve(process.cwd(), 'src/data/ai-funnel-prompt-system.json');
+  promptSystem = JSON.parse(fs.readFileSync(promptSystemPath, 'utf-8'));
+} catch (error) {
+  console.warn('[Funnel API] Could not load prompt system JSON, using minimal fallback');
+  // Minimal fallback for Vercel - basic buyer avatars
+  promptSystem = {
+    buyerAvatars: {
+      'first-time-buyer': {
+        label: 'First-Time Buyer',
+        dreams: ['Own their first home', 'Build equity', 'Stop renting'],
+        fears: ['Being denied', 'Hidden costs', 'Making a mistake'],
+        suspicions: ['Too good to be true', 'Hidden fees'],
+        failures: ['Bank rejection', 'Saving enough'],
+        enemies: ['High down payments', 'Strict banks'],
+        topObjections: [
+          { objection: 'I have bad credit', counter: 'We work with all credit types' },
+          { objection: 'I don\'t have 20% down', counter: 'Down payments start at just 5-10%' }
+        ],
+        beforeState: { feelings: 'Frustrated', daily: 'Paying rent', status: 'Stuck renting' },
+        afterState: { feelings: 'Proud', daily: 'Building equity', status: 'Homeowner' }
+      },
+      'credit-challenged': {
+        label: 'Credit-Challenged',
+        dreams: ['Get approved despite credit', 'Rebuild credit as homeowner'],
+        fears: ['Another rejection', 'Predatory lenders'],
+        suspicions: ['Scams targeting bad credit'],
+        failures: ['Multiple denials'],
+        enemies: ['Traditional banks', 'Credit requirements'],
+        topObjections: [
+          { objection: 'My credit is too low', counter: 'No minimum credit score required' }
+        ],
+        beforeState: { feelings: 'Hopeless', daily: 'Worried about credit', status: 'Rejected' },
+        afterState: { feelings: 'Hopeful', daily: 'Improving credit', status: 'Approved' }
+      },
+      'investor': {
+        label: 'Investor',
+        dreams: ['Build portfolio', 'Cash flow'],
+        fears: ['Bad deal', 'Hidden issues'],
+        suspicions: ['Inflated prices'],
+        failures: ['Missed opportunities'],
+        enemies: ['Slow closings', 'Competition'],
+        topObjections: [
+          { objection: 'What are the numbers?', counter: 'We provide full financials upfront' }
+        ],
+        beforeState: { feelings: 'Searching', daily: 'Looking for deals', status: 'Hunting' },
+        afterState: { feelings: 'Satisfied', daily: 'Collecting rent', status: 'Landlord' }
+      },
+      'move-up-buyer': {
+        label: 'Move-Up Buyer',
+        dreams: ['Upgrade home', 'Better neighborhood'],
+        fears: ['Selling current home', 'Market timing'],
+        suspicions: ['Agent pressure'],
+        failures: ['Failed offers'],
+        enemies: ['Bidding wars', 'Contingencies'],
+        topObjections: [
+          { objection: 'I need to sell first', counter: 'We can work with your timeline' }
+        ],
+        beforeState: { feelings: 'Cramped', daily: 'Outgrowing space', status: 'Ready to move' },
+        afterState: { feelings: 'Comfortable', daily: 'Enjoying space', status: 'Upgraded' }
+      },
+      'self-employed': {
+        label: 'Self-Employed',
+        dreams: ['Get approved without W2s', 'Own despite income docs'],
+        fears: ['Income verification', 'Tax return scrutiny'],
+        suspicions: ['Extra requirements'],
+        failures: ['Denied for income type'],
+        enemies: ['W2 requirements', 'DTI calculations'],
+        topObjections: [
+          { objection: 'My income is hard to verify', counter: 'We use bank statements, not tax returns' }
+        ],
+        beforeState: { feelings: 'Frustrated', daily: 'Explaining income', status: 'Self-employed' },
+        afterState: { feelings: 'Validated', daily: 'Homeowner', status: 'Approved' }
+      },
+      'general': {
+        label: 'General',
+        dreams: ['Own a home'],
+        fears: ['Rejection', 'Process complexity'],
+        suspicions: ['Hidden costs'],
+        failures: ['Past rejections'],
+        enemies: ['Red tape'],
+        topObjections: [
+          { objection: 'Is this legit?', counter: 'We\'ve helped hundreds of families' }
+        ],
+        beforeState: { feelings: 'Uncertain', daily: 'Researching', status: 'Looking' },
+        afterState: { feelings: 'Confident', daily: 'Homeowner', status: 'Closed' }
+      }
+    },
+    viralHookTemplates: { categories: {} },
+    staccatoPatterns: { patterns: [] },
+    editingProtocols: { antiPatterns: { avoid: [] }, CUBA: { name: 'CUBA', checks: [] }, powerWordInjection: { byEmotion: {} } },
+    marketSophisticationLevels: { levels: [{ stage: 1, name: 'Basic', approach: 'Direct', example: 'Own your home' }] }
+  };
+}
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -22,9 +118,6 @@ const openai = new OpenAI({
 
 // Content directory path - only used in local development
 const CONTENT_DIR = path.resolve(process.cwd(), 'public/content/properties');
-
-// Check if running on Vercel (read-only filesystem)
-const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
 
 // Airtable configuration
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
