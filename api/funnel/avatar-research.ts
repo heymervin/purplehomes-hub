@@ -22,8 +22,27 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Import buyer avatars from the unified system
-import avatarSystem from '../../src/data/ai-funnel-prompt-system.json';
+// Check if running on Vercel
+const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
+
+// Import buyer avatars from the unified system with fallback
+let avatarSystem: any = null;
+try {
+  const avatarPath = path.resolve(process.cwd(), 'src/data/ai-funnel-prompt-system.json');
+  avatarSystem = JSON.parse(fs.readFileSync(avatarPath, 'utf-8'));
+} catch {
+  // Minimal fallback for Vercel
+  avatarSystem = {
+    buyerAvatars: {
+      'first-time-buyer': { label: 'First-Time Buyer', dreams: [], fears: [], suspicions: [], failures: [], enemies: [], topObjections: [], beforeState: {}, afterState: {} },
+      'credit-challenged': { label: 'Credit-Challenged', dreams: [], fears: [], suspicions: [], failures: [], enemies: [], topObjections: [], beforeState: {}, afterState: {} },
+      'investor': { label: 'Investor', dreams: [], fears: [], suspicions: [], failures: [], enemies: [], topObjections: [], beforeState: {}, afterState: {} },
+      'move-up-buyer': { label: 'Move-Up Buyer', dreams: [], fears: [], suspicions: [], failures: [], enemies: [], topObjections: [], beforeState: {}, afterState: {} },
+      'self-employed': { label: 'Self-Employed', dreams: [], fears: [], suspicions: [], failures: [], enemies: [], topObjections: [], beforeState: {}, afterState: {} },
+      'general': { label: 'General', dreams: [], fears: [], suspicions: [], failures: [], enemies: [], topObjections: [], beforeState: {}, afterState: {} }
+    }
+  };
+}
 
 // Types
 type BuyerSegment = 'first-time-buyer' | 'credit-challenged' | 'investor' | 'move-up-buyer' | 'self-employed' | 'general' | 'custom';
@@ -102,9 +121,6 @@ const INSIGHTS_DIR = path.resolve(process.cwd(), 'public/research/insights');
 const MAX_ENTRIES = 100;
 const MIN_RATING_FOR_INSIGHTS = 7;
 const MIN_ENTRIES_FOR_PATTERNS = 3;
-
-// Check if running on Vercel (read-only filesystem)
-const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
 
 // ============================================================
 // FILE OPERATIONS
