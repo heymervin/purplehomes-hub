@@ -1192,23 +1192,35 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         console.log('[Funnel API] Generating content for:', propertyData.address);
 
-        // Persist & Grow: Generate avatar research first
+        // Persist & Grow: Generate avatar research with timeout
+        // Avatar research is optional - if it times out, we continue without it
         const inputs = { ...DEFAULT_INPUTS, ...propertyData.inputs };
         let avatarResearchId: string | undefined;
 
         try {
-          avatarResearchId = await generateAvatarResearchAndGetId(
+          // Set a 8-second timeout for avatar research to leave time for funnel generation
+          const AVATAR_RESEARCH_TIMEOUT = 8000;
+
+          const avatarResearchPromise = generateAvatarResearchAndGetId(
             inputs.buyerSegment || 'first-time-buyer',
             propertyData.propertyType,
             propertyData.city,
             propertyData.price
           );
+
+          const timeoutPromise = new Promise<undefined>((_, reject) =>
+            setTimeout(() => reject(new Error('Avatar research timeout')), AVATAR_RESEARCH_TIMEOUT)
+          );
+
+          avatarResearchId = await Promise.race([avatarResearchPromise, timeoutPromise]);
+
           if (avatarResearchId) {
             console.log('[Funnel API] Avatar research generated with ID:', avatarResearchId);
           }
         } catch (error) {
-          // Don't fail funnel generation if avatar research fails
-          console.warn('[Funnel API] Avatar research generation failed (non-critical):', error);
+          // Don't fail funnel generation if avatar research fails or times out
+          const errorMsg = (error as Error)?.message || 'Unknown error';
+          console.warn('[Funnel API] Avatar research skipped:', errorMsg);
         }
 
         const content = await generateFunnelContent(propertyData, avatarResearchId);
