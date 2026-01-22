@@ -1175,7 +1175,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           hasAirtableKey: !!AIRTABLE_API_KEY,
           hasAirtableBase: !!AIRTABLE_BASE_ID,
           tableName: AVATAR_RESEARCH_TABLE,
-          hasOpenAIKey: !!process.env.OPENAI_API_KEY,
+          hasOpenAIKey: !!(process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY),
+          openAIKeySource: process.env.OPENAI_API_KEY ? 'OPENAI_API_KEY' : process.env.VITE_OPENAI_API_KEY ? 'VITE_OPENAI_API_KEY' : 'NONE',
         };
 
         // Try to connect to Airtable
