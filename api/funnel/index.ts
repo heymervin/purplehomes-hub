@@ -20,8 +20,75 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Content directory path
+// Content directory path - only used in local development
 const CONTENT_DIR = path.resolve(process.cwd(), 'public/content/properties');
+
+// Check if running on Vercel (read-only filesystem)
+const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
+
+/**
+ * Try to write content to filesystem (local dev only)
+ * Returns true if successful, false if filesystem is read-only (Vercel)
+ */
+function tryWriteContent(slug: string, content: FunnelContent): boolean {
+  if (IS_VERCEL) {
+    console.log('[Funnel API] Skipping file write on Vercel (read-only filesystem)');
+    return false;
+  }
+
+  try {
+    if (!fs.existsSync(CONTENT_DIR)) {
+      fs.mkdirSync(CONTENT_DIR, { recursive: true });
+    }
+    const filePath = path.join(CONTENT_DIR, `${slug}.md`);
+    fs.writeFileSync(filePath, contentToMarkdown(content), 'utf-8');
+    console.log('[Funnel API] Content saved to:', filePath);
+    return true;
+  } catch (error) {
+    console.warn('[Funnel API] Could not write to filesystem:', error);
+    return false;
+  }
+}
+
+/**
+ * Try to read content from filesystem
+ * Returns null if file doesn't exist or filesystem error
+ */
+function tryReadContent(slug: string): FunnelContent | null {
+  try {
+    const filePath = path.join(CONTENT_DIR, `${slug}.md`);
+    if (!fs.existsSync(filePath)) {
+      return null;
+    }
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    return parseMarkdownContent(fileContent);
+  } catch (error) {
+    console.warn('[Funnel API] Could not read from filesystem:', error);
+    return null;
+  }
+}
+
+/**
+ * Try to delete content from filesystem
+ */
+function tryDeleteContent(slug: string): boolean {
+  if (IS_VERCEL) {
+    return false;
+  }
+
+  try {
+    const filePath = path.join(CONTENT_DIR, `${slug}.md`);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log('[Funnel API] Content deleted:', filePath);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.warn('[Funnel API] Could not delete from filesystem:', error);
+    return false;
+  }
+}
 
 type BuyerSegment = 'first-time-buyer' | 'credit-challenged' | 'investor' | 'move-up-buyer' | 'self-employed' | 'general';
 
@@ -823,12 +890,9 @@ async function generateAvatarResearchAndGetId(
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const action = req.query.action as string;
 
-  try {
-    // Ensure content directory exists
-    if (!fs.existsSync(CONTENT_DIR)) {
-      fs.mkdirSync(CONTENT_DIR, { recursive: true });
-    }
+  console.log(`[Funnel API] Action: ${action}, Environment: ${IS_VERCEL ? 'Vercel' : 'Local'}`);
 
+  try {
     switch (action) {
       case 'generate': {
         if (req.method !== 'POST') {
@@ -843,28 +907,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         console.log('[Funnel API] Generating content for:', propertyData.address);
 
-        // Persist & Grow: Generate and save avatar research first
+        // Persist & Grow: Generate and save avatar research first (skip on Vercel for now)
         const inputs = { ...DEFAULT_INPUTS, ...propertyData.inputs };
-        const avatarResearchId = await generateAvatarResearchAndGetId(
-          inputs.buyerSegment || 'first-time-buyer',
-          propertyData.propertyType,
-          propertyData.city,
-          propertyData.price
-        );
+        let avatarResearchId: string | undefined;
 
-        if (avatarResearchId) {
-          console.log('[Funnel API] Avatar research saved with ID:', avatarResearchId);
+        if (!IS_VERCEL) {
+          avatarResearchId = await generateAvatarResearchAndGetId(
+            inputs.buyerSegment || 'first-time-buyer',
+            propertyData.propertyType,
+            propertyData.city,
+            propertyData.price
+          );
+          if (avatarResearchId) {
+            console.log('[Funnel API] Avatar research saved with ID:', avatarResearchId);
+          }
         }
 
         const content = await generateFunnelContent(propertyData, avatarResearchId);
 
-        // Auto-save the generated content
-        const filePath = path.join(CONTENT_DIR, `${content.propertySlug}.md`);
-        fs.writeFileSync(filePath, contentToMarkdown(content), 'utf-8');
+        // Try to auto-save (works on local, skipped on Vercel)
+        const saved = tryWriteContent(content.propertySlug, content);
 
-        console.log('[Funnel API] Content saved to:', filePath);
-
-        return res.json({ success: true, content, filePath: `/content/properties/${content.propertySlug}.md` });
+        return res.json({
+          success: true,
+          content,
+          filePath: saved ? `/content/properties/${content.propertySlug}.md` : null,
+          savedToFile: saved,
+          note: IS_VERCEL ? 'Content generated but not persisted (Vercel read-only). Save to browser storage.' : undefined,
+        });
       }
 
       case 'get': {
@@ -874,14 +944,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Missing slug parameter' });
         }
 
-        const filePath = path.join(CONTENT_DIR, `${slug}.md`);
+        const content = tryReadContent(slug);
 
-        if (!fs.existsSync(filePath)) {
+        if (!content) {
           return res.json({ success: true, content: null, exists: false });
         }
-
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
-        const content = parseMarkdownContent(fileContent);
 
         return res.json({ success: true, content, exists: true });
       }
@@ -897,12 +964,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Missing slug or content' });
         }
 
-        const filePath = path.join(CONTENT_DIR, `${slug}.md`);
-        fs.writeFileSync(filePath, contentToMarkdown(content), 'utf-8');
+        const saved = tryWriteContent(slug, content);
 
-        console.log('[Funnel API] Content manually saved to:', filePath);
+        if (IS_VERCEL && !saved) {
+          // On Vercel, we can't save to filesystem - return success anyway
+          // The frontend should handle persistence (localStorage, Airtable, etc.)
+          return res.json({
+            success: true,
+            filePath: null,
+            savedToFile: false,
+            note: 'Vercel read-only filesystem. Content returned but not persisted server-side.',
+          });
+        }
 
-        return res.json({ success: true, filePath: `/content/properties/${slug}.md` });
+        return res.json({ success: true, filePath: `/content/properties/${slug}.md`, savedToFile: saved });
       }
 
       case 'delete': {
@@ -916,22 +991,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Missing slug parameter' });
         }
 
-        const filePath = path.join(CONTENT_DIR, `${slug}.md`);
+        const deleted = tryDeleteContent(slug);
 
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
-          console.log('[Funnel API] Content deleted:', filePath);
-        }
-
-        return res.json({ success: true });
+        return res.json({ success: true, deleted });
       }
 
       case 'list': {
-        const files = fs.readdirSync(CONTENT_DIR)
-          .filter(f => f.endsWith('.md'))
-          .map(f => f.replace('.md', ''));
+        if (IS_VERCEL) {
+          // Can't list files on Vercel
+          return res.json({ success: true, slugs: [], note: 'File listing not available on Vercel' });
+        }
 
-        return res.json({ success: true, slugs: files });
+        try {
+          if (!fs.existsSync(CONTENT_DIR)) {
+            return res.json({ success: true, slugs: [] });
+          }
+          const files = fs.readdirSync(CONTENT_DIR)
+            .filter(f => f.endsWith('.md'))
+            .map(f => f.replace('.md', ''));
+          return res.json({ success: true, slugs: files });
+        } catch {
+          return res.json({ success: true, slugs: [] });
+        }
       }
 
       default:

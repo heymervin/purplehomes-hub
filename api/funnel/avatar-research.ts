@@ -103,6 +103,9 @@ const MAX_ENTRIES = 100;
 const MIN_RATING_FOR_INSIGHTS = 7;
 const MIN_ENTRIES_FOR_PATTERNS = 3;
 
+// Check if running on Vercel (read-only filesystem)
+const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
+
 // ============================================================
 // FILE OPERATIONS
 // ============================================================
@@ -112,6 +115,11 @@ function getHistoryFilePath(segment: BuyerSegment): string {
 }
 
 function loadHistory(segment: BuyerSegment): AvatarResearchHistory {
+  if (IS_VERCEL) {
+    // On Vercel, return empty history (can't read from filesystem)
+    return createEmptyHistory(segment);
+  }
+
   const filePath = getHistoryFilePath(segment);
   try {
     if (fs.existsSync(filePath)) {
@@ -127,8 +135,17 @@ function loadHistory(segment: BuyerSegment): AvatarResearchHistory {
 }
 
 function saveHistory(history: AvatarResearchHistory): void {
+  if (IS_VERCEL) {
+    console.log('[Avatar Research] Skipping history save on Vercel (read-only filesystem)');
+    return;
+  }
+
   const filePath = getHistoryFilePath(history.segment);
-  fs.writeFileSync(filePath, JSON.stringify(history, null, 2), 'utf-8');
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(history, null, 2), 'utf-8');
+  } catch (error) {
+    console.warn('[Avatar Research] Could not save history:', error);
+  }
 }
 
 function createEmptyHistory(segment: BuyerSegment): AvatarResearchHistory {
@@ -520,13 +537,21 @@ Respond in JSON format with these exact keys:
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const action = req.query.action as string || 'generate';
 
+  console.log(`[Avatar Research API] Action: ${action}, Environment: ${IS_VERCEL ? 'Vercel' : 'Local'}`);
+
   try {
-    // Ensure directories exist
-    if (!fs.existsSync(RESEARCH_DIR)) {
-      fs.mkdirSync(RESEARCH_DIR, { recursive: true });
-    }
-    if (!fs.existsSync(INSIGHTS_DIR)) {
-      fs.mkdirSync(INSIGHTS_DIR, { recursive: true });
+    // Ensure directories exist (local dev only)
+    if (!IS_VERCEL) {
+      try {
+        if (!fs.existsSync(RESEARCH_DIR)) {
+          fs.mkdirSync(RESEARCH_DIR, { recursive: true });
+        }
+        if (!fs.existsSync(INSIGHTS_DIR)) {
+          fs.mkdirSync(INSIGHTS_DIR, { recursive: true });
+        }
+      } catch (err) {
+        console.warn('[Avatar Research API] Could not create directories:', err);
+      }
     }
 
     switch (action) {
