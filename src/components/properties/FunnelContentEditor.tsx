@@ -277,6 +277,55 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
     }
   };
 
+  // Generate avatar research separately (faster than full regeneration)
+  const [isGeneratingResearch, setIsGeneratingResearch] = useState(false);
+
+  const handleGenerateAvatarResearch = async () => {
+    setIsGeneratingResearch(true);
+    try {
+      const response = await fetch('/api/funnel/avatar-research?action=generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          buyerSegment: inputs.buyerSegment || 'first-time-buyer',
+          propertyContext: {
+            type: property.propertyType,
+            city,
+            priceRange: property.price ? `$${Math.floor(property.price / 50000) * 50}k-$${Math.ceil(property.price / 50000) * 50}k` : undefined,
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.researchId) {
+        // Update content with the new avatar research ID
+        const updatedContent = { ...content!, avatarResearchId: data.researchId };
+        setContent(updatedContent);
+
+        // Save the updated content to Airtable
+        await fetch('/api/funnel?action=save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slug,
+            content: updatedContent,
+            recordId: property.id,
+          }),
+        });
+
+        toast.success('AI Learning enabled! You can now rate this funnel.');
+      } else {
+        throw new Error(data.error || 'Failed to generate avatar research');
+      }
+    } catch (error) {
+      console.error('Error generating avatar research:', error);
+      toast.error('Failed to enable AI Learning');
+    } finally {
+      setIsGeneratingResearch(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!content) return;
 
@@ -1035,20 +1084,20 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
               ) : (
                 <div className="space-y-3">
                   <p className="text-sm text-muted-foreground">
-                    This funnel was created before AI learning was enabled. Regenerate the content to enable rating.
+                    Enable AI learning to rate this funnel and improve future generations.
                   </p>
                   <Button
-                    onClick={handleGenerate}
-                    disabled={isGenerating}
+                    onClick={handleGenerateAvatarResearch}
+                    disabled={isGeneratingResearch}
                     size="sm"
                     className="bg-emerald-600 hover:bg-emerald-700"
                   >
-                    {isGenerating ? (
+                    {isGeneratingResearch ? (
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
                     ) : (
                       <Brain className="h-4 w-4 mr-2" />
                     )}
-                    Regenerate to Enable AI Learning
+                    Enable AI Learning
                   </Button>
                 </div>
               )}
