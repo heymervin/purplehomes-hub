@@ -1113,10 +1113,58 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
 
+      // --------------------------------------------------------
+      // ACTION: test - Test Airtable connection and configuration
+      // --------------------------------------------------------
+      case 'test': {
+        const testResults: Record<string, any> = {
+          environment: IS_VERCEL ? 'vercel' : 'local',
+          hasAirtableKey: !!AIRTABLE_API_KEY,
+          hasAirtableBase: !!AIRTABLE_BASE_ID,
+          tableName: AVATAR_RESEARCH_TABLE,
+          hasOpenAIKey: !!process.env.OPENAI_API_KEY,
+        };
+
+        // Try to connect to Airtable
+        if (AIRTABLE_API_KEY && AIRTABLE_BASE_ID) {
+          try {
+            const response = await fetch(
+              `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_RESEARCH_TABLE}?maxRecords=1`,
+              {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+              testResults.airtableConnection = 'success';
+              testResults.recordCount = data.records?.length || 0;
+            } else {
+              const errorText = await response.text();
+              testResults.airtableConnection = 'failed';
+              testResults.airtableError = errorText;
+            }
+          } catch (error) {
+            testResults.airtableConnection = 'error';
+            testResults.airtableError = String(error);
+          }
+        }
+
+        return res.json({
+          success: true,
+          message: 'Avatar Research API test',
+          ...testResults,
+        });
+      }
+
       default:
         return res.status(400).json({
           error: 'Unknown action',
-          validActions: ['generate', 'history', 'rate', 'insights', 'link', 'get'],
+          validActions: ['generate', 'history', 'rate', 'insights', 'link', 'get', 'test'],
         });
     }
   } catch (error) {
