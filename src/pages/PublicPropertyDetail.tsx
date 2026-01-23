@@ -131,6 +131,44 @@ function HeroEntrance({
   );
 }
 
+// ============ GRADIENT TEXT UTILITIES ============
+// Data-driven highlight system for funnel pages
+// USE THESE for consistent gradient styling across all properties
+//
+// STRUCTURE:
+// | Section  | Data Source              | Style           |
+// |----------|--------------------------|-----------------|
+// | Hero     | property.monthlyPayment  | GradientPrice   |
+// | Pricing  | property.downPayment     | GradientMoney   |
+// | Pricing  | property.monthlyPayment  | GradientPrice   |
+// | Solution | Brand constant (580)     | GradientNumber  |
+//
+/// DO NOT use for: AI-generated text, body copy, or random words
+
+function GradientPrice({ amount, suffix }: { amount: number; suffix?: string }) {
+  return (
+    <span className="bg-gradient-to-r from-purple-300 via-violet-300 to-purple-300 bg-clip-text text-transparent">
+      ${amount.toLocaleString()}{suffix}
+    </span>
+  );
+}
+
+function GradientMoney({ amount }: { amount: number }) {
+  return (
+    <span className="bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
+      ${amount.toLocaleString()}
+    </span>
+  );
+}
+
+function GradientNumber({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return (
+    <span className={`bg-gradient-to-b from-white via-purple-200 to-purple-400/50 bg-clip-text text-transparent ${className}`}>
+      {children}
+    </span>
+  );
+}
+
 // Live Countdown Timer Component
 function UrgencyCountdown({ hoursFromNow = 48 }: { hoursFromNow?: number }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -795,11 +833,14 @@ export default function PublicPropertyDetail() {
 
                   return (
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-6 mb-8 md:mb-10 px-4">
-                      {/* Price with glow */}
+                      {/* Price with glow - DATA-DRIVEN GRADIENT */}
                       <div className="relative">
                         <span className="absolute inset-0 bg-purple-500/20 blur-2xl scale-150" />
-                        <span className="relative text-4xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-violet-300 to-purple-300 drop-shadow-[0_0_30px_rgba(168,85,247,0.6)]">
-                          ${property.monthlyPayment?.toLocaleString() || Math.round((property.price * 0.006)).toLocaleString()}/mo
+                        <span className="relative text-4xl sm:text-5xl md:text-6xl font-black drop-shadow-[0_0_30px_rgba(168,85,247,0.6)]">
+                          <GradientPrice
+                            amount={property.monthlyPayment || Math.round(property.price * 0.006)}
+                            suffix="/mo"
+                          />
                         </span>
                       </div>
 
@@ -1065,7 +1106,7 @@ export default function PublicPropertyDetail() {
 
         {/* Solution Section - Dynamic from AI */}
         {!funnelLoading && funnelContent?.solution && (
-          <section className="relative bg-gradient-to-b from-[#0d0a1a] via-[#1a1528] to-white py-24 md:py-32 overflow-hidden">
+          <section className="relative bg-gradient-to-b from-[#0d0a1a] via-[#1a1528] to-[#0d0a1a] py-24 md:py-32 overflow-hidden">
             {/* Ambient glow - purple brand colors */}
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute top-0 left-1/4 w-[700px] h-[500px] bg-violet-500/10 rounded-full blur-[150px]" />
@@ -1163,9 +1204,10 @@ export default function PublicPropertyDetail() {
                             </linearGradient>
                           </defs>
                         </svg>
-                        <span className="relative text-[120px] md:text-[160px] font-black bg-gradient-to-b from-white via-purple-200 to-purple-400/50 bg-clip-text text-transparent leading-none">
+                        {/* BRAND CONSTANT - Uses GradientNumber utility */}
+                        <GradientNumber className="text-[120px] md:text-[160px] font-black leading-none">
                           580
-                        </span>
+                        </GradientNumber>
                       </div>
 
                       <p className="relative text-2xl md:text-3xl font-bold text-white mb-3">
@@ -1192,47 +1234,73 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Property Showcase */}
+        {/* Property Showcase - DARK THEME */}
         {!funnelLoading && funnelContent?.propertyShowcase && (
-          <FunnelSection variant="white" padding="lg">
-            <SectionHeader
-              overline="Property Highlights"
-              title="Why This Home?"
-            />
-            <div className="max-w-4xl mx-auto">
-              <p className="text-lg text-gray-600 leading-relaxed mb-8">
-                {funnelContent.propertyShowcase}
-              </p>
-
-              {/* Property Features Grid */}
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-purple-50 rounded-xl p-5 text-center">
-                  <Bed className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                  <div className="text-3xl font-bold text-gray-900">{property.beds}</div>
-                  <div className="text-sm text-gray-600">Bedrooms</div>
-                </div>
-                <div className="bg-purple-50 rounded-xl p-5 text-center">
-                  <Bath className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                  <div className="text-3xl font-bold text-gray-900">{property.baths}</div>
-                  <div className="text-sm text-gray-600">Bathrooms</div>
-                </div>
-                {property.sqft && (
-                  <div className="bg-purple-50 rounded-xl p-5 text-center">
-                    <Maximize2 className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                    <div className="text-3xl font-bold text-gray-900">{property.sqft.toLocaleString()}</div>
-                    <div className="text-sm text-gray-600">Square Feet</div>
-                  </div>
-                )}
-                {property.condition && (
-                  <div className="bg-purple-50 rounded-xl p-5 text-center">
-                    <Wrench className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                    <div className="text-xl font-bold text-gray-900">{property.condition}</div>
-                    <div className="text-sm text-gray-600">Condition</div>
-                  </div>
-                )}
-              </div>
+          <section className="relative bg-gradient-to-b from-[#0d0a1a] via-black to-[#0d0a1a] py-20 md:py-28 overflow-hidden">
+            {/* Ambient glow */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-purple-600/8 rounded-full blur-[150px]" />
             </div>
-          </FunnelSection>
+
+            <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
+              {/* Section Header */}
+              <Reveal className="text-center mb-12 md:mb-16">
+                <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
+                  Property Highlights
+                </span>
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-6">
+                  Why This Home?
+                </h2>
+                <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
+                  {funnelContent.propertyShowcase}
+                </p>
+              </Reveal>
+
+              {/* Property Features Grid - Dark Cards */}
+              <Reveal delay={150}>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
+                      <Bed className="h-7 w-7 text-purple-300" />
+                    </div>
+                    <div className="text-4xl font-black mb-1">
+                      <GradientNumber>{property.beds}</GradientNumber>
+                    </div>
+                    <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">Bedrooms</div>
+                  </div>
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
+                      <Bath className="h-7 w-7 text-purple-300" />
+                    </div>
+                    <div className="text-4xl font-black mb-1">
+                      <GradientNumber>{property.baths}</GradientNumber>
+                    </div>
+                    <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">Bathrooms</div>
+                  </div>
+                  {property.sqft && (
+                    <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                      <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
+                        <Maximize2 className="h-7 w-7 text-purple-300" />
+                      </div>
+                      <div className="text-4xl font-black mb-1">
+                        <GradientNumber>{property.sqft.toLocaleString()}</GradientNumber>
+                      </div>
+                      <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">Square Feet</div>
+                    </div>
+                  )}
+                  {property.condition && (
+                    <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                      <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
+                        <Wrench className="h-7 w-7 text-purple-300" />
+                      </div>
+                      <div className="text-2xl font-black text-white mb-1">{property.condition}</div>
+                      <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">Condition</div>
+                    </div>
+                  )}
+                </div>
+              </Reveal>
+            </div>
+          </section>
         )}
 
         {/* Investment Details / Pricing - DRAMATIC PREMIUM DESIGN */}
@@ -1303,8 +1371,9 @@ export default function PublicPropertyDetail() {
                         <div className="text-xs md:text-sm uppercase tracking-[0.15em] text-gray-500 font-semibold mb-2">
                           Move-In Cost
                         </div>
-                        <div className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-300 mb-2">
-                          ${property.downPayment.toLocaleString()}
+                        <div className="text-3xl sm:text-4xl md:text-5xl font-black mb-2">
+                          {/* DATA-DRIVEN GRADIENT - Move-in cost */}
+                          <GradientMoney amount={property.downPayment} />
                         </div>
                         <p className="text-sm md:text-base text-gray-400">Goes toward your purchase</p>
                       </div>
@@ -1317,8 +1386,9 @@ export default function PublicPropertyDetail() {
                         <div className="text-xs md:text-sm uppercase tracking-[0.15em] text-gray-500 font-semibold mb-2">
                           Monthly Payment
                         </div>
-                        <div className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-300 mb-2">
-                          ${property.monthlyPayment.toLocaleString()}
+                        <div className="text-3xl sm:text-4xl md:text-5xl font-black mb-2">
+                          {/* DATA-DRIVEN GRADIENT - Monthly payment */}
+                          <GradientPrice amount={property.monthlyPayment} />
                         </div>
                         <p className="text-sm md:text-base text-gray-400">Build equity every month</p>
                       </div>
