@@ -695,23 +695,120 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Comparison Table - Luxury Cards */}
-        <FunnelSection variant="luxury-cream" padding="lg" blendTo="white">
-          <ComparisonTable
-            title="Renting vs. Owning With Purple Homes"
-            subtitle="See why hundreds of families are making the switch"
-            variant="luxury-cards"
-            rows={[
-              { feature: "Monthly payment goes to", optionA: "Landlord's pocket", optionB: "YOUR equity" },
-              { feature: "Build wealth over time", optionA: false, optionB: true },
-              { feature: "Tax benefits available", optionA: false, optionB: true },
-              { feature: "Price locked in today", optionA: false, optionB: true },
-              { feature: "Make it your own", optionA: false, optionB: true },
-              { feature: "Risk of rent increases", optionA: true, optionB: false },
-              { feature: "Can be forced to move", optionA: true, optionB: false },
-            ]}
-          />
-        </FunnelSection>
+        {/* Comparison Table - DRAMATIC PREMIUM DARK */}
+        <section className="relative bg-black overflow-hidden py-16 md:py-24">
+          {/* Ambient lighting */}
+          <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-red-900/10 rounded-full blur-[150px]" />
+          <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-purple-600/20 rounded-full blur-[150px]" />
+
+          <div className="relative max-w-5xl mx-auto px-4">
+            {/* Section Header */}
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 md:mb-4">
+                Renting vs. <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-400">Owning</span>
+              </h2>
+              <p className="text-lg md:text-xl text-gray-400">
+                See why hundreds of families are making the switch
+              </p>
+            </div>
+
+            {/* Comparison Cards */}
+            <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+              {/* RENTING - The Bad Option */}
+              <div className="relative">
+                <div className="bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl border border-gray-800 p-6 md:p-8 h-full">
+                  <div className="text-center mb-6">
+                    <span className="text-xs uppercase tracking-[0.2em] text-gray-500 font-semibold">Traditional</span>
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-400 mt-1">Renting</h3>
+                  </div>
+
+                  <div className="space-y-4">
+                    {[
+                      { text: "Monthly payment goes to", value: "Landlord's pocket", bad: true },
+                      { text: "Build wealth over time", value: false },
+                      { text: "Tax benefits available", value: false },
+                      { text: "Price locked in today", value: false },
+                      { text: "Make it your own", value: false },
+                      { text: "Risk of rent increases", value: true, bad: true },
+                      { text: "Can be forced to move", value: true, bad: true },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center justify-between py-3 border-b border-gray-800 last:border-0">
+                        <span className="text-gray-500 text-sm md:text-base">{item.text}</span>
+                        <span className={item.value === false ? "text-gray-600" : item.bad ? "text-red-400 font-medium" : "text-gray-400"}>
+                          {item.value === false ? (
+                            <span className="text-gray-600">—</span>
+                          ) : item.value === true ? (
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-500/20 text-red-400">✗</span>
+                          ) : (
+                            <span className="text-red-400 text-sm md:text-base">{item.value}</span>
+                          )}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* PURPLE HOMES - The Winner */}
+              <div className="relative">
+                {/* Glow effect behind card */}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 via-violet-500/20 to-purple-500/30 blur-2xl scale-105" />
+
+                <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-black rounded-2xl border border-purple-500/40 p-6 md:p-8 h-full shadow-[0_0_40px_rgba(168,85,247,0.15)]">
+                  {/* Recommended Badge */}
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="inline-block px-4 py-1.5 bg-gradient-to-r from-purple-500 to-violet-500 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-lg shadow-purple-500/30">
+                      Recommended
+                    </span>
+                  </div>
+
+                  <div className="text-center mb-6 mt-2">
+                    <span className="text-xs uppercase tracking-[0.2em] text-purple-400 font-semibold">Rent-to-Own</span>
+                    <h3 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-violet-300 mt-1">Purple Homes</h3>
+                  </div>
+
+                  <div className="space-y-4">
+                    {[
+                      { text: "Monthly payment goes to", value: "YOUR equity", good: true },
+                      { text: "Build wealth over time", value: true },
+                      { text: "Tax benefits available", value: true },
+                      { text: "Price locked in today", value: true },
+                      { text: "Make it your own", value: true },
+                      { text: "Risk of rent increases", value: false },
+                      { text: "Can be forced to move", value: false },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center justify-between py-3 border-b border-purple-500/20 last:border-0">
+                        <span className="text-gray-300 text-sm md:text-base">{item.text}</span>
+                        <span>
+                          {item.value === true ? (
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-purple-500/30 text-purple-300">
+                              <Check className="h-4 w-4" />
+                            </span>
+                          ) : item.value === false ? (
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-800 text-gray-500">✗</span>
+                          ) : (
+                            <span className="text-purple-300 font-semibold text-sm md:text-base">{item.value}</span>
+                          )}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* CTA inside the winning card */}
+                  <div className="mt-8">
+                    <button
+                      onClick={scrollToForm}
+                      className="group w-full bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-400 hover:to-violet-400 text-white font-bold text-lg uppercase tracking-wide px-8 py-4 rounded-xl shadow-[0_0_30px_rgba(168,85,247,0.4)] hover:shadow-[0_0_50px_rgba(168,85,247,0.5)] transition-all duration-300 hover:-translate-y-0.5"
+                    >
+                      Get Started Today
+                      <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Process Steps - Luxury */}
         <FunnelSection variant="white" padding="lg" blendTo="dark">
