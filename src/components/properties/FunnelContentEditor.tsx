@@ -321,6 +321,8 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
         }
         // Track where content was saved
         setSaveLocation(data.savedToAirtable ? 'airtable' : (data.savedToFile ? 'file' : 'unknown'));
+        // Reset rating - new content needs fresh rating
+        setEffectivenessRating(null);
         setHasChanges(false);
         toast.success(`Funnel content generated and saved to ${data.savedToAirtable ? 'Airtable' : 'file'}!`);
         console.log('[FunnelEditor] ====== REGENERATE COMPLETE ======');
@@ -397,6 +399,8 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
         const saveData = await saveResponse.json();
         console.log('[FunnelEditor] Save response:', JSON.stringify(saveData, null, 2));
 
+        // Reset rating for new research - stars should be empty
+        setEffectivenessRating(null);
         toast.success('AI Learning enabled! You can now rate this funnel.');
         console.log('[FunnelEditor] ====== COMPLETE SUCCESS ======');
       } else {
