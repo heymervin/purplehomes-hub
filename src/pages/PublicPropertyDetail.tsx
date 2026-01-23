@@ -645,7 +645,11 @@ export default function PublicPropertyDetail() {
                   </span>
                 </div>
                 <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-400 mb-6 md:mb-8">
-                  Start Building <span className="text-white">Your Own Wealth</span>
+                  {funnelContent?.hook ? (
+                    <span className="text-white">{funnelContent.hook.split('.')[0]}.</span>
+                  ) : (
+                    <>Start Building <span className="text-white">Your Own Wealth</span></>
+                  )}
                 </p>
               </HeroEntrance>
 
