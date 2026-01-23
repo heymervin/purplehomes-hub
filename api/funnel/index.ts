@@ -432,10 +432,10 @@ interface FormulaSelection {
 }
 
 interface HookStructure {
-  headline: string;      // Main emotional hook (e.g., "3 bedrooms. No bank required.")
-  price?: string;        // Price callout (e.g., "$2,300/month")
-  benefit?: string;      // Key benefit (e.g., "No bank qualifying needed")
-  urgency?: string;      // Time-sensitive offer (e.g., "Apply by Friday for $1,500 off")
+  headline: string;      // Main emotional hook (e.g., "Your family deserves a real home. Not another rental.")
+  highlight?: string;    // Key phrase FROM headline to visually emphasize (e.g., "real home")
+  benefit?: string;      // Short benefit phrase shown with price (e.g., "No bank qualifying")
+  urgency?: string;      // Time-sensitive offer (e.g., "Apply by Friday for $1,500 off closing costs")
   bonus?: string;        // Extra incentive (e.g., "FREE home warranty for a year")
 }
 
@@ -1014,17 +1014,17 @@ After writing, review each section using CUBA before finalizing.
 Generate these sections in JSON format:
 
 1. **hook** (STRUCTURED OBJECT with these fields):
-   - "headline": Main emotional hook (1-2 punchy sentences, speaks to avatar's dreams)
-   - "price": The monthly payment with format like "$2,300/month"
-   - "benefit": Key differentiator like "No bank qualifying needed" or "Move in 30 days"
+   - "headline": Main emotional hook (1-2 punchy sentences, speaks to avatar's dreams). DO NOT include price here.
+   - "highlight": The 1-3 word KEY PHRASE from headline that should be visually emphasized (must be exact text from headline)
+   - "benefit": Short benefit phrase, 3-5 words max (e.g., "No bank qualifying" or "Move in 30 days")
    - "urgency": Time-sensitive offer if applicable (e.g., "Apply by Friday for $1,500 off closing costs")${inputs.specialOffer ? `
    - "bonus": "${inputs.specialOffer}"` : ''}
 
    Example format:
    "hook": {
      "headline": "Your family deserves a real home. Not another rental.",
-     "price": "$2,300/month",
-     "benefit": "No bank qualifying needed",
+     "highlight": "real home",
+     "benefit": "No bank qualifying",
      "urgency": "Apply by Friday for $1,500 off closing costs",
      "bonus": "FREE home warranty for a year"
    }
@@ -1120,7 +1120,7 @@ Respond ONLY in valid JSON with these exact keys.`;
       const structured = hookData as Record<string, unknown>;
       return {
         headline: String(structured.headline || ''),
-        price: structured.price ? String(structured.price) : undefined,
+        highlight: structured.highlight ? String(structured.highlight) : undefined,
         benefit: structured.benefit ? String(structured.benefit) : undefined,
         urgency: structured.urgency ? String(structured.urgency) : undefined,
         bonus: structured.bonus ? String(structured.bonus) : undefined,

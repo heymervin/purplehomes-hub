@@ -632,7 +632,14 @@ export default function PublicPropertyDetail() {
 
               {/* Main Headline - Dynamic from AI hook with structured styling */}
               <HeroEntrance delay={100}>
-                {funnelContent?.hook ? (
+                {funnelLoading ? (
+                  /* Loading skeleton */
+                  <div className="animate-pulse space-y-4">
+                    <div className="h-12 sm:h-14 md:h-16 lg:h-20 bg-white/10 rounded-lg w-3/4 mx-auto" />
+                    <div className="h-10 sm:h-12 md:h-14 bg-purple-500/20 rounded-lg w-1/2 mx-auto" />
+                    <div className="h-6 sm:h-8 bg-white/5 rounded-lg w-2/3 mx-auto" />
+                  </div>
+                ) : funnelContent?.hook ? (
                   (() => {
                     const hook = funnelContent.hook;
 
@@ -640,47 +647,43 @@ export default function PublicPropertyDetail() {
                     const isStructured = typeof hook === 'object' && hook !== null && 'headline' in hook;
 
                     if (isStructured) {
-                      // NEW STRUCTURED FORMAT - each field styled appropriately
-                      const { headline, price, benefit, urgency, bonus } = hook as {
+                      // NEW STRUCTURED FORMAT - clean, tight layout
+                      const { headline, highlight, benefit, urgency, bonus } = hook as {
                         headline: string;
-                        price?: string;
+                        highlight?: string;
                         benefit?: string;
                         urgency?: string;
                         bonus?: string;
                       };
 
+                      // Render headline with highlighted phrase
+                      const renderHeadline = () => {
+                        if (!highlight || !headline.includes(highlight)) {
+                          return headline;
+                        }
+                        const parts = headline.split(highlight);
+                        return (
+                          <>
+                            {parts[0]}
+                            <span className="relative inline-block mx-1">
+                              <span className="absolute inset-x-[-4px] md:inset-x-[-8px] bottom-[2px] md:bottom-[4px] top-[4px] md:top-[8px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
+                              <span className="relative px-1 md:px-2">{highlight}</span>
+                            </span>
+                            {parts[1]}
+                          </>
+                        );
+                      };
+
                       return (
                         <>
-                          {/* Main Headline */}
-                          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-4 md:mb-6 tracking-tight max-w-4xl mx-auto">
-                            {headline}
+                          {/* Main Headline with highlighted phrase */}
+                          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-6 md:mb-8 tracking-tight max-w-4xl mx-auto">
+                            {renderHeadline()}
                           </h1>
-
-                          {/* Price - Purple gradient highlight */}
-                          {price && (
-                            <div className="mb-4 md:mb-5">
-                              <span className="relative inline-block">
-                                <span className="absolute inset-x-[-8px] bottom-[2px] top-[6px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
-                                <span className="relative text-3xl sm:text-4xl md:text-5xl font-black text-white px-2">
-                                  {price}
-                                </span>
-                              </span>
-                            </div>
-                          )}
-
-                          {/* Benefit - Italic emphasis */}
-                          {benefit && (
-                            <p className="text-lg sm:text-xl md:text-2xl mb-4 md:mb-5">
-                              <span className="relative inline-block">
-                                <span className="absolute inset-0 bg-gradient-to-r from-purple-500/30 to-violet-500/30 -skew-x-2 rounded" />
-                                <span className="relative italic font-bold text-purple-300 px-3 py-1">{benefit}</span>
-                              </span>
-                            </p>
-                          )}
 
                           {/* Urgency + Bonus - Amber badge */}
                           {(urgency || bonus) && (
-                            <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-amber-500/20 via-orange-500/25 to-amber-500/20 border border-amber-400/40 rounded-full backdrop-blur-sm mb-4 md:mb-6">
+                            <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-amber-500/20 via-orange-500/25 to-amber-500/20 border border-amber-400/40 rounded-full backdrop-blur-sm mb-6 md:mb-8">
                               <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
@@ -702,6 +705,7 @@ export default function PublicPropertyDetail() {
                     );
                   })()
                 ) : (
+                  /* Fallback when no funnel content exists */
                   <>
                     <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-2 md:mb-3 tracking-tight">
                       Stop Paying Your
@@ -721,24 +725,37 @@ export default function PublicPropertyDetail() {
                 )}
               </HeroEntrance>
 
-              {/* Price callout - MAXIMUM emphasis */}
+              {/* Price callout with benefit - Combined line */}
               <HeroEntrance delay={250}>
-                <div className="text-lg md:text-xl lg:text-2xl text-gray-300 max-w-3xl mx-auto mb-8 md:mb-10 leading-relaxed px-2">
-                  <span>Own this home for as low as</span>
-                  <div className="my-3 md:my-4">
-                    <span className="relative inline-block">
-                      <span className="absolute inset-0 bg-purple-500/20 blur-2xl scale-150" />
-                      <span className="relative text-4xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-violet-300 to-purple-300 drop-shadow-[0_0_30px_rgba(168,85,247,0.6)]">
-                        ${property.monthlyPayment?.toLocaleString() || Math.round((property.price * 0.006)).toLocaleString()}/mo
-                      </span>
-                    </span>
-                  </div>
-                  <span className="text-gray-400">— even with </span>
-                  <span className="relative inline-block mx-1">
-                    <span className="absolute inset-0 bg-gradient-to-r from-purple-500/40 to-violet-500/40 -skew-x-3 rounded" />
-                    <span className="relative italic font-semibold text-white px-2 md:px-3">less-than-perfect credit</span>
-                  </span>
-                </div>
+                {(() => {
+                  // Get benefit from structured hook if available
+                  const hook = funnelContent?.hook;
+                  const isStructured = typeof hook === 'object' && hook !== null && 'headline' in hook;
+                  const benefit = isStructured ? (hook as { benefit?: string }).benefit : null;
+
+                  return (
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-6 mb-8 md:mb-10 px-4">
+                      {/* Price with glow */}
+                      <div className="relative">
+                        <span className="absolute inset-0 bg-purple-500/20 blur-2xl scale-150" />
+                        <span className="relative text-4xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-violet-300 to-purple-300 drop-shadow-[0_0_30px_rgba(168,85,247,0.6)]">
+                          ${property.monthlyPayment?.toLocaleString() || Math.round((property.price * 0.006)).toLocaleString()}/mo
+                        </span>
+                      </div>
+
+                      {/* Separator + Benefit */}
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <span className="hidden sm:block text-2xl md:text-3xl text-gray-600">—</span>
+                        <span className="relative inline-block">
+                          <span className="absolute inset-0 bg-gradient-to-r from-purple-500/30 to-violet-500/30 -skew-x-2 rounded" />
+                          <span className="relative italic font-bold text-purple-300 text-lg sm:text-xl md:text-2xl px-3 py-1">
+                            {benefit || 'No bank qualifying'}
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
               </HeroEntrance>
 
               {/* Trust indicators - Mobile stacked, desktop inline */}
