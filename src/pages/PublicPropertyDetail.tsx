@@ -1087,44 +1087,68 @@ export default function PublicPropertyDetail() {
                 </h2>
               </Reveal>
 
-              {/* Solution Content Card */}
-              <Reveal delay={200}>
-                <div className="relative">
-                  {/* Multi-layer glow behind card */}
-                  <div className="absolute -inset-6 bg-gradient-to-br from-violet-500/20 to-purple-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-                  <div className="absolute -inset-3 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-[2rem] blur-xl" />
-
-                  <div className="relative bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-purple-400/25 rounded-3xl px-8 py-12 md:px-14 md:py-16 shadow-2xl shadow-purple-900/40 hover:border-purple-300/40 transition-all duration-500">
-                    {/* Decorative checkmark */}
-                    <div className="flex justify-center mb-10">
-                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center shadow-xl shadow-purple-500/40">
-                        <CheckCircle className="h-12 w-12 text-white" />
+              {/* Solution Benefits - Two Column Layout */}
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
+                {/* Left - Key Benefits with Staggered Animation */}
+                <div className="flex flex-col justify-center space-y-6">
+                  {[
+                    { icon: '✓', highlight: 'Your Potential', text: 'We focus on who you are becoming, not where you\'ve been' },
+                    { icon: '✓', highlight: 'Credit Scores 580+', text: 'Traditional banks say no. We say let\'s talk.' },
+                    { icon: '✓', highlight: 'No More Waiting', text: 'Stop watching from the sidelines. Start building equity today.' },
+                  ].map((benefit, i) => (
+                    <Reveal key={i} delay={i * 150}>
+                      <div className="group relative flex items-start gap-5 bg-gradient-to-r from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300 shadow-lg shadow-purple-900/20 hover:shadow-purple-500/20">
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:to-transparent transition-all duration-300" />
+                        <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/40 to-purple-600/30 flex items-center justify-center flex-shrink-0 border border-purple-400/40 group-hover:border-purple-300/60 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-purple-500/30 transition-all duration-300">
+                          <span className="text-purple-200 text-xl font-bold">{benefit.icon}</span>
+                        </div>
+                        <div className="relative">
+                          <h3 className="text-xl md:text-2xl font-black text-white mb-2 group-hover:text-purple-100 transition-colors">{benefit.highlight}</h3>
+                          <p className="text-gray-400 text-base leading-relaxed group-hover:text-gray-300 transition-colors">{benefit.text}</p>
+                        </div>
                       </div>
-                    </div>
+                    </Reveal>
+                  ))}
+                </div>
 
-                    {/* Decorative quote marks */}
-                    <div className="absolute top-8 left-8 text-6xl text-purple-500/15 font-serif leading-none">"</div>
-                    <div className="absolute bottom-8 right-8 text-6xl text-purple-500/15 font-serif leading-none rotate-180">"</div>
+                {/* Right - Big Number Impact Card */}
+                <Reveal delay={300}>
+                  <div className="relative h-full flex items-center">
+                    {/* Multi-layer glow */}
+                    <div className="absolute -inset-6 bg-gradient-to-br from-purple-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+                    <div className="absolute -inset-3 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
 
-                    <blockquote className="relative text-xl md:text-2xl lg:text-3xl text-white/95 leading-relaxed text-center font-light px-4 md:px-8">
-                      {(() => {
-                        const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
-                        const remaining = sentences.slice(2).join(' ').trim();
-                        return remaining || funnelContent.solution;
-                      })()}
-                    </blockquote>
+                    <div className="relative w-full bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-purple-400/25 rounded-3xl px-8 py-14 md:px-12 md:py-20 text-center shadow-2xl shadow-purple-900/40 hover:border-purple-300/40 hover:shadow-purple-800/50 transition-all duration-500">
+                      {/* Subtle inner glow */}
+                      <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none" />
 
-                    {/* Bottom accent */}
-                    <div className="relative mt-12 pt-10 border-t border-purple-400/20 text-center">
-                      <div className="inline-flex items-center gap-3">
-                        <span className="w-8 h-[2px] bg-gradient-to-r from-transparent to-purple-400/60" />
-                        <p className="text-purple-300 text-sm font-bold tracking-[0.2em] uppercase">Your path forward starts here</p>
-                        <span className="w-8 h-[2px] bg-gradient-to-l from-transparent to-purple-400/60" />
+                      {/* Big number */}
+                      <div className="relative mb-6">
+                        <span className="text-[120px] md:text-[160px] font-black bg-gradient-to-b from-white via-purple-200 to-purple-400/50 bg-clip-text text-transparent leading-none">
+                          580
+                        </span>
+                      </div>
+
+                      <p className="relative text-2xl md:text-3xl font-bold text-white mb-3">
+                        Minimum Credit Score
+                      </p>
+
+                      <p className="relative text-lg text-gray-400 font-light max-w-sm mx-auto">
+                        That's all you need to start your journey to homeownership
+                      </p>
+
+                      {/* Bottom accent */}
+                      <div className="relative mt-10 pt-8 border-t border-purple-400/20">
+                        <div className="inline-flex items-center gap-3">
+                          <span className="w-8 h-[2px] bg-gradient-to-r from-transparent to-purple-400/60" />
+                          <p className="text-purple-300 text-sm font-bold tracking-[0.2em] uppercase">We believe in you</p>
+                          <span className="w-8 h-[2px] bg-gradient-to-l from-transparent to-purple-400/60" />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </Reveal>
+                </Reveal>
+              </div>
             </div>
           </section>
         )}
