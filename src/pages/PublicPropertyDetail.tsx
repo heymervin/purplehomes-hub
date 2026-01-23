@@ -15,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { PropertyImageGallery } from '@/components/properties/PropertyImageGallery';
 import { cn } from '@/lib/utils';
-import { useSubmitForm } from '@/services/ghlApi';
+import { useCreateContact } from '@/services/ghlApi';
 import { useAirtableProperties } from '@/services/matchingApi';
 import { generatePropertySlug } from '@/lib/utils/slug';
 
@@ -92,6 +92,38 @@ function Reveal({
         transitionDelay: `${delay}ms`,
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Entrance animation for hero (triggers on page load, not scroll)
+function HeroEntrance({
+  children,
+  delay = 0,
+  className = ''
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // Small delay to ensure CSS transition is ready
+    const timer = setTimeout(() => setIsVisible(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div
+      className={`transition-all duration-1000 ease-out ${className}`}
+      style={{
+        transitionDelay: `${delay}ms`,
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0)' : 'translateY(40px)',
       }}
     >
       {children}
@@ -408,34 +440,38 @@ export default function PublicPropertyDetail() {
     fetchFunnelContent();
   }, [slug]);
 
-  const submitForm = useSubmitForm();
+  const createContact = useCreateContact();
 
   const handleOfferSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!property) return;
 
     try {
-      await submitForm.mutateAsync({
-        formId: 'NrB0CMNYIpR8JpVDqpsE',
-        data: {
-          first_name: offerForm.firstName,
-          last_name: offerForm.lastName,
-          email: offerForm.email,
-          phone: offerForm.phone,
-          offer_amount: offerForm.offerAmount,
-          listing_message: offerForm.message,
-          property_address: property.address,
-          property_city: property.city,
-          property_price: property.price.toString(),
-        }
+      // Create contact directly via Contact API (more reliable than Form API)
+      await createContact.mutateAsync({
+        firstName: offerForm.firstName,
+        lastName: offerForm.lastName,
+        email: offerForm.email,
+        phone: offerForm.phone,
+        tags: ['Funnel Lead', 'Interested Buyer', `Property: ${property.address}`],
+        customFields: [
+          // Budget/Offer Amount
+          { id: 'RsonBtVCorhBi4ehUeAY', value: offerForm.offerAmount || '' },
+          // Property Address interested in
+          { id: 'UcJ0Qoz3kh0OjC9oLVsK', value: property.address },
+          // Property City
+          { id: 'JiQiZk4AwSIuggxs8ryC', value: property.city },
+          // Notes/Message
+          { id: 'wAnKlytGK8s8dmL1vBkV', value: offerForm.message || `Interested in ${property.address} - $${property.price.toLocaleString()}` },
+        ],
       });
 
-      toast.success('Your offer has been submitted! We\'ll contact you within 24 hours.');
+      toast.success('Your application has been submitted! We\'ll contact you within 24 hours.');
       setOfferForm({ firstName: '', lastName: '', email: '', phone: '', offerAmount: '', message: '' });
       setShowOfferForm(false);
     } catch (error) {
-      console.error('Form submission error:', error);
-      toast.error('Failed to submit offer. Please try again or call us directly.');
+      console.error('Contact creation error:', error);
+      toast.error('Failed to submit. Please try again or call us directly.');
     }
   };
 
@@ -583,76 +619,86 @@ export default function PublicPropertyDetail() {
           <div className="relative max-w-5xl mx-auto px-4 py-16 md:py-24 lg:py-32">
             <div className="text-center">
               {/* Eyebrow - Mobile optimized */}
-              <div className="inline-flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-purple-500/25 border border-purple-400/40 rounded-full text-purple-300 text-xs md:text-sm font-bold uppercase tracking-wider mb-6 md:mb-8 backdrop-blur-sm">
-                <span className="relative flex h-2 w-2 md:h-2.5 md:w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 md:h-2.5 md:w-2.5 bg-purple-400"></span>
-                </span>
-                <span className="truncate max-w-[200px] md:max-w-none">Limited Time in {property.city}</span>
-              </div>
+              <HeroEntrance delay={0}>
+                <div className="inline-flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-purple-500/25 border border-purple-400/40 rounded-full text-purple-300 text-xs md:text-sm font-bold uppercase tracking-wider mb-6 md:mb-8 backdrop-blur-sm">
+                  <span className="relative flex h-2 w-2 md:h-2.5 md:w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 md:h-2.5 md:w-2.5 bg-purple-400"></span>
+                  </span>
+                  <span className="truncate max-w-[200px] md:max-w-none">Limited Time in {property.city}</span>
+                </div>
+              </HeroEntrance>
 
               {/* Main Headline - Responsive sizes */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-2 md:mb-3 tracking-tight">
-                Stop Paying Your
-              </h1>
-              <div className="mb-3 md:mb-4">
-                <span className="relative inline-block">
-                  {/* Vibrant purple highlighter - more saturated */}
-                  <span className="absolute inset-x-[-4px] md:inset-x-[-8px] bottom-[2px] md:bottom-[4px] top-[4px] md:top-[8px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
-                  <span className="relative text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white px-1 md:px-2 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
-                    Landlord's Mortgage
-                  </span>
-                </span>
-              </div>
-              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-400 mb-6 md:mb-8">
-                Start Building <span className="text-white">Your Own Wealth</span>
-              </p>
-
-              {/* Price callout - MAXIMUM emphasis */}
-              <div className="text-lg md:text-xl lg:text-2xl text-gray-300 max-w-3xl mx-auto mb-8 md:mb-10 leading-relaxed px-2">
-                <span>Own this home for as low as</span>
-                <div className="my-3 md:my-4">
+              <HeroEntrance delay={100}>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-2 md:mb-3 tracking-tight">
+                  Stop Paying Your
+                </h1>
+                <div className="mb-3 md:mb-4">
                   <span className="relative inline-block">
-                    <span className="absolute inset-0 bg-purple-500/20 blur-2xl scale-150" />
-                    <span className="relative text-4xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-violet-300 to-purple-300 drop-shadow-[0_0_30px_rgba(168,85,247,0.6)]">
-                      ${property.monthlyPayment?.toLocaleString() || Math.round((property.price * 0.006)).toLocaleString()}/mo
+                    {/* Vibrant purple highlighter - more saturated */}
+                    <span className="absolute inset-x-[-4px] md:inset-x-[-8px] bottom-[2px] md:bottom-[4px] top-[4px] md:top-[8px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
+                    <span className="relative text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white px-1 md:px-2 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
+                      Landlord's Mortgage
                     </span>
                   </span>
                 </div>
-                <span className="text-gray-400">— even with </span>
-                <span className="relative inline-block mx-1">
-                  <span className="absolute inset-0 bg-gradient-to-r from-purple-500/40 to-violet-500/40 -skew-x-3 rounded" />
-                  <span className="relative italic font-semibold text-white px-2 md:px-3">less-than-perfect credit</span>
-                </span>
-              </div>
+                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-400 mb-6 md:mb-8">
+                  Start Building <span className="text-white">Your Own Wealth</span>
+                </p>
+              </HeroEntrance>
+
+              {/* Price callout - MAXIMUM emphasis */}
+              <HeroEntrance delay={250}>
+                <div className="text-lg md:text-xl lg:text-2xl text-gray-300 max-w-3xl mx-auto mb-8 md:mb-10 leading-relaxed px-2">
+                  <span>Own this home for as low as</span>
+                  <div className="my-3 md:my-4">
+                    <span className="relative inline-block">
+                      <span className="absolute inset-0 bg-purple-500/20 blur-2xl scale-150" />
+                      <span className="relative text-4xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-violet-300 to-purple-300 drop-shadow-[0_0_30px_rgba(168,85,247,0.6)]">
+                        ${property.monthlyPayment?.toLocaleString() || Math.round((property.price * 0.006)).toLocaleString()}/mo
+                      </span>
+                    </span>
+                  </div>
+                  <span className="text-gray-400">— even with </span>
+                  <span className="relative inline-block mx-1">
+                    <span className="absolute inset-0 bg-gradient-to-r from-purple-500/40 to-violet-500/40 -skew-x-3 rounded" />
+                    <span className="relative italic font-semibold text-white px-2 md:px-3">less-than-perfect credit</span>
+                  </span>
+                </div>
+              </HeroEntrance>
 
               {/* Trust indicators - Mobile stacked, desktop inline */}
-              <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-x-6 md:gap-x-8 gap-y-2 text-sm md:text-base text-gray-300 mb-8 md:mb-12">
-                <div className="flex items-center justify-center gap-2">
-                  <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
-                  <span className="font-medium">No Bank Qualifying</span>
+              <HeroEntrance delay={400}>
+                <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-x-6 md:gap-x-8 gap-y-2 text-sm md:text-base text-gray-300 mb-8 md:mb-12">
+                  <div className="flex items-center justify-center gap-2">
+                    <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
+                    <span className="font-medium">No Bank Qualifying</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
+                    <span className="font-medium">Move In 30 Days</span>
+                  </div>
+                  <div className="flex items-center justify-center gap-2">
+                    <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
+                    <span className="font-medium">Build Equity Now</span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-center gap-2">
-                  <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
-                  <span className="font-medium">Move In 30 Days</span>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
-                  <span className="font-medium">Build Equity Now</span>
-                </div>
-              </div>
+              </HeroEntrance>
 
               {/* CTA - MAXIMUM glow, mobile friendly */}
-              <div className="flex flex-col items-center gap-3 md:gap-4 px-4">
-                <button
-                  onClick={scrollToForm}
-                  className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-8 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
-                >
-                  Check If I Qualify
-                  <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
-                </button>
-                <span className="text-gray-500 text-xs md:text-sm">Takes less than 2 minutes • No credit check</span>
-              </div>
+              <HeroEntrance delay={550}>
+                <div className="flex flex-col items-center gap-3 md:gap-4 px-4">
+                  <button
+                    onClick={scrollToForm}
+                    className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-8 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+                  >
+                    Check If I Qualify
+                    <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
+                  </button>
+                  <span className="text-gray-500 text-xs md:text-sm">Takes less than 2 minutes • No credit check</span>
+                </div>
+              </HeroEntrance>
             </div>
           </div>
 
@@ -874,22 +920,25 @@ export default function PublicPropertyDetail() {
 
             <div className="relative max-w-4xl mx-auto px-4">
               {/* Section Header */}
-              <div className="text-center mb-10 md:mb-14">
-                <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
-                  Your Investment
-                </span>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 md:mb-4">
-                  Affordable Payment Options
-                </h2>
-                <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
-                  We structure deals to fit <span className="text-white font-medium">your budget</span>, not the other way around
-                </p>
-              </div>
+              <Reveal>
+                <div className="text-center mb-10 md:mb-14">
+                  <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
+                    Your Investment
+                  </span>
+                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 md:mb-4">
+                    Affordable Payment Options
+                  </h2>
+                  <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
+                    We structure deals to fit <span className="text-white font-medium">your budget</span>, not the other way around
+                  </p>
+                </div>
+              </Reveal>
 
               {/* Premium Pricing Card */}
-              <div className="relative">
-                {/* Glow behind card */}
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 via-violet-500/20 to-purple-500/30 blur-3xl scale-110" />
+              <Reveal delay={150}>
+                <div className="relative">
+                  {/* Glow behind card */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 via-violet-500/20 to-purple-500/30 blur-3xl scale-110" />
 
                 <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-black rounded-3xl border border-purple-500/30 shadow-[0_0_60px_rgba(168,85,247,0.2)] overflow-hidden">
                   {/* Total Price Header */}
@@ -956,6 +1005,7 @@ export default function PublicPropertyDetail() {
                   </div>
                 </div>
               </div>
+              </Reveal>
 
               {/* Payment Breakdown (if available) */}
               {funnelContent?.pricingOptions && (
@@ -990,28 +1040,31 @@ export default function PublicPropertyDetail() {
 
           <div className="relative max-w-6xl mx-auto px-4">
             {/* Two Column Headers */}
-            <div className="grid md:grid-cols-2 gap-6 md:gap-12 mb-10 md:mb-14">
-              {/* The Old Way Header */}
-              <div className="text-center">
-                <div className="inline-block bg-gray-900/80 backdrop-blur border border-gray-700 rounded-2xl px-10 py-5 shadow-xl">
-                  <h3 className="text-2xl md:text-4xl font-black text-white">
-                    The <span className="underline decoration-red-500 decoration-[6px] underline-offset-4">Old</span> Way
-                  </h3>
+            <Reveal>
+              <div className="grid md:grid-cols-2 gap-6 md:gap-12 mb-10 md:mb-14">
+                {/* The Old Way Header */}
+                <div className="text-center">
+                  <div className="inline-block bg-gray-900/80 backdrop-blur border border-gray-700 rounded-2xl px-10 py-5 shadow-xl">
+                    <h3 className="text-2xl md:text-4xl font-black text-white">
+                      The <span className="underline decoration-red-500 decoration-[6px] underline-offset-4">Old</span> Way
+                    </h3>
+                  </div>
+                </div>
+                {/* The New Way Header */}
+                <div className="text-center">
+                  <div className="inline-block bg-gray-900/80 backdrop-blur border border-purple-500/40 rounded-2xl px-10 py-5 shadow-xl shadow-purple-500/10">
+                    <h3 className="text-2xl md:text-4xl font-black text-white">
+                      The <span className="underline decoration-purple-400 decoration-[6px] underline-offset-4">New</span> Way
+                    </h3>
+                  </div>
                 </div>
               </div>
-              {/* The New Way Header */}
-              <div className="text-center">
-                <div className="inline-block bg-gray-900/80 backdrop-blur border border-purple-500/40 rounded-2xl px-10 py-5 shadow-xl shadow-purple-500/10">
-                  <h3 className="text-2xl md:text-4xl font-black text-white">
-                    The <span className="underline decoration-purple-400 decoration-[6px] underline-offset-4">New</span> Way
-                  </h3>
-                </div>
-              </div>
-            </div>
+            </Reveal>
 
             {/* Journey Paths */}
             <div className="grid md:grid-cols-2 gap-6 md:gap-10">
               {/* LEFT: The Old Way - Problems */}
+              <Reveal delay={100}>
               <div className="relative">
                 {/* Vertical connecting line */}
                 <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[60px] bottom-[20px] w-1 bg-gradient-to-b from-red-500/50 via-red-500 to-red-500/50 hidden md:block" />
@@ -1073,8 +1126,10 @@ export default function PublicPropertyDetail() {
                   </div>
                 </div>
               </div>
+              </Reveal>
 
               {/* RIGHT: The New Way - Solutions */}
+              <Reveal delay={200}>
               <div className="relative">
                 {/* Glow effect behind the column */}
                 <div className="absolute inset-0 bg-purple-500/10 rounded-3xl blur-3xl scale-110 hidden md:block" />
@@ -1139,19 +1194,22 @@ export default function PublicPropertyDetail() {
                   </div>
                 </div>
               </div>
+              </Reveal>
             </div>
 
             {/* Bottom CTA - WHITE with MAXIMUM GLOW */}
-            <div className="text-center mt-12 md:mt-16">
-              <button
-                onClick={scrollToForm}
-                className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
-              >
-                Choose The New Way
-                <span className="ml-3 inline-block group-hover:translate-x-2 transition-transform text-2xl">&rarr;</span>
-              </button>
-              <p className="text-gray-500 text-sm mt-4">Join 500+ families who made the switch</p>
-            </div>
+            <Reveal delay={300}>
+              <div className="text-center mt-12 md:mt-16">
+                <button
+                  onClick={scrollToForm}
+                  className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+                >
+                  Choose The New Way
+                  <span className="ml-3 inline-block group-hover:translate-x-2 transition-transform text-2xl">&rarr;</span>
+                </button>
+                <p className="text-gray-500 text-sm mt-4">Join 500+ families who made the switch</p>
+              </div>
+            </Reveal>
           </div>
         </section>
 
@@ -1607,9 +1665,9 @@ export default function PublicPropertyDetail() {
                   <CTAButton
                     type="submit"
                     size="full"
-                    disabled={submitForm.isPending}
+                    disabled={createContact.isPending}
                   >
-                    {submitForm.isPending ? (
+                    {createContact.isPending ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
                         Submitting...

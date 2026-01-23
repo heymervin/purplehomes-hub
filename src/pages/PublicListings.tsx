@@ -40,7 +40,7 @@ import { ProximityBadge } from '@/components/listings/ProximityBadge';
 import { PropertyImageGallery } from '@/components/properties/PropertyImageGallery';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useSubmitForm } from '@/services/ghlApi';
+import { useCreateContact } from '@/services/ghlApi';
 import { calculatePropertyDistance } from '@/lib/proximityCalculator';
 import { useAirtableProperties } from '@/services/matchingApi';
 
@@ -125,8 +125,8 @@ export default function PublicListings() {
     message: ''
   });
   
-  // GHL Form submission
-  const submitForm = useSubmitForm();
+  // GHL Contact creation (more reliable than Form API)
+  const createContact = useCreateContact();
 
   const filteredProperties = useMemo(() => {
     // Wait for properties to load before filtering
@@ -196,30 +196,32 @@ export default function PublicListings() {
   const handleOfferSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProperty) return;
-    
+
     try {
-      // Submit to GHL Form API (Form ID: NrB0CMNYIpR8JpVDqpsE)
-      await submitForm.mutateAsync({
-        formId: 'NrB0CMNYIpR8JpVDqpsE',
-        data: {
-          first_name: offerForm.firstName,
-          last_name: offerForm.lastName,
-          email: offerForm.email,
-          phone: offerForm.phone,
-          offer_amount: offerForm.offerAmount,
-          listing_message: offerForm.message,
-          // Include property details for context
-          property_address: selectedProperty.address,
-          property_city: selectedProperty.city,
-          property_price: selectedProperty.price.toString(),
-        }
+      // Create contact directly via Contact API (more reliable than Form API)
+      await createContact.mutateAsync({
+        firstName: offerForm.firstName,
+        lastName: offerForm.lastName,
+        email: offerForm.email,
+        phone: offerForm.phone,
+        tags: ['Listing Lead', 'Interested Buyer', `Property: ${selectedProperty.address}`],
+        customFields: [
+          // Budget/Offer Amount
+          { id: 'RsonBtVCorhBi4ehUeAY', value: offerForm.offerAmount || '' },
+          // Property Address interested in
+          { id: 'UcJ0Qoz3kh0OjC9oLVsK', value: selectedProperty.address },
+          // Property City
+          { id: 'JiQiZk4AwSIuggxs8ryC', value: selectedProperty.city },
+          // Notes/Message
+          { id: 'wAnKlytGK8s8dmL1vBkV', value: offerForm.message || `Interested in ${selectedProperty.address} - $${selectedProperty.price.toLocaleString()}` },
+        ],
       });
-      
+
       toast.success('Your offer has been submitted! We\'ll contact you within 24 hours.');
       setOfferForm({ firstName: '', lastName: '', email: '', phone: '', offerAmount: '', message: '' });
       setShowOfferForm(false);
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('Contact creation error:', error);
       toast.error('Failed to submit offer. Please try again or call us directly.');
     }
   };
