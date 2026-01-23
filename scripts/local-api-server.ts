@@ -89,6 +89,7 @@ app.all('/api/auth', (req, res) => handleApiRequest(req, res, 'auth'));
 app.all('/api/calculator', (req, res) => handleApiRequest(req, res, 'calculator'));
 app.all('/api/proxy-image', (req, res) => handleApiRequest(req, res, 'proxy-image'));
 app.all('/api/funnel', (req, res) => handleApiRequest(req, res, 'funnel'));
+app.all('/api/testimonials', (req, res) => handleApiRequest(req, res, 'testimonials'));
 
 // Health check
 app.get('/api/health', (req, res) => {

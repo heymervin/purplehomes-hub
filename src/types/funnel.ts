@@ -113,6 +113,17 @@ export const BUYER_SEGMENT_OPTIONS: { value: BuyerSegment; label: string; descri
 ] as const;
 
 /**
+ * Testimonial for social proof carousel
+ * Can be real testimonials entered by user or AI-generated
+ */
+export interface Testimonial {
+  quote: string;
+  authorName: string;
+  authorTitle?: string;
+  rating?: number; // 1-5 stars, defaults to 5
+}
+
+/**
  * Formula tracking for learning which copywriting formulas work best
  * Enables exploration/exploitation learning loop
  */
@@ -153,6 +164,9 @@ export interface FunnelContent {
   // A/B Test Variants (v2.0)
   hookVariantB?: string;      // Alternative hook for testing
   ctaVariantB?: string;       // Alternative CTA for testing
+
+  // Real Testimonials (v2.2) - User-entered testimonials override AI-generated socialProof
+  testimonials?: Testimonial[];  // If empty/undefined, falls back to socialProof
 
   // Avatar Research Link (v2.0 - Persist & Grow)
   avatarResearchId?: string;  // Links to avatar research entry for tracking effectiveness

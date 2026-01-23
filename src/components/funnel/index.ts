@@ -27,6 +27,7 @@ export {
   MiniTestimonial,
   FeaturedTestimonial,
 } from "./TestimonialCard";
+export { TestimonialMarquee } from "./TestimonialMarquee";
 
 // Before/After Transformations
 export { BeforeAfterCard, TransformationStory } from "./BeforeAfterCard";

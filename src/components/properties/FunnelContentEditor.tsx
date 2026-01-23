@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Loader2, Wand2, Save, RefreshCw, FileText, AlertCircle, ChevronDown, ChevronUp, Settings2, Home, DollarSign, Bed, Bath, Ruler, Building2, MapPin, Users, CreditCard, Video, HelpCircle, FlaskConical, UserCircle, Star, Brain, TrendingUp, Copy, Check, Eye } from 'lucide-react';
+import { Loader2, Wand2, Save, RefreshCw, FileText, AlertCircle, ChevronDown, ChevronUp, Settings2, Home, DollarSign, Bed, Bath, Ruler, Building2, MapPin, Users, CreditCard, Video, HelpCircle, FlaskConical, UserCircle, Star, Brain, TrendingUp, Copy, Check, Eye, Plus, Trash2, MessageSquareQuote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -31,7 +31,7 @@ import { generatePropertySlug } from '@/lib/utils/slug';
 import { SegmentInsightsWidget } from './SegmentInsightsWidget';
 import { FunnelPreviewModal } from './FunnelPreviewModal';
 import type { Property } from '@/types';
-import type { FunnelContent, FunnelInputs, BuyerSegment } from '@/types/funnel';
+import type { FunnelContent, FunnelInputs, BuyerSegment, Testimonial } from '@/types/funnel';
 import { DEFAULT_FUNNEL_INPUTS, FINANCING_TYPE_OPTIONS, AVAILABILITY_STATUS_OPTIONS, BUYER_SEGMENT_OPTIONS } from '@/types/funnel';
 import { cn } from '@/lib/utils';
 
@@ -966,15 +966,154 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
             sectionKey="propertyShowcase"
           />
 
-          {/* Social Proof */}
+          {/* Social Proof - AI Generated (fallback) */}
           <SectionCard
-            title="Social Proof"
-            description="Testimonials and trust builders"
+            title="Social Proof (AI-Generated)"
+            description="Auto-generated testimonial - used if no real testimonials below"
             value={content.socialProof}
             onChange={(v) => updateField('socialProof', v)}
             rows={2}
             sectionKey="socialProof"
           />
+
+          {/* Real Testimonials - User Managed */}
+          <Card className="border-purple-200 dark:border-purple-800">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MessageSquareQuote className="h-4 w-4 text-purple-600" />
+                  <CardTitle className="text-sm font-medium">Real Testimonials</CardTitle>
+                  <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded font-medium">
+                    OVERRIDE
+                  </span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newTestimonial: Testimonial = {
+                      quote: '',
+                      authorName: '',
+                      authorTitle: 'Purple Homes Homeowner',
+                      rating: 5,
+                    };
+                    const updated = [...(content.testimonials || []), newTestimonial];
+                    setContent({ ...content, testimonials: updated });
+                    setHasChanges(true);
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Testimonial
+                </Button>
+              </div>
+              <CardDescription>
+                Add real customer testimonials. These override the AI-generated social proof above.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {(!content.testimonials || content.testimonials.length === 0) ? (
+                <div className="text-center py-6 text-muted-foreground border-2 border-dashed rounded-lg">
+                  <MessageSquareQuote className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No real testimonials yet</p>
+                  <p className="text-xs">AI-generated testimonial will be used</p>
+                </div>
+              ) : (
+                content.testimonials.map((testimonial, index) => (
+                  <div key={index} className="relative border rounded-lg p-4 bg-muted/30">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-100"
+                      onClick={() => {
+                        const updated = content.testimonials!.filter((_, i) => i !== index);
+                        setContent({ ...content, testimonials: updated });
+                        setHasChanges(true);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+
+                    <div className="space-y-3 pr-10">
+                      {/* Quote */}
+                      <div className="space-y-1">
+                        <Label className="text-xs">Quote</Label>
+                        <Textarea
+                          value={testimonial.quote}
+                          onChange={(e) => {
+                            const updated = [...content.testimonials!];
+                            updated[index] = { ...updated[index], quote: e.target.value };
+                            setContent({ ...content, testimonials: updated });
+                            setHasChanges(true);
+                          }}
+                          placeholder="I was rejected by three banks, but Purple Homes helped me..."
+                          rows={2}
+                          className="resize-none"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        {/* Author Name */}
+                        <div className="space-y-1">
+                          <Label className="text-xs">Name</Label>
+                          <Input
+                            value={testimonial.authorName}
+                            onChange={(e) => {
+                              const updated = [...content.testimonials!];
+                              updated[index] = { ...updated[index], authorName: e.target.value };
+                              setContent({ ...content, testimonials: updated });
+                              setHasChanges(true);
+                            }}
+                            placeholder="Sarah L."
+                          />
+                        </div>
+
+                        {/* Author Title */}
+                        <div className="space-y-1">
+                          <Label className="text-xs">Title (optional)</Label>
+                          <Input
+                            value={testimonial.authorTitle || ''}
+                            onChange={(e) => {
+                              const updated = [...content.testimonials!];
+                              updated[index] = { ...updated[index], authorTitle: e.target.value };
+                              setContent({ ...content, testimonials: updated });
+                              setHasChanges(true);
+                            }}
+                            placeholder="Proud Homeowner"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Rating */}
+                      <div className="space-y-1">
+                        <Label className="text-xs">Rating</Label>
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => {
+                                const updated = [...content.testimonials!];
+                                updated[index] = { ...updated[index], rating: star };
+                                setContent({ ...content, testimonials: updated });
+                                setHasChanges(true);
+                              }}
+                              className={`p-0.5 ${
+                                (testimonial.rating || 5) >= star
+                                  ? 'text-yellow-500'
+                                  : 'text-gray-300 hover:text-yellow-400'
+                              }`}
+                            >
+                              <Star className={`h-5 w-5 ${(testimonial.rating || 5) >= star ? 'fill-current' : ''}`} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
 
           {/* Call to Action */}
           <SectionCard

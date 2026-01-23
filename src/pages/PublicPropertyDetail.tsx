@@ -29,6 +29,7 @@ import {
   LiveViewers,
   QuoteTestimonial,
   FeaturedTestimonial,
+  TestimonialMarquee,
   StatsBar,
   ComparisonTable,
   ProcessSteps,
@@ -45,6 +46,7 @@ import {
   PremiumTrustStrip,
   CredentialsBar,
 } from '@/components/funnel';
+import type { Testimonial } from '@/types/funnel';
 
 // Scroll Reveal Animation Hook
 function useScrollReveal(threshold = 0.1) {
@@ -442,6 +444,9 @@ export default function PublicPropertyDetail() {
   const [funnelContent, setFunnelContent] = useState<FunnelContent | null>(null);
   const [funnelLoading, setFunnelLoading] = useState(false);
 
+  // Global testimonials (from Settings)
+  const [globalTestimonials, setGlobalTestimonials] = useState<Testimonial[]>([]);
+
   // Form state
   const [showOfferForm, setShowOfferForm] = useState(false);
   const [offerForm, setOfferForm] = useState({
@@ -478,6 +483,24 @@ export default function PublicPropertyDetail() {
 
     fetchFunnelContent();
   }, [slug, property?.id]);
+
+  // Fetch global testimonials (from Settings)
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const response = await fetch('/api/testimonials');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.testimonials) {
+            setGlobalTestimonials(data.testimonials);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching testimonials:', error);
+      }
+    };
+    fetchTestimonials();
+  }, []);
 
   const createContact = useCreateContact();
 
@@ -1718,16 +1741,46 @@ export default function PublicPropertyDetail() {
           </div>
         </section>
 
-        {/* Social Proof / Testimonial */}
-        {!funnelLoading && funnelContent?.socialProof && (
-          <div className="max-w-5xl mx-auto px-4 py-16">
-            <FeaturedTestimonial
-              quote={funnelContent.socialProof}
-              authorName="Purple Homes Family"
-              authorTitle="Proud Homeowner"
-              rating={5}
-            />
-          </div>
+        {/* Social Proof / Testimonials */}
+        {!funnelLoading && (
+          (() => {
+            // Priority: 1) Property-specific testimonials, 2) Global testimonials, 3) AI-generated
+            const testimonials = funnelContent?.testimonials?.length
+              ? funnelContent.testimonials
+              : globalTestimonials.length
+                ? globalTestimonials
+                : null;
+
+            if (testimonials && testimonials.length > 0) {
+              // Use scrolling testimonial marquee
+              return (
+                <section className="relative bg-black py-16 overflow-hidden">
+                  <div className="text-center mb-8">
+                    <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+                      What Our Homeowners Say
+                    </span>
+                  </div>
+                  <TestimonialMarquee testimonials={testimonials} speed={25} />
+                </section>
+              );
+            }
+
+            // Fallback to AI-generated single testimonial
+            if (funnelContent?.socialProof) {
+              return (
+                <div className="max-w-5xl mx-auto px-4 py-16">
+                  <FeaturedTestimonial
+                    quote={funnelContent.socialProof}
+                    authorName="Purple Homes Family"
+                    authorTitle="Proud Homeowner"
+                    rating={5}
+                  />
+                </div>
+              );
+            }
+
+            return null;
+          })()
         )}
 
         {/* Stats Bar - Premium Animated */}

@@ -3,7 +3,7 @@ import {
   Check, RefreshCw, ExternalLink, Wifi, WifiOff, Key, Save,
   Clock, CheckCircle2, Calculator, Loader2, Target, Home,
   DollarSign, Sliders, ChevronDown, Users, Share2, Settings as SettingsIcon,
-  Link2, Zap, Brain
+  Link2, Zap, Brain, MessageSquareQuote, Plus, Trash2, Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,6 +54,7 @@ import { User, Calendar } from 'lucide-react';
 import { logSettingsChanged } from '@/store/useActivityStore';
 import { useQueueSettings } from '@/hooks/useQueueSettings';
 import { DAY_LABELS, AVAILABLE_TIME_SLOTS } from '@/lib/queue/constants';
+import type { Testimonial } from '@/types/funnel';
 
 // Collapsible Section Component
 function SettingsSection({
@@ -181,6 +182,76 @@ export default function Settings() {
 
   // Queue settings
   const { settings: queueSettings, updateSettings: updateQueueSettings } = useQueueSettings();
+
+  // Global Testimonials
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [isLoadingTestimonials, setIsLoadingTestimonials] = useState(true);
+  const [isSavingTestimonials, setIsSavingTestimonials] = useState(false);
+  const [hasTestimonialChanges, setHasTestimonialChanges] = useState(false);
+
+  // Load testimonials on mount
+  useEffect(() => {
+    loadTestimonials();
+  }, []);
+
+  const loadTestimonials = async () => {
+    setIsLoadingTestimonials(true);
+    try {
+      const response = await fetch('/api/testimonials');
+      const data = await response.json();
+      if (data.success && data.testimonials) {
+        setTestimonials(data.testimonials);
+      }
+    } catch (error) {
+      console.error('Error loading testimonials:', error);
+    } finally {
+      setIsLoadingTestimonials(false);
+    }
+  };
+
+  const handleSaveTestimonials = async () => {
+    setIsSavingTestimonials(true);
+    try {
+      const response = await fetch('/api/testimonials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ testimonials }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setHasTestimonialChanges(false);
+        toast.success('Testimonials saved!');
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      toast.error('Failed to save testimonials');
+    } finally {
+      setIsSavingTestimonials(false);
+    }
+  };
+
+  const addTestimonial = () => {
+    setTestimonials([...testimonials, {
+      quote: '',
+      authorName: '',
+      authorTitle: 'Purple Homes Homeowner',
+      rating: 5,
+    }]);
+    setHasTestimonialChanges(true);
+  };
+
+  const updateTestimonial = (index: number, field: keyof Testimonial, value: string | number) => {
+    const updated = [...testimonials];
+    updated[index] = { ...updated[index], [field]: value };
+    setTestimonials(updated);
+    setHasTestimonialChanges(true);
+  };
+
+  const removeTestimonial = (index: number) => {
+    setTestimonials(testimonials.filter((_, i) => i !== index));
+    setHasTestimonialChanges(true);
+  };
 
   // Sync local defaults when API data loads
   useEffect(() => {
@@ -338,6 +409,10 @@ export default function Settings() {
           <TabsTrigger value="ai-performance" className="gap-2">
             <Brain className="h-4 w-4" />
             AI Performance
+          </TabsTrigger>
+          <TabsTrigger value="testimonials" className="gap-2">
+            <MessageSquareQuote className="h-4 w-4" />
+            Testimonials
           </TabsTrigger>
           {canManageUsers && (
             <TabsTrigger value="team" className="gap-2">
@@ -1388,6 +1463,138 @@ export default function Settings() {
         {/* AI PERFORMANCE TAB */}
         <TabsContent value="ai-performance" className="space-y-6">
           <AIPerformance />
+        </TabsContent>
+
+        {/* TESTIMONIALS TAB */}
+        <TabsContent value="testimonials" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquareQuote className="h-5 w-5 text-purple-600" />
+                    Global Testimonials
+                  </CardTitle>
+                  <CardDescription>
+                    Manage customer testimonials displayed across all property pages
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  {hasTestimonialChanges && (
+                    <Button onClick={handleSaveTestimonials} disabled={isSavingTestimonials}>
+                      {isSavingTestimonials ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Save className="h-4 w-4 mr-2" />
+                      )}
+                      Save Changes
+                    </Button>
+                  )}
+                  <Button onClick={addTestimonial} variant="outline">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Testimonial
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {isLoadingTestimonials ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : testimonials.length === 0 ? (
+                <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                  <MessageSquareQuote className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                  <h3 className="text-lg font-medium mb-2">No testimonials yet</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Add real customer testimonials to display on your property pages
+                  </p>
+                  <Button onClick={addTestimonial}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add First Testimonial
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {testimonials.map((testimonial, index) => (
+                    <div key={index} className="relative border rounded-lg p-4 bg-muted/30">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-2 right-2 h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-100"
+                        onClick={() => removeTestimonial(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+
+                      <div className="space-y-4 pr-10">
+                        {/* Quote */}
+                        <div className="space-y-2">
+                          <Label>Quote</Label>
+                          <Textarea
+                            value={testimonial.quote}
+                            onChange={(e) => updateTestimonial(index, 'quote', e.target.value)}
+                            placeholder="I was rejected by three banks. I felt hopeless. Then Purple Homes helped me find my dream home with owner financing. Now I'm building equity instead of wasting rent!"
+                            rows={3}
+                            className="resize-none"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Author Name */}
+                          <div className="space-y-2">
+                            <Label>Name</Label>
+                            <Input
+                              value={testimonial.authorName}
+                              onChange={(e) => updateTestimonial(index, 'authorName', e.target.value)}
+                              placeholder="Sarah L."
+                            />
+                          </div>
+
+                          {/* Author Title */}
+                          <div className="space-y-2">
+                            <Label>Title (optional)</Label>
+                            <Input
+                              value={testimonial.authorTitle || ''}
+                              onChange={(e) => updateTestimonial(index, 'authorTitle', e.target.value)}
+                              placeholder="Proud Homeowner"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Rating */}
+                        <div className="space-y-2">
+                          <Label>Rating</Label>
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                type="button"
+                                onClick={() => updateTestimonial(index, 'rating', star)}
+                                className={`p-1 ${
+                                  (testimonial.rating || 5) >= star
+                                    ? 'text-yellow-500'
+                                    : 'text-gray-300 hover:text-yellow-400'
+                                }`}
+                              >
+                                <Star className={`h-6 w-6 ${(testimonial.rating || 5) >= star ? 'fill-current' : ''}`} />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Info */}
+                  <div className="p-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-lg text-sm text-purple-700 dark:text-purple-300">
+                    These testimonials will be displayed in a scrolling carousel on all property funnel pages.
+                    If no testimonials are added here, AI-generated testimonials will be used as fallback.
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* TEAM TAB */}
