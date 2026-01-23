@@ -630,27 +630,30 @@ export default function PublicPropertyDetail() {
                 </div>
               </HeroEntrance>
 
-              {/* Main Headline - Responsive sizes */}
+              {/* Main Headline - Dynamic from AI hook */}
               <HeroEntrance delay={100}>
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-2 md:mb-3 tracking-tight">
-                  Stop Paying Your
-                </h1>
-                <div className="mb-3 md:mb-4">
-                  <span className="relative inline-block">
-                    {/* Vibrant purple highlighter - more saturated */}
-                    <span className="absolute inset-x-[-4px] md:inset-x-[-8px] bottom-[2px] md:bottom-[4px] top-[4px] md:top-[8px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
-                    <span className="relative text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white px-1 md:px-2 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
-                      Landlord's Mortgage
-                    </span>
-                  </span>
-                </div>
-                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-400 mb-6 md:mb-8">
-                  {funnelContent?.hook ? (
-                    <span className="text-white">{funnelContent.hook.split('.')[0]}.</span>
-                  ) : (
-                    <>Start Building <span className="text-white">Your Own Wealth</span></>
-                  )}
-                </p>
+                {funnelContent?.hook ? (
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white leading-[1.2] mb-6 md:mb-8 tracking-tight max-w-4xl mx-auto">
+                    {funnelContent.hook}
+                  </h1>
+                ) : (
+                  <>
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-2 md:mb-3 tracking-tight">
+                      Stop Paying Your
+                    </h1>
+                    <div className="mb-3 md:mb-4">
+                      <span className="relative inline-block">
+                        <span className="absolute inset-x-[-4px] md:inset-x-[-8px] bottom-[2px] md:bottom-[4px] top-[4px] md:top-[8px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
+                        <span className="relative text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white px-1 md:px-2 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
+                          Landlord's Mortgage
+                        </span>
+                      </span>
+                    </div>
+                    <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-400 mb-6 md:mb-8">
+                      Start Building <span className="text-white">Your Own Wealth</span>
+                    </p>
+                  </>
+                )}
               </HeroEntrance>
 
               {/* Price callout - MAXIMUM emphasis */}
