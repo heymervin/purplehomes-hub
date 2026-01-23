@@ -982,19 +982,20 @@ export default function PublicPropertyDetail() {
         {/* Problem/Challenge Section - Premium Purple Homes */}
         {!funnelLoading && funnelContent?.problem && (
           <section className="relative bg-gradient-to-b from-[#0d0a1a] via-[#1a1528] to-[#0d0a1a] py-24 md:py-32 overflow-hidden">
-            {/* Subtle purple ambient glow */}
+            {/* Enhanced purple ambient glow */}
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/8 rounded-full blur-[120px]" />
-              <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-purple-500/5 rounded-full blur-[100px]" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/10 rounded-full blur-[150px]" />
+              <div className="absolute bottom-0 right-1/4 w-[500px] h-[400px] bg-violet-500/8 rounded-full blur-[120px]" />
+              <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-purple-400/5 rounded-full blur-[100px]" />
             </div>
 
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
               {/* Section Header with Animation */}
-              <Reveal className="text-center mb-16 md:mb-24">
-                <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-purple-500 text-white text-[11px] font-black uppercase tracking-[0.2em] mb-8 shadow-lg shadow-purple-500/30">
-                  <span className="relative flex h-2 w-2">
+              <Reveal className="text-center mb-16 md:mb-20">
+                <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-purple-600 to-purple-500 text-white text-[11px] font-black uppercase tracking-[0.2em] mb-8 shadow-xl shadow-purple-500/40">
+                  <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
                   </span>
                   The Challenge
                 </div>
@@ -1006,38 +1007,49 @@ export default function PublicPropertyDetail() {
                 </p>
               </Reveal>
 
-              {/* Two Column Layout */}
-              <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-                {/* Left - Dynamic Pain Points with Staggered Animation */}
-                <div className="space-y-5">
+              {/* Two Column Layout - Better vertical alignment */}
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
+                {/* Left - Dynamic Pain Points with Enhanced Styling */}
+                <div className="flex flex-col justify-center space-y-5">
                   {getPainPoints(funnelContent.inputs?.buyerSegment).map((pain, i) => (
                     <Reveal key={i} delay={i * 150}>
-                      <div className="group flex items-center gap-5 bg-gradient-to-r from-white/[0.04] to-transparent border border-purple-500/15 rounded-2xl p-6 hover:border-purple-400/40 hover:bg-white/[0.06] hover:translate-x-2 transition-all duration-300 cursor-default">
-                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/30 to-purple-600/20 flex items-center justify-center flex-shrink-0 border border-purple-500/30 group-hover:border-purple-400/50 group-hover:scale-110 transition-all duration-300">
-                          <span className="text-purple-300 text-2xl font-black">{pain.icon}</span>
+                      <div className="group relative flex items-center gap-5 bg-gradient-to-r from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 hover:border-purple-400/50 hover:bg-white/[0.08] hover:translate-x-2 transition-all duration-300 cursor-default shadow-lg shadow-purple-900/20 hover:shadow-purple-500/20">
+                        {/* Glow effect on hover */}
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:to-transparent transition-all duration-300" />
+                        <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/40 to-purple-600/30 flex items-center justify-center flex-shrink-0 border border-purple-400/40 group-hover:border-purple-300/60 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-purple-500/30 transition-all duration-300">
+                          <span className="text-purple-200 text-2xl font-black">{pain.icon}</span>
                         </div>
-                        <span className="text-white text-xl font-semibold group-hover:text-purple-100 transition-colors leading-snug">{pain.text}</span>
+                        <span className="relative text-white text-xl font-semibold group-hover:text-purple-100 transition-colors leading-snug">{pain.text}</span>
                       </div>
                     </Reveal>
                   ))}
                 </div>
 
-                {/* Right - Emotional Empathy Card with Animation */}
+                {/* Right - Emotional Empathy Card with Enhanced Animation */}
                 <Reveal delay={300}>
-                  <div className="relative">
-                    {/* Animated glow behind card */}
-                    <div className="absolute -inset-4 bg-gradient-to-br from-purple-500/15 to-violet-500/10 rounded-[2rem] blur-2xl animate-pulse" style={{ animationDuration: '3s' }} />
+                  <div className="relative h-full flex items-center">
+                    {/* Multi-layer animated glow behind card */}
+                    <div className="absolute -inset-6 bg-gradient-to-br from-purple-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+                    <div className="absolute -inset-3 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
 
-                    <div className="relative bg-gradient-to-br from-[#1e1a2e] to-[#13101c] border border-purple-500/20 rounded-3xl p-10 md:p-14 text-center shadow-2xl shadow-purple-900/30 hover:border-purple-400/30 transition-colors duration-500">
-                      {/* Floating emoji */}
-                      <div className="text-7xl md:text-8xl mb-10 animate-bounce" style={{ animationDuration: '2s', animationIterationCount: 'infinite' }}>😔</div>
+                    <div className="relative w-full bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-purple-400/25 rounded-3xl p-10 md:p-12 text-center shadow-2xl shadow-purple-900/40 hover:border-purple-300/40 hover:shadow-purple-800/50 transition-all duration-500">
+                      {/* Decorative quote marks */}
+                      <div className="absolute top-6 left-6 text-6xl text-purple-500/20 font-serif leading-none">"</div>
+                      <div className="absolute bottom-6 right-6 text-6xl text-purple-500/20 font-serif leading-none rotate-180">"</div>
 
-                      <blockquote className="text-2xl md:text-3xl text-white leading-relaxed font-medium italic mb-2">
-                        "{funnelContent.problem}"
+                      {/* Subtle inner glow */}
+                      <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none" />
+
+                      <blockquote className="relative text-xl md:text-2xl text-white/95 leading-relaxed font-medium italic px-4">
+                        {funnelContent.problem}
                       </blockquote>
 
-                      <div className="mt-10 pt-8 border-t border-purple-500/20">
-                        <p className="text-purple-300 text-base font-bold tracking-[0.15em] uppercase">Sound familiar?</p>
+                      <div className="relative mt-10 pt-8 border-t border-purple-400/20">
+                        <div className="inline-flex items-center gap-3">
+                          <span className="w-8 h-[2px] bg-gradient-to-r from-transparent to-purple-400/60" />
+                          <p className="text-purple-300 text-sm font-bold tracking-[0.2em] uppercase">Sound familiar?</p>
+                          <span className="w-8 h-[2px] bg-gradient-to-l from-transparent to-purple-400/60" />
+                        </div>
                       </div>
                     </div>
                   </div>
