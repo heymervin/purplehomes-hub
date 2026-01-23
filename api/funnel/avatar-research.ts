@@ -839,23 +839,24 @@ DESCRIPTION: ${segmentDescription}
 PROPERTY CONTEXT:
 ${propertyContextStr || 'General property listing'}
 
-${baseAvatar ? `BASE AVATAR DATA (enhance and personalize this):
-Dreams: ${JSON.stringify(baseAvatar.dreams)}
-Fears: ${JSON.stringify(baseAvatar.fears)}
-Suspicions: ${JSON.stringify(baseAvatar.suspicions)}
-Failures: ${JSON.stringify(baseAvatar.failures)}
-Enemies: ${JSON.stringify(baseAvatar.enemies)}
-` : ''}
 ${learnedInsights}
+
+CRITICAL INSTRUCTION: Generate FRESH, UNIQUE content. DO NOT use generic phrases like "stop paying landlord's mortgage" or "build equity" - these are overused. Think deeper about THIS specific buyer in THIS specific location (${propertyContext.city || 'their area'}). What are THEIR unique dreams, fears, and frustrations? Be creative and specific.
+
+${baseAvatar ? `Use these themes as INSPIRATION ONLY (do NOT copy verbatim - create NEW variations):
+- Dreams themes: stability, ownership pride, family space, investment
+- Fear themes: rejection, financial mistakes, hidden problems
+- Suspicion themes: industry distrust, feeling taken advantage of
+` : ''}
 
 Generate comprehensive avatar research using these frameworks:
 
-1. **27-WORD PERSUASION (Blair Warren)**
-   - Dreams: What do they secretly dream about regarding homeownership?
-   - Fears: What are they most afraid of in the buying process?
-   - Suspicions: What do they suspect about agents/lenders that might be true?
-   - Failures: Where have they failed before that you can help justify?
-   - Enemies: Who or what can you help them fight against?
+1. **27-WORD PERSUASION (Blair Warren)** - Be SPECIFIC and UNIQUE, not generic!
+   - Dreams: What do they secretly dream about? (Go beyond "build equity" - what SPECIFIC life changes do they want?)
+   - Fears: What keeps them up at 3am? (Be vivid and emotional, not generic)
+   - Suspicions: What conspiracy theories do they half-believe about the industry?
+   - Failures: What specific past experiences haunt them? (Vivid stories, not bullet points)
+   - Enemies: Who do they blame? (Be specific - a type of person, institution, or system)
 
 2. **DAY IN THE LIFE DIARY**
    Write a 80-100 word diary entry from this buyer's perspective BEFORE they found Purple Homes.
@@ -902,7 +903,7 @@ Respond in JSON format with these exact keys:
   const response = await getOpenAI().chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [{ role: 'user', content: prompt }],
-    temperature: 0.7,
+    temperature: 0.9, // Higher for more creative, unique output
     response_format: { type: 'json_object' },
   });
 
