@@ -877,19 +877,115 @@ export default function PublicPropertyDetail() {
           </div>
         </section>
 
-        {/* Process Steps - Luxury */}
-        <FunnelSection variant="white" padding="lg" blendTo="dark">
-          <ProcessSteps
-            title="3 Simple Steps to Homeownership"
-            subtitle="Our streamlined process makes becoming a homeowner easy"
-            variant="luxury"
+        {/* Process Steps - Premium Dark */}
+        <section className="relative bg-black overflow-hidden py-20 md:py-28">
+          {/* Ambient lighting */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+          <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[150px]" />
+          <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-violet-500/10 rounded-full blur-[150px]" />
+
+          {/* Grid texture */}
+          <div
+            className="absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage: `linear-gradient(rgba(168,85,247,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.5) 1px, transparent 1px)`,
+              backgroundSize: '60px 60px',
+            }}
           />
-          <div className="text-center mt-14">
-            <CTAButton onClick={scrollToForm} size="xl">
-              Start Your Application
-            </CTAButton>
+
+          <div className="relative z-10 container mx-auto px-4">
+            {/* Header */}
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-500/30 backdrop-blur-sm mb-6">
+                <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
+                <span className="text-purple-300 text-sm font-medium tracking-wider uppercase">Simple Process</span>
+              </div>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
+                3 Steps to{' '}
+                <span className="bg-gradient-to-r from-purple-400 via-purple-400 to-violet-400 bg-clip-text text-transparent">
+                  Homeownership
+                </span>
+              </h2>
+              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                Our streamlined process makes becoming a homeowner easier than ever
+              </p>
+            </div>
+
+            {/* Steps */}
+            <div className="max-w-5xl mx-auto">
+              {/* Connecting line */}
+              <div className="hidden md:block absolute left-1/2 top-[320px] -translate-x-1/2 w-[60%] h-[2px] bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
+
+              <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+                {/* Step 1 */}
+                <div className="relative text-center group">
+                  <div className="relative mx-auto mb-8">
+                    {/* Glow ring */}
+                    <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    {/* Number circle */}
+                    <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
+                      <span className="text-5xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
+                        1
+                      </span>
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Apply Online</h3>
+                  <p className="text-gray-400 leading-relaxed max-w-xs mx-auto">
+                    Complete our simple 5-minute application. No credit check required to see if you qualify.
+                  </p>
+                  <span className="inline-block mt-4 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
+                    5 minutes
+                  </span>
+                </div>
+
+                {/* Step 2 */}
+                <div className="relative text-center group">
+                  <div className="relative mx-auto mb-8">
+                    <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
+                      <span className="text-5xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
+                        2
+                      </span>
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Choose Your Home</h3>
+                  <p className="text-gray-400 leading-relaxed max-w-xs mx-auto">
+                    Browse available properties and schedule tours. We'll help you find the perfect fit for your family.
+                  </p>
+                  <span className="inline-block mt-4 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
+                    1-2 weeks
+                  </span>
+                </div>
+
+                {/* Step 3 */}
+                <div className="relative text-center group">
+                  <div className="relative mx-auto mb-8">
+                    <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
+                      <span className="text-5xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
+                        3
+                      </span>
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Move In</h3>
+                  <p className="text-gray-400 leading-relaxed max-w-xs mx-auto">
+                    Sign your agreement and get the keys. Start building equity from day one.
+                  </p>
+                  <span className="inline-block mt-4 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
+                    30 days
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="text-center mt-16">
+              <CTAButton onClick={scrollToForm} size="xl">
+                Start Your Application
+              </CTAButton>
+            </div>
           </div>
-        </FunnelSection>
+        </section>
 
         {/* Social Proof / Testimonial */}
         {funnelContent?.socialProof && (
