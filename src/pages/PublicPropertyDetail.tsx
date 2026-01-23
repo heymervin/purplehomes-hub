@@ -678,8 +678,8 @@ export default function PublicPropertyDetail() {
                         return (
                           <>
                             {formatWithBreaks(parts[0])}
-                            {/* Keep highlight + trailing text together to prevent orphan words */}
-                            <span className="whitespace-nowrap">
+                            {/* Keep highlight + trailing text together on desktop, allow wrap on mobile */}
+                            <span className="md:whitespace-nowrap">
                               <span className="relative inline-block mx-1">
                                 <span className="absolute inset-x-[-4px] md:inset-x-[-8px] bottom-[2px] md:bottom-[4px] top-[4px] md:top-[8px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
                                 <span className="relative px-1 md:px-2">{highlight}</span>
@@ -693,7 +693,7 @@ export default function PublicPropertyDetail() {
                       return (
                         <>
                           {/* Main Headline with highlighted phrase */}
-                          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-6 md:mb-8 tracking-tight max-w-4xl mx-auto">
+                          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-6 md:mb-8 tracking-tight max-w-5xl mx-auto break-words">
                             {renderHeadline()}
                           </h1>
 
