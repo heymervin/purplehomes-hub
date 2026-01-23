@@ -1,8 +1,113 @@
 {
   "segment": "first-time-buyer",
   "version": 1,
-  "lastUpdated": "2026-01-21T15:16:50.476Z",
+  "lastUpdated": "2026-01-23T15:28:24.635Z",
   "entries": [
+    {
+      "id": "392eb089-4ecc-4611-8eb9-f1aaa167a85f",
+      "createdAt": "2026-01-23T15:28:23.155Z",
+      "buyerSegment": "first-time-buyer",
+      "propertyContext": {
+        "type": "Single Family",
+        "city": "Gretna",
+        "priceRange": "$200k-$250k"
+      },
+      "research": {
+        "buyerSegment": "first-time-buyer",
+        "dreams": [
+          "Stop paying landlord's mortgage",
+          "Build equity",
+          "Have their own space",
+          "Start a family in a real home"
+        ],
+        "fears": [
+          "Rejection by banks",
+          "Making a huge mistake",
+          "Hidden costs",
+          "Being house poor"
+        ],
+        "suspicions": [
+          "Agents just want commission",
+          "Banks favor the wealthy",
+          "There must be a catch"
+        ],
+        "failures": [
+          "Denied by traditional lenders",
+          "Lost bidding wars",
+          "Couldn't save 20% down"
+        ],
+        "enemies": [
+          "Big banks",
+          "Unfair credit scoring",
+          "Rising rent prices",
+          "Greedy landlords"
+        ],
+        "diaryEntry": "Today was another frustrating day. I woke up to another rent payment due, feeling trapped in this cycle. I can't help but wonder if I'll ever own my home. I fear rejection from banks, and the idea of hidden costs keeps me up at night. I just want a place to call my own, where I can start a family and build a future.",
+        "keyFrustrations": [
+          "High rental prices",
+          "Frequent maintenance issues with the rental",
+          "Feeling stagnant in life",
+          "Fear of being house poor",
+          "Lack of knowledge about the buying process"
+        ],
+        "emotionalTriggers": [
+          "Desire for stability",
+          "Fear of missing out",
+          "Longing for belonging"
+        ],
+        "beforeState": {
+          "feelings": "Frustrated, anxious, and hopeless about their future.",
+          "daily": "Waking up to the same rental, paying high rent without any return, feeling stuck.",
+          "status": "Stuck as a renter, often feeling disheartened by their inability to buy a home."
+        },
+        "afterState": {
+          "feelings": "Empowered, relieved, and excited about their future.",
+          "daily": "Enjoying their own space, making plans for a family, and building equity.",
+          "status": "Proud homeowners, experiencing the joy of having a place to call their own."
+        },
+        "transformationNarrative": "From feeling trapped and frustrated as a renter, they transformed into confident homeowners, relishing the freedom and stability that comes with owning their own home.",
+        "objections": [
+          {
+            "objection": "I’m worried about being rejected by banks.",
+            "counter": "We work with various lenders who offer programs specifically tailored for first-time buyers like you.",
+            "proofPoint": "Over 80% of our clients secure financing, even with lower down payments."
+          },
+          {
+            "objection": "What if I make a huge mistake?",
+            "counter": "We guide you through every step, ensuring you understand your options and avoid pitfalls.",
+            "proofPoint": "Our clients report a 90% satisfaction rate in feeling informed and confident in their decisions."
+          },
+          {
+            "objection": "I fear hidden costs will surprise me later.",
+            "counter": "We provide a transparent breakdown of all costs upfront so you can budget accurately.",
+            "proofPoint": "Our comprehensive cost report has helped clients stay within their budgets 95% of the time."
+          },
+          {
+            "objection": "I’m afraid of being house poor.",
+            "counter": "We help you find a home that fits within your budget, allowing for a comfortable lifestyle.",
+            "proofPoint": "Our clients typically spend 25% less on housing costs compared to national averages."
+          },
+          {
+            "objection": "I don’t trust agents; they just want a commission.",
+            "counter": "Our mission is to prioritize your needs, with a strong focus on building long-term relationships.",
+            "proofPoint": "95% of our clients refer us to friends and family after their home buying experience."
+          }
+        ],
+        "recommendedHooks": [
+          "Unlock the door to your dream home today!",
+          "Stop renting and start building your future!",
+          "Your first home is within reach – let us show you how!",
+          "Don’t let fear hold you back from homeownership!",
+          "Discover the secrets to buying your first home without the stress!"
+        ],
+        "recommendedAppeals": [
+          "A sense of belonging and community",
+          "The security of a stable home life",
+          "The pride of homeownership and equity building"
+        ]
+      },
+      "usedInFunnels": []
+    },
     {
       "id": "7313a572-7f68-4dc9-87ab-84932ade72d5",
       "createdAt": "2026-01-21T15:16:50.476Z",
@@ -326,8 +431,17 @@
     "topObjections": [],
     "mostEffectiveHooks": [],
     "avgEffectiveness": 0,
-    "totalResearches": 3,
+    "totalResearches": 4,
     "totalRated": 0,
-    "lastUpdated": "2026-01-19T00:00:00.000Z"
+    "lastUpdated": "2026-01-23T15:28:24.635Z",
+    "formulaStats": {
+      "landingPage": [],
+      "hook": [],
+      "problem": [],
+      "solution": [],
+      "showcase": [],
+      "proof": [],
+      "cta": []
+    }
   }
 }

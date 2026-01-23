@@ -641,6 +641,7 @@ export function PropertyDetailModal({
                 {/* Funnel Tab */}
                 <TabsContent value="funnel" className="mt-4">
                   <FunnelContentEditor
+                    key={property.id}
                     property={property}
                     onSaveStateChange={(hasChanges, isSaving, onSave) => {
                       setFunnelHasChanges(hasChanges);

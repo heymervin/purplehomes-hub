@@ -1,60 +1,56 @@
 ---
 propertySlug: "1207-kepler-st-gretna-la-70053"
-generatedAt: "2026-01-21T15:17:08.945Z"
+generatedAt: "2026-01-23T15:28:31.403Z"
 propertyHash: "35c1f064"
-inputs: {"financingType":"Owner Finance","termLength":"30 years","interestRate":"8.5%","availabilityStatus":"Available","specialOffer":"$500 off closing costs if you apply this week!","neighborhoodHighlights":"Great schools nearby, walking distance to Lafreniere Park, 10 min to downtown, quiet cul-de-sac","idealBuyerProfile":"Perfect for first-time homebuyers or growing families looking to build equity","uniqueFeatures":"Brand new roof (2024), updated kitchen with granite counters, large fenced backyard, covered patio","nearbyPlaces":"Walmart - 5 min, Target - 8 min, Jefferson Parish Schools - 3 min, Lakeside Mall - 12 min, Ochsner Hospital - 10 min","paymentNotes":"Includes taxes and insurance in monthly payment. Flexible down payment options available. No balloon payment.","virtualTourUrl":"https://www.youtube.com/watch?v=dQw4w9WgXcQ","buyerSegment":"first-time-buyer","generateVariants":false}
+inputs: {"financingType":"Owner Finance","termLength":"30 years","interestRate":"8.5%","availabilityStatus":"Multiple Offers","urgencyMessage":"Only 2 viewing slots left this week! 3 families already applied.","specialOffer":"$1,500 off closing costs when you apply by Friday + FREE home warranty for 1 year","neighborhoodHighlights":"Quiet cul-de-sac, A-rated Jefferson Parish schools, walking distance to Lafreniere Park, 10 min to Lakeside Mall, family-friendly community with low crime","idealBuyerProfile":"Perfect for first-time homebuyers with steady income who've been told \"no\" by banks, or growing families ready to stop paying a landlord","uniqueFeatures":"Brand new roof (2024), renovated kitchen with granite counters, large fenced backyard perfect for kids/pets, covered patio for entertaining","nearbyPlaces":"Walmart Supercenter - 5 min, Jefferson Parish Schools - 3 min, Ochsner Hospital - 8 min, Lakeside Mall - 10 min, I-10 access - 2 min","paymentNotes":"Payment includes property taxes and insurance escrow. Flexible down payment options available - we can work with what you have. No balloon payment.","virtualTourUrl":"","buyerSegment":"first-time-buyer","generateVariants":false}
 ---
 
 # Hook
-Stop paying your landlord’s mortgage. Own your dream home at 1207 Kepler St. for just $2,300/month! Apply this week and get $500 off closing costs.
+3 bedrooms. $2,300/month. No bank required. Apply by Friday for $1,500 off closing costs and a FREE home warranty for a year.
 
 # Problem
-You’ve felt the sting. Banks say no. Hidden costs loom large. Renting? Just throwing money away. You deserve better. You want security, not rejection.
+Tired of rental payments? Frustrated by bank rejections? You’re not alone. Many feel trapped by rising rents and unfair credit scores. Homeownership seems out of reach.
 
 # Solution
-We get it. Credit issues? Not a roadblock. We work with scores as low as 580. You’re more than just a number. You’re ready for your own space. Let’s make it happen.
+Enter Purple Homes Solutions. We specialize in owner financing. We believe in YOU, not just your credit score. Your commitment matters more than a number on a report.
 
 # PropertyShowcase
-Imagine waking up in your own master suite. Morning light spills into the updated kitchen. Kids play in the large fenced backyard. Your weekend BBQs happen under the covered patio. This isn’t just a house. It’s your home.
+Imagine mornings in your master suite. Step into your renovated kitchen, where family meals take shape. Kids play in the large fenced backyard. Evenings are for BBQs under the covered patio. This is life at 1207 Kepler.
 
 # SocialProof
-"We were turned away by multiple banks. Fearing we’d never find a home, Purple Homes found us a perfect fit in just weeks. Now we’re proud homeowners!" — The Martinez Family
+"I thought my credit made homeownership impossible. Purple Homes showed me it wasn’t just about the score. I’m a proud homeowner today!" — Angela M.
 
 # CallToAction
-Time is ticking. Call (504) 475-0672 for a no-pressure chat about your future. Don’t miss your chance to own at 1207 Kepler St.
+Only 2 viewing slots left this week! Call (504) 475-0672 NOW for your chance to secure this home. Don’t miss your turning point.
 
 # LocationNearby
-• • Walmart - 5 min drive
-• • Target - 8 min drive
+• • Walmart Supercenter - 5 min drive
 • • Jefferson Parish Schools - 3 min drive
-• • Lakeside Mall - 12 min drive
-• • Ochsner Hospital - 10 min drive
+• • Ochsner Hospital - 8 min drive
+• • Lakeside Mall - 10 min drive
+• • I-10 access - 2 min drive
 
 # Qualifier
 This home is perfect for you if...
 
 # PricingOptions
-List Price: $240,000
-Down Payment: $25,000
-Monthly Payment: $2,300/mo
-Term: 30 years
-Interest Rate: 8.5%
-
-# VirtualTourUrl
-https://www.youtube.com/watch?v=dQw4w9WgXcQ
+$240,000 purchase price
+$25,000 down payment
+$2,300 monthly payment
+30 years at 8.5% interest
 
 # FAQ
-Q: What if my credit isn't good enough?
-A: We work with scores as low as 580. Your income and commitment matter more.
+Q: My credit isn't good enough. Can I still qualify?
+A: Yes! We work with scores as low as 580. Your income and commitment matter more.
 
-Q: I can't afford 20% down payment.
-A: Our average down payment is just 10%. Some programs go as low as 3.5%.
+Q: I can't afford 20% down. What are my options?
+A: Our average down payment is just 10%. Some programs might allow as low as 3.5%.
 
-Q: Isn't the housing market too expensive?
-A: Your rent is already high. At least a mortgage builds equity for you.
+Q: Isn't the market too expensive for me?
+A: Your current rent is already high. A mortgage will help you build equity instead.
 
-Q: What if I lose my job?
-A: We have options to discuss reserves and safety nets, so you’re protected.
+Q: What if I lose my job after buying?
+A: We have options to discuss reserves and safety nets to protect you.
 
 Q: Is the process complicated?
-A: Not at all. We handle everything for you. You just focus on moving in.
+A: Not at all! That’s why we’re here. We handle everything for you.

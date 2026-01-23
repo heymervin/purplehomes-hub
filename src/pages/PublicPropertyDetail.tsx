@@ -630,12 +630,77 @@ export default function PublicPropertyDetail() {
                 </div>
               </HeroEntrance>
 
-              {/* Main Headline - Dynamic from AI hook */}
+              {/* Main Headline - Dynamic from AI hook with structured styling */}
               <HeroEntrance delay={100}>
                 {funnelContent?.hook ? (
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white leading-[1.2] mb-6 md:mb-8 tracking-tight max-w-4xl mx-auto">
-                    {funnelContent.hook}
-                  </h1>
+                  (() => {
+                    const hook = funnelContent.hook;
+
+                    // Check if hook is structured (new format) or string (old format)
+                    const isStructured = typeof hook === 'object' && hook !== null && 'headline' in hook;
+
+                    if (isStructured) {
+                      // NEW STRUCTURED FORMAT - each field styled appropriately
+                      const { headline, price, benefit, urgency, bonus } = hook as {
+                        headline: string;
+                        price?: string;
+                        benefit?: string;
+                        urgency?: string;
+                        bonus?: string;
+                      };
+
+                      return (
+                        <>
+                          {/* Main Headline */}
+                          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-4 md:mb-6 tracking-tight max-w-4xl mx-auto">
+                            {headline}
+                          </h1>
+
+                          {/* Price - Purple gradient highlight */}
+                          {price && (
+                            <div className="mb-4 md:mb-5">
+                              <span className="relative inline-block">
+                                <span className="absolute inset-x-[-8px] bottom-[2px] top-[6px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
+                                <span className="relative text-3xl sm:text-4xl md:text-5xl font-black text-white px-2">
+                                  {price}
+                                </span>
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Benefit - Italic emphasis */}
+                          {benefit && (
+                            <p className="text-lg sm:text-xl md:text-2xl mb-4 md:mb-5">
+                              <span className="relative inline-block">
+                                <span className="absolute inset-0 bg-gradient-to-r from-purple-500/30 to-violet-500/30 -skew-x-2 rounded" />
+                                <span className="relative italic font-bold text-purple-300 px-3 py-1">{benefit}</span>
+                              </span>
+                            </p>
+                          )}
+
+                          {/* Urgency + Bonus - Amber badge */}
+                          {(urgency || bonus) && (
+                            <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-amber-500/20 via-orange-500/25 to-amber-500/20 border border-amber-400/40 rounded-full backdrop-blur-sm mb-4 md:mb-6">
+                              <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+                              </span>
+                              <span className="text-sm md:text-base font-semibold text-amber-200">
+                                🔥 {urgency}{urgency && bonus ? ' + ' : ''}{bonus && <span className="text-emerald-400">{bonus}</span>}
+                              </span>
+                            </div>
+                          )}
+                        </>
+                      );
+                    }
+
+                    // OLD STRING FORMAT - backward compatible, show as-is
+                    return (
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white leading-[1.2] mb-6 md:mb-8 tracking-tight max-w-4xl mx-auto">
+                        {hook}
+                      </h1>
+                    );
+                  })()
                 ) : (
                   <>
                     <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-2 md:mb-3 tracking-tight">

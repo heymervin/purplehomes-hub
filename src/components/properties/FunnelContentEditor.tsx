@@ -211,16 +211,17 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
 
       if (data.success && data.content) {
         setContent(data.content);
-        // Load saved inputs if they exist
-        if (data.content.inputs) {
-          setInputs({ ...DEFAULT_FUNNEL_INPUTS, ...data.content.inputs });
-        }
+        // Load saved inputs if they exist, otherwise reset to defaults
+        setInputs({ ...DEFAULT_FUNNEL_INPUTS, ...(data.content.inputs || {}) });
       } else {
+        // No content found - reset both content and inputs
         setContent(null);
+        setInputs(DEFAULT_FUNNEL_INPUTS);
       }
     } catch (error) {
       console.error('Error loading funnel content:', error);
       setContent(null);
+      setInputs(DEFAULT_FUNNEL_INPUTS);
     } finally {
       setIsLoading(false);
     }

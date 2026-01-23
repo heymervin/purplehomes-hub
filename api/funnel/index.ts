@@ -431,12 +431,20 @@ interface FormulaSelection {
   ctaFormula: string;
 }
 
+interface HookStructure {
+  headline: string;      // Main emotional hook (e.g., "3 bedrooms. No bank required.")
+  price?: string;        // Price callout (e.g., "$2,300/month")
+  benefit?: string;      // Key benefit (e.g., "No bank qualifying needed")
+  urgency?: string;      // Time-sensitive offer (e.g., "Apply by Friday for $1,500 off")
+  bonus?: string;        // Extra incentive (e.g., "FREE home warranty for a year")
+}
+
 interface FunnelContent {
   propertySlug: string;
   generatedAt: string;
   propertyHash: string;
   inputs: FunnelInputs;
-  hook: string;
+  hook: string | HookStructure;  // Support both old string and new structured format
   problem: string;
   solution: string;
   propertyShowcase: string;
@@ -1005,8 +1013,21 @@ After writing, review each section using CUBA before finalizing.
 
 Generate these sections in JSON format:
 
-1. **hook** (2-3 punchy sentences): Attention-grabbing, specific numbers, speaks to avatar's dreams/fears
-${inputs.specialOffer ? 'MUST include the special offer.' : ''}
+1. **hook** (STRUCTURED OBJECT with these fields):
+   - "headline": Main emotional hook (1-2 punchy sentences, speaks to avatar's dreams)
+   - "price": The monthly payment with format like "$2,300/month"
+   - "benefit": Key differentiator like "No bank qualifying needed" or "Move in 30 days"
+   - "urgency": Time-sensitive offer if applicable (e.g., "Apply by Friday for $1,500 off closing costs")${inputs.specialOffer ? `
+   - "bonus": "${inputs.specialOffer}"` : ''}
+
+   Example format:
+   "hook": {
+     "headline": "Your family deserves a real home. Not another rental.",
+     "price": "$2,300/month",
+     "benefit": "No bank qualifying needed",
+     "urgency": "Apply by Friday for $1,500 off closing costs",
+     "bonus": "FREE home warranty for a year"
+   }
 
 2. **problem** (3-4 sentences using staccato): Address avatar's fears, suspicions, past failures. Make them feel SEEN.
 
@@ -1092,12 +1113,29 @@ Respond ONLY in valid JSON with these exact keys.`;
     return String(value);
   };
 
+  // Handle hook - can be structured object or string (for backward compatibility)
+  const processHook = (hookData: unknown): string | HookStructure => {
+    if (typeof hookData === 'object' && hookData !== null && 'headline' in hookData) {
+      // New structured format
+      const structured = hookData as Record<string, unknown>;
+      return {
+        headline: String(structured.headline || ''),
+        price: structured.price ? String(structured.price) : undefined,
+        benefit: structured.benefit ? String(structured.benefit) : undefined,
+        urgency: structured.urgency ? String(structured.urgency) : undefined,
+        bonus: structured.bonus ? String(structured.bonus) : undefined,
+      };
+    }
+    // Old string format (backward compatible)
+    return ensureString(hookData);
+  };
+
   return {
     propertySlug: slug,
     generatedAt: new Date().toISOString(),
     propertyHash: hash,
     inputs,
-    hook: ensureString(generatedContent.hook),
+    hook: processHook(generatedContent.hook),
     problem: ensureString(generatedContent.problem),
     solution: ensureString(generatedContent.solution),
     propertyShowcase: ensureString(generatedContent.propertyShowcase),
