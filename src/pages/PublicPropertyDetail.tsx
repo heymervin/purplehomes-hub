@@ -1236,7 +1236,7 @@ export default function PublicPropertyDetail() {
 
         {/* Property Showcase - DARK THEME */}
         {!funnelLoading && funnelContent?.propertyShowcase && (
-          <section className="relative bg-gradient-to-b from-[#0d0a1a] via-black to-[#0d0a1a] py-20 md:py-28 overflow-hidden">
+          <section className="relative bg-gradient-to-b from-[#0d0a1a] via-[#0d0a1a] to-black py-20 md:py-28 overflow-hidden">
             {/* Ambient glow */}
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-purple-600/8 rounded-full blur-[150px]" />
