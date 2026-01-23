@@ -213,15 +213,31 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
         setContent(data.content);
         // Load saved inputs if they exist, otherwise reset to defaults
         setInputs({ ...DEFAULT_FUNNEL_INPUTS, ...(data.content.inputs || {}) });
+
+        // Load effectiveness rating from avatar research if available
+        if (data.content.avatarResearchId) {
+          try {
+            const segment = data.content.inputs?.buyerSegment || 'first-time-buyer';
+            const researchResponse = await fetch(`/api/funnel/avatar-research?action=get&segment=${segment}&researchId=${data.content.avatarResearchId}`);
+            const researchData = await researchResponse.json();
+            if (researchData.success && researchData.entry?.effectiveness) {
+              setEffectivenessRating(researchData.entry.effectiveness);
+            }
+          } catch (e) {
+            console.warn('Could not load effectiveness rating:', e);
+          }
+        }
       } else {
         // No content found - reset both content and inputs
         setContent(null);
         setInputs(DEFAULT_FUNNEL_INPUTS);
+        setEffectivenessRating(null);
       }
     } catch (error) {
       console.error('Error loading funnel content:', error);
       setContent(null);
       setInputs(DEFAULT_FUNNEL_INPUTS);
+      setEffectivenessRating(null);
     } finally {
       setIsLoading(false);
     }

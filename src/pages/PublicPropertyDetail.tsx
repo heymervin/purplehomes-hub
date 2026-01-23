@@ -644,7 +644,7 @@ export default function PublicPropertyDetail() {
                     const hook = funnelContent.hook;
 
                     // Check if hook is structured (new format) or string (old format)
-                    const isStructured = typeof hook === 'object' && hook !== null && 'headline' in hook;
+                    const isStructured = hook && typeof hook === 'object' && 'headline' in hook;
 
                     if (isStructured) {
                       // NEW STRUCTURED FORMAT - clean, tight layout
@@ -730,7 +730,7 @@ export default function PublicPropertyDetail() {
                 {(() => {
                   // Get benefit from structured hook if available
                   const hook = funnelContent?.hook;
-                  const isStructured = typeof hook === 'object' && hook !== null && 'headline' in hook;
+                  const isStructured = hook && typeof hook === 'object' && 'headline' in hook;
                   const benefit = isStructured ? (hook as { benefit?: string }).benefit : null;
 
                   return (
@@ -859,8 +859,68 @@ export default function PublicPropertyDetail() {
         {/* Premium Trust Strip */}
         <PremiumTrustStrip />
 
+        {/* Full-page loading skeleton while funnel content loads */}
+        {funnelLoading && (
+          <div className="animate-pulse space-y-8 py-16">
+            {/* Problem Section Skeleton */}
+            <div className="max-w-6xl mx-auto px-4">
+              <div className="h-4 w-24 bg-gray-200 rounded mb-4" />
+              <div className="h-10 w-2/3 bg-gray-200 rounded mb-6" />
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div className="h-4 bg-gray-200 rounded w-full" />
+                  <div className="h-4 bg-gray-200 rounded w-5/6" />
+                  <div className="h-4 bg-gray-200 rounded w-4/5" />
+                </div>
+                <div className="h-48 bg-gray-100 rounded-2xl" />
+              </div>
+            </div>
+
+            {/* Solution Section Skeleton */}
+            <div className="bg-gray-900 py-16">
+              <div className="max-w-6xl mx-auto px-4">
+                <div className="h-4 w-32 bg-gray-700 rounded mx-auto mb-4" />
+                <div className="h-10 w-1/2 bg-gray-700 rounded mx-auto mb-8" />
+                <div className="grid md:grid-cols-3 gap-6">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="bg-gray-800 rounded-2xl p-8">
+                      <div className="w-16 h-16 bg-gray-700 rounded-2xl mx-auto mb-5" />
+                      <div className="h-6 bg-gray-700 rounded w-2/3 mx-auto mb-3" />
+                      <div className="h-4 bg-gray-700 rounded w-full" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Property Showcase Skeleton */}
+            <div className="max-w-6xl mx-auto px-4">
+              <div className="h-4 w-32 bg-gray-200 rounded mx-auto mb-4" />
+              <div className="h-10 w-1/3 bg-gray-200 rounded mx-auto mb-8" />
+              <div className="space-y-4 max-w-4xl mx-auto">
+                <div className="h-4 bg-gray-200 rounded w-full" />
+                <div className="h-4 bg-gray-200 rounded w-5/6" />
+                <div className="h-4 bg-gray-200 rounded w-4/5" />
+              </div>
+              <div className="grid grid-cols-4 gap-4 mt-8">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="bg-purple-50 rounded-xl p-5 h-24" />
+                ))}
+              </div>
+            </div>
+
+            {/* CTA Section Skeleton */}
+            <div className="bg-gray-100 py-16">
+              <div className="max-w-2xl mx-auto px-4 text-center">
+                <div className="h-8 w-2/3 bg-gray-200 rounded mx-auto mb-6" />
+                <div className="h-12 w-48 bg-purple-200 rounded-xl mx-auto" />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Problem Section */}
-        {funnelContent?.problem && (
+        {!funnelLoading && funnelContent?.problem && (
           <FunnelSection variant="light" padding="lg" blendTo="dark">
             <TwoColumnLayout
               emphasis="right"
