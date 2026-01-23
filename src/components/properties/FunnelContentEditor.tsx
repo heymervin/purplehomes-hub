@@ -214,17 +214,33 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
         // Load saved inputs if they exist, otherwise reset to defaults
         setInputs({ ...DEFAULT_FUNNEL_INPUTS, ...(data.content.inputs || {}) });
 
-        // Load effectiveness rating from avatar research if available
+        // Verify avatar research still exists and load effectiveness rating
         if (data.content.avatarResearchId) {
           try {
             const segment = data.content.inputs?.buyerSegment || 'first-time-buyer';
             const researchResponse = await fetch(`/api/funnel/avatar-research?action=get&segment=${segment}&researchId=${data.content.avatarResearchId}`);
             const researchData = await researchResponse.json();
-            if (researchData.success && researchData.entry?.effectiveness) {
-              setEffectivenessRating(researchData.entry.effectiveness);
+
+            if (researchData.success && researchData.entry) {
+              // Research exists - load effectiveness rating if available
+              if (researchData.entry.effectiveness) {
+                setEffectivenessRating(researchData.entry.effectiveness);
+              }
+            } else {
+              // Research was deleted - clear the stale avatarResearchId
+              console.log('[FunnelEditor] Avatar research not found, clearing stale ID');
+              const cleanedContent = { ...data.content };
+              delete cleanedContent.avatarResearchId;
+              setContent(cleanedContent);
+              setEffectivenessRating(null);
             }
           } catch (e) {
-            console.warn('Could not load effectiveness rating:', e);
+            console.warn('Could not verify avatar research:', e);
+            // On error, clear the potentially stale ID
+            const cleanedContent = { ...data.content };
+            delete cleanedContent.avatarResearchId;
+            setContent(cleanedContent);
+            setEffectivenessRating(null);
           }
         }
       } else {
