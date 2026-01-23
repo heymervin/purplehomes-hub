@@ -770,23 +770,6 @@ export default function PublicPropertyDetail() {
         {/* Premium Trust Strip */}
         <PremiumTrustStrip />
 
-        {/* Hook Section - Attention Grabber */}
-        {funnelContent?.hook && (
-          <FunnelSection variant="purple" padding="lg" blendTo="white">
-            <div className="text-center max-w-4xl mx-auto">
-              <span className="inline-block px-4 py-1.5 bg-white/20 text-white/90 rounded-full text-sm font-semibold uppercase tracking-wide mb-6">
-                Your Dream Home Awaits
-              </span>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-6">
-                {funnelContent.hook}
-              </h2>
-              <CTAButton size="xl" onClick={scrollToForm}>
-                See If You Qualify
-              </CTAButton>
-            </div>
-          </FunnelSection>
-        )}
-
         {/* Problem Section */}
         {funnelContent?.problem && (
           <FunnelSection variant="light" padding="lg" blendTo="dark">
