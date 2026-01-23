@@ -695,43 +695,51 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* JOURNEY COMPARISON - The Old Way vs The New Way */}
-        <section className="relative bg-gradient-to-b from-gray-100 to-gray-200 overflow-hidden py-16 md:py-24">
+        {/* JOURNEY COMPARISON - The Old Way vs The New Way - MAXIMUM IMPACT */}
+        <section className="relative bg-gradient-to-b from-gray-100 via-gray-50 to-gray-100 overflow-hidden py-16 md:py-24">
           <div className="relative max-w-6xl mx-auto px-4">
             {/* Two Column Headers */}
-            <div className="grid md:grid-cols-2 gap-8 md:gap-16 mb-12">
+            <div className="grid md:grid-cols-2 gap-6 md:gap-12 mb-10 md:mb-14">
               {/* The Old Way Header */}
               <div className="text-center">
-                <div className="inline-block bg-white rounded-2xl px-8 py-4 shadow-lg border border-gray-200">
-                  <h3 className="text-2xl md:text-3xl font-black text-gray-900">
-                    The <span className="underline decoration-red-500 decoration-4 underline-offset-4">Old</span> Way
+                <div className="inline-block bg-white rounded-2xl px-10 py-5 shadow-xl border-2 border-gray-200">
+                  <h3 className="text-2xl md:text-4xl font-black text-gray-900">
+                    The <span className="underline decoration-red-500 decoration-[6px] underline-offset-4">Old</span> Way
                   </h3>
                 </div>
               </div>
               {/* The New Way Header */}
               <div className="text-center">
-                <div className="inline-block bg-white rounded-2xl px-8 py-4 shadow-lg border border-gray-200">
-                  <h3 className="text-2xl md:text-3xl font-black text-gray-900">
-                    The <span className="underline decoration-purple-500 decoration-4 underline-offset-4">New</span> Way
+                <div className="inline-block bg-white rounded-2xl px-10 py-5 shadow-xl border-2 border-gray-200">
+                  <h3 className="text-2xl md:text-4xl font-black text-gray-900">
+                    The <span className="underline decoration-purple-500 decoration-[6px] underline-offset-4">New</span> Way
                   </h3>
                 </div>
               </div>
             </div>
 
             {/* Journey Paths */}
-            <div className="grid md:grid-cols-2 gap-8 md:gap-16">
+            <div className="grid md:grid-cols-2 gap-6 md:gap-10">
               {/* LEFT: The Old Way - Problems */}
               <div className="relative">
-                {/* Vertical connecting line */}
-                <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-red-400 -translate-x-1/2 hidden md:block" />
+                {/* Vertical connecting line - THICKER */}
+                <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[60px] bottom-[20px] w-1 bg-gradient-to-b from-red-400 via-red-500 to-red-400 hidden md:block" />
 
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {/* First item - intro */}
-                  <div className="relative flex items-center gap-4">
-                    <div className="text-red-500 text-3xl font-bold flex-shrink-0">✗</div>
-                    <div className="flex-1 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl p-5 text-white shadow-lg">
-                      <div className="font-bold text-lg">Renting Forever</div>
-                      <div className="text-red-100 text-sm">Expensive Mistakes, No Progress</div>
+                  <div className="relative">
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-red-100 border-2 border-red-300 flex items-center justify-center flex-shrink-0">
+                        <span className="text-red-500 text-xl md:text-2xl font-bold">✗</span>
+                      </div>
+                      <div className="flex-1 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl p-4 md:p-5 text-white shadow-lg">
+                        <div className="font-bold text-base md:text-lg">Renting Forever</div>
+                        <div className="text-red-100 text-xs md:text-sm">Expensive Mistakes, No Progress</div>
+                      </div>
+                    </div>
+                    {/* Arrow down */}
+                    <div className="hidden md:flex justify-center mt-2">
+                      <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-red-400" />
                     </div>
                   </div>
 
@@ -743,33 +751,61 @@ export default function PublicPropertyDetail() {
                     "Can Be Forced to Move",
                     "Money Down the Drain",
                   ].map((problem, i) => (
-                    <div key={i} className="relative flex items-center gap-4">
-                      <div className="text-red-500 text-2xl font-bold flex-shrink-0">✗</div>
-                      <div className="flex-1 relative">
-                        <span className="absolute -top-2 right-4 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
-                          Problem
-                        </span>
-                        <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl px-6 py-4 text-white font-bold text-lg shadow-lg">
-                          {problem}
+                    <div key={i} className="relative">
+                      <div className="flex items-center gap-3 md:gap-4">
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-red-100 border-2 border-red-300 flex items-center justify-center flex-shrink-0">
+                          <span className="text-red-500 text-xl md:text-2xl font-bold">✗</span>
+                        </div>
+                        <div className="flex-1 relative">
+                          <span className="absolute -top-2 right-3 md:right-4 bg-gray-900 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded z-10">
+                            Problem
+                          </span>
+                          <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-2xl px-5 md:px-6 py-3 md:py-4 text-white font-bold text-sm md:text-lg shadow-lg">
+                            {problem}
+                          </div>
                         </div>
                       </div>
+                      {/* Arrow down - except last */}
+                      {i < 5 && (
+                        <div className="hidden md:flex justify-center mt-2">
+                          <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-red-400" />
+                        </div>
+                      )}
                     </div>
                   ))}
+
+                  {/* Dead end indicator */}
+                  <div className="hidden md:block text-center pt-2">
+                    <span className="inline-block bg-red-100 text-red-600 font-bold text-sm px-4 py-2 rounded-full border-2 border-red-300">
+                      😞 Stuck Forever
+                    </span>
+                  </div>
                 </div>
               </div>
 
               {/* RIGHT: The New Way - Solutions */}
               <div className="relative">
-                {/* Vertical connecting line */}
-                <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-purple-500 -translate-x-1/2 hidden md:block" />
+                {/* Glow effect behind the column */}
+                <div className="absolute inset-0 bg-purple-400/10 rounded-3xl blur-3xl scale-105 hidden md:block" />
 
-                <div className="space-y-6">
+                {/* Vertical connecting line - THICKER with glow */}
+                <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[60px] bottom-[20px] w-1 bg-gradient-to-b from-purple-400 via-purple-500 to-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.5)] hidden md:block" />
+
+                <div className="relative space-y-4">
                   {/* First item - intro */}
-                  <div className="relative flex items-center gap-4">
-                    <div className="text-purple-500 text-3xl font-bold flex-shrink-0">✓</div>
-                    <div className="flex-1 bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl p-5 text-white shadow-lg shadow-purple-500/20">
-                      <div className="font-bold text-lg">Rent-to-Own with Purple Homes</div>
-                      <div className="text-purple-100 text-sm">Clear. Confident. Homeowner.</div>
+                  <div className="relative">
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-100 border-2 border-purple-400 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-300/50">
+                        <span className="text-purple-600 text-xl md:text-2xl font-bold">✓</span>
+                      </div>
+                      <div className="flex-1 bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl p-4 md:p-5 text-white shadow-lg shadow-purple-500/30">
+                        <div className="font-bold text-base md:text-lg">Rent-to-Own with Purple Homes</div>
+                        <div className="text-purple-100 text-xs md:text-sm">Clear. Confident. Homeowner.</div>
+                      </div>
+                    </div>
+                    {/* Arrow down */}
+                    <div className="hidden md:flex justify-center mt-2">
+                      <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-purple-400" />
                     </div>
                   </div>
 
@@ -781,31 +817,49 @@ export default function PublicPropertyDetail() {
                     "Stability & Security",
                     "Smart Investment in Your Future",
                   ].map((solution, i) => (
-                    <div key={i} className="relative flex items-center gap-4">
-                      <div className="text-purple-500 text-2xl font-bold flex-shrink-0">✓</div>
-                      <div className="flex-1 relative">
-                        <span className="absolute -top-2 right-4 bg-gray-900 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
-                          Solution
-                        </span>
-                        <div className="bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl px-6 py-4 text-white font-bold text-lg shadow-lg shadow-purple-500/20">
-                          {solution}
+                    <div key={i} className="relative">
+                      <div className="flex items-center gap-3 md:gap-4">
+                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-100 border-2 border-purple-400 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-300/50">
+                          <span className="text-purple-600 text-xl md:text-2xl font-bold">✓</span>
+                        </div>
+                        <div className="flex-1 relative">
+                          <span className="absolute -top-2 right-3 md:right-4 bg-gray-900 text-white text-[9px] md:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded z-10">
+                            Solution
+                          </span>
+                          <div className="bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl px-5 md:px-6 py-3 md:py-4 text-white font-bold text-sm md:text-lg shadow-lg shadow-purple-500/30">
+                            {solution}
+                          </div>
                         </div>
                       </div>
+                      {/* Arrow down - except last */}
+                      {i < 5 && (
+                        <div className="hidden md:flex justify-center mt-2">
+                          <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-purple-400" />
+                        </div>
+                      )}
                     </div>
                   ))}
+
+                  {/* Success indicator */}
+                  <div className="hidden md:block text-center pt-2">
+                    <span className="inline-block bg-gradient-to-r from-purple-500 to-violet-500 text-white font-bold text-sm px-4 py-2 rounded-full shadow-lg shadow-purple-500/30">
+                      🏠 You're a Homeowner!
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Bottom CTA */}
-            <div className="text-center mt-14">
+            {/* Bottom CTA - MAXIMUM GLOW */}
+            <div className="text-center mt-12 md:mt-16">
               <button
                 onClick={scrollToForm}
-                className="group bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_40px_rgba(168,85,247,0.3)] hover:shadow-[0_0_60px_rgba(168,85,247,0.4)] transition-all duration-300 hover:-translate-y-1"
+                className="group relative bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_100px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_120px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1"
               >
                 Choose The New Way
-                <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
+                <span className="ml-3 inline-block group-hover:translate-x-2 transition-transform text-2xl">&rarr;</span>
               </button>
+              <p className="text-gray-500 text-sm mt-4">Join 500+ families who made the switch</p>
             </div>
           </div>
         </section>
