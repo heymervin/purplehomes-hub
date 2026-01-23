@@ -980,9 +980,13 @@ export default function PublicPropertyDetail() {
 
             {/* CTA */}
             <div className="text-center mt-16">
-              <CTAButton onClick={scrollToForm} size="xl">
-                Start Your Application
-              </CTAButton>
+              <button
+                onClick={scrollToForm}
+                className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+              >
+                Check If You Qualify
+                <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </button>
             </div>
           </div>
         </section>
