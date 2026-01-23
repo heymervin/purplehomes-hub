@@ -416,14 +416,15 @@ export default function PublicPropertyDetail() {
   });
   const [copied, setCopied] = useState(false);
 
-  // Fetch funnel content when slug is available
+  // Fetch funnel content when property is available (need recordId for Airtable lookup)
   useEffect(() => {
-    if (!slug) return;
+    if (!slug || !property?.id) return;
 
     const fetchFunnelContent = async () => {
       setFunnelLoading(true);
       try {
-        const response = await fetch(`/api/funnel?action=get&slug=${encodeURIComponent(slug)}`);
+        // Pass recordId to fetch from Airtable (required on Vercel where filesystem is read-only)
+        const response = await fetch(`/api/funnel?action=get&slug=${encodeURIComponent(slug)}&recordId=${encodeURIComponent(property.id)}`);
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.content) {
@@ -438,7 +439,7 @@ export default function PublicPropertyDetail() {
     };
 
     fetchFunnelContent();
-  }, [slug]);
+  }, [slug, property?.id]);
 
   const createContact = useCreateContact();
 
@@ -1557,15 +1558,15 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Contact Form Section - Premium */}
-        <FunnelSection variant="light" padding="lg" id="contact-form">
+        {/* Contact Form Section - Premium Dark */}
+        <FunnelSection variant="premium-dark" padding="lg" id="contact-form">
           <div className="max-w-xl mx-auto">
-            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
-              <div className="bg-gradient-to-br from-purple-900 via-purple-800 to-purple-950 p-8 text-white text-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-purple-400/20 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
+            <div className="bg-white/5 backdrop-blur-sm rounded-3xl shadow-2xl border border-purple-500/20 overflow-hidden">
+              <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 p-8 text-white text-center relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-400/20 rounded-full blur-2xl" />
                 <div className="relative z-10">
-                  <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl mb-4 shadow-lg shadow-purple-500/40">
+                  <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 backdrop-blur rounded-2xl mb-4 shadow-lg">
                     <Home className="h-7 w-7 text-white" />
                   </div>
                   <h2 className="text-2xl font-bold">Get Pre-Qualified Today</h2>
@@ -1576,19 +1577,19 @@ export default function PublicPropertyDetail() {
               {!showOfferForm ? (
                 <div className="p-8 space-y-5">
                   <div className="text-center mb-6">
-                    <p className="text-gray-600">Interested in {property.address}?</p>
+                    <p className="text-gray-300">Interested in {property.address}?</p>
                   </div>
                   <CTAButton size="full" variant="secondary" onClick={() => setShowOfferForm(true)}>
                     Yes, I'm Interested!
                   </CTAButton>
                   <div className="grid grid-cols-2 gap-3">
-                    <Button variant="outline" size="lg" className="w-full border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300" asChild>
+                    <Button variant="outline" size="lg" className="w-full border-purple-400/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 hover:text-white" asChild>
                       <a href="tel:+15044750672">
                         <Phone className="h-4 w-4 mr-2" />
                         Call Us
                       </a>
                     </Button>
-                    <Button variant="outline" size="lg" className="w-full border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300" asChild>
+                    <Button variant="outline" size="lg" className="w-full border-purple-400/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 hover:text-white" asChild>
                       <a href="sms:+15044750672">
                         <Phone className="h-4 w-4 mr-2" />
                         Text Us
@@ -1601,64 +1602,64 @@ export default function PublicPropertyDetail() {
                 <form onSubmit={handleOfferSubmit} className="p-6 space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-semibold">First Name *</Label>
+                      <Label className="text-sm font-semibold text-gray-200">First Name *</Label>
                       <Input
                         value={offerForm.firstName}
                         onChange={(e) => setOfferForm(prev => ({ ...prev, firstName: e.target.value }))}
                         required
                         placeholder="John"
-                        className="mt-1"
+                        className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-semibold">Last Name *</Label>
+                      <Label className="text-sm font-semibold text-gray-200">Last Name *</Label>
                       <Input
                         value={offerForm.lastName}
                         onChange={(e) => setOfferForm(prev => ({ ...prev, lastName: e.target.value }))}
                         required
                         placeholder="Doe"
-                        className="mt-1"
+                        className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
                       />
                     </div>
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold">Phone Number *</Label>
+                    <Label className="text-sm font-semibold text-gray-200">Phone Number *</Label>
                     <PhoneInput
                       value={offerForm.phone}
                       onChange={(value) => setOfferForm(prev => ({ ...prev, phone: value || '' }))}
                       required
                       placeholder="Enter phone number"
                       defaultCountry="US"
-                      className="mt-1"
+                      className="mt-1 [&_input]:bg-white/10 [&_input]:border-purple-500/30 [&_input]:text-white [&_input]:placeholder:text-gray-400"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold">Email *</Label>
+                    <Label className="text-sm font-semibold text-gray-200">Email *</Label>
                     <Input
                       type="email"
                       value={offerForm.email}
                       onChange={(e) => setOfferForm(prev => ({ ...prev, email: e.target.value }))}
                       required
                       placeholder="john@example.com"
-                      className="mt-1"
+                      className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold">Your Budget (Optional)</Label>
+                    <Label className="text-sm font-semibold text-gray-200">Your Budget (Optional)</Label>
                     <Input
                       placeholder="$1,500/month"
                       value={offerForm.offerAmount}
                       onChange={(e) => setOfferForm(prev => ({ ...prev, offerAmount: e.target.value }))}
-                      className="mt-1"
+                      className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold">Message (Optional)</Label>
+                    <Label className="text-sm font-semibold text-gray-200">Message (Optional)</Label>
                     <Textarea
                       value={offerForm.message}
                       onChange={(e) => setOfferForm(prev => ({ ...prev, message: e.target.value }))}
                       placeholder="Tell us about your situation..."
-                      className="mt-1"
+                      className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
                       rows={3}
                     />
                   </div>
@@ -1679,7 +1680,7 @@ export default function PublicPropertyDetail() {
                   <Button
                     type="button"
                     variant="ghost"
-                    className="w-full"
+                    className="w-full text-gray-400 hover:text-white hover:bg-white/10"
                     onClick={() => setShowOfferForm(false)}
                   >
                     Cancel
