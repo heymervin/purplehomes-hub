@@ -505,6 +505,53 @@ export default function PublicPropertyDetail() {
     document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Extract first sentence from problem content for headline
+  const extractProblemHeadline = (problem: string): string => {
+    // Extract first sentence (ends with ? or .)
+    const firstSentence = problem.match(/^[^.?!]+[.?!]/)?.[0] || problem.split('.')[0];
+    // If it's a question, use it directly
+    if (firstSentence.includes('?')) return firstSentence.trim();
+    // Otherwise, turn it into a question or return compelling default
+    return firstSentence.trim();
+  };
+
+  // Get buyer-segment-specific pain points
+  const getPainPoints = (segment?: string): { icon: string; text: string }[] => {
+    const painPointsBySegment: Record<string, { icon: string; text: string }[]> = {
+      'first-time-buyer': [
+        { icon: '✗', text: 'Banks saying no to your first home?' },
+        { icon: '✗', text: 'Saving feels endless with no progress?' },
+        { icon: '✗', text: 'Rent keeps rising, equity stays at zero?' },
+      ],
+      'credit-challenged': [
+        { icon: '✗', text: 'Credit score holding you back?' },
+        { icon: '✗', text: 'Rejected by traditional lenders?' },
+        { icon: '✗', text: 'Past mistakes blocking your future?' },
+      ],
+      'self-employed': [
+        { icon: '✗', text: 'Income too hard to document?' },
+        { icon: '✗', text: 'Tax returns not showing your true earnings?' },
+        { icon: '✗', text: 'Banks don\'t understand your business?' },
+      ],
+      'investor': [
+        { icon: '✗', text: 'Traditional financing too slow?' },
+        { icon: '✗', text: 'Tired of complicated loan processes?' },
+        { icon: '✗', text: 'Missing deals due to funding delays?' },
+      ],
+      'move-up-buyer': [
+        { icon: '✗', text: 'Current home equity tied up?' },
+        { icon: '✗', text: 'Need to sell before you can buy?' },
+        { icon: '✗', text: 'Market timing working against you?' },
+      ],
+      'general': [
+        { icon: '✗', text: 'Banks keep saying no?' },
+        { icon: '✗', text: 'Credit not where it needs to be?' },
+        { icon: '✗', text: 'Saving for years with no progress?' },
+      ],
+    };
+    return painPointsBySegment[segment || 'general'] || painPointsBySegment['general'];
+  };
+
   // Loading state
   if (isLoading) {
     return (
@@ -932,47 +979,61 @@ export default function PublicPropertyDetail() {
           </div>
         )}
 
-        {/* Problem Section */}
+        {/* Problem/Challenge Section - Dark Theme */}
         {!funnelLoading && funnelContent?.problem && (
-          <FunnelSection variant="light" padding="lg" blendTo="dark">
-            <TwoColumnLayout
-              emphasis="right"
-              left={
-                <div>
-                  <SectionHeader
-                    overline="The Challenge"
-                    title="Tired of Throwing Money Away on Rent?"
-                    align="left"
-                  />
-                  <p className="text-lg text-gray-600 leading-relaxed mb-6">
-                    {funnelContent.problem}
-                  </p>
-                  <div className="space-y-3">
-                    {[
-                      "Banks keeping saying no?",
-                      "Credit not where it needs to be?",
-                      "Saving for years with no progress?",
-                    ].map((pain, i) => (
-                      <div key={i} className="flex items-center gap-3 text-gray-700">
-                        <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                          <span className="text-red-500">✗</span>
-                        </div>
-                        <span>{pain}</span>
+          <section className="relative bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 py-20 md:py-28 overflow-hidden">
+            {/* Subtle background pattern */}
+            <div className="absolute inset-0 opacity-5">
+              <div className="absolute inset-0" style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+              }} />
+            </div>
+
+            {/* Glowing accent orbs */}
+            <div className="absolute top-1/4 left-0 w-72 h-72 bg-red-500/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl" />
+
+            <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
+              {/* Section Header */}
+              <div className="text-center mb-12 md:mb-16">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-red-500/20 text-red-400 text-sm font-semibold uppercase tracking-wider mb-4">
+                  The Challenge
+                </span>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight mb-6">
+                  {extractProblemHeadline(funnelContent.problem)}
+                </h2>
+              </div>
+
+              {/* Two Column Layout */}
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                {/* Left - Dynamic Pain Points */}
+                <div className="space-y-4">
+                  {getPainPoints(funnelContent.inputs?.buyerSegment).map((pain, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-4 bg-gradient-to-r from-red-500/10 to-transparent border border-red-500/20 rounded-xl p-4 hover:from-red-500/20 transition-all duration-300"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0 border border-red-500/30">
+                        <span className="text-red-400 font-bold">{pain.icon}</span>
                       </div>
-                    ))}
+                      <span className="text-gray-200 font-medium">{pain.text}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Right - AI Problem Content */}
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-3xl blur-xl" />
+                  <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 rounded-3xl p-8 md:p-10 text-center">
+                    <div className="text-7xl md:text-8xl mb-6">😔</div>
+                    <p className="text-xl md:text-2xl text-gray-200 font-medium leading-relaxed">
+                      {funnelContent.problem}
+                    </p>
                   </div>
                 </div>
-              }
-              right={
-                <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-8 text-center">
-                  <div className="text-6xl mb-4">😔</div>
-                  <p className="text-gray-600 font-medium">
-                    You work hard. You pay your bills. But the traditional path to homeownership isn't working.
-                  </p>
-                </div>
-              }
-            />
-          </FunnelSection>
+              </div>
+            </div>
+          </section>
         )}
 
         {/* Solution Section */}
