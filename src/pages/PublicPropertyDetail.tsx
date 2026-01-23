@@ -644,7 +644,7 @@ export default function PublicPropertyDetail() {
                     const hook = funnelContent.hook;
 
                     // Check if hook is structured (new format) or string (old format)
-                    const isStructured = hook && typeof hook === 'object' && 'headline' in hook;
+                    const isStructured = typeof hook === 'object' && hook !== null && 'headline' in (hook as object);
 
                     if (isStructured) {
                       // NEW STRUCTURED FORMAT - clean, tight layout
@@ -730,7 +730,7 @@ export default function PublicPropertyDetail() {
                 {(() => {
                   // Get benefit from structured hook if available
                   const hook = funnelContent?.hook;
-                  const isStructured = hook && typeof hook === 'object' && 'headline' in hook;
+                  const isStructured = typeof hook === 'object' && hook !== null && 'headline' in (hook as object);
                   const benefit = isStructured ? (hook as { benefit?: string }).benefit : null;
 
                   return (
@@ -963,7 +963,7 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* Solution Section */}
-        {funnelContent?.solution && (
+        {!funnelLoading && funnelContent?.solution && (
           <FunnelSection variant="dark" padding="lg" blendTo="white">
             <SectionHeader
               overline="There's a Better Way"
@@ -993,7 +993,7 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* Property Showcase */}
-        {funnelContent?.propertyShowcase && (
+        {!funnelLoading && funnelContent?.propertyShowcase && (
           <FunnelSection variant="white" padding="lg">
             <SectionHeader
               overline="Property Highlights"
@@ -1141,7 +1141,7 @@ export default function PublicPropertyDetail() {
               </Reveal>
 
               {/* Payment Breakdown (if available) */}
-              {funnelContent?.pricingOptions && (
+              {!funnelLoading && funnelContent?.pricingOptions && (
                 <div className="mt-10 bg-white/5 backdrop-blur border border-purple-500/20 rounded-2xl p-6 md:p-8">
                   <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                     <CheckCircle className="h-5 w-5 text-purple-400" />
@@ -1461,7 +1461,7 @@ export default function PublicPropertyDetail() {
         </section>
 
         {/* Social Proof / Testimonial */}
-        {funnelContent?.socialProof && (
+        {!funnelLoading && funnelContent?.socialProof && (
           <div className="max-w-5xl mx-auto px-4 py-16">
             <FeaturedTestimonial
               quote={funnelContent.socialProof}
@@ -1476,7 +1476,7 @@ export default function PublicPropertyDetail() {
         <AnimatedStatsSection />
 
         {/* Location & Nearby */}
-        {funnelContent?.locationNearby && (
+        {!funnelLoading && funnelContent?.locationNearby && (
           <FunnelSection variant="white" padding="lg" blendFrom="dark">
             <SectionHeader
               overline="Location"
@@ -1518,7 +1518,7 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* Qualifier Section */}
-        {funnelContent?.qualifier && (
+        {!funnelLoading && funnelContent?.qualifier && (
           <FunnelSection variant="purple-light" padding="lg">
             <SectionHeader
               overline="Is This Right For You?"
@@ -1538,7 +1538,7 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* Virtual Tour */}
-        {funnelContent?.virtualTourUrl && (
+        {!funnelLoading && funnelContent?.virtualTourUrl && (
           <FunnelSection variant="white" padding="lg">
             <SectionHeader
               overline="Take a Tour"
@@ -1652,7 +1652,7 @@ export default function PublicPropertyDetail() {
         </section>
 
         {/* Final CTA Section - Dark Premium */}
-        {funnelContent?.callToAction && (
+        {!funnelLoading && funnelContent?.callToAction && (
           <section className="relative bg-black overflow-hidden py-16 md:py-20">
             {/* Ambient lighting */}
             <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[180px]" />
