@@ -1129,47 +1129,69 @@ export default function PublicPropertyDetail() {
           </FunnelSection>
         )}
 
-        {/* Urgency / Countdown - Premium */}
-        <FunnelSection variant="white" padding="lg" blendTo={funnelContent?.callToAction ? "purple" : undefined}>
-          <div className="max-w-2xl mx-auto">
+        {/* Urgency / Countdown - Dark Premium */}
+        <section className="relative bg-black overflow-hidden py-16 md:py-20">
+          {/* Ambient lighting */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-purple-600/15 rounded-full blur-[150px]" />
+
+          <div className="relative z-10 max-w-2xl mx-auto px-4">
             <CountdownTimer
               hoursFromNow={48}
               title="Exclusive Pricing Ends Soon"
               subtitle="Lock in today's price before it increases"
               variant="premium"
             />
-          </div>
-        </FunnelSection>
 
-        {/* Final CTA Section */}
+            {/* CTA below countdown */}
+            <div className="text-center mt-10">
+              <button
+                onClick={scrollToForm}
+                className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+              >
+                Lock In This Price
+                <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA Section - Dark Premium */}
         {funnelContent?.callToAction && (
-          <FunnelSection variant="purple" padding="lg" blendTo="white">
-            <div className="text-center max-w-3xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <section className="relative bg-black overflow-hidden py-16 md:py-20">
+            {/* Ambient lighting */}
+            <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[180px]" />
+            <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-violet-600/15 rounded-full blur-[150px]" />
+
+            <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
                 Ready to Stop Renting and Start Owning?
               </h2>
-              <p className="text-xl text-purple-100 mb-8">
+              <p className="text-xl text-gray-400 mb-10">
                 {funnelContent.callToAction}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <CTAButton size="xl" onClick={scrollToForm}>
-                  Get Pre-Qualified Now
-                </CTAButton>
-                <CTAButton
-                  variant="white"
-                  size="xl"
-                  icon="phone"
-                  onClick={() => window.location.href = 'tel:+15044750672'}
+                <button
+                  onClick={scrollToForm}
+                  className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
                 >
+                  Get Pre-Qualified Now
+                  <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
+                </button>
+                <a
+                  href="tel:+15044750672"
+                  className="inline-flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 text-white font-bold text-lg uppercase tracking-wide px-8 py-4 rounded-xl border-2 border-white/30 hover:border-white/50 transition-all duration-300"
+                >
+                  <Phone className="h-5 w-5" />
                   Call (504) 475-0672
-                </CTAButton>
+                </a>
               </div>
               <TrustIndicators
-                className="mt-8 justify-center text-purple-200"
+                className="mt-10 justify-center"
+                variant="premium"
                 items={["No obligation", "Free consultation", "Fast response"]}
               />
             </div>
-          </FunnelSection>
+          </section>
         )}
 
         {/* Contact Form Section - Premium */}
