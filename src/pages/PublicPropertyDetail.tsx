@@ -578,55 +578,121 @@ export default function PublicPropertyDetail() {
           </FunnelSection>
         )}
 
-        {/* Investment Details / Pricing */}
+        {/* Investment Details / Pricing - DRAMATIC PREMIUM DESIGN */}
         {(property.downPayment !== undefined || property.monthlyPayment !== undefined) && (
-          <FunnelSection variant="purple-light" padding="lg">
-            <SectionHeader
-              overline="Your Investment"
-              title="Affordable Payment Options"
-              subtitle="We structure deals to fit your budget, not the other way around"
-            />
-            <div className="max-w-3xl mx-auto">
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div className="bg-gradient-to-r from-purple-600 to-purple-700 p-6 text-white text-center">
-                  <div className="text-sm uppercase tracking-wide opacity-80 mb-1">Total Price</div>
-                  <div className="text-4xl md:text-5xl font-extrabold">${property.price.toLocaleString()}</div>
-                </div>
-                <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
-                  {property.downPayment !== undefined && (
-                    <div className="p-6 text-center">
-                      <DollarSign className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                      <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Move-In Cost</div>
-                      <div className="text-3xl font-bold text-gray-900">${property.downPayment.toLocaleString()}</div>
-                      <p className="text-sm text-gray-500 mt-2">Goes toward your purchase</p>
-                    </div>
-                  )}
-                  {property.monthlyPayment !== undefined && (
-                    <div className="p-6 text-center">
-                      <CreditCard className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                      <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Monthly Payment</div>
-                      <div className="text-3xl font-bold text-gray-900">${property.monthlyPayment.toLocaleString()}</div>
-                      <p className="text-sm text-gray-500 mt-2">Build equity every month</p>
-                    </div>
-                  )}
-                </div>
-                <div className="p-6 bg-gray-50 text-center">
-                  <CTAButton onClick={scrollToForm} size="lg">
-                    Check If You Qualify
-                  </CTAButton>
-                </div>
-              </div>
-            </div>
+          <section className="relative bg-black overflow-hidden py-16 md:py-24">
+            {/* Dramatic purple ambient lighting */}
+            <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[500px] md:w-[900px] h-[300px] md:h-[500px] bg-purple-600/25 rounded-full blur-[120px] md:blur-[180px]" />
+            <div className="absolute bottom-0 right-0 w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-violet-700/15 rounded-full blur-[80px] md:blur-[120px]" />
 
-            {funnelContent?.pricingOptions && (
-              <div className="mt-8 max-w-2xl mx-auto bg-white rounded-xl p-6 shadow-md">
-                <h4 className="font-semibold text-gray-900 mb-3">Payment Breakdown</h4>
-                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed font-mono text-sm bg-gray-50 rounded-lg p-4">
-                  {funnelContent.pricingOptions}
+            {/* Subtle grid texture */}
+            <div
+              className="absolute inset-0 opacity-[0.02]"
+              style={{
+                backgroundImage: `radial-gradient(circle at 1px 1px, rgba(168,85,247,0.4) 1px, transparent 0)`,
+                backgroundSize: '40px 40px'
+              }}
+            />
+
+            <div className="relative max-w-4xl mx-auto px-4">
+              {/* Section Header */}
+              <div className="text-center mb-10 md:mb-14">
+                <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
+                  Your Investment
+                </span>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 md:mb-4">
+                  Affordable Payment Options
+                </h2>
+                <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
+                  We structure deals to fit <span className="text-white font-medium">your budget</span>, not the other way around
+                </p>
+              </div>
+
+              {/* Premium Pricing Card */}
+              <div className="relative">
+                {/* Glow behind card */}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 via-violet-500/20 to-purple-500/30 blur-3xl scale-110" />
+
+                <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-black rounded-3xl border border-purple-500/30 shadow-[0_0_60px_rgba(168,85,247,0.2)] overflow-hidden">
+                  {/* Total Price Header */}
+                  <div className="relative bg-gradient-to-r from-purple-600 via-violet-600 to-purple-600 p-8 md:p-10 text-center overflow-hidden">
+                    {/* Decorative elements */}
+                    <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+                    <div className="absolute bottom-0 right-0 w-40 h-40 bg-purple-900/50 rounded-full blur-3xl" />
+
+                    <div className="relative z-10">
+                      <div className="text-xs md:text-sm uppercase tracking-[0.2em] text-purple-200 font-semibold mb-2 md:mb-3">
+                        Total Price
+                      </div>
+                      <div className="relative inline-block">
+                        <span className="absolute inset-0 bg-white/20 blur-xl scale-150" />
+                        <span className="relative text-5xl sm:text-6xl md:text-7xl font-black text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]">
+                          ${property.price.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Details Grid */}
+                  <div className="grid md:grid-cols-2">
+                    {property.downPayment !== undefined && (
+                      <div className="relative p-8 md:p-10 text-center border-b md:border-b-0 md:border-r border-purple-500/20 group hover:bg-purple-500/5 transition-colors">
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
+                          <DollarSign className="h-7 w-7 md:h-8 md:w-8 text-white" />
+                        </div>
+                        <div className="text-xs md:text-sm uppercase tracking-[0.15em] text-gray-500 font-semibold mb-2">
+                          Move-In Cost
+                        </div>
+                        <div className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-300 mb-2">
+                          ${property.downPayment.toLocaleString()}
+                        </div>
+                        <p className="text-sm md:text-base text-gray-400">Goes toward your purchase</p>
+                      </div>
+                    )}
+                    {property.monthlyPayment !== undefined && (
+                      <div className="relative p-8 md:p-10 text-center group hover:bg-purple-500/5 transition-colors">
+                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
+                          <CreditCard className="h-7 w-7 md:h-8 md:w-8 text-white" />
+                        </div>
+                        <div className="text-xs md:text-sm uppercase tracking-[0.15em] text-gray-500 font-semibold mb-2">
+                          Monthly Payment
+                        </div>
+                        <div className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-300 mb-2">
+                          ${property.monthlyPayment.toLocaleString()}
+                        </div>
+                        <p className="text-sm md:text-base text-gray-400">Build equity every month</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* CTA Section */}
+                  <div className="p-6 md:p-8 bg-gradient-to-b from-transparent to-purple-900/20 text-center">
+                    <button
+                      onClick={scrollToForm}
+                      className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+                    >
+                      Check If You Qualify
+                      <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
+                    </button>
+                    <p className="text-gray-500 text-xs md:text-sm mt-4">No credit check • Takes 2 minutes</p>
+                  </div>
                 </div>
               </div>
-            )}
-          </FunnelSection>
+
+              {/* Payment Breakdown (if available) */}
+              {funnelContent?.pricingOptions && (
+                <div className="mt-10 bg-white/5 backdrop-blur border border-purple-500/20 rounded-2xl p-6 md:p-8">
+                  <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-purple-400" />
+                    Payment Breakdown
+                  </h4>
+                  <div className="text-gray-300 whitespace-pre-wrap leading-relaxed font-mono text-sm bg-black/30 rounded-xl p-4 md:p-6 border border-purple-500/10">
+                    {funnelContent.pricingOptions}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
         )}
 
         {/* Comparison Table - Luxury Cards */}
