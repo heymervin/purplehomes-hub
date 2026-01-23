@@ -179,6 +179,8 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
   const [showRatingSuccess, setShowRatingSuccess] = useState(false);
   // Preview modal state
   const [showPreview, setShowPreview] = useState(false);
+  // Track where content is saved
+  const [saveLocation, setSaveLocation] = useState<'airtable' | 'file' | 'unknown'>('unknown');
 
   // Generate slug from property data
   const slug = generatePropertySlug(property.address, property.city);
@@ -213,6 +215,8 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
         setContent(data.content);
         // Load saved inputs if they exist, otherwise reset to defaults
         setInputs({ ...DEFAULT_FUNNEL_INPUTS, ...(data.content.inputs || {}) });
+        // Track where content was loaded from
+        setSaveLocation(data.source === 'airtable' ? 'airtable' : 'file');
 
         // Verify avatar research still exists and load effectiveness rating
         if (data.content.avatarResearchId) {
@@ -315,8 +319,10 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
         if (data.content.inputs) {
           setInputs(data.content.inputs);
         }
+        // Track where content was saved
+        setSaveLocation(data.savedToAirtable ? 'airtable' : (data.savedToFile ? 'file' : 'unknown'));
         setHasChanges(false);
-        toast.success('Funnel content generated and saved!');
+        toast.success(`Funnel content generated and saved to ${data.savedToAirtable ? 'Airtable' : 'file'}!`);
         console.log('[FunnelEditor] ====== REGENERATE COMPLETE ======');
       } else {
         console.error('[FunnelEditor] Generate failed:', data);
@@ -903,7 +909,14 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Content is saved to <code className="text-xs bg-muted px-1 py-0.5 rounded">/content/properties/{slug}.md</code>
+              Content saved to{' '}
+              {saveLocation === 'airtable' ? (
+                <span className="text-green-600 dark:text-green-400 font-medium">Airtable ✓</span>
+              ) : saveLocation === 'file' ? (
+                <code className="text-xs bg-muted px-1 py-0.5 rounded">/content/properties/{slug}.md</code>
+              ) : (
+                <span className="text-yellow-600 dark:text-yellow-400">unknown</span>
+              )}
               <br />
               <span className="text-muted-foreground">Last generated: {new Date(content.generatedAt).toLocaleString()}</span>
             </AlertDescription>
