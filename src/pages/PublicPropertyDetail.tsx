@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, Bed, Bath, Maximize2, MapPin, Phone, Wrench, Home,
@@ -45,6 +45,140 @@ import {
   PremiumTrustStrip,
   CredentialsBar,
 } from '@/components/funnel';
+
+// Animated Counter Hook
+function useCountUp(target: number, duration: number = 2000, startOnView: boolean = true) {
+  const [count, setCount] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!startOnView) {
+      setHasStarted(true);
+    }
+  }, [startOnView]);
+
+  useEffect(() => {
+    if (!startOnView) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasStarted) {
+          setHasStarted(true);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasStarted, startOnView]);
+
+  useEffect(() => {
+    if (!hasStarted) return;
+
+    const startTime = Date.now();
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out cubic for smooth deceleration
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+    requestAnimationFrame(animate);
+  }, [hasStarted, target, duration]);
+
+  return { count, ref };
+}
+
+// Animated Stats Section Component
+function AnimatedStatsSection() {
+  const stat1 = useCountUp(500, 2500);
+  const stat2 = useCountUp(15, 2000);
+  const stat3 = useCountUp(98, 2200);
+  const stat4 = useCountUp(24, 1800);
+
+  const stats = [
+    { ...stat1, label: 'Families Helped', suffix: '+', icon: Users },
+    { ...stat2, label: 'Years Experience', suffix: '+', icon: Clock },
+    { ...stat3, label: 'Satisfaction Rate', suffix: '%', icon: Award },
+    { ...stat4, label: 'Hour Response', prefix: '<', icon: Shield },
+  ];
+
+  return (
+    <section className="relative bg-gradient-to-b from-[#0f172a] via-[#1e1b4b] to-[#0f172a] py-20 md:py-28 overflow-hidden">
+      {/* Ambient lighting */}
+      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[200px]" />
+      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-[200px]" />
+
+      {/* Grid texture */}
+      <div
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `radial-gradient(rgba(168,85,247,0.6) 1px, transparent 1px)`,
+          backgroundSize: '40px 40px',
+        }}
+      />
+
+      <div className="relative z-10 max-w-6xl mx-auto px-4">
+        {/* Section header */}
+        <div className="text-center mb-16">
+          <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-sm font-semibold uppercase tracking-wider mb-4">
+            Proven Track Record
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold text-white">
+            Numbers That{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-400">
+              Speak for Themselves
+            </span>
+          </h2>
+        </div>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+          {stats.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <div
+                key={index}
+                ref={index === 0 ? stat.ref : undefined}
+                className="text-center relative group"
+              >
+                {/* Divider between items (desktop) */}
+                {index < stats.length - 1 && (
+                  <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 h-20 w-px bg-gradient-to-b from-transparent via-purple-500/30 to-transparent" />
+                )}
+
+                {/* Icon */}
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 mb-4 group-hover:scale-110 group-hover:bg-purple-500/20 transition-all duration-300">
+                  <Icon className="h-7 w-7 text-purple-400" />
+                </div>
+
+                {/* Animated number */}
+                <div className="text-5xl md:text-6xl lg:text-7xl font-extralight tracking-tight text-white/95 tabular-nums">
+                  {stat.prefix}
+                  <span className="font-light">{stat.count.toString().padStart(stat.count > 99 ? 3 : 2, '0')}</span>
+                  {stat.suffix}
+                </div>
+
+                {/* Label */}
+                <div className="text-xs md:text-sm mt-4 uppercase tracking-[0.15em] font-medium text-purple-400/80">
+                  {stat.label}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function PublicPropertyDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -1003,16 +1137,8 @@ export default function PublicPropertyDetail() {
           </div>
         )}
 
-        {/* Stats Bar - Premium */}
-        <StatsBar
-          variant="premium"
-          stats={[
-            { value: "500", label: "Families Helped", suffix: "+" },
-            { value: "15", label: "Years Experience", suffix: "+" },
-            { value: "98", label: "Satisfaction Rate", suffix: "%" },
-            { value: "24", label: "Hour Response", prefix: "<" },
-          ]}
-        />
+        {/* Stats Bar - Premium Animated */}
+        <AnimatedStatsSection />
 
         {/* Location & Nearby */}
         {funnelContent?.locationNearby && (
@@ -1129,28 +1255,77 @@ export default function PublicPropertyDetail() {
           </FunnelSection>
         )}
 
-        {/* Urgency / Countdown - Dark Premium */}
-        <section className="relative bg-black overflow-hidden py-16 md:py-20">
-          {/* Ambient lighting */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-purple-600/15 rounded-full blur-[150px]" />
+        {/* Urgency / Countdown - DRAMATIC URGENCY */}
+        <section className="relative bg-black overflow-hidden py-20 md:py-28">
+          {/* Dramatic urgency lighting - red/orange warning glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-red-600/20 via-orange-500/10 to-transparent rounded-full blur-[150px]" />
+          <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-[180px]" />
+          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-[180px]" />
 
-          <div className="relative z-10 max-w-2xl mx-auto px-4">
-            <CountdownTimer
-              hoursFromNow={48}
-              title="Exclusive Pricing Ends Soon"
-              subtitle="Lock in today's price before it increases"
-              variant="premium"
-            />
+          {/* Animated pulse ring */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-red-500/20 animate-ping" style={{ animationDuration: '3s' }} />
 
-            {/* CTA below countdown */}
-            <div className="text-center mt-10">
+          <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
+            {/* Urgency badge */}
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-red-500/20 border border-red-500/40 backdrop-blur-sm mb-8 animate-pulse">
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <span className="text-red-300 text-sm font-bold tracking-wider uppercase">Limited Time Offer</span>
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+            </div>
+
+            {/* Main headline */}
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4">
+              This Price{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-orange-400 to-red-400">
+                Won't Last
+              </span>
+            </h2>
+            <p className="text-xl text-gray-400 mb-10 max-w-xl mx-auto">
+              Secure today's pricing before the next increase. Once it's gone, it's gone.
+            </p>
+
+            {/* Countdown display - custom dramatic version */}
+            <div className="flex justify-center gap-3 md:gap-5 mb-12">
+              {[
+                { value: '01', label: 'Days' },
+                { value: '23', label: 'Hours' },
+                { value: '59', label: 'Min' },
+                { value: '59', label: 'Sec' },
+              ].map((unit, index) => (
+                <div key={index} className="text-center">
+                  <div className="relative">
+                    {/* Glow behind */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-red-500/30 to-purple-500/30 rounded-2xl blur-xl scale-110" />
+                    <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl px-4 md:px-6 py-4 md:py-6 border border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+                      <div className="text-4xl md:text-6xl font-black text-white tabular-nums">
+                        {unit.value}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-xs md:text-sm uppercase tracking-wider text-gray-500 mt-3 font-semibold">
+                    {unit.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Scarcity indicator */}
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-orange-500/10 border border-orange-500/30 mb-10">
+              <span className="text-orange-400 text-2xl">🔥</span>
+              <span className="text-orange-300 font-bold">Only 3 spots left at this price</span>
+              <span className="text-orange-400 text-2xl">🔥</span>
+            </div>
+
+            {/* CTA - Maximum urgency */}
+            <div>
               <button
                 onClick={scrollToForm}
-                className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+                className="group relative bg-gradient-to-r from-red-500 via-orange-500 to-red-500 hover:from-red-400 hover:via-orange-400 hover:to-red-400 text-white font-black text-lg md:text-xl uppercase tracking-wide px-12 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(239,68,68,0.4),0_0_100px_rgba(249,115,22,0.2)] hover:shadow-[0_0_80px_rgba(239,68,68,0.5),0_0_120px_rgba(249,115,22,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-orange-400/50"
               >
-                Lock In This Price
-                <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
+                Lock In This Price Now
+                <span className="ml-3 inline-block group-hover:translate-x-2 transition-transform text-2xl">&rarr;</span>
               </button>
+              <p className="text-gray-500 text-sm mt-4">Price increases after timer expires</p>
             </div>
           </div>
         </section>
