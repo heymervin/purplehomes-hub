@@ -979,9 +979,9 @@ export default function PublicPropertyDetail() {
           </div>
         )}
 
-        {/* Problem/Challenge Section - Dark Theme */}
+        {/* Problem/Challenge Section - Purple Homes Brand */}
         {!funnelLoading && funnelContent?.problem && (
-          <section className="relative bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 py-20 md:py-28 overflow-hidden">
+          <section className="relative bg-gradient-to-b from-[#0f172a] via-[#1e1b4b] to-[#0f172a] py-20 md:py-28 overflow-hidden">
             {/* Subtle background pattern */}
             <div className="absolute inset-0 opacity-5">
               <div className="absolute inset-0" style={{
@@ -989,14 +989,14 @@ export default function PublicPropertyDetail() {
               }} />
             </div>
 
-            {/* Glowing accent orbs */}
-            <div className="absolute top-1/4 left-0 w-72 h-72 bg-red-500/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl" />
+            {/* Purple glowing accent orbs */}
+            <div className="absolute top-1/4 left-0 w-72 h-72 bg-purple-500/15 rounded-full blur-3xl" />
+            <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl" />
 
             <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
               {/* Section Header */}
               <div className="text-center mb-12 md:mb-16">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-red-500/20 text-red-400 text-sm font-semibold uppercase tracking-wider mb-4">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/20 text-purple-300 text-sm font-semibold uppercase tracking-wider mb-4 border border-purple-500/30">
                   The Challenge
                 </span>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight mb-6">
@@ -1011,10 +1011,10 @@ export default function PublicPropertyDetail() {
                   {getPainPoints(funnelContent.inputs?.buyerSegment).map((pain, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-4 bg-gradient-to-r from-red-500/10 to-transparent border border-red-500/20 rounded-xl p-4 hover:from-red-500/20 transition-all duration-300"
+                      className="flex items-center gap-4 bg-white/5 backdrop-blur-sm border border-purple-500/20 rounded-xl p-4 hover:bg-white/10 hover:border-purple-400/40 transition-all duration-300"
                     >
-                      <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0 border border-red-500/30">
-                        <span className="text-red-400 font-bold">{pain.icon}</span>
+                      <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 border border-purple-500/30">
+                        <span className="text-purple-300 font-bold">{pain.icon}</span>
                       </div>
                       <span className="text-gray-200 font-medium">{pain.text}</span>
                     </div>
@@ -1023,8 +1023,8 @@ export default function PublicPropertyDetail() {
 
                 {/* Right - AI Problem Content */}
                 <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-3xl blur-xl" />
-                  <div className="relative bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 rounded-3xl p-8 md:p-10 text-center">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-violet-500/20 rounded-3xl blur-xl" />
+                  <div className="relative bg-gradient-to-br from-[#1e1b4b] to-[#0f172a] border border-purple-500/20 rounded-3xl p-8 md:p-10 text-center shadow-[0_0_60px_rgba(139,92,246,0.15)]">
                     <div className="text-7xl md:text-8xl mb-6">😔</div>
                     <p className="text-xl md:text-2xl text-gray-200 font-medium leading-relaxed">
                       {funnelContent.problem}
