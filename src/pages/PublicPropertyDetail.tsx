@@ -979,43 +979,56 @@ export default function PublicPropertyDetail() {
           </div>
         )}
 
-        {/* Problem/Challenge Section - Clean Premium Style */}
+        {/* Problem/Challenge Section - Premium Purple Homes */}
         {!funnelLoading && funnelContent?.problem && (
-          <section className="bg-[#0f172a] py-20 md:py-28">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <section className="relative bg-gradient-to-b from-[#0d0a1a] via-[#1a1528] to-[#0d0a1a] py-24 md:py-32 overflow-hidden">
+            {/* Subtle purple ambient glow */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/5 rounded-full blur-[120px]" />
+            </div>
+
+            <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
               {/* Section Header */}
-              <div className="text-center mb-14 md:mb-20">
-                <span className="inline-block px-5 py-2 rounded-full bg-purple-600 text-white text-sm font-semibold uppercase tracking-wider mb-6">
+              <div className="text-center mb-16 md:mb-20">
+                <span className="inline-block px-5 py-2 rounded-full bg-gradient-to-r from-purple-600 to-purple-500 text-white text-xs font-bold uppercase tracking-[0.15em] mb-8 shadow-lg shadow-purple-500/25">
                   The Challenge
                 </span>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-[1.1] tracking-tight max-w-4xl mx-auto">
                   {extractProblemHeadline(funnelContent.problem)}
                 </h2>
               </div>
 
               {/* Two Column Layout */}
-              <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                 {/* Left - Dynamic Pain Points */}
                 <div className="space-y-4">
                   {getPainPoints(funnelContent.inputs?.buyerSegment).map((pain, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl p-5"
+                      className="group flex items-center gap-5 bg-gradient-to-r from-white/[0.03] to-transparent border border-purple-500/10 rounded-2xl p-5 hover:border-purple-500/25 hover:bg-white/[0.05] transition-all duration-300"
                     >
-                      <div className="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center flex-shrink-0">
-                        <span className="text-purple-400 font-semibold">{pain.icon}</span>
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-purple-500/20 to-purple-600/10 flex items-center justify-center flex-shrink-0 border border-purple-500/20 group-hover:border-purple-500/40 transition-colors">
+                        <span className="text-purple-400 text-lg">{pain.icon}</span>
                       </div>
-                      <span className="text-gray-300 text-lg">{pain.text}</span>
+                      <span className="text-gray-200 text-lg font-medium">{pain.text}</span>
                     </div>
                   ))}
                 </div>
 
-                {/* Right - AI Problem Content */}
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 md:p-10 text-center">
-                  <div className="text-6xl md:text-7xl mb-6">😔</div>
-                  <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
-                    {funnelContent.problem}
-                  </p>
+                {/* Right - Emotional Empathy Card */}
+                <div className="relative">
+                  {/* Subtle glow behind card */}
+                  <div className="absolute -inset-4 bg-purple-500/10 rounded-[2rem] blur-2xl opacity-50" />
+
+                  <div className="relative bg-gradient-to-br from-[#1e1a2e] to-[#15121f] border border-purple-500/15 rounded-3xl p-10 md:p-12 text-center shadow-2xl shadow-purple-900/20">
+                    <div className="text-6xl mb-8">😔</div>
+                    <p className="text-xl md:text-2xl text-gray-200 leading-relaxed font-light italic">
+                      "{funnelContent.problem}"
+                    </p>
+                    <div className="mt-8 pt-6 border-t border-purple-500/10">
+                      <p className="text-purple-400 text-sm font-medium tracking-wide">Sound familiar?</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
