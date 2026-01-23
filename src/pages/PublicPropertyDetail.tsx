@@ -1107,7 +1107,11 @@ export default function PublicPropertyDetail() {
                     <div className="absolute bottom-8 right-8 text-6xl text-purple-500/15 font-serif leading-none rotate-180">"</div>
 
                     <blockquote className="relative text-xl md:text-2xl lg:text-3xl text-white/95 leading-relaxed text-center font-light px-4 md:px-8">
-                      {funnelContent.solution}
+                      {(() => {
+                        const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
+                        const remaining = sentences.slice(2).join(' ').trim();
+                        return remaining || funnelContent.solution;
+                      })()}
                     </blockquote>
 
                     {/* Bottom accent */}
