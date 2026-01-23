@@ -1062,48 +1062,61 @@ export default function PublicPropertyDetail() {
         {/* Solution Section - Dynamic from AI */}
         {!funnelLoading && funnelContent?.solution && (
           <section className="relative bg-gradient-to-b from-[#0d0a1a] via-[#1a1528] to-white py-24 md:py-32 overflow-hidden">
-            {/* Ambient glow - shifted toward green/teal for "hope" feeling */}
+            {/* Ambient glow - purple brand colors */}
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-0 left-1/4 w-[600px] h-[400px] bg-emerald-500/8 rounded-full blur-[150px]" />
-              <div className="absolute top-1/3 right-1/4 w-[500px] h-[400px] bg-purple-500/10 rounded-full blur-[120px]" />
+              <div className="absolute top-0 left-1/4 w-[700px] h-[500px] bg-violet-500/10 rounded-full blur-[150px]" />
+              <div className="absolute top-1/3 right-1/4 w-[500px] h-[400px] bg-purple-400/8 rounded-full blur-[120px]" />
             </div>
 
-            <div className="relative max-w-4xl mx-auto px-4 sm:px-6">
+            <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
               {/* Section Header */}
-              <Reveal className="text-center mb-16">
-                <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[11px] font-black uppercase tracking-[0.2em] mb-8 shadow-xl shadow-emerald-500/30">
+              <Reveal className="text-center mb-16 md:mb-20">
+                <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white text-[11px] font-black uppercase tracking-[0.2em] mb-8 shadow-xl shadow-purple-500/40">
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
                   </span>
                   The Solution
                 </div>
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-[1.1] tracking-[-0.02em] max-w-3xl mx-auto mb-6">
-                  {funnelContent.solution.match(/^[^.!?]+[.!?]/)?.[0] || funnelContent.solution.split('.')[0]}
+                {/* Extract first 2 sentences for headline */}
+                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto">
+                  {(() => {
+                    const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
+                    return sentences.slice(0, 2).join(' ').trim();
+                  })()}
                 </h2>
               </Reveal>
 
               {/* Solution Content Card */}
               <Reveal delay={200}>
                 <div className="relative">
-                  {/* Glow behind card */}
-                  <div className="absolute -inset-4 bg-gradient-to-br from-emerald-500/15 to-purple-500/10 rounded-[2rem] blur-2xl" />
+                  {/* Multi-layer glow behind card */}
+                  <div className="absolute -inset-6 bg-gradient-to-br from-violet-500/20 to-purple-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+                  <div className="absolute -inset-3 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-[2rem] blur-xl" />
 
-                  <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl">
+                  <div className="relative bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-purple-400/25 rounded-3xl px-8 py-12 md:px-14 md:py-16 shadow-2xl shadow-purple-900/40 hover:border-purple-300/40 transition-all duration-500">
                     {/* Decorative checkmark */}
-                    <div className="flex justify-center mb-8">
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-xl shadow-emerald-500/30">
-                        <CheckCircle className="h-10 w-10 text-white" />
+                    <div className="flex justify-center mb-10">
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center shadow-xl shadow-purple-500/40">
+                        <CheckCircle className="h-12 w-12 text-white" />
                       </div>
                     </div>
 
-                    <p className="text-xl md:text-2xl text-white/90 leading-relaxed text-center font-light">
+                    {/* Decorative quote marks */}
+                    <div className="absolute top-8 left-8 text-6xl text-purple-500/15 font-serif leading-none">"</div>
+                    <div className="absolute bottom-8 right-8 text-6xl text-purple-500/15 font-serif leading-none rotate-180">"</div>
+
+                    <blockquote className="relative text-xl md:text-2xl lg:text-3xl text-white/95 leading-relaxed text-center font-light px-4 md:px-8">
                       {funnelContent.solution}
-                    </p>
+                    </blockquote>
 
                     {/* Bottom accent */}
-                    <div className="mt-10 pt-8 border-t border-white/10 text-center">
-                      <p className="text-emerald-300 text-sm font-bold tracking-[0.2em] uppercase">Your path forward starts here</p>
+                    <div className="relative mt-12 pt-10 border-t border-purple-400/20 text-center">
+                      <div className="inline-flex items-center gap-3">
+                        <span className="w-8 h-[2px] bg-gradient-to-r from-transparent to-purple-400/60" />
+                        <p className="text-purple-300 text-sm font-bold tracking-[0.2em] uppercase">Your path forward starts here</p>
+                        <span className="w-8 h-[2px] bg-gradient-to-l from-transparent to-purple-400/60" />
+                      </div>
                     </div>
                   </div>
                 </div>
