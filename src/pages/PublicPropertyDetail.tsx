@@ -788,8 +788,8 @@ export default function PublicPropertyDetail() {
                   ))}
 
                   {/* Dead end indicator */}
-                  <div className="hidden md:block text-center pt-2">
-                    <span className="inline-block bg-red-900/50 text-red-300 font-bold text-sm px-4 py-2 rounded-full border-2 border-red-500/50">
+                  <div className="hidden md:block text-center pt-4">
+                    <span className="inline-block bg-red-900 text-red-200 font-bold text-sm px-5 py-2.5 rounded-full border-2 border-red-600 shadow-lg">
                       😞 Stuck Forever
                     </span>
                   </div>
