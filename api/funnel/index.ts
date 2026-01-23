@@ -1406,8 +1406,91 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           hasAirtableConfig: !!(AIRTABLE_API_KEY && AIRTABLE_BASE_ID),
         });
 
+      case 'clear-inputs': {
+        // Clear all hardcoded inputs from all properties, reset to defaults
+        if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+          return res.status(500).json({ error: 'Airtable not configured' });
+        }
+
+        try {
+          // Fetch all properties with FunnelContent
+          const listResponse = await fetchWithRetry(
+            `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Properties?fields%5B%5D=FunnelContent&filterByFormula=NOT(%7BFunnelContent%7D%3D'')`,
+            {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          if (!listResponse.ok) {
+            throw new Error(`Failed to list properties: ${listResponse.status}`);
+          }
+
+          const listData = await listResponse.json();
+          const records = listData.records || [];
+          console.log(`[Funnel API] Found ${records.length} properties with FunnelContent`);
+
+          let cleared = 0;
+          let errors = 0;
+
+          for (const record of records) {
+            try {
+              const funnelContentStr = record.fields?.FunnelContent;
+              if (!funnelContentStr) continue;
+
+              const content = JSON.parse(funnelContentStr);
+
+              // Reset inputs to defaults (blank)
+              content.inputs = { ...DEFAULT_INPUTS };
+
+              // Save back to Airtable
+              const updateResponse = await fetchWithRetry(
+                `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Properties/${record.id}`,
+                {
+                  method: 'PATCH',
+                  headers: {
+                    'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    fields: {
+                      'FunnelContent': JSON.stringify(content),
+                    },
+                  }),
+                }
+              );
+
+              if (updateResponse.ok) {
+                cleared++;
+                console.log(`[Funnel API] Cleared inputs for: ${record.id}`);
+              } else {
+                errors++;
+                console.error(`[Funnel API] Failed to clear: ${record.id}`);
+              }
+            } catch (e) {
+              errors++;
+              console.error(`[Funnel API] Error processing ${record.id}:`, e);
+            }
+          }
+
+          return res.json({
+            success: true,
+            message: `Cleared inputs from ${cleared} properties`,
+            cleared,
+            errors,
+            total: records.length,
+          });
+        } catch (error) {
+          console.error('[Funnel API] Clear inputs error:', error);
+          return res.status(500).json({ error: 'Failed to clear inputs', details: String(error) });
+        }
+      }
+
       default:
-        return res.status(400).json({ error: 'Unknown action', validActions: ['generate', 'get', 'save', 'delete', 'list', 'test'] });
+        return res.status(400).json({ error: 'Unknown action', validActions: ['generate', 'get', 'save', 'delete', 'list', 'test', 'clear-inputs'] });
     }
   } catch (error) {
     console.error('[Funnel API] Error:', error);
