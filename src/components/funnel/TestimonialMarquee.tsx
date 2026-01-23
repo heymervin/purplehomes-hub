@@ -65,7 +65,7 @@ export function TestimonialMarquee({ testimonials, speed = 30 }: TestimonialMarq
 
   // Calculate animation duration based on content and speed
   // More items = longer duration for same perceived speed
-  const baseDuration = testimonials.length * 15; // ~15 seconds per testimonial
+  const baseDuration = testimonials.length * 8; // ~8 seconds per testimonial (faster scroll)
   const adjustedDuration = baseDuration * (30 / speed); // Adjust for custom speed
 
   if (testimonials.length === 0) {

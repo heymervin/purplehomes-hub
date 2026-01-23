@@ -1792,20 +1792,22 @@ export default function PublicPropertyDetail() {
             }
 
             return (
-              <section className="relative bg-black py-16 md:py-20 overflow-hidden">
+              <section className="relative bg-gradient-to-b from-black via-black to-[#0f172a] py-16 md:py-20 overflow-hidden">
                 {/* Ambient lighting */}
                 <div className="absolute top-0 left-1/4 w-[400px] h-[300px] bg-purple-600/10 rounded-full blur-[150px]" />
                 <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-violet-600/10 rounded-full blur-[150px]" />
 
-                <div className="text-center mb-10">
+                <Reveal className="text-center mb-10">
                   <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
                     Real Stories
                   </span>
                   <h2 className="text-3xl md:text-4xl font-bold text-white">
                     What Our <span className="bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Homeowners</span> Say
                   </h2>
-                </div>
-                <TestimonialMarquee testimonials={testimonials} speed={25} />
+                </Reveal>
+                <Reveal delay={200}>
+                  <TestimonialMarquee testimonials={testimonials} speed={25} />
+                </Reveal>
               </section>
             );
           })()
