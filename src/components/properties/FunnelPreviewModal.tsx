@@ -58,10 +58,27 @@ export function FunnelPreviewModal({
             {/* Hook - Attention Grabbing Headline */}
             {content.hook && (
               <Card className="bg-gradient-to-br from-purple-600 to-purple-800 text-white overflow-hidden">
-                <CardContent className="p-8 text-center">
-                  <h2 className="text-2xl sm:text-3xl font-bold leading-tight whitespace-pre-wrap">
-                    {content.hook}
-                  </h2>
+                <CardContent className="p-8 text-center space-y-4">
+                  {typeof content.hook === 'object' && 'headline' in content.hook ? (
+                    <>
+                      <h2 className="text-2xl sm:text-3xl font-bold leading-tight">
+                        {content.hook.headline}
+                      </h2>
+                      {content.hook.benefit && (
+                        <p className="text-purple-200 text-lg">{content.hook.benefit}</p>
+                      )}
+                      {content.hook.urgency && (
+                        <p className="text-yellow-300 font-medium">{content.hook.urgency}</p>
+                      )}
+                      {content.hook.bonus && (
+                        <p className="text-green-300 text-sm">{content.hook.bonus}</p>
+                      )}
+                    </>
+                  ) : (
+                    <h2 className="text-2xl sm:text-3xl font-bold leading-tight whitespace-pre-wrap">
+                      {String(content.hook)}
+                    </h2>
+                  )}
                 </CardContent>
               </Card>
             )}
