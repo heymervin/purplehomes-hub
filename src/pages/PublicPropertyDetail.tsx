@@ -1059,34 +1059,57 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Solution Section */}
+        {/* Solution Section - Dynamic from AI */}
         {!funnelLoading && funnelContent?.solution && (
-          <FunnelSection variant="dark" padding="lg" blendTo="white">
-            <SectionHeader
-              overline="There's a Better Way"
-              title="Rent-to-Own: Your Path to Homeownership"
-              subtitle="Purple Homes specializes in helping families like yours achieve the dream of homeownership—even when banks say no."
-              dark
-            />
-            <div className="grid md:grid-cols-3 gap-6 mt-12">
-              {[
-                { icon: <Shield className="h-6 w-6" />, title: "No Bank Required", desc: "We work directly with you, no traditional lenders needed" },
-                { icon: <DollarSign className="h-6 w-6" />, title: "Build Equity Now", desc: "Every payment goes toward YOUR future, not a landlord's" },
-                { icon: <CheckCircle className="h-6 w-6" />, title: "Lock Your Price", desc: "Today's price is locked in, even if the market goes up" },
-              ].map((item, i) => (
-                <div key={i} className="bg-white/5 backdrop-blur border border-purple-400/20 rounded-2xl p-8 text-center hover:-translate-y-1 transition-all duration-300">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center mx-auto mb-5 text-white shadow-lg shadow-purple-500/30">
-                    {item.icon}
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
-                  <p className="text-gray-400">{item.desc}</p>
+          <section className="relative bg-gradient-to-b from-[#0d0a1a] via-[#1a1528] to-white py-24 md:py-32 overflow-hidden">
+            {/* Ambient glow - shifted toward green/teal for "hope" feeling */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-0 left-1/4 w-[600px] h-[400px] bg-emerald-500/8 rounded-full blur-[150px]" />
+              <div className="absolute top-1/3 right-1/4 w-[500px] h-[400px] bg-purple-500/10 rounded-full blur-[120px]" />
+            </div>
+
+            <div className="relative max-w-4xl mx-auto px-4 sm:px-6">
+              {/* Section Header */}
+              <Reveal className="text-center mb-16">
+                <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-[11px] font-black uppercase tracking-[0.2em] mb-8 shadow-xl shadow-emerald-500/30">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+                  </span>
+                  The Solution
                 </div>
-              ))}
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-[1.1] tracking-[-0.02em] max-w-3xl mx-auto mb-6">
+                  {funnelContent.solution.match(/^[^.!?]+[.!?]/)?.[0] || funnelContent.solution.split('.')[0]}
+                </h2>
+              </Reveal>
+
+              {/* Solution Content Card */}
+              <Reveal delay={200}>
+                <div className="relative">
+                  {/* Glow behind card */}
+                  <div className="absolute -inset-4 bg-gradient-to-br from-emerald-500/15 to-purple-500/10 rounded-[2rem] blur-2xl" />
+
+                  <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 rounded-3xl p-8 md:p-12 shadow-2xl">
+                    {/* Decorative checkmark */}
+                    <div className="flex justify-center mb-8">
+                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-xl shadow-emerald-500/30">
+                        <CheckCircle className="h-10 w-10 text-white" />
+                      </div>
+                    </div>
+
+                    <p className="text-xl md:text-2xl text-white/90 leading-relaxed text-center font-light">
+                      {funnelContent.solution}
+                    </p>
+
+                    {/* Bottom accent */}
+                    <div className="mt-10 pt-8 border-t border-white/10 text-center">
+                      <p className="text-emerald-300 text-sm font-bold tracking-[0.2em] uppercase">Your path forward starts here</p>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
             </div>
-            <div className="mt-10 bg-white/10 backdrop-blur rounded-xl p-6">
-              <p className="text-gray-200 leading-relaxed">{funnelContent.solution}</p>
-            </div>
-          </FunnelSection>
+          </section>
         )}
 
         {/* Property Showcase */}
