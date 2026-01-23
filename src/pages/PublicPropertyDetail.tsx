@@ -286,89 +286,106 @@ export default function PublicPropertyDetail() {
 
       {/* Main Content */}
       <main>
-        {/* DRAMATIC HERO SECTION - PURPLE HOMES BRANDED */}
+        {/* DRAMATIC HERO SECTION - PURPLE HOMES BRANDED - MAXIMUM IMPACT */}
         <section className="relative bg-black overflow-hidden">
-          {/* Purple ambient glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-600/20 rounded-full blur-[180px]" />
-          <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-violet-600/10 rounded-full blur-[120px]" />
-          <div className="absolute top-1/3 right-0 w-[300px] h-[300px] bg-purple-500/10 rounded-full blur-[100px]" />
+          {/* Dramatic purple ambient lighting */}
+          <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[600px] md:w-[1200px] h-[400px] md:h-[600px] bg-purple-600/30 rounded-full blur-[150px] md:blur-[200px]" />
+          <div className="absolute bottom-0 left-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-violet-700/20 rounded-full blur-[100px] md:blur-[150px]" />
+          <div className="absolute top-1/2 right-0 w-[250px] md:w-[400px] h-[250px] md:h-[400px] bg-purple-500/15 rounded-full blur-[80px] md:blur-[120px]" />
 
-          <div className="relative max-w-5xl mx-auto px-4 py-20 md:py-28">
+          {/* Subtle grid texture */}
+          <div
+            className="absolute inset-0 opacity-[0.02]"
+            style={{
+              backgroundImage: `radial-gradient(circle at 1px 1px, rgba(168,85,247,0.4) 1px, transparent 0)`,
+              backgroundSize: '40px 40px'
+            }}
+          />
+
+          <div className="relative max-w-5xl mx-auto px-4 py-16 md:py-24 lg:py-32">
             <div className="text-center">
-              {/* Eyebrow */}
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/20 border border-purple-400/30 rounded-full text-purple-300 text-sm font-bold uppercase tracking-wider mb-8">
-                <span className="relative flex h-2.5 w-2.5">
+              {/* Eyebrow - Mobile optimized */}
+              <div className="inline-flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-purple-500/25 border border-purple-400/40 rounded-full text-purple-300 text-xs md:text-sm font-bold uppercase tracking-wider mb-6 md:mb-8 backdrop-blur-sm">
+                <span className="relative flex h-2 w-2 md:h-2.5 md:w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-400"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 md:h-2.5 md:w-2.5 bg-purple-400"></span>
                 </span>
-                Limited Time Opportunity in {property.city}
+                <span className="truncate max-w-[200px] md:max-w-none">Limited Time in {property.city}</span>
               </div>
 
-              {/* Main Headline */}
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-[1.15] mb-3 tracking-tight">
-                Stop Paying Your{' '}
-                <span className="relative inline-block whitespace-nowrap">
-                  {/* Purple highlighter effect */}
-                  <span className="absolute inset-x-0 bottom-1 top-2 bg-gradient-to-r from-purple-500 via-violet-500 to-purple-500 -skew-x-2" />
-                  <span className="relative text-white px-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">Landlord's Mortgage</span>
-                </span>
+              {/* Main Headline - Responsive sizes */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-2 md:mb-3 tracking-tight">
+                Stop Paying Your
               </h1>
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-400 mb-8">
+              <div className="mb-3 md:mb-4">
+                <span className="relative inline-block">
+                  {/* Vibrant purple highlighter - more saturated */}
+                  <span className="absolute inset-x-[-4px] md:inset-x-[-8px] bottom-[2px] md:bottom-[4px] top-[4px] md:top-[8px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
+                  <span className="relative text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white px-1 md:px-2 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
+                    Landlord's Mortgage
+                  </span>
+                </span>
+              </div>
+              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-400 mb-6 md:mb-8">
                 Start Building <span className="text-white">Your Own Wealth</span>
               </p>
 
-              {/* Sub-headline with emphasis */}
-              <div className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed">
-                <span>Own this home for as low as </span>
-                <span className="text-3xl md:text-4xl font-black text-purple-400 drop-shadow-[0_0_20px_rgba(168,85,247,0.5)]">
-                  ${property.monthlyPayment?.toLocaleString() || Math.round((property.price * 0.006)).toLocaleString()}/mo
-                </span>
-                <br />
+              {/* Price callout - MAXIMUM emphasis */}
+              <div className="text-lg md:text-xl lg:text-2xl text-gray-300 max-w-3xl mx-auto mb-8 md:mb-10 leading-relaxed px-2">
+                <span>Own this home for as low as</span>
+                <div className="my-3 md:my-4">
+                  <span className="relative inline-block">
+                    <span className="absolute inset-0 bg-purple-500/20 blur-2xl scale-150" />
+                    <span className="relative text-4xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-violet-300 to-purple-300 drop-shadow-[0_0_30px_rgba(168,85,247,0.6)]">
+                      ${property.monthlyPayment?.toLocaleString() || Math.round((property.price * 0.006)).toLocaleString()}/mo
+                    </span>
+                  </span>
+                </div>
                 <span className="text-gray-400">— even with </span>
                 <span className="relative inline-block mx-1">
-                  <span className="absolute inset-0 bg-purple-500/30 -skew-x-3 rounded" />
-                  <span className="relative italic font-semibold text-white px-2">less-than-perfect credit</span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-purple-500/40 to-violet-500/40 -skew-x-3 rounded" />
+                  <span className="relative italic font-semibold text-white px-2 md:px-3">less-than-perfect credit</span>
                 </span>
               </div>
 
-              {/* Trust indicators - Purple branded */}
-              <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-base text-gray-300 mb-12">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-purple-400" />
+              {/* Trust indicators - Mobile stacked, desktop inline */}
+              <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-x-6 md:gap-x-8 gap-y-2 text-sm md:text-base text-gray-300 mb-8 md:mb-12">
+                <div className="flex items-center justify-center gap-2">
+                  <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
                   <span className="font-medium">No Bank Qualifying</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-purple-400" />
+                <div className="flex items-center justify-center gap-2">
+                  <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
                   <span className="font-medium">Move In 30 Days</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-purple-400" />
+                <div className="flex items-center justify-center gap-2">
+                  <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
                   <span className="font-medium">Build Equity Now</span>
                 </div>
               </div>
 
-              {/* CTA - White/Cream with Purple glow (Purple Homes branded, high contrast) */}
-              <div className="flex flex-col items-center gap-4">
+              {/* CTA - MAXIMUM glow, mobile friendly */}
+              <div className="flex flex-col items-center gap-3 md:gap-4 px-4">
                 <button
                   onClick={scrollToForm}
-                  className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-xl uppercase tracking-wide px-12 py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4)] hover:shadow-[0_0_70px_rgba(168,85,247,0.6)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-200"
+                  className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-8 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
                 >
                   Check If I Qualify
                   <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </button>
-                <span className="text-gray-500 text-sm">Takes less than 2 minutes • No credit check required</span>
+                <span className="text-gray-500 text-xs md:text-sm">Takes less than 2 minutes • No credit check</span>
               </div>
             </div>
           </div>
 
           {/* Bottom fade to property section */}
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-24 md:h-32 bg-gradient-to-t from-black to-transparent" />
         </section>
 
         {/* Property Image Section */}
         <section className="relative bg-black">
-          <div className="max-w-6xl mx-auto px-4 -mt-12 relative z-10">
-            <div className="rounded-2xl overflow-hidden shadow-2xl shadow-purple-500/20 border border-purple-500/20">
+          <div className="max-w-6xl mx-auto px-3 md:px-4 -mt-8 md:-mt-12 relative z-10">
+            <div className="rounded-xl md:rounded-2xl overflow-hidden shadow-2xl shadow-purple-500/30 border border-purple-500/30">
               <PropertyImageGallery
                 images={property.images || [property.heroImage]}
                 heroImage={property.heroImage}
@@ -379,46 +396,46 @@ export default function PublicPropertyDetail() {
             </div>
           </div>
 
-          {/* Property Quick Info Bar */}
-          <div className="bg-black pt-8 pb-12">
+          {/* Property Quick Info Bar - Mobile optimized */}
+          <div className="bg-black pt-6 md:pt-8 pb-8 md:pb-12">
             <div className="max-w-6xl mx-auto px-4">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                <div>
-                  <div className="flex items-baseline gap-3 mb-2">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-white">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
+                <div className="text-center md:text-left">
+                  <div className="flex flex-wrap items-baseline justify-center md:justify-start gap-2 md:gap-3 mb-1 md:mb-2">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
                       ${property.price.toLocaleString()}
                     </h2>
                     {property.monthlyPayment !== undefined && (
-                      <span className="text-xl font-bold text-purple-400">
+                      <span className="text-lg md:text-xl font-bold text-purple-400">
                         ${property.monthlyPayment.toLocaleString()}/mo
                       </span>
                     )}
                   </div>
-                  <p className="text-xl text-white font-medium">{property.address}</p>
-                  <p className="text-gray-400 flex items-center gap-1 mt-1">
+                  <p className="text-lg md:text-xl text-white font-medium">{property.address}</p>
+                  <p className="text-gray-400 flex items-center justify-center md:justify-start gap-1 mt-1 text-sm md:text-base">
                     <MapPin className="h-4 w-4" />
                     {property.city}
                   </p>
                 </div>
 
-                {/* Quick Stats Pills */}
-                <div className="flex flex-wrap gap-3">
-                  <span className="px-5 py-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-white font-semibold flex items-center gap-2">
-                    <Bed className="h-5 w-5 text-purple-400" /> {property.beds} Beds
+                {/* Quick Stats Pills - Mobile scroll or wrap */}
+                <div className="flex flex-wrap justify-center md:justify-end gap-2 md:gap-3">
+                  <span className="px-3 md:px-5 py-2 md:py-3 bg-purple-500/15 border border-purple-500/30 rounded-lg md:rounded-xl text-white font-semibold flex items-center gap-1.5 md:gap-2 text-sm md:text-base">
+                    <Bed className="h-4 w-4 md:h-5 md:w-5 text-purple-400" /> {property.beds} Beds
                   </span>
-                  <span className="px-5 py-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-white font-semibold flex items-center gap-2">
-                    <Bath className="h-5 w-5 text-purple-400" /> {property.baths} Baths
+                  <span className="px-3 md:px-5 py-2 md:py-3 bg-purple-500/15 border border-purple-500/30 rounded-lg md:rounded-xl text-white font-semibold flex items-center gap-1.5 md:gap-2 text-sm md:text-base">
+                    <Bath className="h-4 w-4 md:h-5 md:w-5 text-purple-400" /> {property.baths} Baths
                   </span>
                   {property.sqft && (
-                    <span className="px-5 py-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-white font-semibold flex items-center gap-2">
-                      <Maximize2 className="h-5 w-5 text-purple-400" /> {property.sqft.toLocaleString()} sqft
+                    <span className="px-3 md:px-5 py-2 md:py-3 bg-purple-500/15 border border-purple-500/30 rounded-lg md:rounded-xl text-white font-semibold flex items-center gap-1.5 md:gap-2 text-sm md:text-base">
+                      <Maximize2 className="h-4 w-4 md:h-5 md:w-5 text-purple-400" /> {property.sqft.toLocaleString()} sqft
                     </span>
                   )}
                 </div>
               </div>
 
               {/* Live Viewers */}
-              <div className="mt-6">
+              <div className="mt-4 md:mt-6 flex justify-center md:justify-start">
                 <LiveViewers count={Math.floor(Math.random() * 5) + 2} variant="premium" />
               </div>
             </div>
