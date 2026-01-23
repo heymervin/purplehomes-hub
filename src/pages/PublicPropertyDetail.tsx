@@ -46,6 +46,77 @@ import {
   CredentialsBar,
 } from '@/components/funnel';
 
+// Live Countdown Timer Component
+function UrgencyCountdown({ hoursFromNow = 48 }: { hoursFromNow?: number }) {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    // Set target date (stored in sessionStorage to persist across page loads)
+    const storageKey = 'urgency_countdown_target';
+    let targetTime = sessionStorage.getItem(storageKey);
+
+    if (!targetTime) {
+      const target = new Date();
+      target.setHours(target.getHours() + hoursFromNow);
+      targetTime = target.getTime().toString();
+      sessionStorage.setItem(storageKey, targetTime);
+    }
+
+    const target = parseInt(targetTime, 10);
+
+    const calculateTimeLeft = () => {
+      const now = Date.now();
+      const distance = target - now;
+
+      if (distance <= 0) {
+        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+      }
+
+      return {
+        days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+        minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+        seconds: Math.floor((distance % (1000 * 60)) / 1000),
+      };
+    };
+
+    setTimeLeft(calculateTimeLeft());
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [hoursFromNow]);
+
+  const units = [
+    { value: timeLeft.days, label: 'Days' },
+    { value: timeLeft.hours, label: 'Hours' },
+    { value: timeLeft.minutes, label: 'Min' },
+    { value: timeLeft.seconds, label: 'Sec' },
+  ];
+
+  return (
+    <div className="flex justify-center gap-3 md:gap-5 mb-12">
+      {units.map((unit, index) => (
+        <div key={index} className="text-center">
+          <div className="relative">
+            {/* Glow behind */}
+            <div className="absolute inset-0 bg-gradient-to-b from-red-500/30 to-purple-500/30 rounded-2xl blur-xl scale-110" />
+            <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl px-4 md:px-6 py-4 md:py-6 border border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+              <div className="text-4xl md:text-6xl font-black text-white tabular-nums">
+                {String(unit.value).padStart(2, '0')}
+              </div>
+            </div>
+          </div>
+          <div className="text-xs md:text-sm uppercase tracking-wider text-gray-500 mt-3 font-semibold">
+            {unit.label}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // Animated Stats Section Component
 function AnimatedStatsSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -53,10 +124,10 @@ function AnimatedStatsSection() {
   const [counts, setCounts] = useState([0, 0, 0, 0]);
 
   const statsConfig = [
-    { target: 500, duration: 2500, label: 'Families Helped', suffix: '+', icon: Users },
-    { target: 15, duration: 2000, label: 'Years Experience', suffix: '+', icon: Clock },
-    { target: 98, duration: 2200, label: 'Satisfaction Rate', suffix: '%', icon: Award },
-    { target: 24, duration: 1800, label: 'Hour Response', prefix: '<', icon: Shield },
+    { target: 500, duration: 2500, labelTop: 'Families', labelBottom: 'Helped', suffix: '+', icon: Users },
+    { target: 15, duration: 2000, labelTop: 'Years', labelBottom: 'Experience', suffix: '+', icon: Clock },
+    { target: 98, duration: 2200, labelTop: 'Satisfaction', labelBottom: 'Rate', suffix: '%', icon: Award },
+    { target: 24, duration: 1800, labelTop: 'Hour', labelBottom: 'Response', prefix: '<', icon: Shield },
   ];
 
   // Watch for section visibility
@@ -117,21 +188,22 @@ function AnimatedStatsSection() {
       />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4">
-        {/* Section header */}
-        <div className="text-center mb-16">
-          <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-sm font-semibold uppercase tracking-wider mb-4">
+        {/* Section header - Enhanced Typography */}
+        <div className="text-center mb-20">
+          <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
             Proven Track Record
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-white">
-            Numbers That{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-400">
-              Speak for Themselves
+          <h2 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight">
+            <span className="font-light">Numbers That</span>{' '}
+            <span className="font-black italic bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+              Speak
             </span>
           </h2>
+          <p className="text-gray-500 text-lg mt-4 font-light tracking-wide">for themselves</p>
         </div>
 
-        {/* Stats grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+        {/* Stats grid - Premium Typography */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
           {statsConfig.map((stat, index) => {
             const Icon = stat.icon;
             const count = counts[index];
@@ -142,24 +214,52 @@ function AnimatedStatsSection() {
               >
                 {/* Divider between items (desktop) */}
                 {index < statsConfig.length - 1 && (
-                  <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 h-20 w-px bg-gradient-to-b from-transparent via-purple-500/30 to-transparent" />
+                  <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 h-32 w-px bg-gradient-to-b from-transparent via-purple-500/40 to-transparent" />
                 )}
 
-                {/* Icon */}
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 mb-4 group-hover:scale-110 group-hover:bg-purple-500/20 transition-all duration-300">
-                  <Icon className="h-7 w-7 text-purple-400" />
+                {/* Icon with glow */}
+                <div className="relative inline-block mb-6">
+                  <div className="absolute inset-0 bg-purple-500/30 rounded-2xl blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 group-hover:scale-110 group-hover:border-purple-400/50 transition-all duration-300">
+                    <Icon className="h-8 w-8 text-purple-400" />
+                  </div>
                 </div>
 
-                {/* Animated number */}
-                <div className="text-5xl md:text-6xl lg:text-7xl font-extralight tracking-tight text-white/95 tabular-nums">
-                  {stat.prefix}
-                  <span className="font-light">{count.toString().padStart(count > 99 ? 3 : 2, '0')}</span>
-                  {stat.suffix}
+                {/* Animated number - Dramatic Typography */}
+                <div className="relative mb-4">
+                  {/* Number glow */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-purple-400/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  <div className="relative flex items-baseline justify-center">
+                    {/* Prefix */}
+                    {stat.prefix && (
+                      <span className="text-3xl md:text-4xl font-light text-purple-400/70 mr-1">
+                        {stat.prefix}
+                      </span>
+                    )}
+
+                    {/* Main number - BOLD */}
+                    <span className="text-6xl md:text-7xl lg:text-8xl font-black bg-gradient-to-b from-white via-white to-white/70 bg-clip-text text-transparent tabular-nums tracking-tight">
+                      {count}
+                    </span>
+
+                    {/* Suffix - smaller, superscript style */}
+                    {stat.suffix && (
+                      <span className="text-2xl md:text-3xl font-bold text-purple-400 ml-1 -translate-y-4">
+                        {stat.suffix}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                {/* Label */}
-                <div className="text-xs md:text-sm mt-4 uppercase tracking-[0.15em] font-medium text-purple-400/80">
-                  {stat.label}
+                {/* Label - Split with Typography Contrast */}
+                <div className="space-y-0.5">
+                  <div className="text-sm md:text-base font-bold uppercase tracking-[0.15em] text-white/90">
+                    {stat.labelTop}
+                  </div>
+                  <div className="text-xs md:text-sm font-light italic tracking-wide text-purple-400/80">
+                    {stat.labelBottom}
+                  </div>
                 </div>
               </div>
             );
@@ -1274,30 +1374,8 @@ export default function PublicPropertyDetail() {
               Secure today's pricing before the next increase. Once it's gone, it's gone.
             </p>
 
-            {/* Countdown display - custom dramatic version */}
-            <div className="flex justify-center gap-3 md:gap-5 mb-12">
-              {[
-                { value: '01', label: 'Days' },
-                { value: '23', label: 'Hours' },
-                { value: '59', label: 'Min' },
-                { value: '59', label: 'Sec' },
-              ].map((unit, index) => (
-                <div key={index} className="text-center">
-                  <div className="relative">
-                    {/* Glow behind */}
-                    <div className="absolute inset-0 bg-gradient-to-b from-red-500/30 to-purple-500/30 rounded-2xl blur-xl scale-110" />
-                    <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl px-4 md:px-6 py-4 md:py-6 border border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
-                      <div className="text-4xl md:text-6xl font-black text-white tabular-nums">
-                        {unit.value}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-xs md:text-sm uppercase tracking-wider text-gray-500 mt-3 font-semibold">
-                    {unit.label}
-                  </div>
-                </div>
-              ))}
-            </div>
+            {/* Live Countdown Timer */}
+            <UrgencyCountdown hoursFromNow={48} />
 
             {/* Scarcity indicator */}
             <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-orange-500/10 border border-orange-500/30 mb-10">
