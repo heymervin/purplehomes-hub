@@ -46,6 +46,59 @@ import {
   CredentialsBar,
 } from '@/components/funnel';
 
+// Scroll Reveal Animation Hook
+function useScrollReveal(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect(); // Only animate once
+        }
+      },
+      { threshold }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, [threshold]);
+
+  return { ref, isVisible };
+}
+
+// Reveal wrapper component for cleaner usage
+function Reveal({
+  children,
+  delay = 0,
+  className = ''
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  const { ref, isVisible } = useScrollReveal(0.1);
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${className}`}
+      style={{
+        transitionDelay: `${delay}ms`,
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 // Live Countdown Timer Component
 function UrgencyCountdown({ hoursFromNow = 48 }: { hoursFromNow?: number }) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -188,8 +241,8 @@ function AnimatedStatsSection() {
       />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4">
-        {/* Section header - Enhanced Typography */}
-        <div className="text-center mb-20">
+        {/* Section header - Enhanced Typography with Reveal */}
+        <Reveal className="text-center mb-20">
           <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
             Proven Track Record
           </span>
@@ -200,16 +253,17 @@ function AnimatedStatsSection() {
             </span>
           </h2>
           <p className="text-gray-500 text-lg mt-4 font-light tracking-wide">for themselves</p>
-        </div>
+        </Reveal>
 
-        {/* Stats grid - Premium Typography */}
+        {/* Stats grid - Premium Typography with Staggered Reveal */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-6">
           {statsConfig.map((stat, index) => {
             const Icon = stat.icon;
             const count = counts[index];
             return (
-              <div
+              <Reveal
                 key={index}
+                delay={index * 150}
                 className="text-center relative group"
               >
                 {/* Divider between items (desktop) */}
@@ -261,7 +315,7 @@ function AnimatedStatsSection() {
                     {stat.labelBottom}
                   </div>
                 </div>
-              </div>
+              </Reveal>
             );
           })}
         </div>
@@ -1118,8 +1172,8 @@ export default function PublicPropertyDetail() {
           />
 
           <div className="relative z-10 container mx-auto px-4">
-            {/* Header */}
-            <div className="text-center mb-16">
+            {/* Header with Reveal */}
+            <Reveal className="text-center mb-16">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-500/30 backdrop-blur-sm mb-6">
                 <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
                 <span className="text-purple-300 text-sm font-medium tracking-wider uppercase">Simple Process</span>
@@ -1133,7 +1187,7 @@ export default function PublicPropertyDetail() {
               <p className="text-gray-400 text-lg max-w-2xl mx-auto">
                 Our streamlined process makes becoming a homeowner easier than ever
               </p>
-            </div>
+            </Reveal>
 
             {/* Steps */}
             <div className="max-w-5xl mx-auto">
@@ -1142,7 +1196,7 @@ export default function PublicPropertyDetail() {
 
               <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
                 {/* Step 1 */}
-                <div className="relative text-center group">
+                <Reveal delay={0} className="relative text-center group">
                   <div className="relative mx-auto mb-8">
                     {/* Glow ring */}
                     <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -1160,10 +1214,10 @@ export default function PublicPropertyDetail() {
                   <span className="inline-block mt-4 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
                     5 minutes
                   </span>
-                </div>
+                </Reveal>
 
                 {/* Step 2 */}
-                <div className="relative text-center group">
+                <Reveal delay={200} className="relative text-center group">
                   <div className="relative mx-auto mb-8">
                     <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
@@ -1179,10 +1233,10 @@ export default function PublicPropertyDetail() {
                   <span className="inline-block mt-4 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
                     1-2 weeks
                   </span>
-                </div>
+                </Reveal>
 
                 {/* Step 3 */}
-                <div className="relative text-center group">
+                <Reveal delay={400} className="relative text-center group">
                   <div className="relative mx-auto mb-8">
                     <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
@@ -1198,7 +1252,7 @@ export default function PublicPropertyDetail() {
                   <span className="inline-block mt-4 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
                     30 days
                   </span>
-                </div>
+                </Reveal>
               </div>
             </div>
 
@@ -1356,33 +1410,41 @@ export default function PublicPropertyDetail() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-red-500/20 animate-ping" style={{ animationDuration: '3s' }} />
 
           <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
-            {/* Urgency badge */}
-            <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-red-500/20 border border-red-500/40 backdrop-blur-sm mb-8 animate-pulse">
-              <div className="w-2 h-2 rounded-full bg-red-500" />
-              <span className="text-red-300 text-sm font-bold tracking-wider uppercase">Limited Time Offer</span>
-              <div className="w-2 h-2 rounded-full bg-red-500" />
-            </div>
+            {/* Urgency badge with Reveal */}
+            <Reveal>
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-red-500/20 border border-red-500/40 backdrop-blur-sm mb-8 animate-pulse">
+                <div className="w-2 h-2 rounded-full bg-red-500" />
+                <span className="text-red-300 text-sm font-bold tracking-wider uppercase">Limited Time Offer</span>
+                <div className="w-2 h-2 rounded-full bg-red-500" />
+              </div>
+            </Reveal>
 
-            {/* Main headline */}
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4">
-              This Price{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-orange-400 to-red-400">
-                Won't Last
-              </span>
-            </h2>
-            <p className="text-xl text-gray-400 mb-10 max-w-xl mx-auto">
-              Secure today's pricing before the next increase. Once it's gone, it's gone.
-            </p>
+            {/* Main headline with Reveal */}
+            <Reveal delay={100}>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4">
+                This Price{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-orange-400 to-red-400">
+                  Won't Last
+                </span>
+              </h2>
+              <p className="text-xl text-gray-400 mb-10 max-w-xl mx-auto">
+                Secure today's pricing before the next increase. Once it's gone, it's gone.
+              </p>
+            </Reveal>
 
-            {/* Live Countdown Timer */}
-            <UrgencyCountdown hoursFromNow={48} />
+            {/* Live Countdown Timer with Reveal */}
+            <Reveal delay={200}>
+              <UrgencyCountdown hoursFromNow={48} />
+            </Reveal>
 
-            {/* Scarcity indicator */}
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-orange-500/10 border border-orange-500/30 mb-10">
-              <span className="text-orange-400 text-2xl">🔥</span>
-              <span className="text-orange-300 font-bold">Only 3 spots left at this price</span>
-              <span className="text-orange-400 text-2xl">🔥</span>
-            </div>
+            {/* Scarcity indicator with Reveal */}
+            <Reveal delay={300}>
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-orange-500/10 border border-orange-500/30 mb-10">
+                <span className="text-orange-400 text-2xl">🔥</span>
+                <span className="text-orange-300 font-bold">Only 3 spots left at this price</span>
+                <span className="text-orange-400 text-2xl">🔥</span>
+              </div>
+            </Reveal>
 
             {/* CTA - Maximum urgency */}
             <div>
