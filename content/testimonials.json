@@ -1,0 +1,41 @@
+{
+  "testimonials": [
+    {
+      "quote": "I was rejected by three banks. I felt hopeless. Then Purple Homes helped me find my dream home with owner financing. Now I'm building equity instead of wasting rent!",
+      "authorName": "Sarah M.",
+      "authorTitle": "First-Time Homeowner",
+      "rating": 5
+    },
+    {
+      "quote": "After my divorce, my credit took a hit. Traditional lenders wouldn't even look at me. Purple Homes saw my potential, not just my score. Best decision I ever made.",
+      "authorName": "Marcus T.",
+      "authorTitle": "Proud Homeowner",
+      "rating": 5
+    },
+    {
+      "quote": "As a self-employed contractor, banks treated me like a risk. Purple Homes treated me like a person. My family finally has a place to call our own.",
+      "authorName": "Jennifer L.",
+      "authorTitle": "Small Business Owner",
+      "rating": 5
+    },
+    {
+      "quote": "The process was so simple. No endless paperwork, no judgment. Just real people helping real families achieve their dreams. I tell everyone about Purple Homes.",
+      "authorName": "David R.",
+      "authorTitle": "Purple Homes Homeowner",
+      "rating": 5
+    },
+    {
+      "quote": "I thought homeownership was impossible for someone like me. Purple Homes proved me wrong. My kids finally have a backyard to play in.",
+      "authorName": "Maria G.",
+      "authorTitle": "Happy Mom of 3",
+      "rating": 5
+    },
+    {
+      "quote": "From application to keys in hand - the whole team made it seamless. They really care about getting families into homes. Can't recommend them enough!",
+      "authorName": "Chris & Amanda P.",
+      "authorTitle": "Newlyweds",
+      "rating": 5
+    }
+  ],
+  "updatedAt": "2026-01-23T00:00:00.000Z"
+}

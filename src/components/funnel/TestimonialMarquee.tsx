@@ -5,7 +5,7 @@
  * Used on property funnel pages for social proof.
  */
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import type { Testimonial } from '@/types/funnel';
 
 interface TestimonialMarqueeProps {
@@ -30,31 +30,27 @@ function StarRating({ rating = 5 }: { rating?: number }) {
 }
 
 function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
-  return (
-    <div className="flex-shrink-0 w-[350px] md:w-[400px] bg-gradient-to-br from-[#1e1a2e] to-[#13101c] border border-purple-500/20 rounded-2xl p-6 mx-3 shadow-xl">
-      {/* Quote icon */}
-      <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4">
-        <svg className="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-        </svg>
-      </div>
+  // Clean quote text - remove any existing surrounding quotes
+  const cleanQuote = testimonial.quote.replace(/^["'"]+|["'"]+$/g, '').trim();
 
-      {/* Stars */}
+  return (
+    <div className="flex-shrink-0 w-[320px] md:w-[380px] bg-gradient-to-br from-[#1e1a2e] to-[#13101c] border border-purple-500/30 rounded-2xl p-6 mx-2 shadow-[0_0_40px_rgba(139,92,246,0.15)] hover:shadow-[0_0_50px_rgba(139,92,246,0.25)] transition-shadow duration-500">
+      {/* Stars at top - like Ali Abdaal style */}
       <StarRating rating={testimonial.rating} />
 
       {/* Quote */}
-      <p className="text-white/90 text-base leading-relaxed mt-4 mb-6 line-clamp-4">
-        "{testimonial.quote}"
+      <p className="text-white/90 text-[15px] leading-relaxed mt-4 mb-6 min-h-[100px]">
+        {cleanQuote}
       </p>
 
       {/* Author */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 bg-purple-500/30 rounded-full flex items-center justify-center text-purple-300 font-bold">
+      <div className="flex items-center gap-3 pt-4 border-t border-purple-500/20">
+        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
           {testimonial.authorName.charAt(0).toUpperCase()}
         </div>
         <div>
           <p className="text-white font-semibold text-sm">{testimonial.authorName}</p>
-          <p className="text-gray-400 text-xs">{testimonial.authorTitle || 'Purple Homes Homeowner'}</p>
+          <p className="text-purple-300/70 text-xs">{testimonial.authorTitle || 'Purple Homes Homeowner'}</p>
         </div>
       </div>
     </div>
@@ -62,38 +58,15 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
 }
 
 export function TestimonialMarquee({ testimonials, speed = 30 }: TestimonialMarqueeProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Duplicate testimonials for seamless loop
-  const items = [...testimonials, ...testimonials];
+  // Triple testimonials for seamless infinite scroll effect
+  const items = [...testimonials, ...testimonials, ...testimonials];
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || testimonials.length === 0) return;
-
-    let animationId: number;
-    let position = 0;
-
-    const animate = () => {
-      if (!isPaused) {
-        position -= speed / 60; // Convert to per-frame movement
-
-        // Reset when first set is fully scrolled
-        const singleSetWidth = container.scrollWidth / 2;
-        if (Math.abs(position) >= singleSetWidth) {
-          position = 0;
-        }
-
-        container.style.transform = `translateX(${position}px)`;
-      }
-      animationId = requestAnimationFrame(animate);
-    };
-
-    animationId = requestAnimationFrame(animate);
-
-    return () => cancelAnimationFrame(animationId);
-  }, [testimonials, speed, isPaused]);
+  // Calculate animation duration based on content and speed
+  // More items = longer duration for same perceived speed
+  const baseDuration = testimonials.length * 15; // ~15 seconds per testimonial
+  const adjustedDuration = baseDuration * (30 / speed); // Adjust for custom speed
 
   if (testimonials.length === 0) {
     return null;
@@ -105,15 +78,33 @@ export function TestimonialMarquee({ testimonials, speed = 30 }: TestimonialMarq
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
+      {/* CSS-based infinite scroll - smoother than JS */}
       <div
-        ref={containerRef}
-        className="flex"
-        style={{ willChange: 'transform' }}
+        className="flex animate-marquee"
+        style={{
+          animationDuration: `${adjustedDuration}s`,
+          animationPlayState: isPaused ? 'paused' : 'running',
+        }}
       >
         {items.map((testimonial, index) => (
           <TestimonialCard key={`${testimonial.authorName}-${index}`} testimonial={testimonial} />
         ))}
       </div>
+
+      {/* Inline keyframes for the marquee animation */}
+      <style>{`
+        @keyframes marquee {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-33.333%);
+          }
+        }
+        .animate-marquee {
+          animation: marquee linear infinite;
+        }
+      `}</style>
     </div>
   );
 }

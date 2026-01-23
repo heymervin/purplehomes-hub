@@ -1035,7 +1035,21 @@ Generate these sections in JSON format:
 
 4. **propertyShowcase** (4-5 sentences): Paint the AFTER state. Sensory language. Future pace their life in this home.
 
-5. **socialProof** (2-3 sentences): Realistic testimonial with name, specific challenge, specific result, emotion.
+5. **testimonials** (ARRAY of 6 testimonial objects): Generate 6 diverse, realistic testimonials for the scrolling carousel.
+   Each testimonial must have:
+   - "quote": The testimonial text (2-3 sentences, specific challenge + specific result + emotion)
+   - "authorName": First name + last initial (e.g., "Sarah M.", "Marcus T.", "Jennifer L.")
+   - "authorTitle": Their title (vary these: "First-Time Homeowner", "Proud Homeowner", "Small Business Owner", "Happy Mom of 3", "Purple Homes Family")
+   - "rating": Always 5
+
+   Make each testimonial DIFFERENT - vary the challenges (credit issues, self-employed, divorce, immigrants, single parents, etc.) and the emotional journey. These should feel like real people sharing real stories.
+
+   Example format:
+   "testimonials": [
+     {"quote": "I was rejected by three banks. Purple Homes saw my potential, not just my score. Now I'm building equity!", "authorName": "Sarah M.", "authorTitle": "First-Time Homeowner", "rating": 5},
+     {"quote": "After my divorce, my credit took a hit. Traditional lenders wouldn't look at me. Purple Homes changed everything.", "authorName": "Marcus T.", "authorTitle": "Proud Homeowner", "rating": 5},
+     ...4 more...
+   ]
 
 6. **callToAction** (2-3 sentences): Urgency + easy action + what happens next. Phone: (504) 475-0672
 

@@ -28,23 +28,18 @@ import {
   ScarcityBadge,
   LiveViewers,
   QuoteTestimonial,
-  FeaturedTestimonial,
   TestimonialMarquee,
   StatsBar,
   ComparisonTable,
-  ProcessSteps,
   FunnelFAQ,
   FAQCTA,
   FunnelSection,
   SectionHeader,
-  SectionDivider,
-  ContentCard,
   IconFeature,
   TwoColumnLayout,
   StickyMobileCTA,
   FloatingActionButton,
   PremiumTrustStrip,
-  CredentialsBar,
 } from '@/components/funnel';
 import type { Testimonial } from '@/types/funnel';
 
@@ -1741,45 +1736,78 @@ export default function PublicPropertyDetail() {
           </div>
         </section>
 
-        {/* Social Proof / Testimonials */}
+        {/* Social Proof / Testimonials - Always Scrolling Marquee */}
         {!funnelLoading && (
           (() => {
-            // Priority: 1) Property-specific testimonials, 2) Global testimonials, 3) AI-generated
-            const testimonials = funnelContent?.testimonials?.length
-              ? funnelContent.testimonials
-              : globalTestimonials.length
-                ? globalTestimonials
-                : null;
+            // Default testimonials - Purple Homes brand stories (used when no custom testimonials exist)
+            const defaultTestimonials: Testimonial[] = [
+              {
+                quote: "I was rejected by three banks. I felt hopeless. Then Purple Homes helped me find my dream home with owner financing. Now I'm building equity instead of wasting rent!",
+                authorName: "Sarah M.",
+                authorTitle: "First-Time Homeowner",
+                rating: 5,
+              },
+              {
+                quote: "After my divorce, my credit took a hit. Traditional lenders wouldn't even look at me. Purple Homes saw my potential, not just my score. Best decision I ever made.",
+                authorName: "Marcus T.",
+                authorTitle: "Proud Homeowner",
+                rating: 5,
+              },
+              {
+                quote: "As a self-employed contractor, banks treated me like a risk. Purple Homes treated me like a person. My family finally has a place to call our own.",
+                authorName: "Jennifer L.",
+                authorTitle: "Small Business Owner",
+                rating: 5,
+              },
+              {
+                quote: "The process was so simple. No endless paperwork, no judgment. Just real people helping real families achieve their dreams. I tell everyone about Purple Homes.",
+                authorName: "David R.",
+                authorTitle: "Purple Homes Homeowner",
+                rating: 5,
+              },
+              {
+                quote: "I thought homeownership was impossible for someone like me. Purple Homes proved me wrong. My kids finally have a backyard to play in.",
+                authorName: "Maria G.",
+                authorTitle: "Happy Mom of 3",
+                rating: 5,
+              },
+              {
+                quote: "From application to keys in hand - the whole team made it seamless. They really care about getting families into homes. Can't recommend them enough!",
+                authorName: "Chris P.",
+                authorTitle: "Newlywed Homeowner",
+                rating: 5,
+              },
+            ];
 
-            if (testimonials && testimonials.length > 0) {
-              // Use scrolling testimonial marquee
-              return (
-                <section className="relative bg-black py-16 overflow-hidden">
-                  <div className="text-center mb-8">
-                    <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-                      What Our Homeowners Say
-                    </span>
-                  </div>
-                  <TestimonialMarquee testimonials={testimonials} speed={25} />
-                </section>
-              );
+            // Priority: 1) Property-specific testimonials, 2) Global testimonials from API, 3) Default brand testimonials
+            let testimonials: Testimonial[] = [];
+
+            if (funnelContent?.testimonials?.length) {
+              testimonials = funnelContent.testimonials;
+            } else if (globalTestimonials.length) {
+              testimonials = globalTestimonials;
+            } else {
+              // Use default Purple Homes testimonials
+              testimonials = defaultTestimonials;
             }
 
-            // Fallback to AI-generated single testimonial
-            if (funnelContent?.socialProof) {
-              return (
-                <div className="max-w-5xl mx-auto px-4 py-16">
-                  <FeaturedTestimonial
-                    quote={funnelContent.socialProof}
-                    authorName="Purple Homes Family"
-                    authorTitle="Proud Homeowner"
-                    rating={5}
-                  />
+            return (
+              <section className="relative bg-black py-16 md:py-20 overflow-hidden">
+                {/* Ambient lighting */}
+                <div className="absolute top-0 left-1/4 w-[400px] h-[300px] bg-purple-600/10 rounded-full blur-[150px]" />
+                <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-violet-600/10 rounded-full blur-[150px]" />
+
+                <div className="text-center mb-10">
+                  <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+                    Real Stories
+                  </span>
+                  <h2 className="text-3xl md:text-4xl font-bold text-white">
+                    What Our <span className="bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Homeowners</span> Say
+                  </h2>
                 </div>
-              );
-            }
-
-            return null;
+                <TestimonialMarquee testimonials={testimonials} speed={25} />
+              </section>
+            );
           })()
         )}
 
