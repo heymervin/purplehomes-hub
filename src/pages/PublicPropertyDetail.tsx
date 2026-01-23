@@ -286,18 +286,20 @@ export default function PublicPropertyDetail() {
 
       {/* Main Content */}
       <main>
-        {/* DRAMATIC HERO SECTION */}
+        {/* DRAMATIC HERO SECTION - PURPLE HOMES BRANDED */}
         <section className="relative bg-black overflow-hidden">
-          {/* Very subtle top glow only */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-900/30 rounded-full blur-[150px]" />
+          {/* Purple ambient glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-600/20 rounded-full blur-[180px]" />
+          <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-violet-600/10 rounded-full blur-[120px]" />
+          <div className="absolute top-1/3 right-0 w-[300px] h-[300px] bg-purple-500/10 rounded-full blur-[100px]" />
 
           <div className="relative max-w-5xl mx-auto px-4 py-20 md:py-28">
             <div className="text-center">
               {/* Eyebrow */}
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600/20 border border-purple-500/40 rounded-full text-purple-400 text-sm font-bold uppercase tracking-wider mb-8">
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-500/20 border border-purple-400/30 rounded-full text-purple-300 text-sm font-bold uppercase tracking-wider mb-8">
                 <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-purple-400"></span>
                 </span>
                 Limited Time Opportunity in {property.city}
               </div>
@@ -306,9 +308,9 @@ export default function PublicPropertyDetail() {
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-[1.15] mb-3 tracking-tight">
                 Stop Paying Your{' '}
                 <span className="relative inline-block whitespace-nowrap">
-                  {/* Yellow highlighter effect */}
-                  <span className="absolute inset-x-0 bottom-1 top-2 bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-400 -skew-x-2" />
-                  <span className="relative text-black px-1">Landlord's Mortgage</span>
+                  {/* Purple highlighter effect */}
+                  <span className="absolute inset-x-0 bottom-1 top-2 bg-gradient-to-r from-purple-500 via-violet-500 to-purple-500 -skew-x-2" />
+                  <span className="relative text-white px-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">Landlord's Mortgage</span>
                 </span>
               </h1>
               <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-400 mb-8">
@@ -318,38 +320,38 @@ export default function PublicPropertyDetail() {
               {/* Sub-headline with emphasis */}
               <div className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed">
                 <span>Own this home for as low as </span>
-                <span className="text-3xl md:text-4xl font-black text-green-400">
+                <span className="text-3xl md:text-4xl font-black text-purple-400 drop-shadow-[0_0_20px_rgba(168,85,247,0.5)]">
                   ${property.monthlyPayment?.toLocaleString() || Math.round((property.price * 0.006)).toLocaleString()}/mo
                 </span>
                 <br />
                 <span className="text-gray-400">— even with </span>
                 <span className="relative inline-block mx-1">
-                  <span className="absolute inset-0 bg-purple-500/40 -skew-x-3 rounded" />
+                  <span className="absolute inset-0 bg-purple-500/30 -skew-x-3 rounded" />
                   <span className="relative italic font-semibold text-white px-2">less-than-perfect credit</span>
                 </span>
               </div>
 
-              {/* Trust indicators */}
+              {/* Trust indicators - Purple branded */}
               <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-base text-gray-300 mb-12">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <CheckCircle className="h-5 w-5 text-purple-400" />
                   <span className="font-medium">No Bank Qualifying</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <CheckCircle className="h-5 w-5 text-purple-400" />
                   <span className="font-medium">Move In 30 Days</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500" />
+                  <CheckCircle className="h-5 w-5 text-purple-400" />
                   <span className="font-medium">Build Equity Now</span>
                 </div>
               </div>
 
-              {/* CTA - Green for high contrast */}
+              {/* CTA - White/Cream with Purple glow (Purple Homes branded, high contrast) */}
               <div className="flex flex-col items-center gap-4">
                 <button
                   onClick={scrollToForm}
-                  className="group relative bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400 text-black font-black text-xl uppercase tracking-wide px-12 py-5 rounded-xl shadow-[0_0_40px_rgba(34,197,94,0.4)] hover:shadow-[0_0_60px_rgba(34,197,94,0.6)] transition-all duration-300 hover:-translate-y-1"
+                  className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-xl uppercase tracking-wide px-12 py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4)] hover:shadow-[0_0_70px_rgba(168,85,247,0.6)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-200"
                 >
                   Check If I Qualify
                   <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
@@ -366,7 +368,7 @@ export default function PublicPropertyDetail() {
         {/* Property Image Section */}
         <section className="relative bg-black">
           <div className="max-w-6xl mx-auto px-4 -mt-12 relative z-10">
-            <div className="rounded-2xl overflow-hidden shadow-2xl shadow-green-500/20 border border-white/10">
+            <div className="rounded-2xl overflow-hidden shadow-2xl shadow-purple-500/20 border border-purple-500/20">
               <PropertyImageGallery
                 images={property.images || [property.heroImage]}
                 heroImage={property.heroImage}
@@ -387,7 +389,7 @@ export default function PublicPropertyDetail() {
                       ${property.price.toLocaleString()}
                     </h2>
                     {property.monthlyPayment !== undefined && (
-                      <span className="text-xl font-bold text-green-400">
+                      <span className="text-xl font-bold text-purple-400">
                         ${property.monthlyPayment.toLocaleString()}/mo
                       </span>
                     )}
@@ -401,15 +403,15 @@ export default function PublicPropertyDetail() {
 
                 {/* Quick Stats Pills */}
                 <div className="flex flex-wrap gap-3">
-                  <span className="px-5 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-semibold flex items-center gap-2">
-                    <Bed className="h-5 w-5 text-green-400" /> {property.beds} Beds
+                  <span className="px-5 py-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-white font-semibold flex items-center gap-2">
+                    <Bed className="h-5 w-5 text-purple-400" /> {property.beds} Beds
                   </span>
-                  <span className="px-5 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-semibold flex items-center gap-2">
-                    <Bath className="h-5 w-5 text-green-400" /> {property.baths} Baths
+                  <span className="px-5 py-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-white font-semibold flex items-center gap-2">
+                    <Bath className="h-5 w-5 text-purple-400" /> {property.baths} Baths
                   </span>
                   {property.sqft && (
-                    <span className="px-5 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-semibold flex items-center gap-2">
-                      <Maximize2 className="h-5 w-5 text-green-400" /> {property.sqft.toLocaleString()} sqft
+                    <span className="px-5 py-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-white font-semibold flex items-center gap-2">
+                      <Maximize2 className="h-5 w-5 text-purple-400" /> {property.sqft.toLocaleString()} sqft
                     </span>
                   )}
                 </div>
