@@ -1410,18 +1410,6 @@ export default function PublicPropertyDetail() {
               </div>
               </Reveal>
 
-              {/* Payment Breakdown (if available) */}
-              {!funnelLoading && funnelContent?.pricingOptions && (
-                <div className="mt-10 bg-white/5 backdrop-blur border border-purple-500/20 rounded-2xl p-6 md:p-8">
-                  <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-purple-400" />
-                    Payment Breakdown
-                  </h4>
-                  <div className="text-gray-300 whitespace-pre-wrap leading-relaxed font-mono text-sm bg-black/30 rounded-xl p-4 md:p-6 border border-purple-500/10">
-                    {funnelContent.pricingOptions}
-                  </div>
-                </div>
-              )}
             </div>
           </section>
         )}
