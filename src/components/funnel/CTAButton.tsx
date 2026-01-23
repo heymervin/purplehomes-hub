@@ -57,6 +57,17 @@ const ctaButtonVariants = cva(
           "hover:-translate-y-1",
           "border border-white/50",
         ].join(" "),
+        // Contrast - HIGH VISIBILITY on dark backgrounds (like green CTAs in reference funnels)
+        contrast: [
+          "bg-gradient-to-r from-white via-purple-50 to-white",
+          "text-purple-900 uppercase tracking-wider font-extrabold",
+          "shadow-[0_8px_40px_rgb(255,255,255,0.5)]",
+          "hover:shadow-[0_16px_60px_rgb(255,255,255,0.6)]",
+          "hover:-translate-y-2",
+          "active:translate-y-0",
+          "border-2 border-white",
+          "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-purple-200/50 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
+        ].join(" "),
         // Ghost - Refined minimal
         ghost: [
           "text-purple-600 bg-transparent",

@@ -286,61 +286,130 @@ export default function PublicPropertyDetail() {
 
       {/* Main Content */}
       <main>
-        {/* Hero Section with Gallery */}
-        <section className="relative">
-          <PropertyImageGallery
-            images={property.images || [property.heroImage]}
-            heroImage={property.heroImage}
-            onHeroChange={() => {}}
-            onImagesChange={() => {}}
-            editable={false}
-          />
+        {/* DRAMATIC HERO SECTION */}
+        <section className="relative bg-gradient-to-b from-gray-950 via-purple-950/50 to-gray-900 overflow-hidden">
+          {/* Background glow effects */}
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-purple-500/15 rounded-full blur-[100px]" />
 
-          {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
-
-          {/* Hero Content Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-            <div className="max-w-6xl mx-auto">
-              {/* Live Viewers Badge */}
-              <div className="mb-4">
-                <LiveViewers count={Math.floor(Math.random() * 5) + 2} variant="premium" />
+          <div className="relative max-w-6xl mx-auto px-4 py-16 md:py-24">
+            <div className="text-center">
+              {/* Eyebrow */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-sm font-semibold mb-6">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
+                </span>
+                Limited Time Opportunity in {property.city}
               </div>
 
-              {/* Price & Address */}
-              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              {/* Main Headline */}
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
+                Stop Paying Your{' '}
+                <span className="bg-gradient-to-r from-purple-400 via-purple-300 to-purple-400 bg-clip-text text-transparent">
+                  Landlord's Mortgage
+                </span>
+                <br />
+                <span className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-300">
+                  Start Building Your Own Wealth
+                </span>
+              </h1>
+
+              {/* Sub-headline with emphasis */}
+              <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto mb-8 leading-relaxed">
+                <span className="text-white font-semibold">Own this home for as low as </span>
+                <span className="text-purple-400 font-bold text-2xl md:text-3xl">
+                  ${property.monthlyPayment?.toLocaleString() || Math.round((property.price * 0.006)).toLocaleString()}/mo
+                </span>
+                <span className="text-white font-semibold"> — even with </span>
+                <span className="italic text-purple-300">less-than-perfect credit</span>
+              </p>
+
+              {/* Trust indicators */}
+              <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-400 mb-10">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-purple-500" />
+                  <span>No Bank Qualifying</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-purple-500" />
+                  <span>Move In Within 30 Days</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-purple-500" />
+                  <span>Build Equity Immediately</span>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <CTAButton size="xl" variant="contrast" onClick={scrollToForm} className="text-lg px-12 py-6">
+                  Check If I Qualify
+                </CTAButton>
+                <span className="text-gray-500 text-sm">Takes less than 2 minutes • No credit check required</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom fade to property section */}
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-gray-900 to-transparent" />
+        </section>
+
+        {/* Property Image Section */}
+        <section className="relative bg-gray-900">
+          <div className="max-w-6xl mx-auto px-4 -mt-12 relative z-10">
+            <div className="rounded-2xl overflow-hidden shadow-2xl shadow-purple-500/10 border border-purple-500/20">
+              <PropertyImageGallery
+                images={property.images || [property.heroImage]}
+                heroImage={property.heroImage}
+                onHeroChange={() => {}}
+                onImagesChange={() => {}}
+                editable={false}
+              />
+            </div>
+          </div>
+
+          {/* Property Quick Info Bar */}
+          <div className="bg-gray-900 pt-8 pb-12">
+            <div className="max-w-6xl mx-auto px-4">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                 <div>
                   <div className="flex items-baseline gap-3 mb-2">
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg">
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-white">
                       ${property.price.toLocaleString()}
-                    </h1>
+                    </h2>
                     {property.monthlyPayment !== undefined && (
-                      <span className="text-xl md:text-2xl font-bold text-purple-300">
+                      <span className="text-xl font-bold text-purple-400">
                         ${property.monthlyPayment.toLocaleString()}/mo
                       </span>
                     )}
                   </div>
-                  <h2 className="text-xl md:text-2xl font-semibold text-white">{property.address}</h2>
-                  <p className="text-purple-200 flex items-center gap-1 mt-1">
+                  <p className="text-xl text-white font-medium">{property.address}</p>
+                  <p className="text-purple-300 flex items-center gap-1 mt-1">
                     <MapPin className="h-4 w-4" />
                     {property.city}
                   </p>
                 </div>
 
                 {/* Quick Stats Pills */}
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-4 py-2 bg-white/20 backdrop-blur rounded-full text-white font-semibold flex items-center gap-2">
-                    <Bed className="h-4 w-4" /> {property.beds} Beds
+                <div className="flex flex-wrap gap-3">
+                  <span className="px-5 py-3 bg-purple-500/20 border border-purple-500/30 rounded-xl text-white font-semibold flex items-center gap-2">
+                    <Bed className="h-5 w-5 text-purple-400" /> {property.beds} Beds
                   </span>
-                  <span className="px-4 py-2 bg-white/20 backdrop-blur rounded-full text-white font-semibold flex items-center gap-2">
-                    <Bath className="h-4 w-4" /> {property.baths} Baths
+                  <span className="px-5 py-3 bg-purple-500/20 border border-purple-500/30 rounded-xl text-white font-semibold flex items-center gap-2">
+                    <Bath className="h-5 w-5 text-purple-400" /> {property.baths} Baths
                   </span>
                   {property.sqft && (
-                    <span className="px-4 py-2 bg-white/20 backdrop-blur rounded-full text-white font-semibold flex items-center gap-2">
-                      <Maximize2 className="h-4 w-4" /> {property.sqft.toLocaleString()} sqft
+                    <span className="px-5 py-3 bg-purple-500/20 border border-purple-500/30 rounded-xl text-white font-semibold flex items-center gap-2">
+                      <Maximize2 className="h-5 w-5 text-purple-400" /> {property.sqft.toLocaleString()} sqft
                     </span>
                   )}
                 </div>
+              </div>
+
+              {/* Live Viewers */}
+              <div className="mt-6">
+                <LiveViewers count={Math.floor(Math.random() * 5) + 2} variant="premium" />
               </div>
             </div>
           </div>
