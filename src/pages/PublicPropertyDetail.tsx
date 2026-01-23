@@ -1000,10 +1000,14 @@ export default function PublicPropertyDetail() {
                   The Challenge
                 </div>
                 <h2 className="text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[1.0] tracking-[-0.02em] max-w-4xl mx-auto mb-6">
-                  {extractProblemHeadline(funnelContent.problem)}
+                  <span className="relative inline">
+                    {extractProblemHeadline(funnelContent.problem)}
+                    {/* Underline accent */}
+                    <span className="absolute -bottom-2 left-0 right-0 h-3 bg-gradient-to-r from-purple-500/60 via-violet-500/40 to-transparent rounded-full blur-sm" />
+                  </span>
                 </h2>
                 <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
-                  You're not alone. Thousands face these same barriers every day.
+                  You're not alone. <span className="text-purple-300 font-medium">Thousands</span> face these same barriers every day.
                 </p>
               </Reveal>
 
@@ -1079,11 +1083,17 @@ export default function PublicPropertyDetail() {
                   The Solution
                 </div>
                 {/* Extract first 2 sentences for headline */}
-                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto">
-                  {(() => {
-                    const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
-                    return sentences.slice(0, 2).join(' ').trim();
-                  })()}
+                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto">
+                  <span className="relative inline">
+                    <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                      {(() => {
+                        const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
+                        return sentences.slice(0, 2).join(' ').trim();
+                      })()}
+                    </span>
+                    {/* Coral underline accent - Ali Abdaal style */}
+                    <span className="absolute -bottom-2 left-1/4 right-1/4 h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent rounded-full" />
+                  </span>
                 </h2>
               </Reveal>
 
@@ -1128,8 +1138,32 @@ export default function PublicPropertyDetail() {
                       <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none" />
 
                       {/* Big number - ⚠️ BRAND CONSTANT: Update if credit score policy changes */}
-                      <div className="relative mb-6">
-                        <span className="text-[120px] md:text-[160px] font-black bg-gradient-to-b from-white via-purple-200 to-purple-400/50 bg-clip-text text-transparent leading-none">
+                      <div className="relative mb-6 inline-block">
+                        {/* Hand-drawn encircle effect */}
+                        <svg className="absolute -inset-4 md:-inset-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] h-[calc(100%+2rem)] md:h-[calc(100%+3rem)]" viewBox="0 0 200 100" preserveAspectRatio="none">
+                          <ellipse
+                            cx="100"
+                            cy="50"
+                            rx="95"
+                            ry="45"
+                            fill="none"
+                            stroke="url(#circleGradient)"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeDasharray="5,3"
+                            className="animate-pulse"
+                            style={{ animationDuration: '3s' }}
+                            transform="rotate(-3 100 50)"
+                          />
+                          <defs>
+                            <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                              <stop offset="0%" stopColor="#a855f7" stopOpacity="0.6" />
+                              <stop offset="50%" stopColor="#c084fc" stopOpacity="0.8" />
+                              <stop offset="100%" stopColor="#a855f7" stopOpacity="0.6" />
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                        <span className="relative text-[120px] md:text-[160px] font-black bg-gradient-to-b from-white via-purple-200 to-purple-400/50 bg-clip-text text-transparent leading-none">
                           580
                         </span>
                       </div>
