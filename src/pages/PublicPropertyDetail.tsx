@@ -1032,7 +1032,7 @@ export default function PublicPropertyDetail() {
                     <div className="absolute -inset-6 bg-gradient-to-br from-purple-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
                     <div className="absolute -inset-3 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
 
-                    <div className="relative w-full bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-purple-400/25 rounded-3xl p-10 md:p-12 text-center shadow-2xl shadow-purple-900/40 hover:border-purple-300/40 hover:shadow-purple-800/50 transition-all duration-500">
+                    <div className="relative w-full bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-purple-400/25 rounded-3xl px-10 py-14 md:px-12 md:py-16 text-center shadow-2xl shadow-purple-900/40 hover:border-purple-300/40 hover:shadow-purple-800/50 transition-all duration-500">
                       {/* Decorative quote marks */}
                       <div className="absolute top-6 left-6 text-6xl text-purple-500/20 font-serif leading-none">"</div>
                       <div className="absolute bottom-6 right-6 text-6xl text-purple-500/20 font-serif leading-none rotate-180">"</div>
