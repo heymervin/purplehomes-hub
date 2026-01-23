@@ -1014,19 +1014,19 @@ After writing, review each section using CUBA before finalizing.
 Generate these sections in JSON format:
 
 1. **hook** (STRUCTURED OBJECT with these fields):
-   - "headline": Main emotional hook (1-2 punchy sentences, speaks to avatar's dreams). DO NOT include price here.
+   - "headline": Main emotional hook (1-2 punchy sentences, speaks to avatar's dreams). DO NOT include price or offers here.
    - "highlight": The 1-3 word KEY PHRASE from headline that should be visually emphasized (must be exact text from headline)
    - "benefit": Short benefit phrase, 3-5 words max (e.g., "No bank qualifying" or "Move in 30 days")
-   - "urgency": Time-sensitive offer if applicable (e.g., "Apply by Friday for $1,500 off closing costs")${inputs.specialOffer ? `
-   - "bonus": "${inputs.specialOffer}"` : ''}
+   - "urgency": ONLY if there's a special offer - combine time + offer in ONE phrase (e.g., "Apply this week for $1,000 off closing costs")${inputs.specialOffer ? `
+   IMPORTANT: Use this special offer in urgency: "${inputs.specialOffer}"` : ''}
+   - "bonus": ONLY include if there's an ADDITIONAL offer beyond urgency (e.g., "FREE home warranty"). Leave empty/omit if no additional bonus.
 
    Example format:
    "hook": {
      "headline": "Your family deserves a real home. Not another rental.",
      "highlight": "real home",
      "benefit": "No bank qualifying",
-     "urgency": "Apply by Friday for $1,500 off closing costs",
-     "bonus": "FREE home warranty for a year"
+     "urgency": "Apply this week for $1,000 off closing costs"
    }
 
 2. **problem** (3-4 sentences using staccato): Address avatar's fears, suspicions, past failures. Make them feel SEEN.
