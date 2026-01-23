@@ -656,15 +656,28 @@ export default function PublicPropertyDetail() {
                         bonus?: string;
                       };
 
-                      // Render headline with highlighted phrase
+                      // Render headline with highlighted phrase and smart line breaks
                       const renderHeadline = () => {
+                        // Helper to add line breaks after periods (for multi-sentence headlines)
+                        const formatWithBreaks = (text: string) => {
+                          // Split on ". " and rejoin with line breaks
+                          const sentences = text.split(/\.\s+/);
+                          if (sentences.length <= 1) return text;
+                          return sentences.map((s, i) => (
+                            <span key={i}>
+                              {s}{i < sentences.length - 1 ? '.' : ''}
+                              {i < sentences.length - 1 && <br />}
+                            </span>
+                          ));
+                        };
+
                         if (!highlight || !headline.includes(highlight)) {
-                          return headline;
+                          return formatWithBreaks(headline);
                         }
                         const parts = headline.split(highlight);
                         return (
                           <>
-                            {parts[0]}
+                            {formatWithBreaks(parts[0])}
                             <span className="relative inline-block mx-1">
                               <span className="absolute inset-x-[-4px] md:inset-x-[-8px] bottom-[2px] md:bottom-[4px] top-[4px] md:top-[8px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
                               <span className="relative px-1 md:px-2">{highlight}</span>
