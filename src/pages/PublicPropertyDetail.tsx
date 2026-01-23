@@ -46,21 +46,21 @@ import {
   CredentialsBar,
 } from '@/components/funnel';
 
-// Animated Counter Hook
-function useCountUp(target: number, duration: number = 2000, startOnView: boolean = true) {
-  const [count, setCount] = useState(0);
+// Animated Stats Section Component
+function AnimatedStatsSection() {
+  const sectionRef = useRef<HTMLElement>(null);
   const [hasStarted, setHasStarted] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [counts, setCounts] = useState([0, 0, 0, 0]);
 
+  const statsConfig = [
+    { target: 500, duration: 2500, label: 'Families Helped', suffix: '+', icon: Users },
+    { target: 15, duration: 2000, label: 'Years Experience', suffix: '+', icon: Clock },
+    { target: 98, duration: 2200, label: 'Satisfaction Rate', suffix: '%', icon: Award },
+    { target: 24, duration: 1800, label: 'Hour Response', prefix: '<', icon: Shield },
+  ];
+
+  // Watch for section visibility
   useEffect(() => {
-    if (!startOnView) {
-      setHasStarted(true);
-    }
-  }, [startOnView]);
-
-  useEffect(() => {
-    if (!startOnView) return;
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasStarted) {
@@ -70,49 +70,39 @@ function useCountUp(target: number, duration: number = 2000, startOnView: boolea
       { threshold: 0.3 }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
     }
 
     return () => observer.disconnect();
-  }, [hasStarted, startOnView]);
+  }, [hasStarted]);
 
+  // Animate all counters when triggered
   useEffect(() => {
     if (!hasStarted) return;
 
     const startTime = Date.now();
     const animate = () => {
       const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic for smooth deceleration
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * target));
-      if (progress < 1) {
+      const newCounts = statsConfig.map((stat) => {
+        const progress = Math.min(elapsed / stat.duration, 1);
+        // Ease out cubic for smooth deceleration
+        const eased = 1 - Math.pow(1 - progress, 3);
+        return Math.floor(eased * stat.target);
+      });
+      setCounts(newCounts);
+
+      // Continue if any animation is still running
+      const maxDuration = Math.max(...statsConfig.map(s => s.duration));
+      if (elapsed < maxDuration) {
         requestAnimationFrame(animate);
       }
     };
     requestAnimationFrame(animate);
-  }, [hasStarted, target, duration]);
-
-  return { count, ref };
-}
-
-// Animated Stats Section Component
-function AnimatedStatsSection() {
-  const stat1 = useCountUp(500, 2500);
-  const stat2 = useCountUp(15, 2000);
-  const stat3 = useCountUp(98, 2200);
-  const stat4 = useCountUp(24, 1800);
-
-  const stats = [
-    { ...stat1, label: 'Families Helped', suffix: '+', icon: Users },
-    { ...stat2, label: 'Years Experience', suffix: '+', icon: Clock },
-    { ...stat3, label: 'Satisfaction Rate', suffix: '%', icon: Award },
-    { ...stat4, label: 'Hour Response', prefix: '<', icon: Shield },
-  ];
+  }, [hasStarted]);
 
   return (
-    <section className="relative bg-gradient-to-b from-[#0f172a] via-[#1e1b4b] to-[#0f172a] py-20 md:py-28 overflow-hidden">
+    <section ref={sectionRef} className="relative bg-gradient-to-b from-[#0f172a] via-[#1e1b4b] to-[#0f172a] py-20 md:py-28 overflow-hidden">
       {/* Ambient lighting */}
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[200px]" />
       <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-[200px]" />
@@ -142,16 +132,16 @@ function AnimatedStatsSection() {
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-          {stats.map((stat, index) => {
+          {statsConfig.map((stat, index) => {
             const Icon = stat.icon;
+            const count = counts[index];
             return (
               <div
                 key={index}
-                ref={index === 0 ? stat.ref : undefined}
                 className="text-center relative group"
               >
                 {/* Divider between items (desktop) */}
-                {index < stats.length - 1 && (
+                {index < statsConfig.length - 1 && (
                   <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 h-20 w-px bg-gradient-to-b from-transparent via-purple-500/30 to-transparent" />
                 )}
 
@@ -163,7 +153,7 @@ function AnimatedStatsSection() {
                 {/* Animated number */}
                 <div className="text-5xl md:text-6xl lg:text-7xl font-extralight tracking-tight text-white/95 tabular-nums">
                   {stat.prefix}
-                  <span className="font-light">{stat.count.toString().padStart(stat.count > 99 ? 3 : 2, '0')}</span>
+                  <span className="font-light">{count.toString().padStart(count > 99 ? 3 : 2, '0')}</span>
                   {stat.suffix}
                 </div>
 
