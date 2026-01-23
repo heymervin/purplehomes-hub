@@ -50,20 +50,20 @@ const QuoteTestimonial: React.FC<QuoteTestimonialProps> = ({
       stars: "text-yellow-400 fill-yellow-400",
     },
     premium: {
-      container: "bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white rounded-2xl p-8 shadow-2xl border border-amber-500/20",
-      quote: "text-amber-500/30",
+      container: "bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white rounded-2xl p-8 shadow-2xl border border-purple-500/20",
+      quote: "text-purple-500/30",
       text: "text-white",
       subtext: "text-gray-400",
-      avatar: "bg-gradient-to-br from-amber-400 to-amber-600 text-white",
-      stars: "text-amber-400 fill-amber-400",
+      avatar: "bg-gradient-to-br from-purple-500 to-purple-700 text-white",
+      stars: "text-purple-400 fill-purple-400",
     },
     luxury: {
-      container: "bg-gradient-to-br from-amber-50 via-white to-amber-50 rounded-2xl p-8 shadow-xl border border-amber-200",
-      quote: "text-amber-300",
+      container: "bg-gradient-to-br from-purple-50 via-white to-purple-50 rounded-2xl p-8 shadow-xl border border-purple-200",
+      quote: "text-purple-300",
       text: "text-gray-800",
-      subtext: "text-amber-700",
-      avatar: "bg-gradient-to-br from-amber-400 to-amber-600 text-white",
-      stars: "text-amber-500 fill-amber-500",
+      subtext: "text-purple-700",
+      avatar: "bg-gradient-to-br from-purple-500 to-purple-700 text-white",
+      stars: "text-purple-500 fill-purple-500",
     },
   };
 
@@ -75,7 +75,7 @@ const QuoteTestimonial: React.FC<QuoteTestimonialProps> = ({
       {(variant === "premium" || variant === "luxury") && (
         <div className={cn(
           "absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl opacity-20",
-          variant === "premium" ? "bg-amber-500" : "bg-amber-300"
+          variant === "premium" ? "bg-purple-500" : "bg-purple-300"
         )} />
       )}
 
@@ -123,7 +123,7 @@ const QuoteTestimonial: React.FC<QuoteTestimonialProps> = ({
               className={cn(
                 "w-14 h-14 rounded-full object-cover",
                 variant === "premium" || variant === "luxury"
-                  ? "border-2 border-amber-400 shadow-lg shadow-amber-500/20"
+                  ? "border-2 border-purple-400 shadow-lg shadow-purple-500/20"
                   : "border-2 border-white shadow-md"
               )}
             />
@@ -197,7 +197,7 @@ const VideoTestimonial: React.FC<VideoTestimonialProps> = ({
     <div
       className={cn(
         "relative rounded-2xl overflow-hidden shadow-xl group cursor-pointer",
-        variant === "premium" && "ring-2 ring-amber-500/30",
+        variant === "premium" && "ring-2 ring-purple-500/30",
         className
       )}
       onClick={handleClick}
@@ -230,7 +230,7 @@ const VideoTestimonial: React.FC<VideoTestimonialProps> = ({
             <div className={cn(
               "w-20 h-20 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-all duration-300",
               variant === "premium"
-                ? "bg-gradient-to-br from-amber-400 to-amber-600"
+                ? "bg-gradient-to-br from-purple-400 to-purple-600"
                 : "bg-white/90"
             )}>
               <Play
@@ -248,7 +248,7 @@ const VideoTestimonial: React.FC<VideoTestimonialProps> = ({
             <div className={cn(
               "absolute top-4 right-4 px-3 py-1.5 rounded-full text-sm font-medium",
               variant === "premium"
-                ? "bg-amber-500/90 text-white"
+                ? "bg-purple-500/90 text-white"
                 : "bg-black/60 text-white"
             )}>
               {duration}
@@ -257,7 +257,7 @@ const VideoTestimonial: React.FC<VideoTestimonialProps> = ({
 
           {/* Premium badge */}
           {variant === "premium" && (
-            <div className="absolute top-4 left-4 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-amber-600 rounded-full text-xs font-bold text-white flex items-center gap-1">
+            <div className="absolute top-4 left-4 px-3 py-1.5 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full text-xs font-bold text-white flex items-center gap-1">
               <Sparkles className="h-3 w-3" />
               Featured
             </div>
@@ -348,7 +348,7 @@ const MiniTestimonial: React.FC<MiniTestimonialProps> = ({
       className={cn(
         "flex items-start gap-3 p-4 rounded-xl transition-all duration-300",
         variant === "premium"
-          ? "bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 hover:shadow-lg"
+          ? "bg-gradient-to-r from-purple-50 to-purple-50 border border-purple-200 hover:shadow-lg"
           : "bg-gray-50 hover:bg-gray-100",
         className
       )}
@@ -359,14 +359,14 @@ const MiniTestimonial: React.FC<MiniTestimonialProps> = ({
           alt={authorName}
           className={cn(
             "w-10 h-10 rounded-full object-cover flex-shrink-0",
-            variant === "premium" && "ring-2 ring-amber-400"
+            variant === "premium" && "ring-2 ring-purple-400"
           )}
         />
       ) : (
         <div className={cn(
           "w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0",
           variant === "premium"
-            ? "bg-gradient-to-br from-amber-400 to-amber-600 text-white"
+            ? "bg-gradient-to-br from-purple-400 to-purple-600 text-white"
             : "bg-purple-100 text-purple-600"
         )}>
           {authorName.charAt(0)}
@@ -375,13 +375,13 @@ const MiniTestimonial: React.FC<MiniTestimonialProps> = ({
       <div>
         <p className={cn(
           "text-sm italic",
-          variant === "premium" ? "text-amber-900" : "text-gray-600"
+          variant === "premium" ? "text-purple-900" : "text-gray-600"
         )}>
           "{quote}"
         </p>
         <p className={cn(
           "text-xs mt-1 font-medium",
-          variant === "premium" ? "text-amber-700" : "text-gray-500"
+          variant === "premium" ? "text-purple-700" : "text-gray-500"
         )}>
           — {authorName}
         </p>
@@ -414,13 +414,13 @@ const FeaturedTestimonial: React.FC<FeaturedTestimonialProps> = ({
       className
     )}>
       {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
 
       {/* Content */}
       <div className="relative z-10 max-w-3xl mx-auto text-center">
         {/* Quote icon */}
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl mb-8 shadow-lg shadow-amber-500/30">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl mb-8 shadow-lg shadow-purple-500/30">
           <Quote className="h-8 w-8 text-white" />
         </div>
 
@@ -432,7 +432,7 @@ const FeaturedTestimonial: React.FC<FeaturedTestimonialProps> = ({
                 key={i}
                 className={cn(
                   "h-6 w-6",
-                  i < rating ? "text-amber-400 fill-amber-400" : "text-gray-600"
+                  i < rating ? "text-purple-400 fill-purple-400" : "text-gray-600"
                 )}
               />
             ))}
@@ -450,10 +450,10 @@ const FeaturedTestimonial: React.FC<FeaturedTestimonialProps> = ({
             <img
               src={authorImage}
               alt={authorName}
-              className="w-16 h-16 rounded-full object-cover border-2 border-amber-400 shadow-lg"
+              className="w-16 h-16 rounded-full object-cover border-2 border-purple-400 shadow-lg"
             />
           ) : (
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-2xl font-bold text-white">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-2xl font-bold text-white">
               {authorName.charAt(0)}
             </div>
           )}

@@ -34,16 +34,16 @@ const TrustBadge: React.FC<TrustBadgeProps> = ({
     light: "bg-white text-gray-700 shadow-md border border-gray-100 hover:shadow-lg",
     dark: "bg-gray-900 text-white shadow-lg",
     outline: "bg-transparent text-gray-700 border-2 border-gray-200 hover:border-gray-300",
-    premium: "bg-gradient-to-br from-gray-900 to-gray-800 text-white border border-amber-500/30 shadow-lg",
-    gold: "bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-900 border border-amber-200 shadow-md",
+    premium: "bg-gradient-to-br from-gray-900 to-gray-800 text-white border border-purple-500/30 shadow-lg",
+    gold: "bg-gradient-to-r from-purple-50 to-purple-50 text-purple-900 border border-purple-200 shadow-md",
   };
 
   const iconColors = {
     light: "text-emerald-500",
-    dark: "text-amber-400",
+    dark: "text-purple-400",
     outline: "text-emerald-500",
-    premium: "text-amber-400",
-    gold: "text-amber-600",
+    premium: "text-purple-400",
+    gold: "text-purple-600",
   };
 
   const renderIcon = () => {
@@ -52,7 +52,7 @@ const TrustBadge: React.FC<TrustBadgeProps> = ({
         <div className={cn(
           "w-7 h-7 rounded-lg text-xs font-black flex items-center justify-center",
           variant === "premium" || variant === "gold"
-            ? "bg-gradient-to-br from-amber-400 to-amber-600 text-white"
+            ? "bg-gradient-to-br from-purple-400 to-purple-600 text-white"
             : "bg-blue-600 text-white"
         )}>
           BBB
@@ -142,7 +142,7 @@ const PremiumTrustStrip: React.FC<PremiumTrustStripProps> = ({ className }) => {
           { icon: Sparkles, label: "5-Star Rated" },
         ].map((item, i) => (
           <div key={i} className="flex items-center gap-2 text-white/90">
-            <item.icon className="h-4 w-4 text-amber-400" />
+            <item.icon className="h-4 w-4 text-purple-400" />
             <span className="text-sm font-medium tracking-wide">{item.label}</span>
           </div>
         ))}
@@ -181,7 +181,7 @@ const TrustIndicators: React.FC<TrustIndicatorProps> = ({
         <div key={index} className="flex items-center gap-1.5">
           <CheckCircle className={cn(
             "h-4 w-4",
-            variant === "premium" ? "text-amber-500" : "text-emerald-500"
+            variant === "premium" ? "text-purple-500" : "text-emerald-500"
           )} />
           <span>{item}</span>
         </div>
@@ -214,16 +214,16 @@ const GuaranteeBox: React.FC<GuaranteeBoxProps> = ({
       subtitle: "text-emerald-100",
     },
     premium: {
-      container: "bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white border border-amber-500/30",
-      iconBg: "bg-gradient-to-br from-amber-400 to-amber-600",
+      container: "bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white border border-purple-500/30",
+      iconBg: "bg-gradient-to-br from-purple-400 to-purple-600",
       iconColor: "text-white",
       subtitle: "text-gray-400",
     },
     gold: {
-      container: "bg-gradient-to-br from-amber-50 via-yellow-50 to-amber-100 text-gray-900 border border-amber-200",
-      iconBg: "bg-gradient-to-br from-amber-400 to-amber-600",
+      container: "bg-gradient-to-br from-purple-50 via-purple-50 to-purple-100 text-gray-900 border border-purple-200",
+      iconBg: "bg-gradient-to-br from-purple-400 to-purple-600",
       iconColor: "text-white",
-      subtitle: "text-amber-700",
+      subtitle: "text-purple-700",
     },
   };
 
@@ -264,9 +264,9 @@ const SocialProofNumber: React.FC<SocialProofNumberProps> = ({
   variant = "default",
 }) => {
   const numberColors = {
-    default: "text-orange-500",
-    premium: "bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent",
-    gold: "bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 bg-clip-text text-transparent",
+    default: "text-purple-500",
+    premium: "bg-gradient-to-r from-purple-400 to-purple-500 bg-clip-text text-transparent",
+    gold: "bg-gradient-to-r from-purple-500 via-purple-500 to-purple-600 bg-clip-text text-transparent",
   };
 
   return (

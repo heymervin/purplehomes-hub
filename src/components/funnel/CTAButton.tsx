@@ -9,15 +9,15 @@ const ctaButtonVariants = cva(
   {
     variants: {
       variant: {
-        // Primary - Premium Gold/Orange gradient
+        // Primary - Purple Homes branded gradient
         primary: [
-          "bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600",
+          "bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800",
           "text-white uppercase tracking-wider",
-          "shadow-[0_8px_30px_rgb(251,146,60,0.4)]",
-          "hover:shadow-[0_12px_40px_rgb(251,146,60,0.5)]",
+          "shadow-[0_8px_30px_rgb(147,51,234,0.4)]",
+          "hover:shadow-[0_12px_40px_rgb(147,51,234,0.5)]",
           "hover:-translate-y-1",
           "active:translate-y-0",
-          "border border-orange-400/30",
+          "border border-purple-400/30",
           // Shimmer effect via pseudo-element
           "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
         ].join(" "),
@@ -31,15 +31,15 @@ const ctaButtonVariants = cva(
           "border border-purple-400/20",
           "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
         ].join(" "),
-        // Premium - Black with gold accents
+        // Premium - Black with purple accents
         premium: [
           "bg-gradient-to-br from-gray-900 via-gray-800 to-black",
           "text-white uppercase tracking-widest",
           "shadow-[0_8px_30px_rgb(0,0,0,0.4)]",
           "hover:shadow-[0_12px_40px_rgb(0,0,0,0.5)]",
           "hover:-translate-y-1",
-          "border border-amber-500/40",
-          "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-amber-500/20 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
+          "border border-purple-500/40",
+          "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-purple-400/20 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
         ].join(" "),
         // Outline - Elegant border
         outline: [
@@ -74,14 +74,14 @@ const ctaButtonVariants = cva(
           "animate-pulse",
           "border border-red-400/30",
         ].join(" "),
-        // Gold - Luxury accent
+        // Gold - Light Purple luxury accent
         gold: [
-          "bg-gradient-to-r from-amber-400 via-yellow-500 to-amber-500",
-          "text-gray-900 uppercase tracking-wider font-extrabold",
-          "shadow-[0_8px_30px_rgb(245,158,11,0.4)]",
-          "hover:shadow-[0_12px_40px_rgb(245,158,11,0.5)]",
+          "bg-gradient-to-r from-purple-300 via-purple-400 to-purple-300",
+          "text-purple-900 uppercase tracking-wider font-extrabold",
+          "shadow-[0_8px_30px_rgb(168,85,247,0.4)]",
+          "hover:shadow-[0_12px_40px_rgb(168,85,247,0.5)]",
           "hover:-translate-y-1",
-          "border border-amber-300/50",
+          "border border-purple-200/50",
           "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
         ].join(" "),
       },

@@ -161,7 +161,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
         <span
           className={cn(
             "inline-block text-xs font-semibold uppercase tracking-[0.15em] mb-4",
-            dark ? "text-amber-400/90" : "text-purple-600",
+            dark ? "text-purple-400/90" : "text-purple-600",
             luxury && !dark && "text-[#c9a962]"
           )}
         >
@@ -183,7 +183,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
             <span className={cn(
               "font-bold",
               dark
-                ? "text-amber-400"
+                ? "text-purple-400"
                 : "bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent"
             )}>
               {titleHighlight}
@@ -292,7 +292,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
     elevated: "bg-white rounded-2xl p-8 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl",
     minimal: "p-6",
     luxury: "bg-white rounded-2xl p-8 shadow-[0_4px_20px_rgba(30,27,75,0.12)] border border-gray-100/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_16px_60px_rgba(30,27,75,0.20)]",
-    "luxury-dark": "bg-white/5 backdrop-blur border border-amber-500/20 rounded-2xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-amber-500/40",
+    "luxury-dark": "bg-white/5 backdrop-blur border border-purple-500/20 rounded-2xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-purple-500/40",
   };
 
   const isLuxuryDark = variant === "luxury-dark";
@@ -303,7 +303,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
         <div className={cn(
           "w-14 h-14 rounded-xl flex items-center justify-center mb-5",
           isLuxuryDark
-            ? "bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-lg shadow-amber-500/30"
+            ? "bg-gradient-to-br from-purple-500 to-purple-700 text-white shadow-lg shadow-purple-500/30"
             : "bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600"
         )}>
           {icon}

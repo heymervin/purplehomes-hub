@@ -315,7 +315,7 @@ export default function PublicPropertyDetail() {
                       ${property.price.toLocaleString()}
                     </h1>
                     {property.monthlyPayment !== undefined && (
-                      <span className="text-xl md:text-2xl font-bold text-orange-400">
+                      <span className="text-xl md:text-2xl font-bold text-purple-300">
                         ${property.monthlyPayment.toLocaleString()}/mo
                       </span>
                     )}
@@ -351,7 +351,7 @@ export default function PublicPropertyDetail() {
 
         {/* Hook Section - Attention Grabber */}
         {funnelContent?.hook && (
-          <FunnelSection variant="purple" padding="lg" blendTo="light">
+          <FunnelSection variant="purple" padding="lg" blendTo="white">
             <div className="text-center max-w-4xl mx-auto">
               <span className="inline-block px-4 py-1.5 bg-white/20 text-white/90 rounded-full text-sm font-semibold uppercase tracking-wide mb-6">
                 Your Dream Home Awaits
@@ -424,8 +424,8 @@ export default function PublicPropertyDetail() {
                 { icon: <DollarSign className="h-6 w-6" />, title: "Build Equity Now", desc: "Every payment goes toward YOUR future, not a landlord's" },
                 { icon: <CheckCircle className="h-6 w-6" />, title: "Lock Your Price", desc: "Today's price is locked in, even if the market goes up" },
               ].map((item, i) => (
-                <div key={i} className="bg-white/5 backdrop-blur border border-amber-500/20 rounded-2xl p-8 text-center hover:-translate-y-1 transition-all duration-300">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center mx-auto mb-5 text-white shadow-lg shadow-amber-500/30">
+                <div key={i} className="bg-white/5 backdrop-blur border border-purple-400/20 rounded-2xl p-8 text-center hover:-translate-y-1 transition-all duration-300">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center mx-auto mb-5 text-white shadow-lg shadow-purple-500/30">
                     {item.icon}
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
@@ -507,7 +507,7 @@ export default function PublicPropertyDetail() {
                   )}
                   {property.monthlyPayment !== undefined && (
                     <div className="p-6 text-center">
-                      <CreditCard className="h-8 w-8 text-orange-500 mx-auto mb-2" />
+                      <CreditCard className="h-8 w-8 text-purple-600 mx-auto mb-2" />
                       <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Monthly Payment</div>
                       <div className="text-3xl font-bold text-gray-900">${property.monthlyPayment.toLocaleString()}</div>
                       <p className="text-sm text-gray-500 mt-2">Build equity every month</p>
@@ -717,7 +717,7 @@ export default function PublicPropertyDetail() {
 
         {/* Final CTA Section */}
         {funnelContent?.callToAction && (
-          <FunnelSection variant="purple" padding="lg" blendTo="light">
+          <FunnelSection variant="purple" padding="lg" blendTo="white">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Ready to Stop Renting and Start Owning?
@@ -750,14 +750,15 @@ export default function PublicPropertyDetail() {
         <FunnelSection variant="light" padding="lg" id="contact-form">
           <div className="max-w-xl mx-auto">
             <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
-              <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-black p-8 text-white text-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl" />
+              <div className="bg-gradient-to-br from-purple-900 via-purple-800 to-purple-950 p-8 text-white text-center relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-purple-400/20 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl" />
                 <div className="relative z-10">
-                  <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-amber-400 to-amber-600 rounded-2xl mb-4 shadow-lg shadow-amber-500/30">
+                  <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl mb-4 shadow-lg shadow-purple-500/40">
                     <Home className="h-7 w-7 text-white" />
                   </div>
                   <h2 className="text-2xl font-bold">Get Pre-Qualified Today</h2>
-                  <p className="text-gray-400 mt-1">No credit check required to start</p>
+                  <p className="text-purple-200 mt-1">No credit check required to start</p>
                 </div>
               </div>
 
@@ -766,17 +767,17 @@ export default function PublicPropertyDetail() {
                   <div className="text-center mb-6">
                     <p className="text-gray-600">Interested in {property.address}?</p>
                   </div>
-                  <CTAButton size="full" variant="gold" onClick={() => setShowOfferForm(true)}>
+                  <CTAButton size="full" variant="secondary" onClick={() => setShowOfferForm(true)}>
                     Yes, I'm Interested!
                   </CTAButton>
                   <div className="grid grid-cols-2 gap-3">
-                    <Button variant="outline" size="lg" className="w-full" asChild>
+                    <Button variant="outline" size="lg" className="w-full border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300" asChild>
                       <a href="tel:+15044750672">
                         <Phone className="h-4 w-4 mr-2" />
                         Call Us
                       </a>
                     </Button>
-                    <Button variant="outline" size="lg" className="w-full" asChild>
+                    <Button variant="outline" size="lg" className="w-full border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300" asChild>
                       <a href="sms:+15044750672">
                         <Phone className="h-4 w-4 mr-2" />
                         Text Us

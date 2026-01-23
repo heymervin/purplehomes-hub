@@ -116,20 +116,20 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
       labelColor: "text-red-600",
     },
     premium: {
-      container: "bg-gradient-to-br from-gray-900 via-gray-800 to-black rounded-2xl p-8 shadow-2xl border border-amber-500/20 relative overflow-hidden",
+      container: "bg-gradient-to-br from-gray-900 via-gray-800 to-black rounded-2xl p-8 shadow-2xl border border-purple-500/20 relative overflow-hidden",
       title: "text-white",
       subtitle: "text-gray-400",
-      unitBg: "bg-gradient-to-br from-amber-400 to-amber-600",
+      unitBg: "bg-gradient-to-br from-purple-500 to-purple-700",
       unitText: "text-white",
       labelColor: "text-gray-500",
     },
     luxury: {
-      container: "bg-gradient-to-br from-amber-50 via-white to-amber-50 rounded-2xl p-8 shadow-xl border border-amber-200 relative overflow-hidden",
+      container: "bg-gradient-to-br from-purple-50 via-white to-purple-50 rounded-2xl p-8 shadow-xl border border-purple-200 relative overflow-hidden",
       title: "text-gray-900",
-      subtitle: "text-amber-700",
+      subtitle: "text-purple-700",
       unitBg: "bg-gradient-to-br from-gray-900 to-black",
-      unitText: "text-amber-400",
-      labelColor: "text-amber-800",
+      unitText: "text-purple-400",
+      labelColor: "text-purple-800",
     },
   };
 
@@ -192,20 +192,20 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
       <div className={cn(style.container, "text-center", className)}>
         {/* Decorative elements */}
         {variant === "premium" && (
-          <div className="absolute top-0 right-0 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl" />
         )}
 
         {/* Icon */}
         <div className={cn(
           "inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-5",
           variant === "premium"
-            ? "bg-gradient-to-br from-amber-400 to-amber-600 shadow-lg shadow-amber-500/30"
+            ? "bg-gradient-to-br from-purple-500 to-purple-700 shadow-lg shadow-purple-500/30"
             : "bg-gray-900 shadow-lg"
         )}>
           {variant === "premium" ? (
             <Sparkles className="h-7 w-7 text-white" />
           ) : (
-            <Clock className="h-7 w-7 text-amber-400" />
+            <Clock className="h-7 w-7 text-purple-400" />
           )}
         </div>
 
@@ -238,7 +238,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({
               {index < timeLeft.length - 1 && (
                 <div className={cn(
                   "self-center text-2xl font-bold",
-                  variant === "premium" ? "text-amber-400/50" : "text-amber-600/50"
+                  variant === "premium" ? "text-purple-400/50" : "text-purple-600/50"
                 )}>
                   :
                 </div>
@@ -318,17 +318,17 @@ const ScarcityBadge: React.FC<ScarcityBadgeProps> = ({
       className={cn(
         "inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300",
         variant === "premium"
-          ? "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-900 border border-amber-300 shadow-md hover:shadow-lg"
-          : "bg-amber-50 text-amber-800 border border-amber-200",
+          ? "bg-gradient-to-r from-purple-100 to-purple-50 text-purple-900 border border-purple-300 shadow-md hover:shadow-lg"
+          : "bg-purple-50 text-purple-800 border border-purple-200",
         className
       )}
     >
       <Flame className={cn(
         "h-4 w-4",
-        variant === "premium" ? "text-orange-500" : "text-amber-600"
+        variant === "premium" ? "text-purple-600" : "text-purple-600"
       )} />
       <span>
-        Only <strong className={variant === "premium" ? "text-orange-600" : ""}>{count}</strong> {label}
+        Only <strong className={variant === "premium" ? "text-purple-700" : ""}>{count}</strong> {label}
       </span>
     </div>
   );
@@ -384,8 +384,8 @@ const UrgencyBanner: React.FC<UrgencyBannerProps> = ({
       className={cn(
         "py-3 px-4 text-center font-semibold",
         variant === "premium"
-          ? "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 text-white"
-          : "bg-gradient-to-r from-red-500 to-orange-500 text-white",
+          ? "bg-gradient-to-r from-purple-600 via-purple-700 to-purple-600 text-white"
+          : "bg-gradient-to-r from-purple-500 to-purple-600 text-white",
         className
       )}
     >

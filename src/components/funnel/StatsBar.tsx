@@ -31,7 +31,7 @@ const StatsBar: React.FC<StatsBarProps> = ({
   const variants = {
     dark: {
       container: "bg-gradient-to-br from-gray-900 to-gray-800 text-white",
-      value: "text-orange-500",
+      value: "text-purple-500",
       label: "text-gray-400",
     },
     light: {
@@ -50,14 +50,14 @@ const StatsBar: React.FC<StatsBarProps> = ({
       label: "text-gray-500",
     },
     premium: {
-      container: "bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white border-y border-amber-500/20",
-      value: "bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent",
+      container: "bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white border-y border-purple-500/20",
+      value: "bg-gradient-to-r from-purple-400 via-purple-400 to-purple-500 bg-clip-text text-transparent",
       label: "text-gray-500",
     },
     luxury: {
-      container: "bg-gradient-to-r from-amber-50 via-white to-amber-50 border-y border-amber-200",
-      value: "bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 bg-clip-text text-transparent",
-      label: "text-amber-800/70",
+      container: "bg-gradient-to-r from-purple-50 via-white to-purple-50 border-y border-purple-200",
+      value: "bg-gradient-to-r from-purple-600 via-purple-600 to-purple-700 bg-clip-text text-transparent",
+      label: "text-purple-800/70",
     },
   };
 
@@ -114,14 +114,14 @@ const StatsBar: React.FC<StatsBarProps> = ({
                   "before:hidden before:md:block before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2 before:h-16 before:w-px",
                   variant === "premium"
                     ? "before:bg-gradient-to-b before:from-transparent before:via-purple-500/30 before:to-transparent"
-                    : "before:bg-amber-300",
+                    : "before:bg-purple-300",
                   index === stats.length - 1 && "before:hidden"
                 )}
               >
                 {stat.icon && (
                   <stat.icon className={cn(
                     "h-6 w-6 mx-auto mb-3",
-                    variant === "premium" ? "text-amber-400" : "text-amber-600"
+                    variant === "premium" ? "text-purple-400" : "text-purple-600"
                   )} />
                 )}
                 <div className={cn(
@@ -137,7 +137,7 @@ const StatsBar: React.FC<StatsBarProps> = ({
                 <div className={cn(
                   "text-xs mt-3 uppercase tracking-[0.15em] font-medium",
                   variant === "premium"
-                    ? "text-amber-400/80"
+                    ? "text-purple-400/80"
                     : style.label
                 )}>
                   {stat.label}
@@ -235,8 +235,8 @@ const AnimatedStat: React.FC<AnimatedStatProps> = ({
       <div className={cn(
         "text-4xl md:text-5xl font-extrabold",
         variant === "gold"
-          ? "bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent"
-          : "text-orange-500"
+          ? "bg-gradient-to-r from-purple-400 via-purple-400 to-purple-500 bg-clip-text text-transparent"
+          : "text-purple-500"
       )}>
         {prefix}
         {displayValue}
@@ -258,7 +258,7 @@ interface InlineStatProps {
 const InlineStat: React.FC<InlineStatProps> = ({ value, label, className, variant = "default" }) => {
   const styles = {
     default: "bg-purple-100 text-purple-700",
-    gold: "bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200",
+    gold: "bg-gradient-to-r from-purple-100 to-purple-100 text-purple-800 border border-purple-200",
   };
 
   return (
@@ -270,7 +270,7 @@ const InlineStat: React.FC<InlineStatProps> = ({ value, label, className, varian
       )}
     >
       {variant === "gold" ? (
-        <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+        <Sparkles className="h-3.5 w-3.5 text-purple-500" />
       ) : (
         <TrendingUp className="h-3.5 w-3.5" />
       )}

@@ -232,33 +232,51 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
   };
 
   const handleGenerate = async () => {
+    console.log('[FunnelEditor] ====== REGENERATE CLICKED ======');
+    console.log('[FunnelEditor] Property ID:', property.id);
+    console.log('[FunnelEditor] Address:', property.address);
+    console.log('[FunnelEditor] City:', city);
+    console.log('[FunnelEditor] Inputs:', JSON.stringify(inputs, null, 2));
+
     setIsGenerating(true);
     try {
+      const requestBody = {
+        address: property.address,
+        city,
+        state,
+        zipCode,
+        price: property.price,
+        downPayment: property.downPayment,
+        monthlyPayment: property.monthlyPayment,
+        beds: property.beds,
+        baths: property.baths,
+        sqft: property.sqft,
+        propertyType: property.propertyType,
+        condition: property.condition,
+        description: property.description,
+        inputs, // Include the user-editable inputs
+        recordId: property.id, // Airtable record ID for persistence
+      };
+      console.log('[FunnelEditor] Calling /api/funnel?action=generate...');
+
       const response = await fetch('/api/funnel?action=generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          address: property.address,
-          city,
-          state,
-          zipCode,
-          price: property.price,
-          downPayment: property.downPayment,
-          monthlyPayment: property.monthlyPayment,
-          beds: property.beds,
-          baths: property.baths,
-          sqft: property.sqft,
-          propertyType: property.propertyType,
-          condition: property.condition,
-          description: property.description,
-          inputs, // Include the user-editable inputs
-          recordId: property.id, // Airtable record ID for persistence
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('[FunnelEditor] Generate response status:', response.status);
       const data = await response.json();
+      console.log('[FunnelEditor] Generate response:', {
+        success: data.success,
+        hasContent: !!data.content,
+        avatarResearchId: data.content?.avatarResearchId || 'NOT SET',
+        savedToFile: data.savedToFile,
+        savedToAirtable: data.savedToAirtable,
+      });
 
       if (data.success && data.content) {
+        console.log('[FunnelEditor] Content avatarResearchId:', data.content.avatarResearchId || 'NOT SET');
         setContent(data.content);
         // Update inputs from generated content
         if (data.content.inputs) {
@@ -266,11 +284,14 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
         }
         setHasChanges(false);
         toast.success('Funnel content generated and saved!');
+        console.log('[FunnelEditor] ====== REGENERATE COMPLETE ======');
       } else {
+        console.error('[FunnelEditor] Generate failed:', data);
         throw new Error(data.error || 'Failed to generate content');
       }
     } catch (error) {
-      console.error('Error generating funnel content:', error);
+      console.error('[FunnelEditor] ====== REGENERATE ERROR ======');
+      console.error('[FunnelEditor] Error:', error);
       toast.error('Failed to generate content');
     } finally {
       setIsGenerating(false);
@@ -281,30 +302,51 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
   const [isGeneratingResearch, setIsGeneratingResearch] = useState(false);
 
   const handleGenerateAvatarResearch = async () => {
+    console.log('[FunnelEditor] ====== ENABLE AI LEARNING CLICKED ======');
+    console.log('[FunnelEditor] Current content:', content ? { slug: content.propertySlug, hasResearchId: !!content.avatarResearchId } : 'NULL');
+    console.log('[FunnelEditor] Property ID:', property.id);
+    console.log('[FunnelEditor] Property type:', property.propertyType);
+    console.log('[FunnelEditor] City:', city);
+    console.log('[FunnelEditor] Price:', property.price);
+    console.log('[FunnelEditor] Buyer segment:', inputs.buyerSegment || 'first-time-buyer');
+
     setIsGeneratingResearch(true);
     try {
+      const requestBody = {
+        buyerSegment: inputs.buyerSegment || 'first-time-buyer',
+        propertyContext: {
+          type: property.propertyType,
+          city,
+          priceRange: property.price ? `$${Math.floor(property.price / 50000) * 50}k-$${Math.ceil(property.price / 50000) * 50}k` : undefined,
+        },
+      };
+      console.log('[FunnelEditor] Request body:', JSON.stringify(requestBody, null, 2));
+      console.log('[FunnelEditor] Calling /api/funnel/avatar-research?action=generate...');
+
       const response = await fetch('/api/funnel/avatar-research?action=generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          buyerSegment: inputs.buyerSegment || 'first-time-buyer',
-          propertyContext: {
-            type: property.propertyType,
-            city,
-            priceRange: property.price ? `$${Math.floor(property.price / 50000) * 50}k-$${Math.ceil(property.price / 50000) * 50}k` : undefined,
-          },
-        }),
+        body: JSON.stringify(requestBody),
       });
 
+      console.log('[FunnelEditor] Response status:', response.status);
+      console.log('[FunnelEditor] Response ok:', response.ok);
+
       const data = await response.json();
+      console.log('[FunnelEditor] Response data:', JSON.stringify(data, null, 2));
 
       if (data.success && data.researchId) {
+        console.log('[FunnelEditor] SUCCESS! Research ID:', data.researchId);
+        console.log('[FunnelEditor] savedToAirtable:', data.savedToAirtable);
+
         // Update content with the new avatar research ID
         const updatedContent = { ...content!, avatarResearchId: data.researchId };
+        console.log('[FunnelEditor] Updated content avatarResearchId:', updatedContent.avatarResearchId);
         setContent(updatedContent);
 
         // Save the updated content to Airtable
-        await fetch('/api/funnel?action=save', {
+        console.log('[FunnelEditor] Saving updated content to funnel API...');
+        const saveResponse = await fetch('/api/funnel?action=save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -313,16 +355,24 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
             recordId: property.id,
           }),
         });
+        const saveData = await saveResponse.json();
+        console.log('[FunnelEditor] Save response:', JSON.stringify(saveData, null, 2));
 
         toast.success('AI Learning enabled! You can now rate this funnel.');
+        console.log('[FunnelEditor] ====== COMPLETE SUCCESS ======');
       } else {
+        console.error('[FunnelEditor] API returned failure:', data);
         throw new Error(data.error || 'Failed to generate avatar research');
       }
     } catch (error) {
-      console.error('Error generating avatar research:', error);
+      console.error('[FunnelEditor] ====== ERROR ======');
+      console.error('[FunnelEditor] Error type:', (error as Error)?.name);
+      console.error('[FunnelEditor] Error message:', (error as Error)?.message);
+      console.error('[FunnelEditor] Full error:', error);
       toast.error('Failed to enable AI Learning');
     } finally {
       setIsGeneratingResearch(false);
+      console.log('[FunnelEditor] ====== FINISHED ======');
     }
   };
 
@@ -1041,44 +1091,61 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
             <CardContent>
               {content.avatarResearchId ? (
                 <div className="space-y-4">
+                  {/* Instructions */}
+                  <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                    <p className="text-sm text-blue-800 dark:text-blue-200">
+                      <strong>How does this copy resonate with your target buyer?</strong>
+                      <br />
+                      <span className="text-blue-600 dark:text-blue-300">
+                        Click a star to rate from 1 (poor) to 10 (excellent). High ratings (7+) help the AI learn what works best for this buyer segment.
+                      </span>
+                    </p>
+                  </div>
+
                   {/* Star Rating */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground mr-2">Effectiveness:</span>
-                    <div className="flex gap-1">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Poor match</span>
+                      <span>Excellent match</span>
+                    </div>
+                    <div className="flex items-center gap-1 justify-center">
                       {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
                         <button
                           key={star}
                           onClick={() => handleRateEffectiveness(star)}
                           disabled={isRating}
-                          className={`p-1 rounded transition-all ${
+                          title={`Rate ${star}/10${star >= 7 ? ' - Contributes to AI learning' : ''}`}
+                          className={`p-1.5 rounded-lg transition-all ${
                             effectivenessRating && star <= effectivenessRating
-                              ? 'text-yellow-500'
+                              ? star >= 7 ? 'text-emerald-500' : 'text-yellow-500'
                               : 'text-gray-300 dark:text-gray-600 hover:text-yellow-400'
-                          } ${isRating ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                          } ${isRating ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-110'}`}
                         >
-                          <Star className={`h-5 w-5 ${effectivenessRating && star <= effectivenessRating ? 'fill-current' : ''}`} />
+                          <Star className={`h-6 w-6 ${effectivenessRating && star <= effectivenessRating ? 'fill-current' : ''}`} />
                         </button>
                       ))}
                     </div>
-                    {effectivenessRating && (
-                      <span className="text-sm font-medium ml-2">{effectivenessRating}/10</span>
-                    )}
-                    {isRating && <Loader2 className="h-4 w-4 animate-spin ml-2" />}
+                    <div className="flex items-center justify-center gap-2">
+                      {effectivenessRating && (
+                        <span className={`text-lg font-bold ${effectivenessRating >= 7 ? 'text-emerald-600' : 'text-yellow-600'}`}>
+                          {effectivenessRating}/10
+                        </span>
+                      )}
+                      {isRating && <Loader2 className="h-4 w-4 animate-spin" />}
+                    </div>
                   </div>
 
                   {/* Success Message */}
                   {showRatingSuccess && (
-                    <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+                    <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 p-3 rounded-lg">
                       <TrendingUp className="h-4 w-4" />
-                      <span>Thanks! This feedback will improve future funnel generation.</span>
+                      <span>Rating saved! This feedback will improve future funnel generation for this buyer segment.</span>
                     </div>
                   )}
 
                   {/* Info */}
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground text-center">
                     Research ID: <code className="bg-muted px-1 rounded">{content.avatarResearchId.slice(0, 8)}...</code>
-                    {' • '}
-                    Ratings 7+ contribute to learned patterns
                   </p>
                 </div>
               ) : (
