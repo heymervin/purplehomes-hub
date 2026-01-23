@@ -1090,6 +1090,11 @@ export default function PublicPropertyDetail() {
               {/* Solution Benefits - Two Column Layout */}
               <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
                 {/* Left - Key Benefits with Staggered Animation */}
+                {/*
+                  ⚠️ BRAND CONSTANTS - Update here if Purple Homes policy changes:
+                  - Credit score minimum (currently 580)
+                  - Key value propositions
+                */}
                 <div className="flex flex-col justify-center space-y-6">
                   {[
                     { icon: '✓', highlight: 'Your Potential', text: 'We focus on who you are becoming, not where you\'ve been' },
@@ -1122,7 +1127,7 @@ export default function PublicPropertyDetail() {
                       {/* Subtle inner glow */}
                       <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none" />
 
-                      {/* Big number */}
+                      {/* Big number - ⚠️ BRAND CONSTANT: Update if credit score policy changes */}
                       <div className="relative mb-6">
                         <span className="text-[120px] md:text-[160px] font-black bg-gradient-to-b from-white via-purple-200 to-purple-400/50 bg-clip-text text-transparent leading-none">
                           580
