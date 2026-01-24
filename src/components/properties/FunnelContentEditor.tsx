@@ -181,6 +181,8 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
   const [showPreview, setShowPreview] = useState(false);
   // Track where content is saved
   const [saveLocation, setSaveLocation] = useState<'airtable' | 'file' | 'unknown'>('unknown');
+  // Global testimonials from Settings
+  const [globalTestimonials, setGlobalTestimonials] = useState<Testimonial[]>([]);
 
   // Generate slug from property data
   const slug = generatePropertySlug(property.address, property.city);
@@ -196,6 +198,22 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
   useEffect(() => {
     loadContent();
   }, [slug, property.id]);
+
+  // Load global testimonials from Settings
+  useEffect(() => {
+    const loadGlobalTestimonials = async () => {
+      try {
+        const response = await fetch('/api/testimonials');
+        const data = await response.json();
+        if (data.success && data.testimonials) {
+          setGlobalTestimonials(data.testimonials);
+        }
+      } catch (error) {
+        console.error('Error loading global testimonials:', error);
+      }
+    };
+    loadGlobalTestimonials();
+  }, []);
 
   // Notify parent about save state changes
   useEffect(() => {
@@ -999,10 +1017,7 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MessageSquareQuote className="h-4 w-4 text-purple-600" />
-                  <CardTitle className="text-sm font-medium">Real Testimonials</CardTitle>
-                  <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded font-medium">
-                    OVERRIDE
-                  </span>
+                  <CardTitle className="text-sm font-medium">Testimonials</CardTitle>
                 </div>
                 <Button
                   variant="outline"
@@ -1020,22 +1035,61 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
                   }}
                 >
                   <Plus className="h-4 w-4 mr-1" />
-                  Add Testimonial
+                  Add Property-Specific
                 </Button>
               </div>
               <CardDescription>
-                Add real customer testimonials. These override the AI-generated social proof above.
+                Global testimonials from Settings are used automatically. Add property-specific ones to override.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {(!content.testimonials || content.testimonials.length === 0) ? (
-                <div className="text-center py-6 text-muted-foreground border-2 border-dashed rounded-lg">
-                  <MessageSquareQuote className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No real testimonials yet</p>
-                  <p className="text-xs">AI-generated testimonial will be used</p>
+              {/* Global Testimonials from Settings - Read-only display */}
+              {globalTestimonials.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">From Settings ({globalTestimonials.length} testimonials)</Label>
+                    <a href="/settings" className="text-xs text-purple-600 hover:underline">Manage in Settings →</a>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {globalTestimonials.map((t, i) => (
+                      <div
+                        key={i}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-full text-sm"
+                        title={t.quote}
+                      >
+                        <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                        <span className="font-medium text-purple-700 dark:text-purple-300 max-w-[150px] truncate">
+                          {t.authorName}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  {(!content.testimonials || content.testimonials.length === 0) && (
+                    <p className="text-xs text-muted-foreground">
+                      These will be shown on the funnel page. Add property-specific testimonials below to override.
+                    </p>
+                  )}
                 </div>
+              )}
+
+              {/* Property-specific testimonials */}
+              {(!content.testimonials || content.testimonials.length === 0) ? (
+                globalTestimonials.length === 0 ? (
+                  <div className="text-center py-6 text-muted-foreground border-2 border-dashed rounded-lg">
+                    <MessageSquareQuote className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No testimonials configured</p>
+                    <p className="text-xs">Add testimonials in Settings or add a property-specific one here</p>
+                  </div>
+                ) : null
               ) : (
-                content.testimonials.map((testimonial, index) => (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Label className="text-xs text-muted-foreground">Property-Specific ({content.testimonials?.length || 0})</Label>
+                    <span className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded font-medium">
+                      OVERRIDES GLOBAL
+                    </span>
+                  </div>
+                  {content.testimonials.map((testimonial, index) => (
                   <div key={index} className="relative border rounded-lg p-4 bg-muted/30">
                     <Button
                       variant="ghost"
@@ -1127,7 +1181,8 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
                       </div>
                     </div>
                   </div>
-                ))
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>
