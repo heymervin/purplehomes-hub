@@ -1482,35 +1482,22 @@ export default function PublicPropertyDetail() {
           />
 
           <div className="relative max-w-6xl mx-auto px-4">
-            {/* Two Column Headers */}
-            <Reveal>
-              <div className="grid md:grid-cols-2 gap-6 md:gap-12 mb-10 md:mb-14">
-                {/* The Old Way Header */}
-                <div className="text-center">
-                  <div className="inline-block bg-gray-900/80 backdrop-blur border border-gray-700 rounded-2xl px-10 py-5 shadow-xl">
-                    <h3 className="text-2xl md:text-4xl font-black text-white">
-                      The <span className="underline decoration-red-500 decoration-[6px] underline-offset-4">Old</span> Way
-                    </h3>
-                  </div>
-                </div>
-                {/* The New Way Header */}
-                <div className="text-center">
-                  <div className="inline-block bg-gray-900/80 backdrop-blur border border-purple-500/40 rounded-2xl px-10 py-5 shadow-xl shadow-purple-500/10">
-                    <h3 className="text-2xl md:text-4xl font-black text-white">
-                      The <span className="underline decoration-purple-400 decoration-[6px] underline-offset-4">New</span> Way
-                    </h3>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* Journey Paths */}
-            <div className="grid md:grid-cols-2 gap-6 md:gap-10">
+            {/* Journey Paths - Headers inside each column for proper mobile flow */}
+            <div className="grid md:grid-cols-2 gap-8 md:gap-10">
               {/* LEFT: The Old Way - Problems */}
               <Reveal delay={100}>
               <div className="relative">
+                {/* Header - The Old Way */}
+                <div className="text-center mb-6 md:mb-8">
+                  <div className="inline-block bg-gray-900/80 backdrop-blur border border-gray-700 rounded-xl md:rounded-2xl px-8 md:px-10 py-4 md:py-5 shadow-xl">
+                    <h3 className="text-xl md:text-3xl font-black text-white">
+                      The <span className="underline decoration-red-500 decoration-4 md:decoration-[6px] underline-offset-4">Old</span> Way
+                    </h3>
+                  </div>
+                </div>
+
                 {/* Vertical connecting line */}
-                <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[60px] bottom-[20px] w-1 bg-gradient-to-b from-red-500/50 via-red-500 to-red-500/50 hidden md:block" />
+                <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[20px] w-1 bg-gradient-to-b from-red-500/50 via-red-500 to-red-500/50 hidden md:block" />
 
                 <div className="space-y-3 md:space-y-4">
                   {/* First item - intro */}
@@ -1579,11 +1566,20 @@ export default function PublicPropertyDetail() {
               {/* RIGHT: The New Way - Solutions */}
               <Reveal delay={200}>
               <div className="relative">
+                {/* Header - The New Way */}
+                <div className="text-center mb-6 md:mb-8">
+                  <div className="inline-block bg-gray-900/80 backdrop-blur border border-purple-500/40 rounded-xl md:rounded-2xl px-8 md:px-10 py-4 md:py-5 shadow-xl shadow-purple-500/10">
+                    <h3 className="text-xl md:text-3xl font-black text-white">
+                      The <span className="underline decoration-purple-400 decoration-4 md:decoration-[6px] underline-offset-4">New</span> Way
+                    </h3>
+                  </div>
+                </div>
+
                 {/* Glow effect behind the column */}
                 <div className="absolute inset-0 bg-purple-500/10 rounded-3xl blur-3xl scale-110 hidden md:block" />
 
                 {/* Vertical connecting line with glow */}
-                <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[60px] bottom-[20px] w-1 bg-gradient-to-b from-purple-400/50 via-purple-400 to-purple-400/50 shadow-[0_0_15px_rgba(168,85,247,0.6)] hidden md:block" />
+                <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[20px] w-1 bg-gradient-to-b from-purple-400/50 via-purple-400 to-purple-400/50 shadow-[0_0_15px_rgba(168,85,247,0.6)] hidden md:block" />
 
                 <div className="relative space-y-3 md:space-y-4">
                   {/* First item - intro */}
