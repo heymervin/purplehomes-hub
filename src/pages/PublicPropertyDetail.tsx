@@ -2227,12 +2227,12 @@ export default function PublicPropertyDetail() {
         {/* Final CTA Section - connects Urgency to Form */}
         {!funnelLoading && funnelContent?.callToAction && (
           <section className="relative bg-black py-16 md:py-20">
-            {/* Top glow - receives bleed from Urgency section's pulsing ring */}
-            <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[1000px] md:w-[1400px] h-[600px] bg-purple-600/25 rounded-full blur-[200px]" />
-            <div className="absolute top-0 left-1/4 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
-            <div className="absolute top-0 right-1/4 w-[600px] h-[500px] bg-purple-500/18 rounded-full blur-[180px]" />
+            {/* Top glows - extend far up to receive Urgency section's bleed */}
+            <div className="absolute top-[-60%] left-1/2 -translate-x-1/2 w-[1200px] md:w-[1600px] h-[800px] bg-purple-600/28 rounded-full blur-[250px]" />
+            <div className="absolute top-[-40%] left-1/4 w-[700px] h-[600px] bg-violet-500/22 rounded-full blur-[200px]" />
+            <div className="absolute top-[-40%] right-1/4 w-[700px] h-[600px] bg-purple-500/20 rounded-full blur-[200px]" />
             {/* Bottom glow - bleeds into Form section */}
-            <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-600/22 rounded-full blur-[200px]" />
+            <div className="absolute bottom-[-50%] left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-purple-600/25 rounded-full blur-[220px]" />
 
             <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
