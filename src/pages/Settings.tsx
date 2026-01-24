@@ -1620,7 +1620,7 @@ export default function Settings() {
                           setCountdownHours(Number(e.target.value));
                           setHasCompanyInfoChanges(true);
                         }}
-                        className="px-3 py-2 border rounded-md text-sm bg-white"
+                        className="px-3 py-2 border rounded-md text-sm bg-background"
                       >
                         <option value={24}>24 hours</option>
                         <option value={48}>48 hours</option>
