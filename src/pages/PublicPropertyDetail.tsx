@@ -2388,10 +2388,10 @@ export default function PublicPropertyDetail() {
         </section>
       </main>
 
-      {/* Footer with purple glow bleeding from above */}
-      <footer className="relative bg-gray-900 text-white py-12">
-        {/* Purple glow from form section */}
-        <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/15 rounded-full blur-[180px]" />
+      {/* Footer - Black with purple ambient glow */}
+      <footer className="relative bg-black text-white py-12">
+        {/* Purple ambient glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-purple-600/20 rounded-full blur-[150px]" />
         <div className="max-w-6xl mx-auto px-4 text-center">
           <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">P</span>
