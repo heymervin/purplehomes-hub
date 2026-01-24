@@ -2245,15 +2245,16 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Contact Form Section - Premium Dark with bleeding glow */}
-        <div className="relative bg-black">
-          {/* Strong purple glow at top - extends far up for seamless blend */}
-          <div className="absolute top-[-50%] left-1/2 -translate-x-1/2 w-[1200px] md:w-[1800px] h-[800px] md:h-[1000px] bg-purple-600/25 rounded-full blur-[250px] md:blur-[350px]" />
-          <div className="absolute top-[-20%] left-1/4 w-[700px] h-[600px] bg-violet-500/20 rounded-full blur-[200px]" />
-          <div className="absolute top-[10%] right-1/4 w-[600px] h-[500px] bg-purple-400/18 rounded-full blur-[180px]" />
+        {/* Contact Form Section - Black with purple ambient glows like hero */}
+        <section id="contact-form" className="relative bg-black py-20 md:py-28">
+          {/* Purple ambient glows - matching hero section style */}
+          <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[1000px] md:w-[1400px] h-[600px] md:h-[800px] bg-purple-600/25 rounded-full blur-[200px] md:blur-[280px]" />
+          <div className="absolute top-[10%] left-1/4 w-[500px] h-[400px] bg-violet-500/20 rounded-full blur-[150px]" />
+          <div className="absolute top-[30%] right-1/4 w-[400px] h-[350px] bg-purple-400/15 rounded-full blur-[120px]" />
           {/* Bottom glow bleeding into footer */}
-          <div className="absolute bottom-[-40%] left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-purple-600/22 rounded-full blur-[250px]" />
-          <FunnelSection variant="premium-dark" padding="lg" id="contact-form" className="relative z-10 !bg-transparent">
+          <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-600/20 rounded-full blur-[200px]" />
+
+          <div className="relative z-10">
           <div className="max-w-xl mx-auto">
             <div className="bg-white/5 backdrop-blur-sm rounded-3xl shadow-2xl border border-purple-500/20 overflow-hidden">
               <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 p-8 text-white text-center relative overflow-hidden">
@@ -2384,8 +2385,8 @@ export default function PublicPropertyDetail() {
               )}
             </div>
           </div>
-        </FunnelSection>
-        </div>
+          </div>
+        </section>
       </main>
 
       {/* Footer with purple glow bleeding from above */}
