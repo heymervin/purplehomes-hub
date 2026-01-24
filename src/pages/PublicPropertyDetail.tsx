@@ -318,11 +318,13 @@ function AnimatedStatsSection() {
 
   return (
     <section ref={sectionRef} className="relative bg-black py-20 md:py-28">
-      {/* Ambient lighting - top glow receives bleed from testimonials, bottom bleeds to next */}
-      <div className="absolute top-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/15 rounded-full blur-[180px]" />
+      {/* Ambient lighting - top glow receives bleed from testimonials */}
+      <div className="absolute top-[-25%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
       <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[200px]" />
-      <div className="absolute bottom-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/15 rounded-full blur-[180px]" />
+      {/* Bottom glows bleed strongly into Neighborhood section */}
+      <div className="absolute bottom-[-40%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-purple-600/22 rounded-full blur-[220px]" />
+      <div className="absolute bottom-[-25%] right-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
 
 
       <div className="relative z-10 max-w-6xl mx-auto px-4">
@@ -2033,10 +2035,12 @@ export default function PublicPropertyDetail() {
         {/* What's Nearby - Focus on the places */}
         {!funnelLoading && funnelContent?.locationNearby && (
           <section className="relative bg-black py-16 md:py-20">
-            {/* Ambient glows - top receives bleed from above, bottom bleeds to Qualifier */}
-            <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/20 rounded-full blur-[200px]" />
+            {/* Ambient glows - top receives strong bleed from Stats section */}
+            <div className="absolute top-[-40%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-purple-600/22 rounded-full blur-[220px]" />
+            <div className="absolute top-[-20%] left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
             <div className="absolute top-[30%] right-0 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
-            <div className="absolute bottom-[-30%] left-1/3 w-[700px] h-[500px] bg-purple-500/18 rounded-full blur-[200px]" />
+            {/* Bottom bleeds to Qualifier */}
+            <div className="absolute bottom-[-35%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/20 rounded-full blur-[200px]" />
 
             <div className="relative z-10 max-w-4xl mx-auto px-4">
               {/* Section Header */}
@@ -2268,9 +2272,10 @@ export default function PublicPropertyDetail() {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[500px] md:h-[700px] bg-purple-600/28 rounded-full blur-[150px] md:blur-[200px]" />
           <div className="absolute top-[20%] left-0 w-[600px] h-[500px] bg-violet-500/22 rounded-full blur-[130px]" />
           <div className="absolute top-[20%] right-0 w-[600px] h-[500px] bg-purple-500/22 rounded-full blur-[130px]" />
-          {/* Bottom glow bleeds into footer */}
-          <div className="absolute bottom-[-40%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/25 rounded-full blur-[200px]" />
-          <div className="absolute bottom-[-20%] left-1/4 w-[500px] h-[400px] bg-violet-500/18 rounded-full blur-[180px]" />
+          {/* Bottom glows bleed strongly into footer - extended reach */}
+          <div className="absolute bottom-[-60%] left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-purple-600/30 rounded-full blur-[250px]" />
+          <div className="absolute bottom-[-40%] left-1/4 w-[600px] h-[500px] bg-violet-500/22 rounded-full blur-[200px]" />
+          <div className="absolute bottom-[-40%] right-1/4 w-[600px] h-[500px] bg-purple-500/20 rounded-full blur-[200px]" />
 
           <div className="relative z-10">
           <div className="max-w-xl mx-auto">
@@ -2409,9 +2414,10 @@ export default function PublicPropertyDetail() {
 
       {/* Footer - Black with purple ambient glows that bleed upward */}
       <footer className="relative bg-black text-white py-12">
-        {/* Top glows bleed into form section above */}
-        <div className="absolute top-[-50%] left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-600/22 rounded-full blur-[200px]" />
-        <div className="absolute top-[-30%] right-1/4 w-[400px] h-[350px] bg-violet-500/15 rounded-full blur-[150px]" />
+        {/* Top glows extend far into form section - strong connection */}
+        <div className="absolute top-[-80%] left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-purple-600/28 rounded-full blur-[250px]" />
+        <div className="absolute top-[-50%] left-1/4 w-[500px] h-[450px] bg-violet-500/20 rounded-full blur-[200px]" />
+        <div className="absolute top-[-50%] right-1/4 w-[500px] h-[450px] bg-purple-500/18 rounded-full blur-[200px]" />
         <div className="max-w-6xl mx-auto px-4 text-center">
           <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">P</span>
