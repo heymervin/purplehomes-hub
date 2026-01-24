@@ -2245,13 +2245,13 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Contact Form Section - Black with STRONG purple ambient glows */}
+        {/* Contact Form Section - Black with balanced purple ambient glows */}
         <section id="contact-form" className="relative bg-black py-20 md:py-28">
-          {/* STRONG purple ambient glows - highly visible */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[500px] md:h-[700px] bg-purple-600/40 rounded-full blur-[150px] md:blur-[200px]" />
-          <div className="absolute top-[20%] left-0 w-[600px] h-[500px] bg-violet-500/35 rounded-full blur-[120px]" />
-          <div className="absolute top-[20%] right-0 w-[600px] h-[500px] bg-purple-500/35 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-violet-600/30 rounded-full blur-[150px]" />
+          {/* Balanced purple ambient glows - visible but not overwhelming */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[500px] md:h-[700px] bg-purple-600/28 rounded-full blur-[150px] md:blur-[200px]" />
+          <div className="absolute top-[20%] left-0 w-[600px] h-[500px] bg-violet-500/22 rounded-full blur-[130px]" />
+          <div className="absolute top-[20%] right-0 w-[600px] h-[500px] bg-purple-500/22 rounded-full blur-[130px]" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-violet-600/20 rounded-full blur-[150px]" />
 
           <div className="relative z-10">
           <div className="max-w-xl mx-auto">
