@@ -1908,24 +1908,42 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Qualifier Section */}
+        {/* Qualifier Section - Dark Theme */}
         {!funnelLoading && funnelContent?.qualifier && (
-          <FunnelSection variant="purple-light" padding="lg">
-            <SectionHeader
-              overline="Is This Right For You?"
-              title="This Home is Perfect For You If..."
-            />
-            <div className="max-w-3xl mx-auto bg-white rounded-xl p-6 shadow-lg">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Users className="h-6 w-6 text-purple-600" />
+          <section className="relative bg-gradient-to-b from-black to-[#0f172a] py-16 md:py-20 overflow-hidden">
+            {/* Ambient glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[400px] bg-purple-600/10 rounded-full blur-[150px]" />
+
+            <div className="relative z-10 max-w-3xl mx-auto px-4">
+              <Reveal className="text-center mb-10">
+                <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
+                  Is This Right For You?
+                </span>
+                <h2 className="text-3xl md:text-4xl text-white">
+                  <span className="font-light">This Home is</span>{' '}
+                  <span className="font-bold italic bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Perfect</span>
+                  <span className="font-light"> For You If...</span>
+                </h2>
+              </Reveal>
+
+              <Reveal delay={150}>
+                <div className="space-y-3">
+                  {funnelContent.qualifier.split('\n').filter(Boolean).map((item, idx) => {
+                    // Clean up any existing bullets
+                    const cleanItem = item.replace(/^[•\-\*\s]+/, '').trim();
+                    if (!cleanItem) return null;
+
+                    return (
+                      <div key={idx} className="flex items-start gap-3 bg-purple-500/10 border border-purple-500/20 rounded-xl px-5 py-4 hover:bg-purple-500/15 transition-colors">
+                        <CheckCircle className="h-5 w-5 text-purple-400 flex-shrink-0 mt-0.5" />
+                        <p className="text-white/90 leading-relaxed">{cleanItem}</p>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {funnelContent.qualifier}
-                </div>
-              </div>
+              </Reveal>
             </div>
-          </FunnelSection>
+          </section>
         )}
 
         {/* Virtual Tour */}
