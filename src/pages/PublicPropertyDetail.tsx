@@ -1196,10 +1196,10 @@ export default function PublicPropertyDetail() {
               </div>
             </div>
           </div>
-        </section>
 
-        {/* Premium Trust Strip */}
-        <PremiumTrustStrip />
+          {/* Premium Trust Strip - inside section for seamless background */}
+          <PremiumTrustStrip className="pb-6" />
+        </section>
 
         {/* Full-page loading skeleton while funnel content loads */}
         {funnelLoading && (
@@ -1994,7 +1994,7 @@ export default function PublicPropertyDetail() {
             }
 
             return (
-              <section className="relative bg-gradient-to-b from-black via-black to-[#0f172a] py-16 md:py-20 overflow-hidden">
+              <section className="relative bg-black py-16 md:py-20 overflow-hidden">
                 {/* Ambient lighting */}
                 <div className="absolute top-0 left-1/4 w-[400px] h-[300px] bg-purple-600/10 rounded-full blur-[150px]" />
                 <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-violet-600/10 rounded-full blur-[150px]" />
