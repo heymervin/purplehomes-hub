@@ -911,8 +911,8 @@ export default function PublicPropertyDetail() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main>
+      {/* Main Content - One infinite black canvas */}
+      <main className="relative bg-black">
         {/* DRAMATIC HERO SECTION - PURPLE HOMES BRANDED - MAXIMUM IMPACT */}
         <section className="relative bg-black overflow-hidden">
           {/* Dramatic purple ambient lighting */}
