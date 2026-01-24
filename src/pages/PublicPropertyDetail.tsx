@@ -1260,11 +1260,13 @@ export default function PublicPropertyDetail() {
                   </span>
                   The Challenge
                 </div>
-                <h2 className="text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[1.0] tracking-[-0.02em] max-w-4xl mx-auto mb-6">
-                  {extractProblemHeadline(funnelContent.problem)}
-                </h2>
-                {/* Dynamic underline - sits below text regardless of line count */}
-                <div className="w-48 sm:w-64 md:w-80 h-1 mx-auto bg-gradient-to-r from-transparent via-purple-500/70 to-transparent rounded-full" />
+                <div className="inline-block mb-6">
+                  <h2 className="text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[1.0] tracking-[-0.02em]">
+                    {extractProblemHeadline(funnelContent.problem)}
+                  </h2>
+                  {/* Dynamic underline - matches text width */}
+                  <div className="mt-3 h-1 w-full bg-gradient-to-r from-transparent via-purple-500/70 to-transparent rounded-full" />
+                </div>
                 <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
                   You're not alone. <span className="text-purple-300 font-medium">Thousands</span> face these same barriers every day.
                 </p>
@@ -1342,16 +1344,18 @@ export default function PublicPropertyDetail() {
                   The Solution
                 </div>
                 {/* Extract first 2 sentences for headline */}
-                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto mb-4">
-                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
-                    {(() => {
-                      const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
-                      return sentences.slice(0, 2).join(' ').trim();
-                    })()}
-                  </span>
-                </h2>
-                {/* Dynamic underline - sits below text regardless of line count */}
-                <div className="w-32 sm:w-48 md:w-64 h-1 mx-auto bg-gradient-to-r from-transparent via-purple-400 to-transparent rounded-full" />
+                <div className="inline-block mb-4">
+                  <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em]">
+                    <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                      {(() => {
+                        const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
+                        return sentences.slice(0, 2).join(' ').trim();
+                      })()}
+                    </span>
+                  </h2>
+                  {/* Dynamic underline - matches text width */}
+                  <div className="mt-3 h-1 w-full bg-gradient-to-r from-transparent via-purple-400 to-transparent rounded-full" />
+                </div>
               </Reveal>
 
               {/* Solution Benefits - Two Column Layout */}
