@@ -391,6 +391,153 @@ function AnimatedStatsSection() {
   );
 }
 
+// Virtual Tour Section with GHL-style click-to-play overlay
+function VirtualTourSection({ virtualTourUrl, scrollToForm }: { virtualTourUrl: string; scrollToForm: () => void }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Extract YouTube video ID for thumbnail
+  const getYouTubeId = (url: string) => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/);
+    return match ? match[1] : null;
+  };
+
+  // Extract Vimeo video ID
+  const getVimeoId = (url: string) => {
+    const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    return match ? match[1] : null;
+  };
+
+  const youtubeId = getYouTubeId(virtualTourUrl);
+  const vimeoId = getVimeoId(virtualTourUrl);
+
+  // Get thumbnail URL
+  const thumbnailUrl = youtubeId
+    ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
+    : vimeoId
+    ? `https://vumbnail.com/${vimeoId}.jpg`
+    : '/placeholder.svg';
+
+  // Get embed URL with autoplay
+  const getEmbedUrl = () => {
+    if (youtubeId) {
+      return `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`;
+    }
+    if (vimeoId) {
+      return `https://player.vimeo.com/video/${vimeoId}?autoplay=1`;
+    }
+    return virtualTourUrl;
+  };
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+  };
+
+  return (
+    <section className="relative bg-gradient-to-b from-[#0f172a] to-black py-16 md:py-20 overflow-hidden">
+      {/* Ambient glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-purple-600/10 rounded-full blur-[180px]" />
+
+      <div className="relative z-10 max-w-5xl mx-auto px-4">
+        {/* Header */}
+        <Reveal className="text-center mb-10">
+          <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
+            Virtual Tour
+          </span>
+          <h2 className="text-3xl md:text-4xl text-white mb-3">
+            <span className="font-light">Walk Through</span>{' '}
+            <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Your Future Home</span>
+          </h2>
+          <p className="text-gray-400 max-w-xl mx-auto">
+            Take a virtual tour and imagine yourself living here. See every room, every detail.
+          </p>
+        </Reveal>
+
+        {/* Video with GHL-style click-to-play overlay */}
+        <Reveal delay={150}>
+          <div className="relative group">
+            {/* Outer glow */}
+            <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/30 via-violet-500/30 to-purple-600/30 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+
+            {/* Video container */}
+            <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-purple-500/30 shadow-2xl">
+              {!isPlaying ? (
+                /* Thumbnail with play button overlay */
+                <div
+                  className="absolute inset-0 cursor-pointer group/play"
+                  onClick={handlePlay}
+                >
+                  {/* Thumbnail image */}
+                  <img
+                    src={thumbnailUrl}
+                    alt="Video thumbnail"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback to medium quality for YouTube if maxres fails
+                      if (youtubeId && (e.target as HTMLImageElement).src.includes('maxresdefault')) {
+                        (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+                      }
+                    }}
+                  />
+
+                  {/* Dark gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/40" />
+
+                  {/* Large centered play button */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="relative">
+                      {/* Pulsing ring behind play button */}
+                      <div className="absolute inset-0 w-24 h-24 md:w-32 md:h-32 bg-purple-500/30 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
+                      <div className="absolute inset-0 w-24 h-24 md:w-32 md:h-32 bg-purple-500/20 rounded-full animate-pulse" />
+
+                      {/* Play button */}
+                      <div className="relative w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-purple-500 to-violet-600 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(139,92,246,0.5)] group-hover/play:shadow-[0_0_80px_rgba(139,92,246,0.7)] group-hover/play:scale-110 transition-all duration-300">
+                        <svg className="w-10 h-10 md:w-14 md:h-14 text-white ml-2" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Click to watch text */}
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
+                    <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-5 py-2">
+                      <svg className="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.414a5 5 0 001.414 1.414m2.828-9.9a9 9 0 0112.728 0" />
+                      </svg>
+                      <span className="text-white text-sm font-medium">Click to watch the tour</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Actual video iframe after clicking */
+                <iframe
+                  src={getEmbedUrl()}
+                  className="w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title="Property Virtual Tour"
+                />
+              )}
+            </div>
+          </div>
+        </Reveal>
+
+        {/* CTA below video */}
+        <Reveal delay={200} className="text-center mt-8">
+          <p className="text-purple-300/70 text-sm mb-4">Like what you see?</p>
+          <button
+            onClick={scrollToForm}
+            className="inline-flex items-center gap-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-white font-semibold px-6 py-3 rounded-xl transition-all"
+          >
+            Schedule an In-Person Tour
+            <span>&rarr;</span>
+          </button>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 export default function PublicPropertyDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -1951,106 +2098,12 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Virtual Tour - Premium Dark */}
+        {/* Virtual Tour - Premium Dark with Click-to-Play Overlay */}
         {!funnelLoading && funnelContent?.virtualTourUrl && (
-          <section className="relative bg-gradient-to-b from-[#0f172a] to-black py-16 md:py-20 overflow-hidden">
-            {/* Ambient glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-purple-600/10 rounded-full blur-[180px]" />
-
-            <div className="relative z-10 max-w-5xl mx-auto px-4">
-              {/* Header */}
-              <Reveal className="text-center mb-10">
-                <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
-                  Virtual Tour
-                </span>
-                <h2 className="text-3xl md:text-4xl text-white mb-3">
-                  <span className="font-light">Walk Through</span>{' '}
-                  <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Your Future Home</span>
-                </h2>
-                <p className="text-gray-400 max-w-xl mx-auto">
-                  Take a virtual tour and imagine yourself living here. See every room, every detail.
-                </p>
-              </Reveal>
-
-              {/* Video with premium frame */}
-              <Reveal delay={150}>
-                <div className="relative group">
-                  {/* Left arrow pointing right - bouncing toward video */}
-                  <div className="hidden lg:flex absolute -left-36 top-1/2 -translate-y-1/2 items-center gap-2 text-purple-400 animate-bounce-right">
-                    <span className="text-sm font-bold uppercase tracking-wider">Play</span>
-                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-
-                  {/* Right arrow pointing left - bouncing toward video */}
-                  <div className="hidden lg:flex absolute -right-36 top-1/2 -translate-y-1/2 items-center gap-2 text-purple-400 animate-bounce-left">
-                    <svg className="w-8 h-8 rotate-180" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                    <span className="text-sm font-bold uppercase tracking-wider">Play</span>
-                  </div>
-
-                  {/* CSS for horizontal bounce animations */}
-                  <style>{`
-                    @keyframes bounce-right {
-                      0%, 100% { transform: translateY(-50%) translateX(0); }
-                      50% { transform: translateY(-50%) translateX(10px); }
-                    }
-                    @keyframes bounce-left {
-                      0%, 100% { transform: translateY(-50%) translateX(0); }
-                      50% { transform: translateY(-50%) translateX(-10px); }
-                    }
-                    .animate-bounce-right { animation: bounce-right 1s ease-in-out infinite; }
-                    .animate-bounce-left { animation: bounce-left 1s ease-in-out infinite; }
-                  `}</style>
-
-                  {/* Outer glow */}
-                  <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/30 via-violet-500/30 to-purple-600/30 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-
-                  {/* Video container */}
-                  <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-purple-500/30 shadow-2xl">
-                    {funnelContent.virtualTourUrl.includes('youtube.com') || funnelContent.virtualTourUrl.includes('youtu.be') ? (
-                      <iframe
-                        src={funnelContent.virtualTourUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
-                        className="w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        title="Property Virtual Tour"
-                      />
-                    ) : funnelContent.virtualTourUrl.includes('vimeo.com') ? (
-                      <iframe
-                        src={funnelContent.virtualTourUrl.replace('vimeo.com/', 'player.vimeo.com/video/')}
-                        className="w-full h-full"
-                        allow="autoplay; fullscreen; picture-in-picture"
-                        allowFullScreen
-                        title="Property Virtual Tour"
-                      />
-                    ) : (
-                      <iframe
-                        src={funnelContent.virtualTourUrl}
-                        className="w-full h-full"
-                        allowFullScreen
-                        title="Property Virtual Tour"
-                      />
-                    )}
-                  </div>
-                </div>
-              </Reveal>
-
-              {/* CTA below video */}
-              <Reveal delay={200} className="text-center mt-8">
-                <p className="text-purple-300/70 text-sm mb-4">Like what you see?</p>
-                <button
-                  onClick={scrollToForm}
-                  className="inline-flex items-center gap-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-white font-semibold px-6 py-3 rounded-xl transition-all"
-                >
-                  Schedule an In-Person Tour
-                  <span>&rarr;</span>
-                </button>
-              </Reveal>
-            </div>
-          </section>
+          <VirtualTourSection
+            virtualTourUrl={funnelContent.virtualTourUrl}
+            scrollToForm={scrollToForm}
+          />
         )}
 
         {/* FAQ Section */}
