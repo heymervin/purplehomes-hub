@@ -2267,7 +2267,7 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* Contact Form + Footer Section - Combined into one seamless section */}
-        <section id="contact-form" className="relative bg-black pt-20 md:pt-28 pb-12">
+        <section id="contact-form" className="relative pt-20 md:pt-28 pb-12">
           {/* Ambient glows for the entire form + footer area */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[500px] md:h-[700px] bg-purple-600/28 rounded-full blur-[150px] md:blur-[200px]" />
           <div className="absolute top-[15%] left-0 w-[600px] h-[500px] bg-violet-500/22 rounded-full blur-[130px]" />
