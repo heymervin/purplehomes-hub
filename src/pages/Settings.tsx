@@ -189,9 +189,17 @@ export default function Settings() {
   const [isSavingTestimonials, setIsSavingTestimonials] = useState(false);
   const [hasTestimonialChanges, setHasTestimonialChanges] = useState(false);
 
-  // Load testimonials on mount
+  // Company Info Settings
+  const [companyPhone, setCompanyPhone] = useState('');
+  const [companyEmail, setCompanyEmail] = useState('');
+  const [isLoadingCompanyInfo, setIsLoadingCompanyInfo] = useState(true);
+  const [isSavingCompanyInfo, setIsSavingCompanyInfo] = useState(false);
+  const [hasCompanyInfoChanges, setHasCompanyInfoChanges] = useState(false);
+
+  // Load testimonials and company info on mount
   useEffect(() => {
     loadTestimonials();
+    loadCompanyInfo();
   }, []);
 
   const loadTestimonials = async () => {
@@ -206,6 +214,44 @@ export default function Settings() {
       console.error('Error loading testimonials:', error);
     } finally {
       setIsLoadingTestimonials(false);
+    }
+  };
+
+  const loadCompanyInfo = async () => {
+    setIsLoadingCompanyInfo(true);
+    try {
+      const response = await fetch('/api/company-info');
+      const data = await response.json();
+      if (data.success) {
+        setCompanyPhone(data.phone || '');
+        setCompanyEmail(data.email || '');
+      }
+    } catch (error) {
+      console.error('Error loading company info:', error);
+    } finally {
+      setIsLoadingCompanyInfo(false);
+    }
+  };
+
+  const handleSaveCompanyInfo = async () => {
+    setIsSavingCompanyInfo(true);
+    try {
+      const response = await fetch('/api/company-info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: companyPhone, email: companyEmail }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        setHasCompanyInfoChanges(false);
+        toast.success('Company info saved!');
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      toast.error('Failed to save company info');
+    } finally {
+      setIsSavingCompanyInfo(false);
     }
   };
 
@@ -410,9 +456,9 @@ export default function Settings() {
             <Brain className="h-4 w-4" />
             AI Performance
           </TabsTrigger>
-          <TabsTrigger value="testimonials" className="gap-2">
+          <TabsTrigger value="company" className="gap-2">
             <MessageSquareQuote className="h-4 w-4" />
-            Testimonials
+            Company Info
           </TabsTrigger>
           {canManageUsers && (
             <TabsTrigger value="team" className="gap-2">
@@ -1465,15 +1511,82 @@ export default function Settings() {
           <AIPerformance />
         </TabsContent>
 
-        {/* TESTIMONIALS TAB */}
-        <TabsContent value="testimonials" className="space-y-6">
+        {/* COMPANY INFO TAB */}
+        <TabsContent value="company" className="space-y-6">
+          {/* Company Contact Info */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Link2 className="h-5 w-5 text-purple-600" />
+                    Company Contact Info
+                  </CardTitle>
+                  <CardDescription>
+                    Contact information displayed on funnel pages and marketing materials
+                  </CardDescription>
+                </div>
+                {hasCompanyInfoChanges && (
+                  <Button onClick={handleSaveCompanyInfo} disabled={isSavingCompanyInfo}>
+                    {isSavingCompanyInfo ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Save Changes
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {isLoadingCompanyInfo ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label>Phone Number</Label>
+                    <Input
+                      value={companyPhone}
+                      onChange={(e) => {
+                        setCompanyPhone(e.target.value);
+                        setHasCompanyInfoChanges(true);
+                      }}
+                      placeholder="(504) 475-0672"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Used for SMS links in FAQ sections and CTAs
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Email Address</Label>
+                    <Input
+                      type="email"
+                      value={companyEmail}
+                      onChange={(e) => {
+                        setCompanyEmail(e.target.value);
+                        setHasCompanyInfoChanges(true);
+                      }}
+                      placeholder="info@purplehomesla.com"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Used for contact links on marketing pages
+                    </p>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Testimonials */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
                     <MessageSquareQuote className="h-5 w-5 text-purple-600" />
-                    Global Testimonials
+                    Customer Testimonials
                   </CardTitle>
                   <CardDescription>
                     Manage customer testimonials displayed across all property pages

@@ -589,6 +589,9 @@ export default function PublicPropertyDetail() {
   // Global testimonials (from Settings)
   const [globalTestimonials, setGlobalTestimonials] = useState<Testimonial[]>([]);
 
+  // Company info (from Settings)
+  const [companyPhone, setCompanyPhone] = useState('(504) 475-0672'); // fallback default
+
   // Form state
   const [showOfferForm, setShowOfferForm] = useState(false);
   const [offerForm, setOfferForm] = useState({
@@ -626,7 +629,7 @@ export default function PublicPropertyDetail() {
     fetchFunnelContent();
   }, [slug, property?.id]);
 
-  // Fetch global testimonials (from Settings)
+  // Fetch global testimonials and company info (from Settings)
   useEffect(() => {
     const fetchTestimonials = async () => {
       try {
@@ -641,7 +644,23 @@ export default function PublicPropertyDetail() {
         console.error('Error fetching testimonials:', error);
       }
     };
+
+    const fetchCompanyInfo = async () => {
+      try {
+        const response = await fetch('/api/company-info');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.phone) {
+            setCompanyPhone(data.phone);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching company info:', error);
+      }
+    };
+
     fetchTestimonials();
+    fetchCompanyInfo();
   }, []);
 
   const createContact = useCreateContact();
@@ -2117,7 +2136,7 @@ export default function PublicPropertyDetail() {
                 variant="premium"
               />
               <div className="mt-10 max-w-3xl mx-auto">
-                <FAQCTA phoneNumber="(504) 475-0672" variant="premium" />
+                <FAQCTA phoneNumber={companyPhone} variant="premium" />
               </div>
             </div>
           </section>
@@ -2207,11 +2226,11 @@ export default function PublicPropertyDetail() {
                   <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </button>
                 <a
-                  href="tel:+15044750672"
+                  href={`tel:+1${companyPhone.replace(/\D/g, '')}`}
                   className="inline-flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 text-white font-bold text-lg uppercase tracking-wide px-8 py-4 rounded-xl border-2 border-white/30 hover:border-white/50 transition-all duration-300"
                 >
                   <Phone className="h-5 w-5" />
-                  Call (504) 475-0672
+                  Call {companyPhone}
                 </a>
               </div>
               <TrustIndicators
@@ -2249,13 +2268,13 @@ export default function PublicPropertyDetail() {
                   </CTAButton>
                   <div className="grid grid-cols-2 gap-3">
                     <Button variant="outline" size="lg" className="w-full border-purple-400/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 hover:text-white" asChild>
-                      <a href="tel:+15044750672">
+                      <a href={`tel:+1${companyPhone.replace(/\D/g, '')}`}>
                         <Phone className="h-4 w-4 mr-2" />
                         Call Us
                       </a>
                     </Button>
                     <Button variant="outline" size="lg" className="w-full border-purple-400/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 hover:text-white" asChild>
-                      <a href="sms:+15044750672">
+                      <a href={`sms:+1${companyPhone.replace(/\D/g, '')}`}>
                         <Phone className="h-4 w-4 mr-2" />
                         Text Us
                       </a>
@@ -2367,8 +2386,8 @@ export default function PublicPropertyDetail() {
           <h3 className="text-xl font-bold mb-2">Purple Homes Solutions</h3>
           <p className="text-gray-400 mb-4">Creative Real Estate Financing</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a href="tel:+15044750672" className="text-purple-400 hover:text-purple-300 font-semibold">
-              (504) 475-0672
+            <a href={`tel:+1${companyPhone.replace(/\D/g, '')}`} className="text-purple-400 hover:text-purple-300 font-semibold">
+              {companyPhone}
             </a>
             <span className="hidden sm:inline text-gray-600">•</span>
             <a href="mailto:info@purplehomessolutions.com" className="text-purple-400 hover:text-purple-300">
@@ -2385,14 +2404,14 @@ export default function PublicPropertyDetail() {
       <StickyMobileCTA
         ctaText="Get Pre-Qualified"
         onCtaClick={scrollToForm}
-        phoneNumber="(504) 475-0672"
+        phoneNumber={companyPhone}
         variant="simple"
       />
 
       {/* Floating Action Button (Desktop) - SMS for better conversion */}
       <FloatingActionButton
         icon="message"
-        href="sms:+15044750672"
+        href={`sms:+1${companyPhone.replace(/\D/g, '')}`}
         label="Text Us"
       />
     </div>
