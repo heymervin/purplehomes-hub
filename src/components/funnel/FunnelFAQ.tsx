@@ -391,10 +391,10 @@ const FAQCTA: React.FC<FAQCTAProps> = ({
           </div>
         </div>
         <a
-          href={`tel:${phoneNumber.replace(/\D/g, "")}`}
+          href={`sms:${phoneNumber.replace(/\D/g, "")}`}
           className="relative w-full md:w-auto text-center px-6 py-3 bg-white hover:bg-purple-50 text-purple-900 rounded-xl font-bold text-sm md:text-base hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all whitespace-nowrap"
         >
-          Call {phoneNumber}
+          Text Us {phoneNumber}
         </a>
       </div>
     );
@@ -417,10 +417,10 @@ const FAQCTA: React.FC<FAQCTAProps> = ({
         </div>
       </div>
       <a
-        href={`tel:${phoneNumber.replace(/\D/g, "")}`}
+        href={`sms:${phoneNumber.replace(/\D/g, "")}`}
         className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors whitespace-nowrap"
       >
-        Call {phoneNumber}
+        Text Us {phoneNumber}
       </a>
     </div>
   );
