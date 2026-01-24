@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   ChevronLeft, ChevronRight, Star, Plus, Trash2, ExternalLink,
   GripVertical, Upload, Loader2, X
@@ -39,6 +39,16 @@ export function PropertyImageGallery({
 
   // Convert HEIC images to displayable format
   const { images: allImages, isConverting: isConvertingHeic } = useHeicImages(allOriginalImages);
+
+  // Preload all images for instant navigation
+  useEffect(() => {
+    allImages.forEach((src) => {
+      if (src && src !== '/placeholder.svg') {
+        const img = new Image();
+        img.src = src;
+      }
+    });
+  }, [allImages]);
 
   const currentImage = allImages[selectedIndex] || '/placeholder.svg';
   const currentOriginalImage = allOriginalImages[selectedIndex] || '';
@@ -169,7 +179,8 @@ export function PropertyImageGallery({
         <img
           src={currentImage}
           alt={`Property image ${selectedIndex + 1}`}
-          className="w-full h-full object-cover transition-transform duration-300"
+          className="w-full h-full object-cover"
+          loading="eager"
           onError={(e) => {
             (e.target as HTMLImageElement).src = '/placeholder.svg';
           }}
