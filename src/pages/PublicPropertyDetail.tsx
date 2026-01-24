@@ -961,8 +961,9 @@ export default function PublicPropertyDetail() {
 
                     if (isStructured) {
                       // NEW STRUCTURED FORMAT - clean, tight layout
-                      const { headline, highlight, benefit, urgency, bonus } = hook as {
+                      const { headline, subheadline, highlight, benefit, urgency, bonus } = hook as {
                         headline: string;
+                        subheadline?: string;
                         highlight?: string;
                         benefit?: string;
                         urgency?: string;
@@ -990,9 +991,16 @@ export default function PublicPropertyDetail() {
                       return (
                         <>
                           {/* Main Headline with highlighted phrase */}
-                          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-6 md:mb-8 tracking-tight max-w-5xl mx-auto break-words">
+                          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-3 md:mb-4 tracking-tight max-w-5xl mx-auto break-words">
                             {renderHeadline()}
                           </h1>
+
+                          {/* Subheadline - Supporting line */}
+                          {subheadline && (
+                            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium text-gray-400 mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed">
+                              {subheadline}
+                            </p>
+                          )}
 
                           {/* Urgency + Bonus - Amber badge */}
                           {(urgency || bonus) && (
@@ -1774,7 +1782,7 @@ export default function PublicPropertyDetail() {
 
                 <div className="relative space-y-3 md:space-y-4">
                   {/* First item - intro */}
-                  <div className="relative">
+                  <div className="relative z-10">
                     <div className="flex items-center gap-2 md:gap-4">
                       <div className="hidden md:flex w-12 h-12 rounded-full bg-purple-500/20 border-2 border-purple-400/60 items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
                         <span className="text-purple-300 text-2xl font-bold">✓</span>
@@ -1801,7 +1809,7 @@ export default function PublicPropertyDetail() {
                     "Stability & Security",
                     "Smart Investment in Your Future",
                   ].map((solution, i) => (
-                    <div key={i} className="relative">
+                    <div key={i} className="relative z-10">
                       <div className="flex items-center gap-2 md:gap-4">
                         <div className="hidden md:flex w-12 h-12 rounded-full bg-purple-500/20 border-2 border-purple-400/60 items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
                           <span className="text-purple-300 text-2xl font-bold">✓</span>
@@ -1827,7 +1835,7 @@ export default function PublicPropertyDetail() {
                   ))}
 
                   {/* Success indicator */}
-                  <div className="hidden md:block text-center pt-2">
+                  <div className="hidden md:block text-center pt-2 relative z-10">
                     <span className="inline-block bg-gradient-to-r from-purple-500 to-violet-500 text-white font-bold text-sm px-4 py-2 rounded-full shadow-lg shadow-purple-500/40 border border-purple-300/30">
                       🏠 You're a Homeowner!
                     </span>

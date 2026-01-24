@@ -434,8 +434,9 @@ interface FormulaSelection {
 }
 
 interface HookStructure {
-  headline: string;      // Main emotional hook (e.g., "Your family deserves a real home. Not another rental.")
-  highlight?: string;    // Key phrase FROM headline to visually emphasize (e.g., "real home")
+  headline: string;      // Main emotional hook - SHORT (5-10 words max, e.g., "Your Dream Home. No Bank Required.")
+  subheadline?: string;  // Supporting line (15-20 words, e.g., "Stop settling for cramped apartments. Start building your future.")
+  highlight?: string;    // Key phrase FROM headline to visually emphasize (e.g., "Dream Home")
   benefit?: string;      // Short benefit phrase shown with price (e.g., "No bank qualifying")
   urgency?: string;      // Time-sensitive offer (e.g., "Apply by Friday for $1,500 off closing costs")
   bonus?: string;        // Extra incentive (e.g., "FREE home warranty for a year")
@@ -1021,7 +1022,8 @@ After writing, review each section using CUBA before finalizing.
 Generate these sections in JSON format:
 
 1. **hook** (STRUCTURED OBJECT with these fields):
-   - "headline": Main emotional hook (1-2 punchy sentences, speaks to avatar's dreams). DO NOT include price or offers here.
+   - "headline": VERY SHORT emotional hook (5-10 words ONLY, punchy, speaks to avatar's dreams). Examples: "Your Dream Home. No Bank Required." or "Stop Renting. Start Owning."
+   - "subheadline": Supporting line (15-20 words, expands on headline, emotional). Example: "Stop settling for cramped apartments. Start building your family's future today."
    - "highlight": The 1-3 word KEY PHRASE from headline that should be visually emphasized (must be exact text from headline)
    - "benefit": Short benefit phrase, 3-5 words max (e.g., "No bank qualifying" or "Move in 30 days")
    - "urgency": ONLY if there's a special offer - combine time + offer in ONE phrase (e.g., "Apply this week for $1,000 off closing costs")${inputs.specialOffer ? `
@@ -1030,8 +1032,9 @@ Generate these sections in JSON format:
 
    Example format:
    "hook": {
-     "headline": "Your family deserves a real home. Not another rental.",
-     "highlight": "real home",
+     "headline": "Your Dream Home. No Bank Required.",
+     "subheadline": "Stop settling for cramped apartments. Start building your family's future today.",
+     "highlight": "Dream Home",
      "benefit": "No bank qualifying",
      "urgency": "Apply this week for $1,000 off closing costs"
    }
@@ -1146,6 +1149,7 @@ Respond ONLY in valid JSON with these exact keys.`;
       const structured = hookData as Record<string, unknown>;
       return {
         headline: String(structured.headline || ''),
+        subheadline: structured.subheadline ? String(structured.subheadline) : undefined,
         highlight: structured.highlight ? String(structured.highlight) : undefined,
         benefit: structured.benefit ? String(structured.benefit) : undefined,
         urgency: structured.urgency ? String(structured.urgency) : undefined,
