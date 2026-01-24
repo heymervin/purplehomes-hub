@@ -1261,12 +1261,10 @@ export default function PublicPropertyDetail() {
                   The Challenge
                 </div>
                 <h2 className="text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[1.0] tracking-[-0.02em] max-w-4xl mx-auto mb-6">
-                  <span className="relative inline">
-                    {extractProblemHeadline(funnelContent.problem)}
-                    {/* Underline accent */}
-                    <span className="absolute -bottom-2 left-0 right-0 h-3 bg-gradient-to-r from-purple-500/60 via-violet-500/40 to-transparent rounded-full blur-sm" />
-                  </span>
+                  {extractProblemHeadline(funnelContent.problem)}
                 </h2>
+                {/* Dynamic underline - sits below text regardless of line count */}
+                <div className="w-48 sm:w-64 md:w-80 h-1 mx-auto bg-gradient-to-r from-transparent via-purple-500/70 to-transparent rounded-full" />
                 <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
                   You're not alone. <span className="text-purple-300 font-medium">Thousands</span> face these same barriers every day.
                 </p>
@@ -1344,18 +1342,16 @@ export default function PublicPropertyDetail() {
                   The Solution
                 </div>
                 {/* Extract first 2 sentences for headline */}
-                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto">
-                  <span className="relative inline">
-                    <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
-                      {(() => {
-                        const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
-                        return sentences.slice(0, 2).join(' ').trim();
-                      })()}
-                    </span>
-                    {/* Coral underline accent - Ali Abdaal style */}
-                    <span className="absolute -bottom-2 left-1/4 right-1/4 h-1 bg-gradient-to-r from-transparent via-purple-400 to-transparent rounded-full" />
+                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto mb-4">
+                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                    {(() => {
+                      const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
+                      return sentences.slice(0, 2).join(' ').trim();
+                    })()}
                   </span>
                 </h2>
+                {/* Dynamic underline - sits below text regardless of line count */}
+                <div className="w-32 sm:w-48 md:w-64 h-1 mx-auto bg-gradient-to-r from-transparent via-purple-400 to-transparent rounded-full" />
               </Reveal>
 
               {/* Solution Benefits - Two Column Layout */}
