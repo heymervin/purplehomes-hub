@@ -115,8 +115,16 @@ async function saveToAirtable(data: CompanyInfo): Promise<{ success: boolean; er
       fields.CountdownHours = data.countdownHours;
     }
     // Only set deadline if it's a valid date
+    // Airtable Date fields need YYYY-MM-DD format, DateTime fields accept full ISO
     if (data.countdownDeadline) {
-      fields.CountdownDeadline = data.countdownDeadline;
+      try {
+        const date = new Date(data.countdownDeadline);
+        // Send just the date part for Date field compatibility
+        // If user wants time precision, they should use a DateTime field in Airtable
+        fields.CountdownDeadline = date.toISOString().split('T')[0]; // YYYY-MM-DD
+      } catch {
+        // Skip if invalid date
+      }
     }
 
     let response;
