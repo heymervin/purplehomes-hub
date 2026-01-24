@@ -1512,16 +1512,19 @@ export default function PublicPropertyDetail() {
                 {/* Vertical connecting line */}
                 <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[60px] bottom-[20px] w-1 bg-gradient-to-b from-red-500/50 via-red-500 to-red-500/50 hidden md:block" />
 
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {/* First item - intro */}
                   <div className="relative">
-                    <div className="flex items-center gap-3 md:gap-4">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-red-500/20 border-2 border-red-500/50 flex items-center justify-center flex-shrink-0">
-                        <span className="text-red-400 text-xl md:text-2xl font-bold">✗</span>
+                    <div className="flex items-center gap-2 md:gap-4">
+                      <div className="hidden md:flex w-12 h-12 rounded-full bg-red-500/20 border-2 border-red-500/50 items-center justify-center flex-shrink-0">
+                        <span className="text-red-400 text-2xl font-bold">✗</span>
                       </div>
-                      <div className="flex-1 bg-gradient-to-r from-red-600 to-red-700 rounded-2xl p-4 md:p-5 text-white shadow-lg border border-red-500/30">
-                        <div className="font-bold text-base md:text-lg">Renting Forever</div>
-                        <div className="text-red-200 text-xs md:text-sm">Expensive Mistakes, No Progress</div>
+                      <div className="flex-1 bg-gradient-to-r from-red-600 to-red-700 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg border border-red-500/30">
+                        <div className="font-bold text-base md:text-lg flex items-center gap-2">
+                          <span className="md:hidden text-red-300">✗</span>
+                          Renting Forever
+                        </div>
+                        <div className="text-red-200 text-xs md:text-sm ml-5 md:ml-0">Expensive Mistakes, No Progress</div>
                       </div>
                     </div>
                     {/* Arrow down */}
@@ -1539,20 +1542,22 @@ export default function PublicPropertyDetail() {
                     "Money Down the Drain",
                   ].map((problem, i) => (
                     <div key={i} className="relative">
-                      <div className="flex items-center gap-3 md:gap-4">
-                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-red-500/20 border-2 border-red-500/50 flex items-center justify-center flex-shrink-0">
-                          <span className="text-red-400 text-xl md:text-2xl font-bold">✗</span>
+                      <div className="flex items-center gap-2 md:gap-4">
+                        <div className="hidden md:flex w-12 h-12 rounded-full bg-red-500/20 border-2 border-red-500/50 items-center justify-center flex-shrink-0">
+                          <span className="text-red-400 text-2xl font-bold">✗</span>
                         </div>
                         <div className="flex-1 relative">
-                          <span className="absolute -top-2 right-3 md:right-4 bg-red-900 text-red-200 text-[9px] md:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded z-10 border border-red-700">
+                          {/* Badge - desktop only */}
+                          <span className="hidden md:inline-block absolute -top-2 right-4 bg-red-900 text-red-200 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded z-10 border border-red-700">
                             Problem
                           </span>
-                          <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-2xl px-5 md:px-6 py-3 md:py-4 text-white font-bold text-sm md:text-lg shadow-lg border border-red-500/30">
+                          <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 text-white font-semibold md:font-bold text-sm md:text-lg shadow-lg border border-red-500/30 flex items-center gap-2">
+                            <span className="md:hidden text-red-300">✗</span>
                             {problem}
                           </div>
                         </div>
                       </div>
-                      {/* Arrow down - except last */}
+                      {/* Arrow down - desktop only */}
                       {i < 5 && (
                         <div className="hidden md:flex justify-center mt-2">
                           <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-red-500" />
@@ -1580,16 +1585,19 @@ export default function PublicPropertyDetail() {
                 {/* Vertical connecting line with glow */}
                 <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[60px] bottom-[20px] w-1 bg-gradient-to-b from-purple-400/50 via-purple-400 to-purple-400/50 shadow-[0_0_15px_rgba(168,85,247,0.6)] hidden md:block" />
 
-                <div className="relative space-y-4">
+                <div className="relative space-y-3 md:space-y-4">
                   {/* First item - intro */}
                   <div className="relative">
-                    <div className="flex items-center gap-3 md:gap-4">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-500/20 border-2 border-purple-400/60 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
-                        <span className="text-purple-300 text-xl md:text-2xl font-bold">✓</span>
+                    <div className="flex items-center gap-2 md:gap-4">
+                      <div className="hidden md:flex w-12 h-12 rounded-full bg-purple-500/20 border-2 border-purple-400/60 items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
+                        <span className="text-purple-300 text-2xl font-bold">✓</span>
                       </div>
-                      <div className="flex-1 bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl p-4 md:p-5 text-white shadow-lg shadow-purple-500/30 border border-purple-400/30">
-                        <div className="font-bold text-base md:text-lg">Rent-to-Own with Purple Homes</div>
-                        <div className="text-purple-100 text-xs md:text-sm">Clear. Confident. Homeowner.</div>
+                      <div className="flex-1 bg-gradient-to-r from-purple-500 to-violet-500 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg shadow-purple-500/30 border border-purple-400/30">
+                        <div className="font-bold text-base md:text-lg flex items-center gap-2">
+                          <span className="md:hidden text-purple-200">✓</span>
+                          Rent-to-Own with Purple Homes
+                        </div>
+                        <div className="text-purple-100 text-xs md:text-sm ml-5 md:ml-0">Clear. Confident. Homeowner.</div>
                       </div>
                     </div>
                     {/* Arrow down */}
@@ -1607,20 +1615,22 @@ export default function PublicPropertyDetail() {
                     "Smart Investment in Your Future",
                   ].map((solution, i) => (
                     <div key={i} className="relative">
-                      <div className="flex items-center gap-3 md:gap-4">
-                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-purple-500/20 border-2 border-purple-400/60 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
-                          <span className="text-purple-300 text-xl md:text-2xl font-bold">✓</span>
+                      <div className="flex items-center gap-2 md:gap-4">
+                        <div className="hidden md:flex w-12 h-12 rounded-full bg-purple-500/20 border-2 border-purple-400/60 items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
+                          <span className="text-purple-300 text-2xl font-bold">✓</span>
                         </div>
                         <div className="flex-1 relative">
-                          <span className="absolute -top-2 right-3 md:right-4 bg-purple-900 text-purple-200 text-[9px] md:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded z-10 border border-purple-600">
+                          {/* Badge - desktop only */}
+                          <span className="hidden md:inline-block absolute -top-2 right-4 bg-purple-900 text-purple-200 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded z-10 border border-purple-600">
                             Solution
                           </span>
-                          <div className="bg-gradient-to-r from-purple-500 to-violet-500 rounded-2xl px-5 md:px-6 py-3 md:py-4 text-white font-bold text-sm md:text-lg shadow-lg shadow-purple-500/30 border border-purple-400/30">
+                          <div className="bg-gradient-to-r from-purple-500 to-violet-500 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 text-white font-semibold md:font-bold text-sm md:text-lg shadow-lg shadow-purple-500/30 border border-purple-400/30 flex items-center gap-2">
+                            <span className="md:hidden text-purple-200">✓</span>
                             {solution}
                           </div>
                         </div>
                       </div>
-                      {/* Arrow down - except last */}
+                      {/* Arrow down - desktop only */}
                       {i < 5 && (
                         <div className="hidden md:flex justify-center mt-2">
                           <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-purple-400" />
