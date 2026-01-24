@@ -703,6 +703,23 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
                     </p>
                   </div>
 
+                  {/* Avatar Description - Custom persona details */}
+                  <div className="space-y-2">
+                    <Label htmlFor="avatarDescription" className="text-sm">
+                      Avatar Description <span className="text-muted-foreground">(optional)</span>
+                    </Label>
+                    <Textarea
+                      id="avatarDescription"
+                      value={inputs.avatarDescription || ''}
+                      onChange={(e) => updateInput('avatarDescription', e.target.value)}
+                      placeholder="e.g., Single mom working two jobs, tired of apartment noise keeping kids up at night. Dreams of a quiet backyard where they can play safely."
+                      className="min-h-[80px] text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Describe your ideal buyer's situation, fears, and dreams. This enriches Problem Agitation and Solution copy.
+                    </p>
+                  </div>
+
                   {/* Segment Insights Widget - Shows learned patterns */}
                   <SegmentInsightsWidget
                     segment={(inputs.buyerSegment || 'first-time-buyer') as BuyerSegment}

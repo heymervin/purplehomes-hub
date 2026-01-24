@@ -1144,11 +1144,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // ACTION: get - Get a specific research entry by ID
       // --------------------------------------------------------
       case 'get': {
-        const researchId = req.query.id as string;
+        // Accept both 'id' and 'researchId' for backwards compatibility
+        const researchId = (req.query.id || req.query.researchId) as string;
         const segment = req.query.segment as BuyerSegment;
 
         if (!researchId || !segment) {
-          return res.status(400).json({ error: 'Missing required parameters: id, segment' });
+          return res.status(400).json({ error: 'Missing required parameters: id (or researchId), segment' });
         }
 
         // Try Airtable first

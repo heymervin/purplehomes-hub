@@ -44,6 +44,7 @@ export interface FunnelInputs {
 
   // Enhanced v2.0 inputs
   buyerSegment?: BuyerSegment;    // Target buyer avatar for copy optimization
+  avatarDescription?: string;     // Custom persona description for emotional targeting
   generateVariants?: boolean;     // Generate A/B test variants for hook/CTA
 }
 
@@ -61,6 +62,7 @@ export const DEFAULT_FUNNEL_INPUTS: FunnelInputs = {
   paymentNotes: '',
   virtualTourUrl: '',
   buyerSegment: 'first-time-buyer',
+  avatarDescription: '',
   generateVariants: false,
 };
 

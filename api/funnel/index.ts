@@ -384,6 +384,7 @@ interface FunnelInputs {
   virtualTourUrl?: string;
   // Enhanced inputs
   buyerSegment?: BuyerSegment;
+  avatarDescription?: string; // Custom persona description for emotional targeting
   generateVariants?: boolean; // Generate A/B test variants
 }
 
@@ -401,6 +402,7 @@ const DEFAULT_INPUTS: FunnelInputs = {
   paymentNotes: '',
   virtualTourUrl: '',
   buyerSegment: 'first-time-buyer',
+  avatarDescription: '',
   generateVariants: false,
 };
 
@@ -972,6 +974,11 @@ ${inputs.urgencyMessage ? `URGENCY/SCARCITY: "${inputs.urgencyMessage}"` : (inpu
 
 === BUYER AVATAR (27-WORD PERSUASION FRAMEWORK) ===
 ${avatarContext}
+${inputs.avatarDescription ? `
+🎯 SPECIFIC AVATAR DESCRIPTION (PRIORITIZE THIS):
+"${inputs.avatarDescription}"
+↑ This is the EXACT persona to write for. Use their specific situation, language, and emotions.
+` : ''}
 
 ${learnedInsights ? `=== 🧠 LEARNED INSIGHTS (From High-Performing Past Funnels) ===
 ${learnedInsights}
