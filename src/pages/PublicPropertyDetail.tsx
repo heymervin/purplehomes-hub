@@ -322,14 +322,6 @@ function AnimatedStatsSection() {
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[200px]" />
       <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-violet-600/10 rounded-full blur-[200px]" />
 
-      {/* Grid texture */}
-      <div
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `radial-gradient(rgba(168,85,247,0.6) 1px, transparent 1px)`,
-          backgroundSize: '40px 40px',
-        }}
-      />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4">
         {/* Section header - Enhanced Typography with Reveal */}
@@ -921,14 +913,6 @@ export default function PublicPropertyDetail() {
           <div className="absolute bottom-0 left-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-violet-700/20 rounded-full blur-[100px] md:blur-[150px]" />
           <div className="absolute top-1/2 right-0 w-[250px] md:w-[400px] h-[250px] md:h-[400px] bg-purple-500/15 rounded-full blur-[80px] md:blur-[120px]" />
 
-          {/* Subtle grid texture */}
-          <div
-            className="absolute inset-0 opacity-[0.02]"
-            style={{
-              backgroundImage: `radial-gradient(circle at 1px 1px, rgba(168,85,247,0.4) 1px, transparent 0)`,
-              backgroundSize: '40px 40px'
-            }}
-          />
 
           <div className="relative max-w-5xl mx-auto px-4 py-16 md:py-24 lg:py-32">
             <div className="text-center">
@@ -1279,7 +1263,7 @@ export default function PublicPropertyDetail() {
 
         {/* Problem/Challenge Section - Premium Purple Homes */}
         {!funnelLoading && funnelContent?.problem && (
-          <section className="relative bg-gradient-to-b from-[#0d0a1a] via-[#1a1528] to-[#0d0a1a] py-24 md:py-32 overflow-hidden">
+          <section className="relative bg-gradient-to-b from-black via-[#1a1528] to-[#0d0a1a] py-24 md:py-32 overflow-hidden">
             {/* Enhanced purple ambient glow */}
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/10 rounded-full blur-[150px]" />
@@ -1561,14 +1545,6 @@ export default function PublicPropertyDetail() {
             <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[500px] md:w-[900px] h-[300px] md:h-[500px] bg-purple-600/25 rounded-full blur-[120px] md:blur-[180px]" />
             <div className="absolute bottom-0 right-0 w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-violet-700/15 rounded-full blur-[80px] md:blur-[120px]" />
 
-            {/* Subtle grid texture */}
-            <div
-              className="absolute inset-0 opacity-[0.02]"
-              style={{
-                backgroundImage: `radial-gradient(circle at 1px 1px, rgba(168,85,247,0.4) 1px, transparent 0)`,
-                backgroundSize: '40px 40px'
-              }}
-            />
 
             <div className="relative max-w-4xl mx-auto px-4">
               {/* Section Header */}
@@ -1671,14 +1647,6 @@ export default function PublicPropertyDetail() {
           <div className="absolute top-0 left-1/4 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-red-900/15 rounded-full blur-[150px]" />
           <div className="absolute bottom-0 right-1/4 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-purple-600/25 rounded-full blur-[150px]" />
 
-          {/* Subtle grid texture */}
-          <div
-            className="absolute inset-0 opacity-[0.02]"
-            style={{
-              backgroundImage: `radial-gradient(circle at 1px 1px, rgba(168,85,247,0.4) 1px, transparent 0)`,
-              backgroundSize: '40px 40px'
-            }}
-          />
 
           <div className="relative max-w-6xl mx-auto px-4">
             {/* Journey Paths - Headers inside each column for proper mobile flow */}
@@ -1868,14 +1836,6 @@ export default function PublicPropertyDetail() {
           <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[150px]" />
           <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-violet-500/10 rounded-full blur-[150px]" />
 
-          {/* Grid texture */}
-          <div
-            className="absolute inset-0 opacity-[0.03]"
-            style={{
-              backgroundImage: `linear-gradient(rgba(168,85,247,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.5) 1px, transparent 1px)`,
-              backgroundSize: '60px 60px',
-            }}
-          />
 
           <div className="relative z-10 container mx-auto px-4">
             {/* Header with Reveal */}
