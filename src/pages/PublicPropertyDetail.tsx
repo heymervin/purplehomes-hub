@@ -2016,11 +2016,12 @@ export default function PublicPropertyDetail() {
 
             return (
               <section className="relative py-16 md:py-20">
-                {/* Ambient lighting - glows extend to adjacent sections */}
-                <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
-                <div className="absolute top-[-15%] left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
-                <div className="absolute bottom-[-25%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
-                <div className="absolute bottom-[-15%] right-1/4 w-[500px] h-[400px] bg-violet-600/15 rounded-full blur-[180px]" />
+                {/* Subtle edge glows only - cards float on pure black canvas */}
+                {/* Let bleeding from adjacent sections provide most ambient light */}
+                <div className="absolute top-[-40%] left-0 w-[400px] h-[500px] bg-purple-600/12 rounded-full blur-[200px]" />
+                <div className="absolute top-[-40%] right-0 w-[400px] h-[500px] bg-violet-500/10 rounded-full blur-[200px]" />
+                <div className="absolute bottom-[-40%] left-0 w-[400px] h-[500px] bg-violet-600/10 rounded-full blur-[200px]" />
+                <div className="absolute bottom-[-40%] right-0 w-[400px] h-[500px] bg-purple-600/12 rounded-full blur-[200px]" />
 
                 <Reveal className="text-center mb-10">
                   <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
