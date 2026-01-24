@@ -1068,7 +1068,7 @@ export default function PublicPropertyDetail() {
                 <div className="flex flex-col items-center gap-3 md:gap-4 px-4">
                   <button
                     onClick={scrollToForm}
-                    className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-8 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+                    className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-8 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
                   >
                     Check If I Qualify
                     <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
@@ -1135,16 +1135,16 @@ export default function PublicPropertyDetail() {
 
                 {/* Right - Specs Grid */}
                 <div className="flex justify-center lg:justify-end">
-                  <div className="inline-grid grid-cols-3 gap-4 md:gap-6">
+                  <div className="inline-grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
                     <div className="text-center">
-                      <div className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
                         <Bed className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
                       </div>
                       <p className="text-white font-bold text-lg md:text-xl">{property.beds}</p>
                       <p className="text-purple-300/60 text-xs uppercase tracking-wider">Beds</p>
                     </div>
                     <div className="text-center">
-                      <div className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
                         <Bath className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
                       </div>
                       <p className="text-white font-bold text-lg md:text-xl">{property.baths}</p>
@@ -1152,7 +1152,7 @@ export default function PublicPropertyDetail() {
                     </div>
                     {property.sqft && (
                       <div className="text-center">
-                        <div className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
                           <Maximize2 className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
                         </div>
                         <p className="text-white font-bold text-lg md:text-xl">{property.sqft.toLocaleString()}</p>
@@ -1585,7 +1585,7 @@ export default function PublicPropertyDetail() {
                   <div className="grid md:grid-cols-2">
                     {property.downPayment !== undefined && (
                       <div className="relative p-8 md:p-10 text-center border-b md:border-b-0 md:border-r border-purple-500/20 group hover:bg-purple-500/5 transition-colors">
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
                           <DollarSign className="h-7 w-7 md:h-8 md:w-8 text-white" />
                         </div>
                         <div className="text-xs md:text-sm uppercase tracking-[0.15em] text-gray-500 font-semibold mb-2">
@@ -1600,7 +1600,7 @@ export default function PublicPropertyDetail() {
                     )}
                     {property.monthlyPayment !== undefined && (
                       <div className="relative p-8 md:p-10 text-center group hover:bg-purple-500/5 transition-colors">
-                        <div className="w-14 h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
                           <CreditCard className="h-7 w-7 md:h-8 md:w-8 text-white" />
                         </div>
                         <div className="text-xs md:text-sm uppercase tracking-[0.15em] text-gray-500 font-semibold mb-2">
@@ -1619,7 +1619,7 @@ export default function PublicPropertyDetail() {
                   <div className="p-6 md:p-8 bg-gradient-to-b from-transparent to-purple-900/20 text-center">
                     <button
                       onClick={scrollToForm}
-                      className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+                      className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
                     >
                       Check If You Qualify
                       <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
@@ -1879,8 +1879,8 @@ export default function PublicPropertyDetail() {
                     {/* Glow ring */}
                     <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     {/* Number circle */}
-                    <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
-                      <span className="text-5xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
+                      <span className="text-3xl sm:text-4xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
                         1
                       </span>
                     </div>
@@ -1898,8 +1898,8 @@ export default function PublicPropertyDetail() {
                 <Reveal delay={200} className="relative text-center group">
                   <div className="relative mx-auto mb-8">
                     <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
-                      <span className="text-5xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
+                      <span className="text-3xl sm:text-4xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
                         2
                       </span>
                     </div>
@@ -1917,8 +1917,8 @@ export default function PublicPropertyDetail() {
                 <Reveal delay={400} className="relative text-center group">
                   <div className="relative mx-auto mb-8">
                     <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
-                      <span className="text-5xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
+                      <span className="text-3xl sm:text-4xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
                         3
                       </span>
                     </div>
@@ -1938,7 +1938,7 @@ export default function PublicPropertyDetail() {
             <div className="text-center mt-16">
               <button
                 onClick={scrollToForm}
-                className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+                className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
               >
                 Check If You Qualify
                 <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
@@ -2222,7 +2222,7 @@ export default function PublicPropertyDetail() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={scrollToForm}
-                  className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+                  className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
                 >
                   Get Pre-Qualified Now
                   <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
@@ -2285,7 +2285,7 @@ export default function PublicPropertyDetail() {
                   <TrustIndicators className="justify-center" variant="premium" />
                 </div>
               ) : (
-                <form onSubmit={handleOfferSubmit} className="p-6 space-y-4">
+                <form onSubmit={handleOfferSubmit} className="p-4 sm:p-6 space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-semibold text-gray-200">First Name *</Label>
