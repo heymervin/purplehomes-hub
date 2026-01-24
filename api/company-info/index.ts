@@ -79,10 +79,10 @@ async function loadFromAirtable(): Promise<CompanyInfo | null> {
 }
 
 // Save to Airtable Settings table
-async function saveToAirtable(data: CompanyInfo): Promise<boolean> {
+async function saveToAirtable(data: CompanyInfo): Promise<{ success: boolean; error?: string }> {
   if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
     console.log('[Company Info] Airtable not configured');
-    return false;
+    return { success: false, error: 'Airtable not configured' };
   }
 
   try {
@@ -99,13 +99,21 @@ async function saveToAirtable(data: CompanyInfo): Promise<boolean> {
     const listData = await listResponse.json();
     const existingRecordId = listData.records?.[0]?.id;
 
+    // Core fields that should always exist
     const fields: Record<string, unknown> = {
       CompanyPhone: data.phone,
       CompanyEmail: data.email,
       TestimonialSpeed: data.testimonialSpeed,
-      CountdownMode: data.countdownMode,
-      CountdownHours: data.countdownHours,
     };
+
+    // Countdown fields - add only if we have values (fields might not exist in Airtable yet)
+    // For Single Select fields, we need exact match to Airtable options
+    if (data.countdownMode) {
+      fields.CountdownMode = data.countdownMode;
+    }
+    if (data.countdownHours) {
+      fields.CountdownHours = data.countdownHours;
+    }
     // Only set deadline if it's a valid date
     if (data.countdownDeadline) {
       fields.CountdownDeadline = data.countdownDeadline;
@@ -141,16 +149,17 @@ async function saveToAirtable(data: CompanyInfo): Promise<boolean> {
     }
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[Company Info] Airtable save error:', errorText);
-      return false;
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      const errorMsg = errorData?.error?.message || errorData?.error || JSON.stringify(errorData);
+      console.error('[Company Info] Airtable save error:', errorMsg);
+      return { success: false, error: errorMsg };
     }
 
     console.log('[Company Info] Saved to Airtable');
-    return true;
+    return { success: true };
   } catch (error) {
     console.error('[Company Info] Airtable save error:', error);
-    return false;
+    return { success: false, error: String(error) };
   }
 }
 
@@ -266,12 +275,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       };
 
       // Try Airtable first
-      const savedToAirtable = await saveToAirtable(data);
+      const airtableResult = await saveToAirtable(data);
 
       // Also save to file locally
       const savedToFile = saveToFile(data);
 
-      if (savedToAirtable || savedToFile) {
+      if (airtableResult.success || savedToFile) {
         return res.status(200).json({
           success: true,
           phone: data.phone,
@@ -281,12 +290,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           countdownHours: data.countdownHours,
           countdownDeadline: data.countdownDeadline,
           updatedAt: data.updatedAt,
-          savedTo: savedToAirtable ? 'airtable' : 'file',
+          savedTo: airtableResult.success ? 'airtable' : 'file',
         });
       } else {
         return res.status(500).json({
           success: false,
-          error: 'Failed to save company info. Check Airtable configuration.',
+          error: airtableResult.error || 'Failed to save company info. Check Airtable configuration.',
         });
       }
     }

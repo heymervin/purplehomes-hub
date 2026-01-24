@@ -270,7 +270,9 @@ export default function Settings() {
         throw new Error(data.error);
       }
     } catch (error) {
-      toast.error('Failed to save company info');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to save company info';
+      toast.error(errorMsg);
+      console.error('[Settings] Company info save error:', errorMsg);
     } finally {
       setIsSavingCompanyInfo(false);
     }
