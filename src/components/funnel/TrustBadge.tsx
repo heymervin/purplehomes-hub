@@ -141,9 +141,9 @@ const PremiumTrustStrip: React.FC<PremiumTrustStripProps> = ({ className }) => {
           { icon: Award, label: "Award Winning" },
           { icon: Sparkles, label: "5-Star Rated" },
         ].map((item, i) => (
-          <div key={i} className="flex items-center gap-2 text-white/70 hover:text-white/90 transition-colors">
+          <div key={i} className="flex items-center gap-2 text-white">
             <item.icon className="h-4 w-4 text-purple-400" />
-            <span className="text-sm font-medium tracking-wide">{item.label}</span>
+            <span className="text-sm font-semibold tracking-wide">{item.label}</span>
           </div>
         ))}
       </div>
