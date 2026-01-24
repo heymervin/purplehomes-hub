@@ -1030,8 +1030,10 @@ Generate these sections in JSON format:
    }
 
 2. **problem** (3-4 sentences using staccato): Address avatar's fears, suspicions, past failures. Make them feel SEEN.
+   IMPORTANT: In the FIRST sentence, wrap ONE key emotional word with \\u\\word\\u\\ for emphasis underline. Example: "Tired of \\u\\rejection\\u\\?"
 
 3. **solution** (3-4 sentences): Bridge from pain to Purple Homes. Address their top objection. Build trust.
+   IMPORTANT: In the FIRST sentence, wrap ONE key benefit word with \\u\\word\\u\\ for emphasis underline. Example: "We see your \\u\\potential\\u\\, not your past."
 
 4. **propertyShowcase** (4-5 sentences): Paint the AFTER state. Sensory language. Future pace their life in this home.
 

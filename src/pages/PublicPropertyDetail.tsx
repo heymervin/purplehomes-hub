@@ -739,6 +739,43 @@ export default function PublicPropertyDetail() {
     return firstSentence.trim();
   };
 
+  // Wavy underline SVG component
+  const WavyUnderline = ({ color = 'purple' }: { color?: 'purple' | 'violet' }) => (
+    <svg className="absolute -bottom-1 left-0 w-full h-3" viewBox="0 0 200 12" preserveAspectRatio="none" fill="none">
+      <path
+        d="M0 8 Q 25 4, 50 8 T 100 8 T 150 8 T 200 8"
+        stroke={color === 'purple' ? 'rgba(168,85,247,0.8)' : 'rgba(139,92,246,0.8)'}
+        strokeWidth="3"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+
+  // Parse text with \u\...\u\ markers and render underlined words
+  const renderWithUnderline = (text: string, underlineColor: 'purple' | 'violet' = 'purple') => {
+    // Match \u\...\u\ pattern
+    const parts = text.split(/\\u\\(.+?)\\u\\/g);
+
+    if (parts.length === 1) {
+      // No markers found, return plain text
+      return text;
+    }
+
+    return parts.map((part, index) => {
+      // Odd indices are the captured groups (underlined words)
+      if (index % 2 === 1) {
+        return (
+          <span key={index} className="relative inline-block">
+            {part}
+            <WavyUnderline color={underlineColor} />
+          </span>
+        );
+      }
+      return part;
+    });
+  };
+
   // Get buyer-segment-specific pain points
   const getPainPoints = (segment?: string): { icon: string; text: string }[] => {
     const painPointsBySegment: Record<string, { icon: string; text: string }[]> = {
@@ -1260,28 +1297,9 @@ export default function PublicPropertyDetail() {
                   </span>
                   The Challenge
                 </div>
-                <div className="inline-block mb-6">
-                  <h2 className="text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[1.0] tracking-[-0.02em]">
-                    {extractProblemHeadline(funnelContent.problem)}
-                  </h2>
-                  {/* Hand-drawn wavy underline - scales with text */}
-                  <svg className="w-full h-3 mt-2" viewBox="0 0 200 12" preserveAspectRatio="none" fill="none">
-                    <path
-                      d="M0 6 Q 25 2, 50 6 T 100 6 T 150 6 T 200 6"
-                      stroke="url(#underline-gradient-1)"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      fill="none"
-                    />
-                    <defs>
-                      <linearGradient id="underline-gradient-1" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="rgba(168,85,247,0.2)" />
-                        <stop offset="50%" stopColor="rgba(168,85,247,0.8)" />
-                        <stop offset="100%" stopColor="rgba(168,85,247,0.2)" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </div>
+                <h2 className="text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[1.0] tracking-[-0.02em] max-w-4xl mx-auto mb-6">
+                  {renderWithUnderline(extractProblemHeadline(funnelContent.problem), 'purple')}
+                </h2>
                 <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
                   You're not alone. <span className="text-purple-300 font-medium">Thousands</span> face these same barriers every day.
                 </p>
@@ -1359,33 +1377,14 @@ export default function PublicPropertyDetail() {
                   The Solution
                 </div>
                 {/* Extract first 2 sentences for headline */}
-                <div className="inline-block mb-4">
-                  <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em]">
-                    <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
-                      {(() => {
-                        const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
-                        return sentences.slice(0, 2).join(' ').trim();
-                      })()}
-                    </span>
-                  </h2>
-                  {/* Hand-drawn wavy underline - scales with text */}
-                  <svg className="w-full h-3 mt-2" viewBox="0 0 200 12" preserveAspectRatio="none" fill="none">
-                    <path
-                      d="M0 6 Q 25 2, 50 6 T 100 6 T 150 6 T 200 6"
-                      stroke="url(#underline-gradient-2)"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                      fill="none"
-                    />
-                    <defs>
-                      <linearGradient id="underline-gradient-2" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="rgba(139,92,246,0.2)" />
-                        <stop offset="50%" stopColor="rgba(139,92,246,0.8)" />
-                        <stop offset="100%" stopColor="rgba(139,92,246,0.2)" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                </div>
+                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto mb-4">
+                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                    {renderWithUnderline((() => {
+                      const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
+                      return sentences.slice(0, 2).join(' ').trim();
+                    })(), 'violet')}
+                  </span>
+                </h2>
               </Reveal>
 
               {/* Solution Benefits - Two Column Layout */}
