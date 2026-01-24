@@ -1260,7 +1260,7 @@ export default function PublicPropertyDetail() {
                   The Challenge
                 </div>
                 <h2 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[1.0] tracking-[-0.02em] max-w-4xl mx-auto mb-6">
-                  <span className="bg-gradient-to-r from-purple-300 to-violet-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
                     {stripMarkers(extractProblemHeadline(funnelContent.problem))}
                   </span>
                 </h2>
@@ -1342,7 +1342,7 @@ export default function PublicPropertyDetail() {
                 </div>
                 {/* Extract first 2 sentences for headline */}
                 <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto mb-4">
-                  <span className="bg-gradient-to-r from-purple-300 to-violet-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
                     {stripMarkers((() => {
                       const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
                       return sentences.slice(0, 2).join(' ').trim();
