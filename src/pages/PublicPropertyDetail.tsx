@@ -317,10 +317,12 @@ function AnimatedStatsSection() {
   }, [hasStarted]);
 
   return (
-    <section ref={sectionRef} className="relative bg-black py-20 md:py-28 overflow-hidden">
-      {/* Ambient lighting - purple glows for color */}
+    <section ref={sectionRef} className="relative bg-black py-20 md:py-28">
+      {/* Ambient lighting - top glow receives bleed from testimonials, bottom bleeds to next */}
+      <div className="absolute top-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/15 rounded-full blur-[180px]" />
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
       <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[200px]" />
+      <div className="absolute bottom-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/15 rounded-full blur-[180px]" />
 
 
       <div className="relative z-10 max-w-6xl mx-auto px-4">
@@ -1265,11 +1267,11 @@ export default function PublicPropertyDetail() {
 
         {/* Problem/Challenge Section - Premium Purple Homes */}
         {!funnelLoading && funnelContent?.problem && (
-          <section className="relative bg-black py-24 md:py-32 overflow-hidden">
-            {/* Enhanced purple ambient glow */}
+          <section className="relative bg-black py-24 md:py-32">
+            {/* Enhanced purple ambient glow - bottom glow bleeds into Solution section */}
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/15 rounded-full blur-[150px]" />
-              <div className="absolute bottom-0 right-1/4 w-[500px] h-[400px] bg-violet-500/10 rounded-full blur-[120px]" />
+              <div className="absolute bottom-[-20%] right-1/4 w-[700px] h-[600px] bg-violet-500/15 rounded-full blur-[150px]" />
               <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-purple-400/8 rounded-full blur-[100px]" />
             </div>
 
@@ -1347,11 +1349,12 @@ export default function PublicPropertyDetail() {
 
         {/* Solution Section - Dynamic from AI */}
         {!funnelLoading && funnelContent?.solution && (
-          <section className="relative bg-black py-24 md:py-32 overflow-hidden">
-            {/* Ambient glow - purple brand colors */}
+          <section className="relative bg-black py-24 md:py-32">
+            {/* Ambient glow - top glow bleeds from Problem section, bottom bleeds to next */}
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-0 left-1/4 w-[700px] h-[500px] bg-violet-500/15 rounded-full blur-[150px]" />
-              <div className="absolute top-1/3 right-1/4 w-[500px] h-[400px] bg-purple-400/12 rounded-full blur-[120px]" />
+              <div className="absolute top-[-15%] left-1/4 w-[800px] h-[600px] bg-violet-500/15 rounded-full blur-[180px]" />
+              <div className="absolute top-1/3 right-1/4 w-[600px] h-[500px] bg-purple-400/12 rounded-full blur-[150px]" />
+              <div className="absolute bottom-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/15 rounded-full blur-[180px]" />
             </div>
 
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
@@ -1473,10 +1476,11 @@ export default function PublicPropertyDetail() {
 
         {/* Property Showcase - DARK THEME */}
         {!funnelLoading && funnelContent?.propertyShowcase && (
-          <section className="relative bg-black py-20 md:py-28 overflow-hidden">
-            {/* Ambient glow */}
+          <section className="relative bg-black py-20 md:py-28">
+            {/* Ambient glow - top bleeds from Solution, bottom bleeds to Investment */}
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-purple-600/8 rounded-full blur-[150px]" />
+              <div className="absolute top-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/12 rounded-full blur-[180px]" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-purple-600/10 rounded-full blur-[150px]" />
             </div>
 
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
@@ -1996,10 +2000,11 @@ export default function PublicPropertyDetail() {
             }
 
             return (
-              <section className="relative bg-black py-16 md:py-20 overflow-hidden">
-                {/* Ambient lighting */}
-                <div className="absolute top-0 left-1/4 w-[400px] h-[300px] bg-purple-600/15 rounded-full blur-[150px]" />
-                <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-violet-600/15 rounded-full blur-[150px]" />
+              <section className="relative bg-black py-16 md:py-20">
+                {/* Ambient lighting - bottom glow bleeds into next section */}
+                <div className="absolute top-0 left-1/4 w-[500px] h-[400px] bg-purple-600/15 rounded-full blur-[150px]" />
+                <div className="absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/20 rounded-full blur-[200px]" />
+                <div className="absolute bottom-[-10%] right-1/4 w-[500px] h-[400px] bg-violet-600/15 rounded-full blur-[180px]" />
 
                 <Reveal className="text-center mb-10">
                   <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
@@ -2138,11 +2143,13 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* Urgency / Countdown - Premium Purple */}
-        <section className="relative bg-black overflow-hidden py-20 md:py-28">
-          {/* Dramatic urgency lighting - purple glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-purple-600/25 via-violet-500/15 to-transparent rounded-full blur-[150px]" />
-          <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-[180px]" />
-          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-violet-600/15 rounded-full blur-[180px]" />
+        <section className="relative bg-black py-20 md:py-28">
+          {/* Dramatic urgency lighting - purple glow that bleeds both up and down */}
+          <div className="absolute top-[-50%] left-1/2 -translate-x-1/2 w-[1000px] md:w-[1400px] h-[600px] md:h-[800px] bg-purple-600/20 rounded-full blur-[200px] md:blur-[250px]" />
+          <div className="absolute top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/15 rounded-full blur-[180px]" />
+          {/* Bottom glows bleed into Final CTA section */}
+          <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+          <div className="absolute bottom-[-15%] left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
 
           {/* Animated pulse ring */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-purple-500/20 animate-ping" style={{ animationDuration: '3s' }} />
@@ -2200,9 +2207,10 @@ export default function PublicPropertyDetail() {
 
         {/* Final CTA Section - Dark Premium */}
         {!funnelLoading && funnelContent?.callToAction && (
-          <section className="relative bg-black overflow-hidden py-16 md:py-20">
-            {/* Ambient lighting */}
-            <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[180px]" />
+          <section className="relative bg-black py-16 md:py-20">
+            {/* Ambient lighting - top glow receives bleed from Urgency section */}
+            <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/18 rounded-full blur-[180px]" />
+            <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[180px]" />
             <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-violet-600/15 rounded-full blur-[150px]" />
 
             <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
@@ -2237,8 +2245,14 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Contact Form Section - Premium Dark */}
-        <FunnelSection variant="premium-dark" padding="lg" id="contact-form">
+        {/* Contact Form Section - Premium Dark with bleeding glow */}
+        <div className="relative bg-black">
+          {/* Purple glows bleeding from above */}
+          <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/18 rounded-full blur-[200px]" />
+          <div className="absolute top-1/3 right-1/4 w-[500px] h-[400px] bg-violet-500/12 rounded-full blur-[150px]" />
+          {/* Bottom glow bleeding into footer */}
+          <div className="absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/15 rounded-full blur-[180px]" />
+          <FunnelSection variant="premium-dark" padding="lg" id="contact-form" className="relative z-10 !bg-transparent">
           <div className="max-w-xl mx-auto">
             <div className="bg-white/5 backdrop-blur-sm rounded-3xl shadow-2xl border border-purple-500/20 overflow-hidden">
               <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 p-8 text-white text-center relative overflow-hidden">
@@ -2370,10 +2384,13 @@ export default function PublicPropertyDetail() {
             </div>
           </div>
         </FunnelSection>
+        </div>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
+      {/* Footer with purple glow bleeding from above */}
+      <footer className="relative bg-gray-900 text-white py-12">
+        {/* Purple glow from form section */}
+        <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/15 rounded-full blur-[180px]" />
         <div className="max-w-6xl mx-auto px-4 text-center">
           <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">P</span>
