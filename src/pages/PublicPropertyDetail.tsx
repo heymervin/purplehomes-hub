@@ -1264,8 +1264,23 @@ export default function PublicPropertyDetail() {
                   <h2 className="text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[1.0] tracking-[-0.02em]">
                     {extractProblemHeadline(funnelContent.problem)}
                   </h2>
-                  {/* Dynamic underline - matches text width */}
-                  <div className="mt-3 h-1 w-full bg-gradient-to-r from-transparent via-purple-500/70 to-transparent rounded-full" />
+                  {/* Hand-drawn wavy underline - scales with text */}
+                  <svg className="w-full h-3 mt-2" viewBox="0 0 200 12" preserveAspectRatio="none" fill="none">
+                    <path
+                      d="M0 6 Q 25 2, 50 6 T 100 6 T 150 6 T 200 6"
+                      stroke="url(#underline-gradient-1)"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      fill="none"
+                    />
+                    <defs>
+                      <linearGradient id="underline-gradient-1" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="rgba(168,85,247,0.2)" />
+                        <stop offset="50%" stopColor="rgba(168,85,247,0.8)" />
+                        <stop offset="100%" stopColor="rgba(168,85,247,0.2)" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
                 </div>
                 <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
                   You're not alone. <span className="text-purple-300 font-medium">Thousands</span> face these same barriers every day.
@@ -1353,8 +1368,23 @@ export default function PublicPropertyDetail() {
                       })()}
                     </span>
                   </h2>
-                  {/* Dynamic underline - matches text width */}
-                  <div className="mt-3 h-1 w-full bg-gradient-to-r from-transparent via-purple-400 to-transparent rounded-full" />
+                  {/* Hand-drawn wavy underline - scales with text */}
+                  <svg className="w-full h-3 mt-2" viewBox="0 0 200 12" preserveAspectRatio="none" fill="none">
+                    <path
+                      d="M0 6 Q 25 2, 50 6 T 100 6 T 150 6 T 200 6"
+                      stroke="url(#underline-gradient-2)"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      fill="none"
+                    />
+                    <defs>
+                      <linearGradient id="underline-gradient-2" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="rgba(139,92,246,0.2)" />
+                        <stop offset="50%" stopColor="rgba(139,92,246,0.8)" />
+                        <stop offset="100%" stopColor="rgba(139,92,246,0.2)" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
                 </div>
               </Reveal>
 
