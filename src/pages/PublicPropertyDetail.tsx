@@ -1994,7 +1994,7 @@ export default function PublicPropertyDetail() {
             }
 
             return (
-              <section className="relative bg-black py-16 md:py-20 overflow-hidden">
+              <section className="relative bg-gradient-to-b from-black to-[#0f172a] py-16 md:py-20 overflow-hidden">
                 {/* Ambient lighting */}
                 <div className="absolute top-0 left-1/4 w-[400px] h-[300px] bg-purple-600/10 rounded-full blur-[150px]" />
                 <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-violet-600/10 rounded-full blur-[150px]" />
@@ -2022,7 +2022,7 @@ export default function PublicPropertyDetail() {
 
         {/* What's Nearby - Focus on the places */}
         {!funnelLoading && funnelContent?.locationNearby && (
-          <section className="relative bg-gradient-to-b from-[#0f172a] to-black py-16 md:py-20 overflow-hidden">
+          <section className="relative bg-[#0f172a] py-16 md:py-20 overflow-hidden">
             {/* Ambient glow */}
             <div className="absolute top-0 left-1/4 w-[400px] h-[300px] bg-purple-600/10 rounded-full blur-[150px]" />
 
