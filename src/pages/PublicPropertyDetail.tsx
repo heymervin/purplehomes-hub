@@ -2147,12 +2147,13 @@ export default function PublicPropertyDetail() {
           {/* Dramatic urgency lighting - purple glow that bleeds both up and down */}
           <div className="absolute top-[-50%] left-1/2 -translate-x-1/2 w-[1000px] md:w-[1400px] h-[600px] md:h-[800px] bg-purple-600/20 rounded-full blur-[200px] md:blur-[250px]" />
           <div className="absolute top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/15 rounded-full blur-[180px]" />
-          {/* Bottom glows bleed into Final CTA section */}
-          <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-          <div className="absolute bottom-[-15%] left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
+          {/* Bottom glows bleed into Final CTA section - stronger connection */}
+          <div className="absolute bottom-[-50%] left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
+          <div className="absolute bottom-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/18 rounded-full blur-[200px]" />
+          <div className="absolute bottom-[-20%] right-1/4 w-[600px] h-[500px] bg-purple-500/18 rounded-full blur-[200px]" />
 
-          {/* Animated pulse ring */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-purple-500/20 animate-ping" style={{ animationDuration: '3s' }} />
+          {/* Animated pulse ring - extends toward next section */}
+          <div className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-purple-500/15 animate-ping" style={{ animationDuration: '3s' }} />
 
           <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
             {/* Urgency badge with Reveal */}
@@ -2205,13 +2206,15 @@ export default function PublicPropertyDetail() {
           </div>
         </section>
 
-        {/* Final CTA Section - Dark Premium */}
+        {/* Final CTA Section - connects Urgency to Form */}
         {!funnelLoading && funnelContent?.callToAction && (
           <section className="relative bg-black py-16 md:py-20">
-            {/* Ambient lighting - top glow receives bleed from Urgency section */}
-            <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/18 rounded-full blur-[180px]" />
-            <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[180px]" />
-            <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-violet-600/15 rounded-full blur-[150px]" />
+            {/* Top glow - receives bleed from Urgency section's pulsing ring */}
+            <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[1000px] md:w-[1400px] h-[600px] bg-purple-600/25 rounded-full blur-[200px]" />
+            <div className="absolute top-0 left-1/4 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
+            <div className="absolute top-0 right-1/4 w-[600px] h-[500px] bg-purple-500/18 rounded-full blur-[180px]" />
+            {/* Bottom glow - bleeds into Form section */}
+            <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-600/22 rounded-full blur-[200px]" />
 
             <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
