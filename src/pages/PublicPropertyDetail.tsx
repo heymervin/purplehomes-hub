@@ -2106,19 +2106,21 @@ export default function PublicPropertyDetail() {
           />
         )}
 
-        {/* FAQ Section */}
+        {/* FAQ Section - Premium Dark */}
         {parsedFAQs.length > 0 && (
-          <FunnelSection variant="gray" padding="lg">
-            <FunnelFAQ
-              title="Frequently Asked Questions"
-              subtitle="Get answers to common questions about our rent-to-own program"
-              items={parsedFAQs}
-              variant="default"
-            />
-            <div className="mt-8">
-              <FAQCTA phoneNumber="(504) 475-0672" />
+          <section className="relative bg-gradient-to-b from-black to-[#0f172a] py-16 md:py-20 overflow-hidden">
+            <div className="max-w-5xl mx-auto px-4">
+              <FunnelFAQ
+                title="Frequently Asked Questions"
+                subtitle="Get answers to common questions about our rent-to-own program"
+                items={parsedFAQs}
+                variant="premium"
+              />
+              <div className="mt-10 max-w-3xl mx-auto">
+                <FAQCTA phoneNumber="(504) 475-0672" variant="premium" />
+              </div>
             </div>
-          </FunnelSection>
+          </section>
         )}
 
         {/* Urgency / Countdown - DRAMATIC URGENCY */}

@@ -12,7 +12,7 @@ interface FunnelFAQProps {
   subtitle?: string;
   items: FAQItem[];
   className?: string;
-  variant?: "default" | "cards" | "minimal" | "boxed";
+  variant?: "default" | "cards" | "minimal" | "boxed" | "premium";
   defaultOpenIndex?: number;
 }
 
@@ -196,6 +196,82 @@ const FunnelFAQ: React.FC<FunnelFAQProps> = ({
     );
   }
 
+  // Premium dark variant - matches Purple Homes funnel theme
+  if (variant === "premium") {
+    return (
+      <div className={cn("relative", className)}>
+        {/* Ambient glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-purple-600/10 rounded-full blur-[150px] pointer-events-none" />
+
+        <div className="relative z-10">
+          {title && (
+            <div className="text-center mb-10">
+              <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
+                FAQ
+              </span>
+              <h2 className="text-3xl md:text-4xl text-white mb-3">
+                <span className="font-light">Got</span>{' '}
+                <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">Questions?</span>
+              </h2>
+              {subtitle && <p className="text-gray-400 max-w-xl mx-auto">{subtitle}</p>}
+            </div>
+          )}
+
+          <div className="max-w-3xl mx-auto space-y-3">
+            {items.map((item, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "rounded-xl overflow-hidden transition-all duration-300 border",
+                  openIndex === index
+                    ? "bg-gradient-to-br from-purple-500/20 to-violet-500/10 border-purple-500/40 shadow-[0_0_30px_rgba(139,92,246,0.15)]"
+                    : "bg-white/5 border-white/10 hover:border-purple-500/30 hover:bg-white/[0.07]"
+                )}
+              >
+                <button
+                  onClick={() => toggleItem(index)}
+                  className="w-full p-5 text-left flex items-center justify-between gap-4 transition-colors"
+                >
+                  <span
+                    className={cn(
+                      "font-semibold transition-colors",
+                      openIndex === index ? "text-purple-300" : "text-white"
+                    )}
+                  >
+                    {item.question}
+                  </span>
+                  <div className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all",
+                    openIndex === index
+                      ? "bg-purple-500/30 rotate-180"
+                      : "bg-white/10"
+                  )}>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 transition-transform",
+                        openIndex === index ? "text-purple-300" : "text-gray-400"
+                      )}
+                    />
+                  </div>
+                </button>
+                <div
+                  className={cn(
+                    "overflow-hidden transition-all duration-300",
+                    openIndex === index ? "max-h-[500px]" : "max-h-0"
+                  )}
+                >
+                  <div className="px-5 pb-5">
+                    <p className="text-gray-300 leading-relaxed">{item.answer}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Default variant
   return (
     <div className={className}>
@@ -263,6 +339,7 @@ interface FAQCTAProps {
   description?: string;
   phoneNumber?: string;
   className?: string;
+  variant?: "default" | "premium";
 }
 
 const FAQCTA: React.FC<FAQCTAProps> = ({
@@ -270,7 +347,38 @@ const FAQCTA: React.FC<FAQCTAProps> = ({
   description = "Our team is here to help you every step of the way.",
   phoneNumber = "(555) 123-4567",
   className,
+  variant = "default",
 }) => {
+  if (variant === "premium") {
+    return (
+      <div
+        className={cn(
+          "relative bg-gradient-to-br from-purple-500/20 to-violet-500/10 border border-purple-500/30 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 overflow-hidden",
+          className
+        )}
+      >
+        {/* Subtle glow */}
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl" />
+
+        <div className="relative flex items-center gap-4">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
+            <MessageCircle className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h4 className="font-bold text-white">{title}</h4>
+            <p className="text-gray-400 text-sm">{description}</p>
+          </div>
+        </div>
+        <a
+          href={`tel:${phoneNumber.replace(/\D/g, "")}`}
+          className="relative px-6 py-3 bg-white hover:bg-purple-50 text-purple-900 rounded-xl font-bold hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all whitespace-nowrap"
+        >
+          Call {phoneNumber}
+        </a>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
