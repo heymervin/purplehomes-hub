@@ -2266,18 +2266,19 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Contact Form Section - Black with balanced purple ambient glows */}
-        <section id="contact-form" className="relative bg-black py-20 md:py-28">
-          {/* Balanced purple ambient glows - visible but not overwhelming */}
+        {/* Contact Form + Footer Section - Combined into one seamless section */}
+        <section id="contact-form" className="relative bg-black pt-20 md:pt-28 pb-12">
+          {/* Ambient glows for the entire form + footer area */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[500px] md:h-[700px] bg-purple-600/28 rounded-full blur-[150px] md:blur-[200px]" />
-          <div className="absolute top-[20%] left-0 w-[600px] h-[500px] bg-violet-500/22 rounded-full blur-[130px]" />
-          <div className="absolute top-[20%] right-0 w-[600px] h-[500px] bg-purple-500/22 rounded-full blur-[130px]" />
-          {/* Bottom glows bleed strongly into footer - extended reach */}
-          <div className="absolute bottom-[-60%] left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-purple-600/30 rounded-full blur-[250px]" />
-          <div className="absolute bottom-[-40%] left-1/4 w-[600px] h-[500px] bg-violet-500/22 rounded-full blur-[200px]" />
-          <div className="absolute bottom-[-40%] right-1/4 w-[600px] h-[500px] bg-purple-500/20 rounded-full blur-[200px]" />
+          <div className="absolute top-[15%] left-0 w-[600px] h-[500px] bg-violet-500/22 rounded-full blur-[130px]" />
+          <div className="absolute top-[15%] right-0 w-[600px] h-[500px] bg-purple-500/22 rounded-full blur-[130px]" />
+          {/* Center/bottom glows for footer area */}
+          <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+          <div className="absolute bottom-0 left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
+          <div className="absolute bottom-0 right-1/4 w-[500px] h-[400px] bg-purple-500/15 rounded-full blur-[180px]" />
 
           <div className="relative z-10">
+          {/* Form Card */}
           <div className="max-w-xl mx-auto">
             <div className="bg-white/5 backdrop-blur-sm rounded-3xl shadow-2xl border border-purple-500/20 overflow-hidden">
               <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 p-8 text-white text-center relative overflow-hidden">
@@ -2408,36 +2409,30 @@ export default function PublicPropertyDetail() {
               )}
             </div>
           </div>
+
+          {/* Footer content - floating within the same section */}
+          <div className="max-w-6xl mx-auto px-4 text-center mt-20 text-white">
+            <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-white font-bold text-2xl">P</span>
+            </div>
+            <h3 className="text-xl font-bold mb-2">Purple Homes Solutions</h3>
+            <p className="text-gray-400 mb-4">Creative Real Estate Financing</p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <a href={`tel:+1${companyPhone.replace(/\D/g, '')}`} className="text-purple-400 hover:text-purple-300 font-semibold">
+                {companyPhone}
+              </a>
+              <span className="hidden sm:inline text-gray-600">•</span>
+              <a href="mailto:info@purplehomessolutions.com" className="text-purple-400 hover:text-purple-300">
+                info@purplehomessolutions.com
+              </a>
+            </div>
+            <p className="text-gray-500 text-sm mt-6">
+              © {new Date().getFullYear()} Purple Homes Solutions. All rights reserved.
+            </p>
+          </div>
           </div>
         </section>
       </main>
-
-      {/* Footer - Black with purple ambient glows that bleed upward */}
-      <footer className="relative bg-black text-white py-12">
-        {/* Top glows extend far into form section - strong connection */}
-        <div className="absolute top-[-80%] left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-purple-600/28 rounded-full blur-[250px]" />
-        <div className="absolute top-[-50%] left-1/4 w-[500px] h-[450px] bg-violet-500/20 rounded-full blur-[200px]" />
-        <div className="absolute top-[-50%] right-1/4 w-[500px] h-[450px] bg-purple-500/18 rounded-full blur-[200px]" />
-        <div className="max-w-6xl mx-auto px-4 text-center">
-          <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">P</span>
-          </div>
-          <h3 className="text-xl font-bold mb-2">Purple Homes Solutions</h3>
-          <p className="text-gray-400 mb-4">Creative Real Estate Financing</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a href={`tel:+1${companyPhone.replace(/\D/g, '')}`} className="text-purple-400 hover:text-purple-300 font-semibold">
-              {companyPhone}
-            </a>
-            <span className="hidden sm:inline text-gray-600">•</span>
-            <a href="mailto:info@purplehomessolutions.com" className="text-purple-400 hover:text-purple-300">
-              info@purplehomessolutions.com
-            </a>
-          </div>
-          <p className="text-gray-500 text-sm mt-6">
-            © {new Date().getFullYear()} Purple Homes Solutions. All rights reserved.
-          </p>
-        </div>
-      </footer>
 
       {/* Sticky Mobile CTA */}
       <StickyMobileCTA
