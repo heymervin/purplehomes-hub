@@ -221,8 +221,8 @@ function UrgencyCountdown({ hoursFromNow = 48 }: { hoursFromNow?: number }) {
         <div key={index} className="text-center">
           <div className="relative">
             {/* Glow behind */}
-            <div className="absolute inset-0 bg-gradient-to-b from-red-500/30 to-purple-500/30 rounded-2xl blur-xl scale-110" />
-            <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl px-4 md:px-6 py-4 md:py-6 border border-red-500/30 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
+            <div className="absolute inset-0 bg-gradient-to-b from-purple-500/30 to-violet-500/30 rounded-2xl blur-xl scale-110" />
+            <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl px-4 md:px-6 py-4 md:py-6 border border-purple-500/30 shadow-[0_0_30px_rgba(139,92,246,0.2)]">
               <div className="text-4xl md:text-6xl font-black text-white tabular-nums">
                 {String(unit.value).padStart(2, '0')}
               </div>
@@ -2123,31 +2123,31 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Urgency / Countdown - DRAMATIC URGENCY */}
-        <section className="relative bg-black overflow-hidden py-20 md:py-28">
-          {/* Dramatic urgency lighting - red/orange warning glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-red-600/20 via-orange-500/10 to-transparent rounded-full blur-[150px]" />
+        {/* Urgency / Countdown - Premium Purple */}
+        <section className="relative bg-gradient-to-b from-[#0f172a] to-black overflow-hidden py-20 md:py-28">
+          {/* Dramatic urgency lighting - purple glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-purple-600/25 via-violet-500/15 to-transparent rounded-full blur-[150px]" />
           <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-[180px]" />
-          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-[180px]" />
+          <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-violet-600/15 rounded-full blur-[180px]" />
 
           {/* Animated pulse ring */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-red-500/20 animate-ping" style={{ animationDuration: '3s' }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-purple-500/20 animate-ping" style={{ animationDuration: '3s' }} />
 
           <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
             {/* Urgency badge with Reveal */}
             <Reveal>
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-red-500/20 border border-red-500/40 backdrop-blur-sm mb-8 animate-pulse">
-                <div className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="text-red-300 text-sm font-bold tracking-wider uppercase">Limited Time Offer</span>
-                <div className="w-2 h-2 rounded-full bg-red-500" />
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-purple-500/20 border border-purple-500/40 backdrop-blur-sm mb-8 animate-pulse">
+                <div className="w-2 h-2 rounded-full bg-purple-400" />
+                <span className="text-purple-300 text-sm font-bold tracking-wider uppercase">Limited Time Offer</span>
+                <div className="w-2 h-2 rounded-full bg-purple-400" />
               </div>
             </Reveal>
 
             {/* Main headline with Reveal */}
             <Reveal delay={100}>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4">
-                This Price{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-orange-400 to-red-400">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl text-white mb-4">
+                <span className="font-light">This Price</span>{' '}
+                <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400">
                   Won't Last
                 </span>
               </h2>
@@ -2163,18 +2163,18 @@ export default function PublicPropertyDetail() {
 
             {/* Scarcity indicator with Reveal */}
             <Reveal delay={300}>
-              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-orange-500/10 border border-orange-500/30 mb-10">
-                <span className="text-orange-400 text-2xl">🔥</span>
-                <span className="text-orange-300 font-bold">Only 3 spots left at this price</span>
-                <span className="text-orange-400 text-2xl">🔥</span>
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-purple-500/10 border border-purple-500/30 mb-10">
+                <span className="text-2xl">⚡</span>
+                <span className="text-purple-300 font-bold">Only 3 spots left at this price</span>
+                <span className="text-2xl">⚡</span>
               </div>
             </Reveal>
 
-            {/* CTA - Maximum urgency */}
+            {/* CTA - White glowing button (site standard) */}
             <div>
               <button
                 onClick={scrollToForm}
-                className="group relative bg-gradient-to-r from-red-500 via-orange-500 to-red-500 hover:from-red-400 hover:via-orange-400 hover:to-red-400 text-white font-black text-lg md:text-xl uppercase tracking-wide px-12 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(239,68,68,0.4),0_0_100px_rgba(249,115,22,0.2)] hover:shadow-[0_0_80px_rgba(239,68,68,0.5),0_0_120px_rgba(249,115,22,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-orange-400/50"
+                className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-12 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(168,85,247,0.4),0_0_100px_rgba(139,92,246,0.2)] hover:shadow-[0_0_80px_rgba(168,85,247,0.5),0_0_120px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
               >
                 Lock In This Price Now
                 <span className="ml-3 inline-block group-hover:translate-x-2 transition-transform text-2xl">&rarr;</span>
