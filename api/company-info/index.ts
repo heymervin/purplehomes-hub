@@ -17,7 +17,9 @@ interface CompanyInfo {
   phone: string;
   email: string;
   testimonialSpeed: number; // 10-50, default 25
-  countdownHours: number; // 24, 48, 72, or 168 (1 week)
+  countdownMode: 'per-visitor' | 'global'; // per-visitor = each visitor gets own timer, global = everyone counts to same deadline
+  countdownHours: number; // 24, 48, 72, or 168 (1 week) - used for per-visitor mode
+  countdownDeadline: string | null; // ISO date string - used for global mode
   updatedAt: string;
 }
 
@@ -62,7 +64,9 @@ async function loadFromAirtable(): Promise<CompanyInfo | null> {
         phone: record.fields.CompanyPhone || '',
         email: record.fields.CompanyEmail || '',
         testimonialSpeed: record.fields.TestimonialSpeed || 25,
+        countdownMode: record.fields.CountdownMode || 'per-visitor',
         countdownHours: record.fields.CountdownHours || 48,
+        countdownDeadline: record.fields.CountdownDeadline || null,
         updatedAt: record.fields.LastModified || new Date().toISOString(),
       };
     }
@@ -95,12 +99,17 @@ async function saveToAirtable(data: CompanyInfo): Promise<boolean> {
     const listData = await listResponse.json();
     const existingRecordId = listData.records?.[0]?.id;
 
-    const fields = {
+    const fields: Record<string, unknown> = {
       CompanyPhone: data.phone,
       CompanyEmail: data.email,
       TestimonialSpeed: data.testimonialSpeed,
+      CountdownMode: data.countdownMode,
       CountdownHours: data.countdownHours,
     };
+    // Only set deadline if it's a valid date
+    if (data.countdownDeadline) {
+      fields.CountdownDeadline = data.countdownDeadline;
+    }
 
     let response;
     if (existingRecordId) {
@@ -200,7 +209,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // Default if nothing found
       if (!data) {
-        data = { phone: '', email: '', testimonialSpeed: 25, countdownHours: 48, updatedAt: new Date().toISOString() };
+        data = {
+          phone: '',
+          email: '',
+          testimonialSpeed: 25,
+          countdownMode: 'per-visitor',
+          countdownHours: 48,
+          countdownDeadline: null,
+          updatedAt: new Date().toISOString(),
+        };
         source = 'default';
       }
 
@@ -209,7 +226,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         phone: data.phone,
         email: data.email,
         testimonialSpeed: data.testimonialSpeed ?? 25,
+        countdownMode: data.countdownMode ?? 'per-visitor',
         countdownHours: data.countdownHours ?? 48,
+        countdownDeadline: data.countdownDeadline ?? null,
         updatedAt: data.updatedAt,
         source,
       });
@@ -217,22 +236,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // POST - Save company info
     if (req.method === 'POST') {
-      const { phone, email, testimonialSpeed, countdownHours } = req.body as {
+      const { phone, email, testimonialSpeed, countdownMode, countdownHours, countdownDeadline } = req.body as {
         phone?: string;
         email?: string;
         testimonialSpeed?: number;
+        countdownMode?: 'per-visitor' | 'global';
         countdownHours?: number;
+        countdownDeadline?: string | null;
       };
 
       // Validate countdownHours is one of the allowed values
       const validHours = [24, 48, 72, 168];
       const sanitizedCountdownHours = validHours.includes(countdownHours ?? 48) ? (countdownHours ?? 48) : 48;
 
+      // Validate countdownMode
+      const validModes = ['per-visitor', 'global'];
+      const sanitizedMode = validModes.includes(countdownMode ?? 'per-visitor')
+        ? (countdownMode as 'per-visitor' | 'global')
+        : 'per-visitor';
+
       const data: CompanyInfo = {
         phone: phone?.trim() || '',
         email: email?.trim() || '',
         testimonialSpeed: Math.min(50, Math.max(10, testimonialSpeed ?? 25)),
+        countdownMode: sanitizedMode,
         countdownHours: sanitizedCountdownHours,
+        countdownDeadline: countdownDeadline || null,
         updatedAt: new Date().toISOString(),
       };
 
@@ -248,7 +277,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           phone: data.phone,
           email: data.email,
           testimonialSpeed: data.testimonialSpeed,
+          countdownMode: data.countdownMode,
           countdownHours: data.countdownHours,
+          countdownDeadline: data.countdownDeadline,
           updatedAt: data.updatedAt,
           savedTo: savedToAirtable ? 'airtable' : 'file',
         });

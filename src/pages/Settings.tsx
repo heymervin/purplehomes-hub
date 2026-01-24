@@ -193,7 +193,9 @@ export default function Settings() {
   const [companyPhone, setCompanyPhone] = useState('');
   const [companyEmail, setCompanyEmail] = useState('');
   const [testimonialSpeed, setTestimonialSpeed] = useState(25);
+  const [countdownMode, setCountdownMode] = useState<'per-visitor' | 'global'>('per-visitor');
   const [countdownHours, setCountdownHours] = useState(48);
+  const [countdownDeadline, setCountdownDeadline] = useState<string>('');
   const [isLoadingCompanyInfo, setIsLoadingCompanyInfo] = useState(true);
   const [isSavingCompanyInfo, setIsSavingCompanyInfo] = useState(false);
   const [hasCompanyInfoChanges, setHasCompanyInfoChanges] = useState(false);
@@ -228,7 +230,15 @@ export default function Settings() {
         setCompanyPhone(data.phone || '');
         setCompanyEmail(data.email || '');
         setTestimonialSpeed(data.testimonialSpeed ?? 25);
+        setCountdownMode(data.countdownMode ?? 'per-visitor');
         setCountdownHours(data.countdownHours ?? 48);
+        // Convert ISO date to datetime-local format for input
+        if (data.countdownDeadline) {
+          const date = new Date(data.countdownDeadline);
+          setCountdownDeadline(date.toISOString().slice(0, 16));
+        } else {
+          setCountdownDeadline('');
+        }
       }
     } catch (error) {
       console.error('Error loading company info:', error);
@@ -243,7 +253,14 @@ export default function Settings() {
       const response = await fetch('/api/company-info', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: companyPhone, email: companyEmail, testimonialSpeed, countdownHours }),
+        body: JSON.stringify({
+          phone: companyPhone,
+          email: companyEmail,
+          testimonialSpeed,
+          countdownMode,
+          countdownHours,
+          countdownDeadline: countdownDeadline ? new Date(countdownDeadline).toISOString() : null,
+        }),
       });
       const data = await response.json();
       if (data.success) {
@@ -1606,28 +1623,70 @@ export default function Settings() {
                       <span>Faster</span>
                     </div>
                   </div>
-                  <div className="col-span-2 space-y-3 pt-4 border-t">
+                  <div className="col-span-2 space-y-4 pt-4 border-t">
                     <div className="flex items-center justify-between">
                       <div>
-                        <Label>Countdown Timer Duration</Label>
+                        <Label>Countdown Timer Mode</Label>
                         <p className="text-xs text-muted-foreground">
-                          How long the urgency countdown runs on funnel pages
+                          {countdownMode === 'per-visitor'
+                            ? 'Each visitor gets their own countdown from first visit'
+                            : 'Everyone counts down to the same deadline'}
                         </p>
                       </div>
                       <select
-                        value={countdownHours}
+                        value={countdownMode}
                         onChange={(e) => {
-                          setCountdownHours(Number(e.target.value));
+                          setCountdownMode(e.target.value as 'per-visitor' | 'global');
                           setHasCompanyInfoChanges(true);
                         }}
                         className="px-3 py-2 border rounded-md text-sm bg-background"
                       >
-                        <option value={24}>24 hours</option>
-                        <option value={48}>48 hours</option>
-                        <option value={72}>72 hours</option>
-                        <option value={168}>1 week</option>
+                        <option value="per-visitor">Per-visitor</option>
+                        <option value="global">Global deadline</option>
                       </select>
                     </div>
+
+                    {countdownMode === 'per-visitor' ? (
+                      <div className="flex items-center justify-between pl-4 border-l-2 border-purple-500/30">
+                        <div>
+                          <Label>Timer Duration</Label>
+                          <p className="text-xs text-muted-foreground">
+                            How long each visitor's countdown runs
+                          </p>
+                        </div>
+                        <select
+                          value={countdownHours}
+                          onChange={(e) => {
+                            setCountdownHours(Number(e.target.value));
+                            setHasCompanyInfoChanges(true);
+                          }}
+                          className="px-3 py-2 border rounded-md text-sm bg-background"
+                        >
+                          <option value={24}>24 hours</option>
+                          <option value={48}>48 hours</option>
+                          <option value={72}>72 hours</option>
+                          <option value={168}>1 week</option>
+                        </select>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between pl-4 border-l-2 border-purple-500/30">
+                        <div>
+                          <Label>Deadline Date & Time</Label>
+                          <p className="text-xs text-muted-foreground">
+                            Everyone counts down to this exact moment
+                          </p>
+                        </div>
+                        <input
+                          type="datetime-local"
+                          value={countdownDeadline}
+                          onChange={(e) => {
+                            setCountdownDeadline(e.target.value);
+                            setHasCompanyInfoChanges(true);
+                          }}
+                          className="px-3 py-2 border rounded-md text-sm bg-background"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

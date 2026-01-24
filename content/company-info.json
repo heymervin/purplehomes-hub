@@ -2,6 +2,8 @@
   "phone": "(504) 475-0672",
   "email": "info@purplehomessolutions.com",
   "testimonialSpeed": 25,
+  "countdownMode": "per-visitor",
   "countdownHours": 48,
+  "countdownDeadline": null,
   "updatedAt": "2026-01-24T00:00:00.000Z"
 }

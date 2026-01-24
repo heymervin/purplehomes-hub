@@ -167,32 +167,46 @@ function GradientNumber({ children, className = '' }: { children: React.ReactNod
 }
 
 // Live Countdown Timer Component
-function UrgencyCountdown({ hoursFromNow = 48 }: { hoursFromNow?: number }) {
+function UrgencyCountdown({
+  mode = 'per-visitor',
+  hoursFromNow = 48,
+  deadline = null
+}: {
+  mode?: 'per-visitor' | 'global';
+  hoursFromNow?: number;
+  deadline?: string | null;
+}) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    // Set target date (stored in sessionStorage to persist across page loads)
-    // Key includes duration so changing settings resets the timer
-    const storageKey = `urgency_countdown_target_${hoursFromNow}h`;
-    const durationKey = 'urgency_countdown_duration';
+    let target: number;
 
-    // If duration changed, clear old timer
-    const storedDuration = sessionStorage.getItem(durationKey);
-    if (storedDuration && parseInt(storedDuration, 10) !== hoursFromNow) {
-      sessionStorage.removeItem(`urgency_countdown_target_${storedDuration}h`);
+    if (mode === 'global' && deadline) {
+      // Global mode: everyone counts down to the same deadline
+      target = new Date(deadline).getTime();
+    } else {
+      // Per-visitor mode: each visitor gets their own timer (stored in sessionStorage)
+      const storageKey = `urgency_countdown_target_${hoursFromNow}h`;
+      const durationKey = 'urgency_countdown_duration';
+
+      // If duration changed, clear old timer
+      const storedDuration = sessionStorage.getItem(durationKey);
+      if (storedDuration && parseInt(storedDuration, 10) !== hoursFromNow) {
+        sessionStorage.removeItem(`urgency_countdown_target_${storedDuration}h`);
+      }
+      sessionStorage.setItem(durationKey, hoursFromNow.toString());
+
+      let targetTime = sessionStorage.getItem(storageKey);
+
+      if (!targetTime) {
+        const targetDate = new Date();
+        targetDate.setHours(targetDate.getHours() + hoursFromNow);
+        targetTime = targetDate.getTime().toString();
+        sessionStorage.setItem(storageKey, targetTime);
+      }
+
+      target = parseInt(targetTime, 10);
     }
-    sessionStorage.setItem(durationKey, hoursFromNow.toString());
-
-    let targetTime = sessionStorage.getItem(storageKey);
-
-    if (!targetTime) {
-      const target = new Date();
-      target.setHours(target.getHours() + hoursFromNow);
-      targetTime = target.getTime().toString();
-      sessionStorage.setItem(storageKey, targetTime);
-    }
-
-    const target = parseInt(targetTime, 10);
 
     const calculateTimeLeft = () => {
       const now = Date.now();
@@ -216,7 +230,7 @@ function UrgencyCountdown({ hoursFromNow = 48 }: { hoursFromNow?: number }) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [hoursFromNow]);
+  }, [mode, hoursFromNow, deadline]);
 
   const units = [
     { value: timeLeft.days, label: 'Days' },
@@ -603,6 +617,8 @@ export default function PublicPropertyDetail() {
   const [companyPhone, setCompanyPhone] = useState('(504) 475-0672'); // fallback default
   const [testimonialSpeed, setTestimonialSpeed] = useState(25); // fallback default
   const [countdownHours, setCountdownHours] = useState(48); // fallback default
+  const [countdownMode, setCountdownMode] = useState<'per-visitor' | 'global'>('per-visitor');
+  const [countdownDeadline, setCountdownDeadline] = useState<string | null>(null);
 
   // Form state
   const [showOfferForm, setShowOfferForm] = useState(false);
@@ -666,6 +682,8 @@ export default function PublicPropertyDetail() {
             if (data.phone) setCompanyPhone(data.phone);
             if (data.testimonialSpeed) setTestimonialSpeed(data.testimonialSpeed);
             if (data.countdownHours) setCountdownHours(data.countdownHours);
+            if (data.countdownMode) setCountdownMode(data.countdownMode);
+            if (data.countdownDeadline) setCountdownDeadline(data.countdownDeadline);
           }
         }
       } catch (error) {
@@ -2184,7 +2202,7 @@ export default function PublicPropertyDetail() {
 
             {/* Live Countdown Timer with Reveal */}
             <Reveal delay={200}>
-              <UrgencyCountdown hoursFromNow={countdownHours} />
+              <UrgencyCountdown mode={countdownMode} hoursFromNow={countdownHours} deadline={countdownDeadline} />
             </Reveal>
 
             {/* Scarcity indicator with Reveal */}
