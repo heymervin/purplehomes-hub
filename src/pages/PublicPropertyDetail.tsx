@@ -1816,41 +1816,56 @@ export default function PublicPropertyDetail() {
         {/* Stats Bar - Premium Animated */}
         <AnimatedStatsSection />
 
-        {/* Location & Nearby - Clean, Minimal */}
+        {/* What's Nearby - Focus on the places */}
         {!funnelLoading && funnelContent?.locationNearby && (
-          <section className="relative bg-gradient-to-b from-[#0f172a] to-black py-20 md:py-24 overflow-hidden">
-            {/* Subtle ambient glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-purple-600/5 rounded-full blur-[150px]" />
+          <section className="relative bg-gradient-to-b from-[#0f172a] to-black py-16 md:py-20 overflow-hidden">
+            {/* Ambient glow */}
+            <div className="absolute top-0 left-1/4 w-[400px] h-[300px] bg-purple-600/10 rounded-full blur-[150px]" />
 
-            <div className="relative z-10 max-w-3xl mx-auto px-4">
-              {/* Address as the hero - what actually matters */}
+            <div className="relative z-10 max-w-4xl mx-auto px-4">
+              {/* Section Header */}
               <Reveal className="text-center mb-12">
-                <div className="inline-flex items-center gap-2 text-purple-400 mb-4">
-                  <MapPin className="h-5 w-5" />
-                  <span className="text-sm font-medium uppercase tracking-wider">Location</span>
-                </div>
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
-                  {property.address}
+                <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
+                  Neighborhood
+                </span>
+                <h2 className="text-3xl md:text-4xl text-white">
+                  <span className="font-light">Minutes from</span>{' '}
+                  <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Everything</span>
                 </h2>
-                <p className="text-xl text-purple-300/80">{property.city}</p>
               </Reveal>
 
-              {/* Nearby - simple, readable */}
-              <Reveal delay={150} className="text-center">
-                <div className="inline-flex flex-wrap justify-center gap-3 md:gap-4">
-                  {funnelContent.locationNearby.split('\n').filter(Boolean).slice(0, 4).map((item, idx) => {
-                    const cleanItem = item.replace(/^[•\-\*]\s*/, '').trim();
-                    return (
-                      <span
-                        key={idx}
-                        className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-white/70 text-sm backdrop-blur-sm"
-                      >
-                        {cleanItem}
-                      </span>
-                    );
-                  })}
-                </div>
-              </Reveal>
+              {/* Nearby Grid - 2x2 on mobile, 4 across on desktop */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {funnelContent.locationNearby.split('\n').filter(Boolean).slice(0, 4).map((item, idx) => {
+                  const cleanItem = item.replace(/^[•\-\*]\s*/, '').trim();
+                  // Parse "Place - X min drive" format
+                  const parts = cleanItem.split(/\s*[-–]\s*/);
+                  const place = parts[0] || cleanItem;
+                  const time = parts[1] || '';
+
+                  return (
+                    <Reveal key={idx} delay={idx * 100}>
+                      <div className="group relative">
+                        {/* Glow on hover */}
+                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/30 to-violet-600/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                        <div className="relative bg-gradient-to-br from-purple-900/40 to-purple-900/20 border border-purple-500/30 rounded-2xl p-5 text-center h-full group-hover:border-purple-400/50 transition-colors">
+                          {/* Time badge */}
+                          {time && (
+                            <div className="inline-block px-3 py-1 bg-purple-500/30 rounded-full text-purple-200 text-xs font-bold mb-3">
+                              {time}
+                            </div>
+                          )}
+                          {/* Place name */}
+                          <p className="text-white font-semibold text-sm md:text-base leading-tight">
+                            {place}
+                          </p>
+                        </div>
+                      </div>
+                    </Reveal>
+                  );
+                })}
+              </div>
             </div>
           </section>
         )}
