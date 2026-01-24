@@ -1975,21 +1975,35 @@ export default function PublicPropertyDetail() {
               {/* Video with premium frame */}
               <Reveal delay={150}>
                 <div className="relative group">
-                  {/* Left arrow pointing right */}
-                  <div className="hidden md:flex absolute -left-32 top-1/2 -translate-y-1/2 items-center gap-2 text-purple-300">
-                    <span className="text-sm font-medium">Click to play</span>
-                    <svg className="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  {/* Left arrow pointing right - bouncing toward video */}
+                  <div className="hidden lg:flex absolute -left-36 top-1/2 -translate-y-1/2 items-center gap-2 text-purple-400 animate-bounce-right">
+                    <span className="text-sm font-bold uppercase tracking-wider">Play</span>
+                    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
                     </svg>
                   </div>
 
-                  {/* Right arrow pointing left */}
-                  <div className="hidden md:flex absolute -right-32 top-1/2 -translate-y-1/2 items-center gap-2 text-purple-300">
-                    <svg className="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                  {/* Right arrow pointing left - bouncing toward video */}
+                  <div className="hidden lg:flex absolute -right-36 top-1/2 -translate-y-1/2 items-center gap-2 text-purple-400 animate-bounce-left">
+                    <svg className="w-8 h-8 rotate-180" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
                     </svg>
-                    <span className="text-sm font-medium">Click to play</span>
+                    <span className="text-sm font-bold uppercase tracking-wider">Play</span>
                   </div>
+
+                  {/* CSS for horizontal bounce animations */}
+                  <style>{`
+                    @keyframes bounce-right {
+                      0%, 100% { transform: translateY(-50%) translateX(0); }
+                      50% { transform: translateY(-50%) translateX(10px); }
+                    }
+                    @keyframes bounce-left {
+                      0%, 100% { transform: translateY(-50%) translateX(0); }
+                      50% { transform: translateY(-50%) translateX(-10px); }
+                    }
+                    .animate-bounce-right { animation: bounce-right 1s ease-in-out infinite; }
+                    .animate-bounce-left { animation: bounce-left 1s ease-in-out infinite; }
+                  `}</style>
 
                   {/* Outer glow */}
                   <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/30 via-violet-500/30 to-purple-600/30 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
