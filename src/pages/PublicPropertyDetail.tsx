@@ -1554,7 +1554,10 @@ export default function PublicPropertyDetail() {
           <section className="relative py-16 md:py-24">
             {/* Dramatic purple ambient lighting - extends upward to blend with previous section */}
             <div className="absolute top-[-40%] left-1/2 -translate-x-1/2 w-[600px] md:w-[1000px] h-[400px] md:h-[600px] bg-purple-600/25 rounded-full blur-[150px] md:blur-[200px]" />
-            <div className="absolute bottom-0 right-0 w-[300px] md:w-[400px] h-[300px] md:h-[400px] bg-violet-700/15 rounded-full blur-[80px] md:blur-[120px]" />
+            <div className="absolute top-[30%] right-0 w-[400px] h-[400px] bg-violet-700/15 rounded-full blur-[150px]" />
+            {/* Bottom glows bleed into Journey Comparison */}
+            <div className="absolute bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
+            <div className="absolute bottom-[-20%] left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
 
 
             <div className="relative max-w-4xl mx-auto px-4">
@@ -1653,10 +1656,14 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* JOURNEY COMPARISON - The Old Way vs The New Way - DARK PREMIUM */}
-        <section className="relative overflow-hidden py-16 md:py-24">
-          {/* Ambient lighting */}
-          <div className="absolute top-0 left-1/4 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-red-900/15 rounded-full blur-[150px]" />
-          <div className="absolute bottom-0 right-1/4 w-[400px] md:w-[600px] h-[400px] md:h-[600px] bg-purple-600/25 rounded-full blur-[150px]" />
+        <section className="relative py-16 md:py-24">
+          {/* Ambient lighting - glows extend to adjacent sections */}
+          <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+          <div className="absolute top-[20%] left-0 w-[500px] h-[500px] bg-red-900/12 rounded-full blur-[180px]" />
+          <div className="absolute top-[30%] right-0 w-[500px] h-[500px] bg-purple-600/18 rounded-full blur-[180px]" />
+          {/* Bottom glows bleed into Process Steps */}
+          <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
+          <div className="absolute bottom-[-15%] right-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
 
 
           <div className="relative max-w-6xl mx-auto px-4">
@@ -1841,11 +1848,14 @@ export default function PublicPropertyDetail() {
         </section>
 
         {/* Process Steps - Premium Dark */}
-        <section className="relative overflow-hidden py-20 md:py-28">
-          {/* Ambient lighting */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-          <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-purple-500/10 rounded-full blur-[150px]" />
-          <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-violet-500/10 rounded-full blur-[150px]" />
+        <section className="relative py-20 md:py-28">
+          {/* Ambient lighting - glows bleed into adjacent sections */}
+          <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+          <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
+          <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[400px] bg-purple-500/15 rounded-full blur-[180px]" />
+          {/* Bottom glows bleed into Testimonials */}
+          <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
+          <div className="absolute bottom-[-15%] right-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
 
 
           <div className="relative z-10 container mx-auto px-4">
@@ -2006,10 +2016,11 @@ export default function PublicPropertyDetail() {
 
             return (
               <section className="relative py-16 md:py-20">
-                {/* Ambient lighting - bottom glow bleeds into next section */}
-                <div className="absolute top-0 left-1/4 w-[500px] h-[400px] bg-purple-600/15 rounded-full blur-[150px]" />
-                <div className="absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/20 rounded-full blur-[200px]" />
-                <div className="absolute bottom-[-10%] right-1/4 w-[500px] h-[400px] bg-violet-600/15 rounded-full blur-[180px]" />
+                {/* Ambient lighting - glows extend to adjacent sections */}
+                <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
+                <div className="absolute top-[-15%] left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
+                <div className="absolute bottom-[-25%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
+                <div className="absolute bottom-[-15%] right-1/4 w-[500px] h-[400px] bg-violet-600/15 rounded-full blur-[180px]" />
 
                 <Reveal className="text-center mb-10">
                   <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
