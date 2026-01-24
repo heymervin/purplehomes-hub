@@ -1001,17 +1001,7 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
             sectionKey="propertyShowcase"
           />
 
-          {/* Social Proof - AI Generated (fallback) */}
-          <SectionCard
-            title="Social Proof (AI-Generated)"
-            description="Auto-generated testimonial - used if no real testimonials below"
-            value={content.socialProof}
-            onChange={(v) => updateField('socialProof', v)}
-            rows={2}
-            sectionKey="socialProof"
-          />
-
-          {/* Real Testimonials - User Managed */}
+          {/* Testimonials - User Managed */}
           <Card className="border-purple-200 dark:border-purple-800">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
