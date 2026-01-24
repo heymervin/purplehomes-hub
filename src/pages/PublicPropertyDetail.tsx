@@ -1816,107 +1816,41 @@ export default function PublicPropertyDetail() {
         {/* Stats Bar - Premium Animated */}
         <AnimatedStatsSection />
 
-        {/* Location & Nearby - Premium Dark Theme */}
+        {/* Location & Nearby - Clean, Minimal */}
         {!funnelLoading && funnelContent?.locationNearby && (
-          <section className="relative bg-gradient-to-b from-[#0f172a] via-[#0c0f1a] to-black py-20 md:py-28 overflow-hidden">
-            {/* Ambient lighting */}
-            <div className="absolute top-1/3 left-0 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[180px]" />
-            <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-violet-600/8 rounded-full blur-[150px]" />
+          <section className="relative bg-gradient-to-b from-[#0f172a] to-black py-20 md:py-24 overflow-hidden">
+            {/* Subtle ambient glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-purple-600/5 rounded-full blur-[150px]" />
 
-            <div className="relative z-10 max-w-5xl mx-auto px-4">
-              {/* Section Header */}
-              <Reveal className="text-center mb-16">
-                <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
-                  Location
-                </span>
-                <h2 className="text-4xl md:text-5xl text-white leading-tight">
-                  <span className="font-light">Your New</span>{' '}
-                  <span className="font-black italic bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">
-                    Neighborhood
-                  </span>
+            <div className="relative z-10 max-w-3xl mx-auto px-4">
+              {/* Address as the hero - what actually matters */}
+              <Reveal className="text-center mb-12">
+                <div className="inline-flex items-center gap-2 text-purple-400 mb-4">
+                  <MapPin className="h-5 w-5" />
+                  <span className="text-sm font-medium uppercase tracking-wider">Location</span>
+                </div>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
+                  {property.address}
                 </h2>
+                <p className="text-xl text-purple-300/80">{property.city}</p>
               </Reveal>
 
-              {/* Two Column Layout */}
-              <div className="grid md:grid-cols-2 gap-8 items-start">
-                {/* Left - Location Highlights Card */}
-                <Reveal delay={100}>
-                  <div className="relative group">
-                    {/* Card glow */}
-                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/20 to-violet-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-                    <div className="relative bg-gradient-to-br from-[#1e1a2e] to-[#13101c] border border-purple-500/30 rounded-2xl p-8 shadow-[0_0_40px_rgba(139,92,246,0.1)]">
-                      {/* Header */}
-                      <div className="flex items-center gap-4 mb-6 pb-6 border-b border-purple-500/20">
-                        <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
-                          <MapPin className="h-7 w-7 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-white">Nearby Places</h3>
-                          <p className="text-purple-300/70 text-sm">What's around the corner</p>
-                        </div>
-                      </div>
-
-                      {/* Location items */}
-                      <div className="space-y-4">
-                        {funnelContent.locationNearby.split('\n').filter(Boolean).map((item, idx) => (
-                          <div key={idx} className="flex items-start gap-3 group/item">
-                            <div className="w-2 h-2 mt-2 rounded-full bg-gradient-to-r from-purple-400 to-violet-400 flex-shrink-0" />
-                            <p className="text-white/80 leading-relaxed group-hover/item:text-white transition-colors">
-                              {item.replace(/^[•\-\*]\s*/, '')}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </Reveal>
-
-                {/* Right - Property Info */}
-                <Reveal delay={200}>
-                  <div className="space-y-6">
-                    {/* Address Card */}
-                    <div className="relative group">
-                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/10 to-violet-600/10 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      <div className="relative bg-[#1a1625]/80 border border-purple-500/20 rounded-xl p-6 backdrop-blur-sm">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center border border-purple-500/30">
-                            <Home className="h-6 w-6 text-purple-400" />
-                          </div>
-                          <div>
-                            <p className="text-white font-semibold text-lg">{property.address}</p>
-                            <p className="text-purple-300/60 text-sm">{property.city}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Property Type Card */}
-                    {property.propertyType && (
-                      <div className="relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/10 to-violet-600/10 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        <div className="relative bg-[#1a1625]/80 border border-purple-500/20 rounded-xl p-6 backdrop-blur-sm">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center border border-purple-500/30">
-                              <Wrench className="h-6 w-6 text-purple-400" />
-                            </div>
-                            <div>
-                              <p className="text-white font-semibold text-lg">{property.propertyType}</p>
-                              <p className="text-purple-300/60 text-sm">Property Type</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Convenience badge */}
-                    <div className="flex items-center gap-2 text-purple-300/70 text-sm pl-2">
-                      <CheckCircle className="h-4 w-4 text-green-400" />
-                      <span>Everything you need, <span className="text-white font-medium">minutes away</span></span>
-                    </div>
-                  </div>
-                </Reveal>
-              </div>
+              {/* Nearby - simple, readable */}
+              <Reveal delay={150} className="text-center">
+                <div className="inline-flex flex-wrap justify-center gap-3 md:gap-4">
+                  {funnelContent.locationNearby.split('\n').filter(Boolean).slice(0, 4).map((item, idx) => {
+                    const cleanItem = item.replace(/^[•\-\*]\s*/, '').trim();
+                    return (
+                      <span
+                        key={idx}
+                        className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-white/70 text-sm backdrop-blur-sm"
+                      >
+                        {cleanItem}
+                      </span>
+                    );
+                  })}
+                </div>
+              </Reveal>
             </div>
           </section>
         )}
