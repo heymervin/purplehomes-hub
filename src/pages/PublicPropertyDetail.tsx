@@ -915,61 +915,95 @@ export default function PublicPropertyDetail() {
           <div className="absolute bottom-0 left-0 right-0 h-24 md:h-32 bg-gradient-to-t from-black to-transparent" />
         </section>
 
-        {/* Property Image Section */}
-        <section className="relative bg-black">
-          <div className="max-w-6xl mx-auto px-3 md:px-4 -mt-8 md:-mt-12 relative z-10">
-            <div className="rounded-xl md:rounded-2xl overflow-hidden shadow-2xl shadow-purple-500/30 border border-purple-500/30">
-              <PropertyImageGallery
-                images={property.images || [property.heroImage]}
-                heroImage={property.heroImage}
-                onHeroChange={() => {}}
-                onImagesChange={() => {}}
-                editable={false}
-              />
+        {/* Property Image Section - Premium */}
+        <section className="relative bg-black overflow-hidden">
+          {/* Ambient glow behind image */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+
+          <div className="relative max-w-5xl mx-auto px-4 -mt-8 md:-mt-12 z-10">
+            {/* Image with premium frame */}
+            <div className="relative group">
+              {/* Outer glow */}
+              <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/40 via-violet-500/40 to-purple-600/40 rounded-2xl md:rounded-3xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+
+              {/* Image container */}
+              <div className="relative rounded-xl md:rounded-2xl overflow-hidden border-2 border-purple-500/40 shadow-2xl">
+                <PropertyImageGallery
+                  images={property.images || [property.heroImage]}
+                  heroImage={property.heroImage}
+                  onHeroChange={() => {}}
+                  onImagesChange={() => {}}
+                  editable={false}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Property Quick Info Bar - Mobile optimized */}
-          <div className="bg-black pt-6 md:pt-8 pb-8 md:pb-12">
-            <div className="max-w-6xl mx-auto px-4">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-6">
-                <div className="text-center md:text-left">
-                  <div className="flex flex-wrap items-baseline justify-center md:justify-start gap-2 md:gap-3 mb-1 md:mb-2">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
+          {/* Property Info - Premium Card Style */}
+          <div className="relative z-10 max-w-5xl mx-auto px-4 pt-8 pb-10 md:pt-10 md:pb-14">
+            <div className="bg-gradient-to-br from-[#1a1625] to-[#0f0d15] border border-purple-500/30 rounded-2xl p-6 md:p-8 shadow-[0_0_60px_rgba(139,92,246,0.15)]">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                {/* Left - Price & Address */}
+                <div className="text-center lg:text-left">
+                  {/* Price row */}
+                  <div className="flex flex-wrap items-baseline justify-center lg:justify-start gap-3 mb-3">
+                    <span className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight">
                       ${property.price.toLocaleString()}
-                    </h2>
+                    </span>
                     {property.monthlyPayment !== undefined && (
-                      <span className="text-lg md:text-xl font-bold text-purple-400">
+                      <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-sm md:text-base font-bold">
                         ${property.monthlyPayment.toLocaleString()}/mo
                       </span>
                     )}
                   </div>
-                  <p className="text-lg md:text-xl text-white font-medium">{property.address}</p>
-                  <p className="text-gray-400 flex items-center justify-center md:justify-start gap-1 mt-1 text-sm md:text-base">
+
+                  {/* Address */}
+                  <h2 className="text-xl md:text-2xl text-white font-semibold mb-1">{property.address}</h2>
+                  <p className="text-purple-300/70 flex items-center justify-center lg:justify-start gap-1.5">
                     <MapPin className="h-4 w-4" />
                     {property.city}
                   </p>
                 </div>
 
-                {/* Quick Stats Pills - Mobile scroll or wrap */}
-                <div className="flex flex-wrap justify-center md:justify-end gap-2 md:gap-3">
-                  <span className="px-3 md:px-5 py-2 md:py-3 bg-purple-500/15 border border-purple-500/30 rounded-lg md:rounded-xl text-white font-semibold flex items-center gap-1.5 md:gap-2 text-sm md:text-base">
-                    <Bed className="h-4 w-4 md:h-5 md:w-5 text-purple-400" /> {property.beds} Beds
-                  </span>
-                  <span className="px-3 md:px-5 py-2 md:py-3 bg-purple-500/15 border border-purple-500/30 rounded-lg md:rounded-xl text-white font-semibold flex items-center gap-1.5 md:gap-2 text-sm md:text-base">
-                    <Bath className="h-4 w-4 md:h-5 md:w-5 text-purple-400" /> {property.baths} Baths
-                  </span>
-                  {property.sqft && (
-                    <span className="px-3 md:px-5 py-2 md:py-3 bg-purple-500/15 border border-purple-500/30 rounded-lg md:rounded-xl text-white font-semibold flex items-center gap-1.5 md:gap-2 text-sm md:text-base">
-                      <Maximize2 className="h-4 w-4 md:h-5 md:w-5 text-purple-400" /> {property.sqft.toLocaleString()} sqft
-                    </span>
-                  )}
+                {/* Right - Specs Grid */}
+                <div className="flex justify-center lg:justify-end">
+                  <div className="inline-grid grid-cols-3 gap-4 md:gap-6">
+                    <div className="text-center">
+                      <div className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
+                        <Bed className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
+                      </div>
+                      <p className="text-white font-bold text-lg md:text-xl">{property.beds}</p>
+                      <p className="text-purple-300/60 text-xs uppercase tracking-wider">Beds</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
+                        <Bath className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
+                      </div>
+                      <p className="text-white font-bold text-lg md:text-xl">{property.baths}</p>
+                      <p className="text-purple-300/60 text-xs uppercase tracking-wider">Baths</p>
+                    </div>
+                    {property.sqft && (
+                      <div className="text-center">
+                        <div className="w-12 h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
+                          <Maximize2 className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
+                        </div>
+                        <p className="text-white font-bold text-lg md:text-xl">{property.sqft.toLocaleString()}</p>
+                        <p className="text-purple-300/60 text-xs uppercase tracking-wider">Sqft</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Live Viewers */}
-              <div className="mt-4 md:mt-6 flex justify-center md:justify-start">
+              {/* Bottom row - Live viewers + scarcity */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-purple-500/20">
                 <LiveViewers count={Math.floor(Math.random() * 5) + 2} variant="premium" />
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  <span className="text-green-400 font-medium">Available Now</span>
+                  <span className="text-gray-500">•</span>
+                  <span className="text-white/70">Ready for move-in</span>
+                </div>
               </div>
             </div>
           </div>
