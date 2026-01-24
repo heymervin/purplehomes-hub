@@ -1834,38 +1834,27 @@ export default function PublicPropertyDetail() {
                 </h2>
               </Reveal>
 
-              {/* Nearby Grid - 2x2 on mobile, 4 across on desktop */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {funnelContent.locationNearby.split('\n').filter(Boolean).slice(0, 4).map((item, idx) => {
-                  const cleanItem = item.replace(/^[•\-\*]\s*/, '').trim();
-                  // Parse "Place - X min drive" format
-                  const parts = cleanItem.split(/\s*[-–]\s*/);
-                  const place = parts[0] || cleanItem;
-                  const time = parts[1] || '';
+              {/* Nearby - flexible for any format */}
+              <Reveal delay={150}>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {funnelContent.locationNearby.split('\n').filter(Boolean).slice(0, 4).map((item, idx) => {
+                    const cleanItem = item.replace(/^[•\-\*]\s*/, '').trim();
 
-                  return (
-                    <Reveal key={idx} delay={idx * 100}>
-                      <div className="group relative">
+                    return (
+                      <div key={idx} className="group relative">
                         {/* Glow on hover */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/30 to-violet-600/30 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/20 to-violet-600/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                        <div className="relative bg-gradient-to-br from-purple-900/40 to-purple-900/20 border border-purple-500/30 rounded-2xl p-5 text-center h-full group-hover:border-purple-400/50 transition-colors">
-                          {/* Time badge */}
-                          {time && (
-                            <div className="inline-block px-3 py-1 bg-purple-500/30 rounded-full text-purple-200 text-xs font-bold mb-3">
-                              {time}
-                            </div>
-                          )}
-                          {/* Place name */}
-                          <p className="text-white font-semibold text-sm md:text-base leading-tight">
-                            {place}
+                        <div className="relative bg-purple-500/10 border border-purple-500/20 rounded-xl px-4 py-4 text-center h-full group-hover:border-purple-400/40 group-hover:bg-purple-500/15 transition-all">
+                          <p className="text-white/90 text-sm leading-relaxed">
+                            {cleanItem}
                           </p>
                         </div>
                       </div>
-                    </Reveal>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              </Reveal>
             </div>
           </section>
         )}
