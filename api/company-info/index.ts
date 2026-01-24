@@ -5,8 +5,8 @@
  * used across funnel pages and marketing materials.
  *
  * Storage:
- * - Local: Saves to content/company-info.json
- * - Vercel: Falls back to environment variables (COMPANY_PHONE, COMPANY_EMAIL)
+ * - Primary: Airtable Settings table
+ * - Fallback: content/company-info.json (local dev)
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
@@ -19,59 +19,152 @@ interface CompanyInfo {
   updatedAt: string;
 }
 
+// Airtable configuration
+const AIRTABLE_API_URL = 'https://api.airtable.com/v0';
+const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
+const SETTINGS_TABLE = 'Settings';
+
 // Check if running on Vercel (read-only filesystem)
 const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
 
-// File path for company info storage
+// File path for local storage fallback
 const COMPANY_INFO_FILE = path.resolve(process.cwd(), 'content/company-info.json');
 
-// Ensure content directory exists
-function ensureContentDir() {
-  const contentDir = path.dirname(COMPANY_INFO_FILE);
-  if (!fs.existsSync(contentDir)) {
-    fs.mkdirSync(contentDir, { recursive: true });
+// Load from Airtable Settings table
+async function loadFromAirtable(): Promise<CompanyInfo | null> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    console.log('[Company Info] Airtable not configured');
+    return null;
   }
-}
 
-// Load company info from file or environment
-function loadCompanyInfo(): CompanyInfo {
-  // Try file first (works locally and if file was committed)
   try {
-    ensureContentDir();
-    if (fs.existsSync(COMPANY_INFO_FILE)) {
-      const content = fs.readFileSync(COMPANY_INFO_FILE, 'utf-8');
-      const data = JSON.parse(content);
-      // Return file data if it has values
-      if (data.phone || data.email) {
-        return data;
+    const response = await fetch(
+      `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${SETTINGS_TABLE}?maxRecords=1`,
+      {
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+        },
       }
-    }
-  } catch (error) {
-    console.log('[Company Info] File read failed, trying env vars:', error);
-  }
+    );
 
-  // Fall back to environment variables (for Vercel)
-  return {
-    phone: process.env.COMPANY_PHONE || '',
-    email: process.env.COMPANY_EMAIL || '',
-    updatedAt: new Date().toISOString(),
-  };
+    if (!response.ok) {
+      console.error('[Company Info] Airtable fetch error:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    if (data.records && data.records.length > 0) {
+      const record = data.records[0];
+      return {
+        phone: record.fields.CompanyPhone || '',
+        email: record.fields.CompanyEmail || '',
+        updatedAt: record.fields.LastModified || new Date().toISOString(),
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error('[Company Info] Airtable load error:', error);
+    return null;
+  }
 }
 
-// Save company info to file
-function saveCompanyInfo(data: CompanyInfo): boolean {
-  // Can't save on Vercel (read-only filesystem)
-  if (IS_VERCEL) {
-    console.log('[Company Info] Running on Vercel - cannot save to filesystem');
+// Save to Airtable Settings table
+async function saveToAirtable(data: CompanyInfo): Promise<boolean> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    console.log('[Company Info] Airtable not configured');
     return false;
   }
 
   try {
-    ensureContentDir();
+    // First, get the existing record ID (or create one)
+    const listResponse = await fetch(
+      `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${SETTINGS_TABLE}?maxRecords=1`,
+      {
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+        },
+      }
+    );
+
+    const listData = await listResponse.json();
+    const existingRecordId = listData.records?.[0]?.id;
+
+    const fields = {
+      CompanyPhone: data.phone,
+      CompanyEmail: data.email,
+    };
+
+    let response;
+    if (existingRecordId) {
+      // Update existing record
+      response = await fetch(
+        `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${SETTINGS_TABLE}/${existingRecordId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fields }),
+        }
+      );
+    } else {
+      // Create new record
+      response = await fetch(
+        `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${SETTINGS_TABLE}`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fields }),
+        }
+      );
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Company Info] Airtable save error:', errorText);
+      return false;
+    }
+
+    console.log('[Company Info] Saved to Airtable');
+    return true;
+  } catch (error) {
+    console.error('[Company Info] Airtable save error:', error);
+    return false;
+  }
+}
+
+// Load from local file (fallback)
+function loadFromFile(): CompanyInfo | null {
+  try {
+    if (fs.existsSync(COMPANY_INFO_FILE)) {
+      const content = fs.readFileSync(COMPANY_INFO_FILE, 'utf-8');
+      return JSON.parse(content);
+    }
+  } catch (error) {
+    console.log('[Company Info] File read error:', error);
+  }
+  return null;
+}
+
+// Save to local file
+function saveToFile(data: CompanyInfo): boolean {
+  if (IS_VERCEL) return false;
+
+  try {
+    const contentDir = path.dirname(COMPANY_INFO_FILE);
+    if (!fs.existsSync(contentDir)) {
+      fs.mkdirSync(contentDir, { recursive: true });
+    }
     fs.writeFileSync(COMPANY_INFO_FILE, JSON.stringify(data, null, 2), 'utf-8');
     return true;
   } catch (error) {
-    console.error('[Company Info] Error saving:', error);
+    console.error('[Company Info] File save error:', error);
     return false;
   }
 }
@@ -89,13 +182,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // GET - Retrieve company info
     if (req.method === 'GET') {
-      const data = loadCompanyInfo();
+      // Try Airtable first
+      let data = await loadFromAirtable();
+      let source = 'airtable';
+
+      // Fall back to file
+      if (!data) {
+        data = loadFromFile();
+        source = 'file';
+      }
+
+      // Default if nothing found
+      if (!data) {
+        data = { phone: '', email: '', updatedAt: new Date().toISOString() };
+        source = 'default';
+      }
+
       return res.status(200).json({
         success: true,
         phone: data.phone,
         email: data.email,
         updatedAt: data.updatedAt,
-        source: IS_VERCEL ? 'environment' : 'file',
+        source,
       });
     }
 
@@ -109,26 +217,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         updatedAt: new Date().toISOString(),
       };
 
-      const success = saveCompanyInfo(data);
+      // Try Airtable first
+      const savedToAirtable = await saveToAirtable(data);
 
-      if (success) {
+      // Also save to file locally
+      const savedToFile = saveToFile(data);
+
+      if (savedToAirtable || savedToFile) {
         return res.status(200).json({
           success: true,
           phone: data.phone,
           email: data.email,
           updatedAt: data.updatedAt,
-        });
-      } else if (IS_VERCEL) {
-        // On Vercel, explain how to set values
-        return res.status(400).json({
-          success: false,
-          error: 'Cannot save on Vercel. Set COMPANY_PHONE and COMPANY_EMAIL in Vercel environment variables, or save locally and deploy.',
-          hint: 'Save settings locally, then push to deploy with the saved values.',
+          savedTo: savedToAirtable ? 'airtable' : 'file',
         });
       } else {
         return res.status(500).json({
           success: false,
-          error: 'Failed to save company info',
+          error: 'Failed to save company info. Check Airtable configuration.',
         });
       }
     }

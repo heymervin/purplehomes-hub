@@ -5,8 +5,8 @@
  * across all property funnel pages.
  *
  * Storage:
- * - Local: Saves to content/testimonials.json
- * - Vercel: Read-only, file must be committed to git
+ * - Primary: Airtable Settings table (Testimonials field as JSON)
+ * - Fallback: content/testimonials.json (local dev)
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
@@ -25,48 +25,159 @@ interface TestimonialsData {
   updatedAt: string;
 }
 
+// Airtable configuration
+const AIRTABLE_API_URL = 'https://api.airtable.com/v0';
+const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
+const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
+const SETTINGS_TABLE = 'Settings';
+
 // Check if running on Vercel (read-only filesystem)
 const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
 
 // File path for testimonials storage
 const TESTIMONIALS_FILE = path.resolve(process.cwd(), 'content/testimonials.json');
 
-// Ensure content directory exists
-function ensureContentDir() {
-  if (IS_VERCEL) return; // Can't create dirs on Vercel
-  const contentDir = path.dirname(TESTIMONIALS_FILE);
-  if (!fs.existsSync(contentDir)) {
-    fs.mkdirSync(contentDir, { recursive: true });
+// Load from Airtable Settings table
+async function loadFromAirtable(): Promise<TestimonialsData | null> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    console.log('[Testimonials] Airtable not configured');
+    return null;
+  }
+
+  try {
+    const response = await fetch(
+      `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${SETTINGS_TABLE}?maxRecords=1`,
+      {
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error('[Testimonials] Airtable fetch error:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    if (data.records && data.records.length > 0) {
+      const record = data.records[0];
+      const testimonialsJson = record.fields.Testimonials;
+
+      if (testimonialsJson) {
+        try {
+          const testimonials = JSON.parse(testimonialsJson);
+          return {
+            testimonials: Array.isArray(testimonials) ? testimonials : [],
+            updatedAt: record.fields.LastModified || new Date().toISOString(),
+          };
+        } catch {
+          console.error('[Testimonials] Failed to parse JSON from Airtable');
+        }
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error('[Testimonials] Airtable load error:', error);
+    return null;
   }
 }
 
-// Load testimonials from file
-function loadTestimonials(): TestimonialsData {
+// Save to Airtable Settings table
+async function saveToAirtable(data: TestimonialsData): Promise<boolean> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    console.log('[Testimonials] Airtable not configured');
+    return false;
+  }
+
+  try {
+    // First, get the existing record ID (or create one)
+    const listResponse = await fetch(
+      `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${SETTINGS_TABLE}?maxRecords=1`,
+      {
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+        },
+      }
+    );
+
+    const listData = await listResponse.json();
+    const existingRecordId = listData.records?.[0]?.id;
+
+    const fields = {
+      Testimonials: JSON.stringify(data.testimonials, null, 2),
+    };
+
+    let response;
+    if (existingRecordId) {
+      // Update existing record
+      response = await fetch(
+        `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${SETTINGS_TABLE}/${existingRecordId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fields }),
+        }
+      );
+    } else {
+      // Create new record
+      response = await fetch(
+        `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${SETTINGS_TABLE}`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fields }),
+        }
+      );
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Testimonials] Airtable save error:', errorText);
+      return false;
+    }
+
+    console.log('[Testimonials] Saved to Airtable');
+    return true;
+  } catch (error) {
+    console.error('[Testimonials] Airtable save error:', error);
+    return false;
+  }
+}
+
+// Load from local file (fallback)
+function loadFromFile(): TestimonialsData | null {
   try {
     if (fs.existsSync(TESTIMONIALS_FILE)) {
       const content = fs.readFileSync(TESTIMONIALS_FILE, 'utf-8');
       return JSON.parse(content);
     }
   } catch (error) {
-    console.error('[Testimonials] Error loading:', error);
+    console.log('[Testimonials] File read error:', error);
   }
-  return { testimonials: [], updatedAt: new Date().toISOString() };
+  return null;
 }
 
-// Save testimonials to file
-function saveTestimonials(data: TestimonialsData): boolean {
-  // Can't save on Vercel (read-only filesystem)
-  if (IS_VERCEL) {
-    console.log('[Testimonials] Running on Vercel - cannot save to filesystem');
-    return false;
-  }
+// Save to local file
+function saveToFile(data: TestimonialsData): boolean {
+  if (IS_VERCEL) return false;
 
   try {
-    ensureContentDir();
+    const contentDir = path.dirname(TESTIMONIALS_FILE);
+    if (!fs.existsSync(contentDir)) {
+      fs.mkdirSync(contentDir, { recursive: true });
+    }
     fs.writeFileSync(TESTIMONIALS_FILE, JSON.stringify(data, null, 2), 'utf-8');
     return true;
   } catch (error) {
-    console.error('[Testimonials] Error saving:', error);
+    console.error('[Testimonials] File save error:', error);
     return false;
   }
 }
@@ -84,12 +195,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // GET - Retrieve testimonials
     if (req.method === 'GET') {
-      const data = loadTestimonials();
+      // Try Airtable first
+      let data = await loadFromAirtable();
+      let source = 'airtable';
+
+      // Fall back to file
+      if (!data || data.testimonials.length === 0) {
+        data = loadFromFile();
+        source = 'file';
+      }
+
+      // Default if nothing found
+      if (!data) {
+        data = { testimonials: [], updatedAt: new Date().toISOString() };
+        source = 'default';
+      }
+
       return res.status(200).json({
         success: true,
         testimonials: data.testimonials,
         updatedAt: data.updatedAt,
-        source: IS_VERCEL ? 'deployed-file' : 'file',
+        source,
       });
     }
 
@@ -117,25 +243,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         updatedAt: new Date().toISOString(),
       };
 
-      const success = saveTestimonials(data);
+      // Try Airtable first
+      const savedToAirtable = await saveToAirtable(data);
 
-      if (success) {
+      // Also save to file locally
+      const savedToFile = saveToFile(data);
+
+      if (savedToAirtable || savedToFile) {
         return res.status(200).json({
           success: true,
           testimonials: data.testimonials,
           updatedAt: data.updatedAt,
-        });
-      } else if (IS_VERCEL) {
-        // On Vercel, explain how to update
-        return res.status(400).json({
-          success: false,
-          error: 'Cannot save on Vercel. Edit testimonials locally and deploy to update.',
-          hint: 'Save changes locally (localhost), then push to deploy.',
+          savedTo: savedToAirtable ? 'airtable' : 'file',
         });
       } else {
         return res.status(500).json({
           success: false,
-          error: 'Failed to save testimonials',
+          error: 'Failed to save testimonials. Check Airtable configuration.',
         });
       }
     }
