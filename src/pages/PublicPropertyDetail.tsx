@@ -1951,42 +1951,76 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Virtual Tour */}
+        {/* Virtual Tour - Premium Dark */}
         {!funnelLoading && funnelContent?.virtualTourUrl && (
-          <FunnelSection variant="white" padding="lg">
-            <SectionHeader
-              overline="Take a Tour"
-              title="See It For Yourself"
-            />
-            <div className="max-w-4xl mx-auto">
-              <div className="aspect-video rounded-2xl overflow-hidden shadow-xl bg-gray-100">
-                {funnelContent.virtualTourUrl.includes('youtube.com') || funnelContent.virtualTourUrl.includes('youtu.be') ? (
-                  <iframe
-                    src={funnelContent.virtualTourUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    title="Property Virtual Tour"
-                  />
-                ) : funnelContent.virtualTourUrl.includes('vimeo.com') ? (
-                  <iframe
-                    src={funnelContent.virtualTourUrl.replace('vimeo.com/', 'player.vimeo.com/video/')}
-                    className="w-full h-full"
-                    allow="autoplay; fullscreen; picture-in-picture"
-                    allowFullScreen
-                    title="Property Virtual Tour"
-                  />
-                ) : (
-                  <iframe
-                    src={funnelContent.virtualTourUrl}
-                    className="w-full h-full"
-                    allowFullScreen
-                    title="Property Virtual Tour"
-                  />
-                )}
-              </div>
+          <section className="relative bg-gradient-to-b from-[#0f172a] to-black py-16 md:py-20 overflow-hidden">
+            {/* Ambient glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-purple-600/10 rounded-full blur-[180px]" />
+
+            <div className="relative z-10 max-w-5xl mx-auto px-4">
+              {/* Header */}
+              <Reveal className="text-center mb-10">
+                <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
+                  Virtual Tour
+                </span>
+                <h2 className="text-3xl md:text-4xl text-white mb-3">
+                  <span className="font-light">Walk Through</span>{' '}
+                  <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Your Future Home</span>
+                </h2>
+                <p className="text-gray-400 max-w-xl mx-auto">
+                  Take a virtual tour and imagine yourself living here. See every room, every detail.
+                </p>
+              </Reveal>
+
+              {/* Video with premium frame */}
+              <Reveal delay={150}>
+                <div className="relative group">
+                  {/* Outer glow */}
+                  <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/30 via-violet-500/30 to-purple-600/30 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+
+                  {/* Video container */}
+                  <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-purple-500/30 shadow-2xl">
+                    {funnelContent.virtualTourUrl.includes('youtube.com') || funnelContent.virtualTourUrl.includes('youtu.be') ? (
+                      <iframe
+                        src={funnelContent.virtualTourUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                        className="w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        title="Property Virtual Tour"
+                      />
+                    ) : funnelContent.virtualTourUrl.includes('vimeo.com') ? (
+                      <iframe
+                        src={funnelContent.virtualTourUrl.replace('vimeo.com/', 'player.vimeo.com/video/')}
+                        className="w-full h-full"
+                        allow="autoplay; fullscreen; picture-in-picture"
+                        allowFullScreen
+                        title="Property Virtual Tour"
+                      />
+                    ) : (
+                      <iframe
+                        src={funnelContent.virtualTourUrl}
+                        className="w-full h-full"
+                        allowFullScreen
+                        title="Property Virtual Tour"
+                      />
+                    )}
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* CTA below video */}
+              <Reveal delay={200} className="text-center mt-8">
+                <p className="text-purple-300/70 text-sm mb-4">Like what you see?</p>
+                <button
+                  onClick={scrollToForm}
+                  className="inline-flex items-center gap-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-white font-semibold px-6 py-3 rounded-xl transition-all"
+                >
+                  Schedule an In-Person Tour
+                  <span>&rarr;</span>
+                </button>
+              </Reveal>
             </div>
-          </FunnelSection>
+          </section>
         )}
 
         {/* FAQ Section */}
