@@ -1109,7 +1109,7 @@ export default function PublicPropertyDetail() {
           {/* Ambient glow behind image */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
 
-          <div className="relative max-w-5xl mx-auto px-4 -mt-16 md:-mt-24 z-10">
+          <div className="relative max-w-5xl mx-auto px-4 pt-8 md:pt-12 z-10">
             {/* Image with premium frame */}
             <div className="relative group">
               {/* Outer glow */}
