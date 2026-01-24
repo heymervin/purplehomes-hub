@@ -1105,7 +1105,9 @@ export default function PublicPropertyDetail() {
         </section>
 
         {/* Property Image Section - Premium */}
-        <section className="relative bg-black overflow-hidden">
+        <section className="relative bg-black">
+          {/* Top glow connecting from hero section */}
+          <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[400px] md:h-[500px] bg-purple-600/25 rounded-full blur-[150px] md:blur-[200px]" />
           {/* Ambient glow behind image */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
 
