@@ -313,9 +313,9 @@ function AnimatedStatsSection() {
           <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
             Proven Track Record
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl text-white leading-tight">
+          <h2 className="text-3xl md:text-4xl text-white leading-tight">
             <span className="font-light">Numbers That</span>{' '}
-            <span className="font-black italic bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="font-bold italic bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent pr-1">
               Speak
             </span>
           </h2>
@@ -1681,13 +1681,16 @@ export default function PublicPropertyDetail() {
           <div className="relative z-10 container mx-auto px-4">
             {/* Header with Reveal */}
             <Reveal className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-500/30 backdrop-blur-sm mb-6">
-                <div className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />
-                <span className="text-purple-300 text-sm font-medium tracking-wider uppercase">Simple Process</span>
+              <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-purple-600 to-purple-500 text-white text-[11px] font-black uppercase tracking-[0.2em] mb-8 shadow-xl shadow-purple-500/40">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+                </span>
+                Simple Process
               </div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-                3 Steps to{' '}
-                <span className="bg-gradient-to-r from-purple-400 via-purple-400 to-violet-400 bg-clip-text text-transparent">
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-4">
+                <span className="font-light">3 Steps to</span>{' '}
+                <span className="font-black bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">
                   Homeownership
                 </span>
               </h2>
@@ -1838,11 +1841,13 @@ export default function PublicPropertyDetail() {
                 <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-violet-600/10 rounded-full blur-[150px]" />
 
                 <Reveal className="text-center mb-10">
-                  <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+                  <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
                     Real Stories
                   </span>
-                  <h2 className="text-3xl md:text-4xl font-bold text-white">
-                    What Our <span className="bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Homeowners</span> Say
+                  <h2 className="text-3xl md:text-4xl text-white">
+                    <span className="font-light">What Our</span>{' '}
+                    <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Homeowners</span>
+                    <span className="font-light"> Say</span>
                   </h2>
                 </Reveal>
                 <Reveal delay={200}>
@@ -1921,7 +1926,7 @@ export default function PublicPropertyDetail() {
                 </span>
                 <h2 className="text-3xl md:text-4xl text-white">
                   <span className="font-light">This Home is</span>{' '}
-                  <span className="font-bold italic bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Perfect</span>
+                  <span className="font-bold italic bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">Perfect</span>
                   <span className="font-light"> For You If...</span>
                 </h2>
               </Reveal>
