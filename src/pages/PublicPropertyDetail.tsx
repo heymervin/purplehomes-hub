@@ -1975,12 +1975,20 @@ export default function PublicPropertyDetail() {
               {/* Video with premium frame */}
               <Reveal delay={150}>
                 <div className="relative group">
-                  {/* Click indicator - arrow pointing down */}
-                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce">
-                    <span className="text-purple-300 text-sm font-medium mb-1">Click to play</span>
-                    <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                  {/* Left arrow pointing right */}
+                  <div className="hidden md:flex absolute -left-32 top-1/2 -translate-y-1/2 items-center gap-2 text-purple-300">
+                    <span className="text-sm font-medium">Click to play</span>
+                    <svg className="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
+                  </div>
+
+                  {/* Right arrow pointing left */}
+                  <div className="hidden md:flex absolute -right-32 top-1/2 -translate-y-1/2 items-center gap-2 text-purple-300">
+                    <svg className="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span className="text-sm font-medium">Click to play</span>
                   </div>
 
                   {/* Outer glow */}
