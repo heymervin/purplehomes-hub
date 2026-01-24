@@ -739,41 +739,16 @@ export default function PublicPropertyDetail() {
     return firstSentence.trim();
   };
 
-  // Wavy underline SVG component
-  const WavyUnderline = ({ color = 'purple' }: { color?: 'purple' | 'violet' }) => (
-    <svg className="absolute -bottom-1 left-0 w-full h-3" viewBox="0 0 200 12" preserveAspectRatio="none" fill="none">
-      <path
-        d="M0 8 Q 25 4, 50 8 T 100 8 T 150 8 T 200 8"
-        stroke={color === 'purple' ? 'rgba(168,85,247,0.8)' : 'rgba(139,92,246,0.8)'}
-        strokeWidth="3"
-        strokeLinecap="round"
-        fill="none"
-      />
-    </svg>
-  );
-
-  // Parse text with \u\...\u\ markers and render underlined words
-  const renderWithUnderline = (text: string, underlineColor: 'purple' | 'violet' = 'purple') => {
-    // Match \u\...\u\ pattern
-    const parts = text.split(/\\u\\(.+?)\\u\\/g);
-
-    if (parts.length === 1) {
-      // No markers found, return plain text
-      return text;
-    }
-
-    return parts.map((part, index) => {
-      // Odd indices are the captured groups (underlined words)
-      if (index % 2 === 1) {
-        return (
-          <span key={index} className="relative inline-block">
-            {part}
-            <WavyUnderline color={underlineColor} />
-          </span>
-        );
-      }
-      return part;
-    });
+  // Strip any underline markers and broken unicode from text
+  const stripMarkers = (text: string): string => {
+    return text
+      // Remove literal \u\...\u\ markers
+      .replace(/\\u\\([^\\]+)\\u\\/g, '$1')
+      // Remove any control characters / unrenderable unicode (the "NO GLYPH" boxes)
+      .replace(/[\x00-\x1F\x7F-\x9F\uFFFD]/g, '')
+      // Clean up any double spaces left behind
+      .replace(/\s{2,}/g, ' ')
+      .trim();
   };
 
   // Get buyer-segment-specific pain points
@@ -964,28 +939,15 @@ export default function PublicPropertyDetail() {
                         bonus?: string;
                       };
 
-                      // Render headline with highlighted phrase and smart line breaks
+                      // Render headline with highlighted phrase
                       const renderHeadline = () => {
-                        // Helper to add line breaks after periods (for multi-sentence headlines)
-                        const formatWithBreaks = (text: string) => {
-                          // Split on ". " and rejoin with line breaks
-                          const sentences = text.split(/\.\s+/);
-                          if (sentences.length <= 1) return text;
-                          return sentences.map((s, i) => (
-                            <span key={i}>
-                              {s}{i < sentences.length - 1 ? '.' : ''}
-                              {i < sentences.length - 1 && <br />}
-                            </span>
-                          ));
-                        };
-
                         if (!highlight || !headline.includes(highlight)) {
-                          return formatWithBreaks(headline);
+                          return headline;
                         }
                         const parts = headline.split(highlight);
                         return (
                           <>
-                            {formatWithBreaks(parts[0])}
+                            {parts[0]}
                             <span className="relative inline-block mx-1">
                               <span className="absolute inset-x-[-4px] md:inset-x-[-8px] bottom-[2px] md:bottom-[4px] top-[4px] md:top-[8px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
                               <span className="relative px-1 md:px-2">{highlight}</span>
@@ -1297,8 +1259,10 @@ export default function PublicPropertyDetail() {
                   </span>
                   The Challenge
                 </div>
-                <h2 className="text-5xl sm:text-6xl md:text-7xl font-black text-white leading-[1.0] tracking-[-0.02em] max-w-4xl mx-auto mb-6">
-                  {renderWithUnderline(extractProblemHeadline(funnelContent.problem), 'purple')}
+                <h2 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[1.0] tracking-[-0.02em] max-w-4xl mx-auto mb-6">
+                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                    {stripMarkers(extractProblemHeadline(funnelContent.problem))}
+                  </span>
                 </h2>
                 <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
                   You're not alone. <span className="text-purple-300 font-medium">Thousands</span> face these same barriers every day.
@@ -1339,7 +1303,7 @@ export default function PublicPropertyDetail() {
                       <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none" />
 
                       <blockquote className="relative text-xl md:text-2xl text-white/95 leading-relaxed font-medium italic px-4">
-                        {funnelContent.problem}
+                        {stripMarkers(funnelContent.problem)}
                       </blockquote>
 
                       <div className="relative mt-10 pt-8 border-t border-purple-400/20">
@@ -1379,10 +1343,10 @@ export default function PublicPropertyDetail() {
                 {/* Extract first 2 sentences for headline */}
                 <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto mb-4">
                   <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
-                    {renderWithUnderline((() => {
+                    {stripMarkers((() => {
                       const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
                       return sentences.slice(0, 2).join(' ').trim();
-                    })(), 'violet')}
+                    })())}
                   </span>
                 </h2>
               </Reveal>
