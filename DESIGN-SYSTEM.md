@@ -93,6 +93,31 @@
 --gradient-premium: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 ```
 
+### Ambient Glow System (Premium Dark Theme)
+
+The funnel uses ambient glows instead of solid gradients for a premium, immersive feel:
+
+```css
+/* Purple ambient glow - primary */
+.glow-purple {
+  background: rgba(147, 51, 234, 0.20); /* purple-600 at 20% */
+  border-radius: 9999px;
+  filter: blur(200px);
+}
+
+/* Violet ambient glow - secondary */
+.glow-violet {
+  background: rgba(139, 92, 246, 0.15); /* violet-500 at 15% */
+  border-radius: 9999px;
+  filter: blur(180px);
+}
+
+/* Tailwind classes for ambient glows */
+/* bg-purple-600/20 rounded-full blur-[200px] */
+/* bg-violet-500/15 rounded-full blur-[180px] */
+/* bg-purple-400/12 rounded-full blur-[150px] */
+```
+
 ---
 
 ## Typography Hierarchy
@@ -326,6 +351,50 @@
 | **Dark** | #1f2937 | White | Trust, testimonials |
 | **Gradient Purple** | gradient-cta | White | CTAs, hero |
 | **Image Overlay** | gradient-hero over image | White | Hero sections |
+| **Premium Black** | #000000 + purple ambient glows | White | Funnel sections (see below) |
+
+### Premium Black Theme (Funnel Sections)
+
+The premium black theme creates a luxurious, immersive experience using a solid black background (`bg-black`) with floating purple ambient glows that **bleed between sections** for seamless transitions.
+
+#### Core Principle
+- **Background**: Pure black (`#000000` / `bg-black`)
+- **Color**: Purple ambient glows using absolutely positioned blur elements
+- **Transitions**: Glows extend beyond section boundaries (negative positioning) to create seamless blending
+
+#### Ambient Glow Pattern
+```css
+/* Standard section glow setup */
+<section className="relative bg-black py-20 md:py-28">
+  {/* Top glow - extends upward into previous section */}
+  <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[500px] md:h-[700px] bg-purple-600/20 rounded-full blur-[200px]" />
+
+  {/* Center glow - ambient lighting */}
+  <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[500px] bg-violet-500/15 rounded-full blur-[180px]" />
+
+  {/* Bottom glow - extends downward into next section */}
+  <div className="absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/18 rounded-full blur-[200px]" />
+
+  {/* Content with z-index to stay above glows */}
+  <div className="relative z-10">
+    {/* Section content */}
+  </div>
+</section>
+```
+
+#### Glow Opacity Guidelines
+| Glow Type | Opacity | Usage |
+|-----------|---------|-------|
+| **Primary glow** | 20-25% (`/20`, `/25`) | Main ambient lighting |
+| **Secondary glow** | 15-18% (`/15`, `/18`) | Supporting accent |
+| **Subtle glow** | 10-12% (`/10`, `/12`) | Gentle highlights |
+
+#### Section-to-Section Bleeding
+To create seamless transitions between sections:
+1. **Remove** `overflow-hidden` from sections
+2. **Extend** glows beyond boundaries using negative positioning (`top-[-20%]`, `bottom-[-30%]`)
+3. **Match** glow colors between adjacent sections
+4. **Increase** blur radius for softer blending (150px-300px)
 
 ---
 
@@ -706,70 +775,88 @@
 
 ## Section Templates
 
-### Hero Section
+### Hero Section (Premium Black Theme)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  [Full-width property image with gradient overlay]          │
+│  Background: bg-black                                       │
+│  Ambient glows: purple-600/30 at top, violet-700/20 at left │
+│                 purple-500/15 at right                      │
 │                                                             │
 │     ┌─────────────────────────────────────┐                │
-│     │  OVERLINE: Own This Home Today      │                │
+│     │  OVERLINE: Limited Time in [City]   │                │
+│     │  (pill badge with pulse indicator)  │                │
 │     │                                     │                │
-│     │  H1: Stop Renting. Start Owning.   │                │
-│     │      Your Dream Home Awaits.       │                │
+│     │  H1: Dynamic from AI hook           │                │
+│     │      Structured: headline +         │                │
+│     │      subheadline + highlight        │                │
 │     │                                     │                │
-│     │  Body: Get qualified in minutes,   │                │
-│     │  even if banks have said no.       │                │
+│     │  [Get Pre-Qualified Now - White]   │                │
+│     │  (glowing white button)            │                │
 │     │                                     │                │
-│     │  [Get Pre-Qualified Now - Orange]  │                │
-│     │                                     │                │
-│     │  [Trust badges row]                │                │
+│     │  [Trust badges row - premium]      │                │
 │     └─────────────────────────────────────┘                │
 │                                                             │
-│  ┌─────────────┐                                           │
-│  │ $189,900    │                                           │
-│  │ $1,450/mo   │                                           │
-│  └─────────────┘                                           │
+│  Bottom fade: gradient-to-t from-black to-transparent      │
+│  (Blends into property image section below)                │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Problem/Agitation Section
+**Key Implementation:**
+```jsx
+<section className="relative bg-black overflow-hidden">
+  {/* Dramatic purple ambient lighting */}
+  <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[600px] md:w-[1200px] h-[400px] md:h-[600px] bg-purple-600/30 rounded-full blur-[150px] md:blur-[200px]" />
+  <div className="absolute bottom-0 left-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-violet-700/20 rounded-full blur-[100px] md:blur-[150px]" />
+  {/* Content */}
+</section>
+```
+
+### Problem/Agitation Section (Premium Black Theme)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Background: Light gray or subtle pattern                   │
+│  Background: bg-black                                       │
+│  Ambient glows: purple-600/15 at top-center                │
+│                 violet-500/10 at bottom-right (bleeds down)│
 │                                                             │
-│  H2: Tired of Throwing Money Away on Rent?                 │
+│  Badge: "The Challenge" (purple gradient pill)             │
 │                                                             │
+│  H2: Dynamic headline from AI (gradient text)              │
+│                                                             │
+│  Pain point cards (dark glass style):                      │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │ 😤           │  │ 😰           │  │ 😔           │     │
-│  │ Rejected by  │  │ Credit not   │  │ Saving for   │     │
-│  │ banks        │  │ perfect      │  │ years with   │     │
-│  │              │  │              │  │ no progress  │     │
+│  │ gradient bg  │  │ gradient bg  │  │ gradient bg  │     │
+│  │ #1e1a2e →    │  │ Dynamic      │  │ Dynamic      │     │
+│  │ #13101c      │  │ content      │  │ content      │     │
 │  └──────────────┘  └──────────────┘  └──────────────┘     │
 │                                                             │
-│  Body: You work hard. You pay your bills. But the          │
-│  traditional path to homeownership isn't working...        │
+│  Bottom glow bleeds into Solution section                  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Solution Section
+### Solution Section (Premium Black Theme)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Background: Purple gradient                                │
-│  Text: White                                                │
+│  Background: bg-black                                       │
+│  Ambient glows: violet-500/15 at top-left (receives bleed) │
+│                 purple-400/12 at center-right              │
+│                 purple-600/15 at bottom (bleeds down)      │
 │                                                             │
-│  OVERLINE: There's a Better Way                            │
+│  Badge: "The Solution" (violet-purple gradient pill)       │
 │                                                             │
-│  H2: Rent-to-Own: Your Path to Homeownership               │
+│  H2: Dynamic headline from AI (gradient text)              │
 │                                                             │
-│  [3-column icon + text grid]                               │
-│  ✓ No bank required     ✓ Build equity now    ✓ Lock price │
+│  Comparison: "The Old Way" vs "The New Way"                │
+│  ┌─────────────────┐        ┌─────────────────┐           │
+│  │ Renting Forever │   vs   │ Rent-to-Own     │           │
+│  │ (red accent)    │        │ (purple accent) │           │
+│  │ ❌ Point 1      │        │ ✅ Point 1      │           │
+│  │ ❌ Point 2      │        │ ✅ Point 2      │           │
+│  └─────────────────┘        └─────────────────┘           │
 │                                                             │
-│  Body: Purple Homes specializes in helping families...     │
-│                                                             │
-│  [See How It Works - White button]                         │
+│  Bottom glow bleeds into PropertyShowcase section          │
 └─────────────────────────────────────────────────────────────┘
 ```
 

@@ -2245,14 +2245,13 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Contact Form Section - Black with purple ambient glows like hero */}
+        {/* Contact Form Section - Black with STRONG purple ambient glows */}
         <section id="contact-form" className="relative bg-black py-20 md:py-28">
-          {/* Purple ambient glows - matching hero section style */}
-          <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[1000px] md:w-[1400px] h-[600px] md:h-[800px] bg-purple-600/25 rounded-full blur-[200px] md:blur-[280px]" />
-          <div className="absolute top-[10%] left-1/4 w-[500px] h-[400px] bg-violet-500/20 rounded-full blur-[150px]" />
-          <div className="absolute top-[30%] right-1/4 w-[400px] h-[350px] bg-purple-400/15 rounded-full blur-[120px]" />
-          {/* Bottom glow bleeding into footer */}
-          <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-purple-600/20 rounded-full blur-[200px]" />
+          {/* STRONG purple ambient glows - highly visible */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[500px] md:h-[700px] bg-purple-600/40 rounded-full blur-[150px] md:blur-[200px]" />
+          <div className="absolute top-[20%] left-0 w-[600px] h-[500px] bg-violet-500/35 rounded-full blur-[120px]" />
+          <div className="absolute top-[20%] right-0 w-[600px] h-[500px] bg-purple-500/35 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px] bg-violet-600/30 rounded-full blur-[150px]" />
 
           <div className="relative z-10">
           <div className="max-w-xl mx-auto">
