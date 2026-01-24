@@ -2247,11 +2247,12 @@ export default function PublicPropertyDetail() {
 
         {/* Contact Form Section - Premium Dark with bleeding glow */}
         <div className="relative bg-black">
-          {/* Purple glows bleeding from above */}
-          <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/18 rounded-full blur-[200px]" />
-          <div className="absolute top-1/3 right-1/4 w-[500px] h-[400px] bg-violet-500/12 rounded-full blur-[150px]" />
+          {/* Strong purple glow at top - extends far up for seamless blend */}
+          <div className="absolute top-[-50%] left-1/2 -translate-x-1/2 w-[1200px] md:w-[1800px] h-[800px] md:h-[1000px] bg-purple-600/25 rounded-full blur-[250px] md:blur-[350px]" />
+          <div className="absolute top-[-20%] left-1/4 w-[700px] h-[600px] bg-violet-500/20 rounded-full blur-[200px]" />
+          <div className="absolute top-[10%] right-1/4 w-[600px] h-[500px] bg-purple-400/18 rounded-full blur-[180px]" />
           {/* Bottom glow bleeding into footer */}
-          <div className="absolute bottom-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/15 rounded-full blur-[180px]" />
+          <div className="absolute bottom-[-40%] left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-purple-600/22 rounded-full blur-[250px]" />
           <FunnelSection variant="premium-dark" padding="lg" id="contact-form" className="relative z-10 !bg-transparent">
           <div className="max-w-xl mx-auto">
             <div className="bg-white/5 backdrop-blur-sm rounded-3xl shadow-2xl border border-purple-500/20 overflow-hidden">
