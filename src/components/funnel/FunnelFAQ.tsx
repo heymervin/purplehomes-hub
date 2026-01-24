@@ -203,52 +203,71 @@ const FunnelFAQ: React.FC<FunnelFAQProps> = ({
         {/* Ambient glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-purple-600/10 rounded-full blur-[150px] pointer-events-none" />
 
+        {/* Staggered animation styles */}
+        <style>{`
+          @keyframes faq-fade-up {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          .faq-item-animate {
+            opacity: 0;
+            animation: faq-fade-up 0.5s ease-out forwards;
+          }
+        `}</style>
+
         <div className="relative z-10">
           {title && (
-            <div className="text-center mb-10">
-              <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
+            <div className="text-center mb-8 md:mb-10">
+              <span className="inline-block px-4 md:px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-5 md:mb-6">
                 FAQ
               </span>
-              <h2 className="text-3xl md:text-4xl text-white mb-3">
+              <h2 className="text-2xl md:text-4xl text-white mb-3">
                 <span className="font-light">Got</span>{' '}
                 <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">Questions?</span>
               </h2>
-              {subtitle && <p className="text-gray-400 max-w-xl mx-auto">{subtitle}</p>}
+              {subtitle && <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto px-4">{subtitle}</p>}
             </div>
           )}
 
-          <div className="max-w-3xl mx-auto space-y-3">
+          <div className="max-w-3xl mx-auto space-y-2 md:space-y-3">
             {items.map((item, index) => (
               <div
                 key={index}
                 className={cn(
-                  "rounded-xl overflow-hidden transition-all duration-300 border",
+                  "faq-item-animate rounded-xl overflow-hidden transition-all duration-300 border",
                   openIndex === index
                     ? "bg-gradient-to-br from-purple-500/20 to-violet-500/10 border-purple-500/40 shadow-[0_0_30px_rgba(139,92,246,0.15)]"
                     : "bg-white/5 border-white/10 hover:border-purple-500/30 hover:bg-white/[0.07]"
                 )}
+                style={{ animationDelay: `${index * 100}ms` }}
               >
                 <button
                   onClick={() => toggleItem(index)}
-                  className="w-full p-5 text-left flex items-center justify-between gap-4 transition-colors"
+                  className="w-full p-4 md:p-5 text-left flex items-center justify-between gap-3 md:gap-4 transition-colors"
                 >
                   <span
                     className={cn(
-                      "font-semibold transition-colors",
+                      "font-semibold text-sm md:text-base transition-colors",
                       openIndex === index ? "text-purple-300" : "text-white"
                     )}
                   >
                     {item.question}
                   </span>
                   <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all",
+                    "w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300",
                     openIndex === index
                       ? "bg-purple-500/30 rotate-180"
                       : "bg-white/10"
                   )}>
                     <ChevronDown
                       className={cn(
-                        "h-4 w-4 transition-transform",
+                        "h-3.5 w-3.5 md:h-4 md:w-4 transition-colors",
                         openIndex === index ? "text-purple-300" : "text-gray-400"
                       )}
                     />
@@ -256,12 +275,14 @@ const FunnelFAQ: React.FC<FunnelFAQProps> = ({
                 </button>
                 <div
                   className={cn(
-                    "overflow-hidden transition-all duration-300",
-                    openIndex === index ? "max-h-[500px]" : "max-h-0"
+                    "grid transition-all duration-300 ease-out",
+                    openIndex === index ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                   )}
                 >
-                  <div className="px-5 pb-5">
-                    <p className="text-gray-300 leading-relaxed">{item.answer}</p>
+                  <div className="overflow-hidden">
+                    <div className="px-4 md:px-5 pb-4 md:pb-5">
+                      <p className="text-gray-300 text-sm md:text-base leading-relaxed">{item.answer}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -353,25 +374,25 @@ const FAQCTA: React.FC<FAQCTAProps> = ({
     return (
       <div
         className={cn(
-          "relative bg-gradient-to-br from-purple-500/20 to-violet-500/10 border border-purple-500/30 rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 overflow-hidden",
+          "relative bg-gradient-to-br from-purple-500/20 to-violet-500/10 border border-purple-500/30 rounded-xl p-5 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4 overflow-hidden",
           className
         )}
       >
         {/* Subtle glow */}
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl" />
 
-        <div className="relative flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
-            <MessageCircle className="h-6 w-6 text-white" />
+        <div className="relative flex flex-col md:flex-row items-center gap-3 md:gap-4 text-center md:text-left">
+          <div className="w-11 h-11 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
+            <MessageCircle className="h-5 w-5 md:h-6 md:w-6 text-white" />
           </div>
           <div>
-            <h4 className="font-bold text-white">{title}</h4>
-            <p className="text-gray-400 text-sm">{description}</p>
+            <h4 className="font-bold text-white text-sm md:text-base">{title}</h4>
+            <p className="text-gray-400 text-xs md:text-sm">{description}</p>
           </div>
         </div>
         <a
           href={`tel:${phoneNumber.replace(/\D/g, "")}`}
-          className="relative px-6 py-3 bg-white hover:bg-purple-50 text-purple-900 rounded-xl font-bold hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all whitespace-nowrap"
+          className="relative w-full md:w-auto text-center px-6 py-3 bg-white hover:bg-purple-50 text-purple-900 rounded-xl font-bold text-sm md:text-base hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all whitespace-nowrap"
         >
           Call {phoneNumber}
         </a>
