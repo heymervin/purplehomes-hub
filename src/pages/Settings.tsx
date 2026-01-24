@@ -1685,7 +1685,7 @@ export default function Settings() {
                             setCountdownDeadline(e.target.value);
                             setHasCompanyInfoChanges(true);
                           }}
-                          className="px-3 py-2 border rounded-md text-sm bg-background"
+                          className="px-3 py-2 border rounded-md text-sm bg-background [color-scheme:light] dark:[color-scheme:dark]"
                         />
                       </div>
                     )}
