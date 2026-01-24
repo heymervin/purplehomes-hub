@@ -1975,6 +1975,14 @@ export default function PublicPropertyDetail() {
               {/* Video with premium frame */}
               <Reveal delay={150}>
                 <div className="relative group">
+                  {/* Click indicator - arrow pointing down */}
+                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce">
+                    <span className="text-purple-300 text-sm font-medium mb-1">Click to play</span>
+                    <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                  </div>
+
                   {/* Outer glow */}
                   <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/30 via-violet-500/30 to-purple-600/30 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
