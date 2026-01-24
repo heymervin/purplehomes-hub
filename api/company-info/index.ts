@@ -16,6 +16,7 @@ import * as path from 'path';
 interface CompanyInfo {
   phone: string;
   email: string;
+  testimonialSpeed: number; // 10-50, default 25
   updatedAt: string;
 }
 
@@ -59,6 +60,7 @@ async function loadFromAirtable(): Promise<CompanyInfo | null> {
       return {
         phone: record.fields.CompanyPhone || '',
         email: record.fields.CompanyEmail || '',
+        testimonialSpeed: record.fields.TestimonialSpeed || 25,
         updatedAt: record.fields.LastModified || new Date().toISOString(),
       };
     }
@@ -94,6 +96,7 @@ async function saveToAirtable(data: CompanyInfo): Promise<boolean> {
     const fields = {
       CompanyPhone: data.phone,
       CompanyEmail: data.email,
+      TestimonialSpeed: data.testimonialSpeed,
     };
 
     let response;
@@ -194,7 +197,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // Default if nothing found
       if (!data) {
-        data = { phone: '', email: '', updatedAt: new Date().toISOString() };
+        data = { phone: '', email: '', testimonialSpeed: 25, updatedAt: new Date().toISOString() };
         source = 'default';
       }
 
@@ -202,6 +205,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         success: true,
         phone: data.phone,
         email: data.email,
+        testimonialSpeed: data.testimonialSpeed ?? 25,
         updatedAt: data.updatedAt,
         source,
       });
@@ -209,11 +213,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // POST - Save company info
     if (req.method === 'POST') {
-      const { phone, email } = req.body as { phone?: string; email?: string };
+      const { phone, email, testimonialSpeed } = req.body as { phone?: string; email?: string; testimonialSpeed?: number };
 
       const data: CompanyInfo = {
         phone: phone?.trim() || '',
         email: email?.trim() || '',
+        testimonialSpeed: Math.min(50, Math.max(10, testimonialSpeed ?? 25)),
         updatedAt: new Date().toISOString(),
       };
 
@@ -228,6 +233,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           success: true,
           phone: data.phone,
           email: data.email,
+          testimonialSpeed: data.testimonialSpeed,
           updatedAt: data.updatedAt,
           savedTo: savedToAirtable ? 'airtable' : 'file',
         });

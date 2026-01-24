@@ -192,6 +192,7 @@ export default function Settings() {
   // Company Info Settings
   const [companyPhone, setCompanyPhone] = useState('');
   const [companyEmail, setCompanyEmail] = useState('');
+  const [testimonialSpeed, setTestimonialSpeed] = useState(25);
   const [isLoadingCompanyInfo, setIsLoadingCompanyInfo] = useState(true);
   const [isSavingCompanyInfo, setIsSavingCompanyInfo] = useState(false);
   const [hasCompanyInfoChanges, setHasCompanyInfoChanges] = useState(false);
@@ -225,6 +226,7 @@ export default function Settings() {
       if (data.success) {
         setCompanyPhone(data.phone || '');
         setCompanyEmail(data.email || '');
+        setTestimonialSpeed(data.testimonialSpeed ?? 25);
       }
     } catch (error) {
       console.error('Error loading company info:', error);
@@ -239,7 +241,7 @@ export default function Settings() {
       const response = await fetch('/api/company-info', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: companyPhone, email: companyEmail }),
+        body: JSON.stringify({ phone: companyPhone, email: companyEmail, testimonialSpeed }),
       });
       const data = await response.json();
       if (data.success) {
@@ -1573,6 +1575,34 @@ export default function Settings() {
                     <p className="text-xs text-muted-foreground">
                       Used for contact links on marketing pages
                     </p>
+                  </div>
+                  <div className="col-span-2 space-y-3 pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label>Testimonial Scroll Speed</Label>
+                        <p className="text-xs text-muted-foreground">
+                          How fast testimonials scroll on funnel pages (10 = slow, 50 = fast)
+                        </p>
+                      </div>
+                      <span className="text-sm font-medium text-purple-600 min-w-[3rem] text-right">
+                        {testimonialSpeed}
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="10"
+                      max="50"
+                      value={testimonialSpeed}
+                      onChange={(e) => {
+                        setTestimonialSpeed(Number(e.target.value));
+                        setHasCompanyInfoChanges(true);
+                      }}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Slower</span>
+                      <span>Faster</span>
+                    </div>
                   </div>
                 </div>
               )}

@@ -591,6 +591,7 @@ export default function PublicPropertyDetail() {
 
   // Company info (from Settings)
   const [companyPhone, setCompanyPhone] = useState('(504) 475-0672'); // fallback default
+  const [testimonialSpeed, setTestimonialSpeed] = useState(25); // fallback default
 
   // Form state
   const [showOfferForm, setShowOfferForm] = useState(false);
@@ -650,8 +651,9 @@ export default function PublicPropertyDetail() {
         const response = await fetch('/api/company-info');
         if (response.ok) {
           const data = await response.json();
-          if (data.success && data.phone) {
-            setCompanyPhone(data.phone);
+          if (data.success) {
+            if (data.phone) setCompanyPhone(data.phone);
+            if (data.testimonialSpeed) setTestimonialSpeed(data.testimonialSpeed);
           }
         }
       } catch (error) {
@@ -2017,7 +2019,7 @@ export default function PublicPropertyDetail() {
                   </h2>
                 </Reveal>
                 <Reveal delay={200}>
-                  <TestimonialMarquee testimonials={testimonials} speed={25} />
+                  <TestimonialMarquee testimonials={testimonials} speed={testimonialSpeed} />
                 </Reveal>
               </section>
             );
