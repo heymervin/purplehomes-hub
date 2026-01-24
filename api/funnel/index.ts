@@ -1053,13 +1053,13 @@ Generate these sections in JSON format:
 
 6. **callToAction** (2-3 sentences): Urgency + easy action + what happens next. Phone: (504) 475-0672
 
-7. **locationNearby**: ${inputs.nearbyPlaces ? `Based on: ${inputs.nearbyPlaces}. ` : ''}Format as bullet points like "• Walmart - 5 min drive"
+7. **locationNearby**: ${inputs.nearbyPlaces ? `Based on: ${inputs.nearbyPlaces}. ` : ''}One place per line, format: "Place Name - X min drive". NO bullet characters.
 
-8. **qualifier**: Generate 4 bullet points for ideal buyer criteria. Format:
-   "• You're tired of paying rent with nothing to show for it
-   • You have steady income but banks keep saying no
-   • You want a safe neighborhood with good schools
-   • You're ready to stop dreaming and start owning"
+8. **qualifier**: Generate 4 statements for ideal buyer criteria. One per line, NO bullet characters. Example:
+   "You're tired of paying rent with nothing to show for it
+   You have steady income but banks keep saying no
+   You want a safe neighborhood with good schools
+   You're ready to stop dreaming and start owning"
    Tailor to ${buyerSegment} avatar. Do NOT just output "This home is perfect for you if..."
 
 9. **pricingOptions**: Clean breakdown with all payment details
