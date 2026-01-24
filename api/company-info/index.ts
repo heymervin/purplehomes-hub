@@ -17,6 +17,7 @@ interface CompanyInfo {
   phone: string;
   email: string;
   testimonialSpeed: number; // 10-50, default 25
+  countdownHours: number; // 24, 48, 72, or 168 (1 week)
   updatedAt: string;
 }
 
@@ -61,6 +62,7 @@ async function loadFromAirtable(): Promise<CompanyInfo | null> {
         phone: record.fields.CompanyPhone || '',
         email: record.fields.CompanyEmail || '',
         testimonialSpeed: record.fields.TestimonialSpeed || 25,
+        countdownHours: record.fields.CountdownHours || 48,
         updatedAt: record.fields.LastModified || new Date().toISOString(),
       };
     }
@@ -97,6 +99,7 @@ async function saveToAirtable(data: CompanyInfo): Promise<boolean> {
       CompanyPhone: data.phone,
       CompanyEmail: data.email,
       TestimonialSpeed: data.testimonialSpeed,
+      CountdownHours: data.countdownHours,
     };
 
     let response;
@@ -197,7 +200,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       // Default if nothing found
       if (!data) {
-        data = { phone: '', email: '', testimonialSpeed: 25, updatedAt: new Date().toISOString() };
+        data = { phone: '', email: '', testimonialSpeed: 25, countdownHours: 48, updatedAt: new Date().toISOString() };
         source = 'default';
       }
 
@@ -206,6 +209,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         phone: data.phone,
         email: data.email,
         testimonialSpeed: data.testimonialSpeed ?? 25,
+        countdownHours: data.countdownHours ?? 48,
         updatedAt: data.updatedAt,
         source,
       });
@@ -213,12 +217,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // POST - Save company info
     if (req.method === 'POST') {
-      const { phone, email, testimonialSpeed } = req.body as { phone?: string; email?: string; testimonialSpeed?: number };
+      const { phone, email, testimonialSpeed, countdownHours } = req.body as {
+        phone?: string;
+        email?: string;
+        testimonialSpeed?: number;
+        countdownHours?: number;
+      };
+
+      // Validate countdownHours is one of the allowed values
+      const validHours = [24, 48, 72, 168];
+      const sanitizedCountdownHours = validHours.includes(countdownHours ?? 48) ? (countdownHours ?? 48) : 48;
 
       const data: CompanyInfo = {
         phone: phone?.trim() || '',
         email: email?.trim() || '',
         testimonialSpeed: Math.min(50, Math.max(10, testimonialSpeed ?? 25)),
+        countdownHours: sanitizedCountdownHours,
         updatedAt: new Date().toISOString(),
       };
 
@@ -234,6 +248,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           phone: data.phone,
           email: data.email,
           testimonialSpeed: data.testimonialSpeed,
+          countdownHours: data.countdownHours,
           updatedAt: data.updatedAt,
           savedTo: savedToAirtable ? 'airtable' : 'file',
         });

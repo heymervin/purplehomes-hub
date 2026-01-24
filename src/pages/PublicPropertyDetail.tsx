@@ -172,7 +172,17 @@ function UrgencyCountdown({ hoursFromNow = 48 }: { hoursFromNow?: number }) {
 
   useEffect(() => {
     // Set target date (stored in sessionStorage to persist across page loads)
-    const storageKey = 'urgency_countdown_target';
+    // Key includes duration so changing settings resets the timer
+    const storageKey = `urgency_countdown_target_${hoursFromNow}h`;
+    const durationKey = 'urgency_countdown_duration';
+
+    // If duration changed, clear old timer
+    const storedDuration = sessionStorage.getItem(durationKey);
+    if (storedDuration && parseInt(storedDuration, 10) !== hoursFromNow) {
+      sessionStorage.removeItem(`urgency_countdown_target_${storedDuration}h`);
+    }
+    sessionStorage.setItem(durationKey, hoursFromNow.toString());
+
     let targetTime = sessionStorage.getItem(storageKey);
 
     if (!targetTime) {
@@ -592,6 +602,7 @@ export default function PublicPropertyDetail() {
   // Company info (from Settings)
   const [companyPhone, setCompanyPhone] = useState('(504) 475-0672'); // fallback default
   const [testimonialSpeed, setTestimonialSpeed] = useState(25); // fallback default
+  const [countdownHours, setCountdownHours] = useState(48); // fallback default
 
   // Form state
   const [showOfferForm, setShowOfferForm] = useState(false);
@@ -654,6 +665,7 @@ export default function PublicPropertyDetail() {
           if (data.success) {
             if (data.phone) setCompanyPhone(data.phone);
             if (data.testimonialSpeed) setTestimonialSpeed(data.testimonialSpeed);
+            if (data.countdownHours) setCountdownHours(data.countdownHours);
           }
         }
       } catch (error) {
@@ -2172,7 +2184,7 @@ export default function PublicPropertyDetail() {
 
             {/* Live Countdown Timer with Reveal */}
             <Reveal delay={200}>
-              <UrgencyCountdown hoursFromNow={48} />
+              <UrgencyCountdown hoursFromNow={countdownHours} />
             </Reveal>
 
             {/* Scarcity indicator with Reveal */}

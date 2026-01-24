@@ -193,6 +193,7 @@ export default function Settings() {
   const [companyPhone, setCompanyPhone] = useState('');
   const [companyEmail, setCompanyEmail] = useState('');
   const [testimonialSpeed, setTestimonialSpeed] = useState(25);
+  const [countdownHours, setCountdownHours] = useState(48);
   const [isLoadingCompanyInfo, setIsLoadingCompanyInfo] = useState(true);
   const [isSavingCompanyInfo, setIsSavingCompanyInfo] = useState(false);
   const [hasCompanyInfoChanges, setHasCompanyInfoChanges] = useState(false);
@@ -227,6 +228,7 @@ export default function Settings() {
         setCompanyPhone(data.phone || '');
         setCompanyEmail(data.email || '');
         setTestimonialSpeed(data.testimonialSpeed ?? 25);
+        setCountdownHours(data.countdownHours ?? 48);
       }
     } catch (error) {
       console.error('Error loading company info:', error);
@@ -241,7 +243,7 @@ export default function Settings() {
       const response = await fetch('/api/company-info', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: companyPhone, email: companyEmail, testimonialSpeed }),
+        body: JSON.stringify({ phone: companyPhone, email: companyEmail, testimonialSpeed, countdownHours }),
       });
       const data = await response.json();
       if (data.success) {
@@ -1602,6 +1604,29 @@ export default function Settings() {
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>Slower</span>
                       <span>Faster</span>
+                    </div>
+                  </div>
+                  <div className="col-span-2 space-y-3 pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label>Countdown Timer Duration</Label>
+                        <p className="text-xs text-muted-foreground">
+                          How long the urgency countdown runs on funnel pages
+                        </p>
+                      </div>
+                      <select
+                        value={countdownHours}
+                        onChange={(e) => {
+                          setCountdownHours(Number(e.target.value));
+                          setHasCompanyInfoChanges(true);
+                        }}
+                        className="px-3 py-2 border rounded-md text-sm bg-white"
+                      >
+                        <option value={24}>24 hours</option>
+                        <option value={48}>48 hours</option>
+                        <option value={72}>72 hours</option>
+                        <option value={168}>1 week</option>
+                      </select>
                     </div>
                   </div>
                 </div>
