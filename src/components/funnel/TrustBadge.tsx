@@ -131,17 +131,17 @@ interface PremiumTrustStripProps {
 const PremiumTrustStrip: React.FC<PremiumTrustStripProps> = ({ className }) => {
   return (
     <div className={cn(
-      "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 py-4 px-6",
+      "relative -mt-6 md:-mt-8 z-20 py-4 px-6",
       className
     )}>
-      <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+      <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
         {[
           { icon: Crown, label: "Premium Service" },
           { icon: Shield, label: "100% Secure" },
           { icon: Award, label: "Award Winning" },
           { icon: Sparkles, label: "5-Star Rated" },
         ].map((item, i) => (
-          <div key={i} className="flex items-center gap-2 text-white/90">
+          <div key={i} className="flex items-center gap-2 text-white/70 hover:text-white/90 transition-colors">
             <item.icon className="h-4 w-4 text-purple-400" />
             <span className="text-sm font-medium tracking-wide">{item.label}</span>
           </div>

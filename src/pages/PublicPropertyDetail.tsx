@@ -1125,7 +1125,7 @@ export default function PublicPropertyDetail() {
           {/* Ambient glow behind image */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
 
-          <div className="relative max-w-5xl mx-auto px-4 -mt-8 md:-mt-12 z-10">
+          <div className="relative max-w-5xl mx-auto px-4 -mt-16 md:-mt-24 z-10">
             {/* Image with premium frame */}
             <div className="relative group">
               {/* Outer glow */}
@@ -2114,7 +2114,7 @@ export default function PublicPropertyDetail() {
 
         {/* Qualifier Section - Dark Theme */}
         {!funnelLoading && funnelContent?.qualifier && (
-          <section className="relative bg-gradient-to-b from-black to-[#0f172a] py-16 md:py-20 overflow-hidden">
+          <section className="relative bg-[#0f172a] py-16 md:py-20 overflow-hidden">
             {/* Ambient glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[400px] bg-purple-600/10 rounded-full blur-[150px]" />
 
@@ -2160,7 +2160,7 @@ export default function PublicPropertyDetail() {
 
         {/* FAQ Section - Premium Dark */}
         {parsedFAQs.length > 0 && (
-          <section className="relative bg-gradient-to-b from-black to-[#0f172a] py-16 md:py-20 overflow-hidden">
+          <section className="relative bg-[#0f172a] py-16 md:py-20 overflow-hidden">
             <div className="max-w-5xl mx-auto px-4">
               <FunnelFAQ
                 title="Frequently Asked Questions"
