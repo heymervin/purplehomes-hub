@@ -1189,15 +1189,27 @@ export default function PublicPropertyDetail() {
                 </div>
               </div>
 
-              {/* Bottom row - Live viewers + scarcity */}
+              {/* Bottom row - Live viewers + availability status */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-purple-500/20">
                 <LiveViewers count={Math.floor(Math.random() * 5) + 2} variant="premium" />
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                  <span className="text-green-400 font-medium">Available Now</span>
-                  <span className="text-gray-500">•</span>
-                  <span className="text-white/70">Ready for move-in</span>
-                </div>
+                {(() => {
+                  const status = funnelContent?.inputs?.availabilityStatus || 'Available';
+                  const statusStyles: Record<string, { dot: string; text: string; label: string }> = {
+                    'Available': { dot: 'bg-green-400', text: 'text-green-400', label: 'Available Now' },
+                    'Under Review': { dot: 'bg-yellow-400', text: 'text-yellow-400', label: 'Under Review' },
+                    'Multiple Offers': { dot: 'bg-amber-400', text: 'text-amber-400', label: 'Multiple Offers' },
+                    'Pending': { dot: 'bg-red-400', text: 'text-red-400', label: 'Pending' },
+                  };
+                  const style = statusStyles[status] || statusStyles['Available'];
+                  return (
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className={`w-2 h-2 ${style.dot} rounded-full animate-pulse`} />
+                      <span className={`${style.text} font-medium`}>{style.label}</span>
+                      <span className="text-gray-500">•</span>
+                      <span className="text-white/70">{status === 'Available' ? 'Ready for move-in' : 'Act fast!'}</span>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>
@@ -1563,9 +1575,17 @@ export default function PublicPropertyDetail() {
               {/* Section Header */}
               <Reveal>
                 <div className="text-center mb-10 md:mb-14">
-                  <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
-                    Your Investment
-                  </span>
+                  {/* Financing Type + Special Offer badges */}
+                  <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
+                    <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider">
+                      {funnelContent?.inputs?.financingType || 'Your Investment'}
+                    </span>
+                    {funnelContent?.inputs?.specialOffer && (
+                      <span className="inline-block px-4 py-1.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 rounded-full text-xs md:text-sm font-bold">
+                        🎁 {funnelContent.inputs.specialOffer}
+                      </span>
+                    )}
+                  </div>
                   <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 md:mb-4">
                     Affordable Payment Options
                   </h2>
@@ -1630,10 +1650,22 @@ export default function PublicPropertyDetail() {
                           {/* DATA-DRIVEN GRADIENT - Monthly payment */}
                           <GradientPrice amount={property.monthlyPayment} />
                         </div>
-                        <p className="text-sm md:text-base text-gray-400">Build equity every month</p>
+                        <p className="text-sm md:text-base text-gray-400">
+                          Build equity every month
+                          {funnelContent?.inputs?.termLength && (
+                            <span className="block text-purple-400 mt-1">{funnelContent.inputs.termLength} term</span>
+                          )}
+                        </p>
                       </div>
                     )}
                   </div>
+
+                  {/* Pricing Options / Additional Notes */}
+                  {funnelContent?.pricingOptions && (
+                    <div className="px-6 md:px-8 py-4 border-t border-purple-500/20">
+                      <p className="text-sm text-gray-400 text-center">{funnelContent.pricingOptions}</p>
+                    </div>
+                  )}
 
                   {/* CTA Section */}
                   <div className="p-6 md:p-8 bg-gradient-to-b from-transparent to-purple-900/20 text-center">
@@ -2214,7 +2246,7 @@ export default function PublicPropertyDetail() {
             <Reveal delay={300}>
               <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-purple-500/10 border border-purple-500/30 mb-10">
                 <span className="text-2xl">⚡</span>
-                <span className="text-purple-300 font-bold">{funnelContent?.urgencyMessage || 'Only 3 spots left at this price'}</span>
+                <span className="text-purple-300 font-bold">{funnelContent?.inputs?.urgencyMessage || 'Only 3 spots left at this price'}</span>
                 <span className="text-2xl">⚡</span>
               </div>
             </Reveal>
