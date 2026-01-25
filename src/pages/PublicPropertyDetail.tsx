@@ -1482,11 +1482,13 @@ export default function PublicPropertyDetail() {
         {/* Property Showcase - DARK THEME */}
         {!funnelLoading && funnelContent?.propertyShowcase && (
           <section className="relative py-20 md:py-28">
-            {/* Ambient glow - BOOSTED for visibility */}
+            {/* Ambient glow - BOOSTED + extended bottom bleed to Investment */}
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-violet-500/18 rounded-full blur-[180px]" />
-              <div className="absolute bottom-[-15%] left-1/3 w-[500px] h-[400px] bg-purple-500/15 rounded-full blur-[150px]" />
+              {/* Extended bottom bleed to reach Investment section */}
+              <div className="absolute bottom-[-45%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+              <div className="absolute bottom-[-30%] left-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[150px]" />
             </div>
 
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
@@ -2017,12 +2019,14 @@ export default function PublicPropertyDetail() {
 
             return (
               <section className="relative py-16 md:py-20">
-                {/* Subtle edge glows only - cards float on pure black canvas */}
-                {/* Let bleeding from adjacent sections provide most ambient light */}
-                <div className="absolute top-[-40%] left-0 w-[400px] h-[500px] bg-purple-600/12 rounded-full blur-[200px]" />
-                <div className="absolute top-[-40%] right-0 w-[400px] h-[500px] bg-violet-500/10 rounded-full blur-[200px]" />
-                <div className="absolute bottom-[-40%] left-0 w-[400px] h-[500px] bg-violet-600/10 rounded-full blur-[200px]" />
-                <div className="absolute bottom-[-40%] right-0 w-[400px] h-[500px] bg-purple-600/12 rounded-full blur-[200px]" />
+                {/* BOOSTED glows - social proof needs visual weight */}
+                {/* Center spotlight for the testimonial stage */}
+                <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
+                {/* Edge glows boosted from 10-12% to 20% */}
+                <div className="absolute top-[-40%] left-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+                <div className="absolute top-[-40%] right-0 w-[500px] h-[600px] bg-violet-500/18 rounded-full blur-[200px]" />
+                <div className="absolute bottom-[-40%] left-0 w-[500px] h-[600px] bg-violet-600/18 rounded-full blur-[200px]" />
+                <div className="absolute bottom-[-40%] right-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
 
                 <Reveal className="text-center mb-10">
                   <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
@@ -2104,11 +2108,12 @@ export default function PublicPropertyDetail() {
         {/* Qualifier Section - Dark Theme */}
         {!funnelLoading && funnelContent?.qualifier && (
           <section className="relative py-16 md:py-20">
-            {/* Ambient glows - BOOSTED for visibility */}
+            {/* Ambient glows - BOOSTED + extended bottom bleed to FAQ */}
             <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/22 rounded-full blur-[200px]" />
             <div className="absolute top-[20%] left-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
             <div className="absolute top-[40%] right-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
-            <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
+            {/* Extended bottom bleed to reach FAQ section */}
+            <div className="absolute bottom-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
 
             <div className="relative z-10 max-w-3xl mx-auto px-4">
               <Reveal className="text-center mb-10">
@@ -2153,8 +2158,9 @@ export default function PublicPropertyDetail() {
         {/* FAQ Section - Premium Dark */}
         {parsedFAQs.length > 0 && (
           <section className="relative py-16 md:py-20">
-            {/* Ambient glows - BOOSTED for visibility */}
-            <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/22 rounded-full blur-[200px]" />
+            {/* Ambient glows - BOOSTED + extended top to catch Qualifier bleed */}
+            {/* Extended top glow to receive Qualifier section's bleed */}
+            <div className="absolute top-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
             <div className="absolute top-[20%] right-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
             <div className="absolute top-[50%] left-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
             <div className="absolute bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/25 rounded-full blur-[220px]" />
