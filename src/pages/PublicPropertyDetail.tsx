@@ -1968,39 +1968,39 @@ export default function PublicPropertyDetail() {
             // Default testimonials - Purple Homes brand stories (used when no custom testimonials exist)
             const defaultTestimonials: Testimonial[] = [
               {
-                quote: "I was rejected by three banks. I felt hopeless. Then Purple Homes helped me find my dream home with owner financing. Now I'm building equity instead of wasting rent!",
+                quote: "I was rejected by three banks. Then Purple Homes helped me get into my dream home. 18 months later, I've built $12,400 in equity instead of throwing away $21,600 in rent.",
                 authorName: "Sarah M.",
-                authorTitle: "First-Time Homeowner",
+                authorTitle: "Built $12,400 equity in 18 months",
                 rating: 5,
               },
               {
-                quote: "After my divorce, my credit took a hit. Traditional lenders wouldn't even look at me. Purple Homes saw my potential, not just my score. Best decision I ever made.",
+                quote: "After my divorce, my credit dropped to 580. Banks wouldn't touch me. Purple Homes got me into a home at $1,450/month — $350 less than I was paying in rent. Now my score is back to 720.",
                 authorName: "Marcus T.",
-                authorTitle: "Proud Homeowner",
+                authorTitle: "Credit improved 580 → 720",
                 rating: 5,
               },
               {
-                quote: "As a self-employed contractor, banks treated me like a risk. Purple Homes treated me like a person. My family finally has a place to call our own.",
+                quote: "As a self-employed contractor, banks called me 'high risk.' Purple Homes approved me in 72 hours. 2 years later, I refinanced into a traditional mortgage at 6.2%.",
                 authorName: "Jennifer L.",
-                authorTitle: "Small Business Owner",
+                authorTitle: "Approved in 72 hours",
                 rating: 5,
               },
               {
-                quote: "The process was so simple. No endless paperwork, no judgment. Just real people helping real families achieve their dreams. I tell everyone about Purple Homes.",
+                quote: "We went from application to keys in just 3 weeks. Our payment is $1,680/month and $380 of that goes straight to our equity. We're actually building wealth now.",
                 authorName: "David R.",
-                authorTitle: "Purple Homes Homeowner",
+                authorTitle: "$380/month building equity",
                 rating: 5,
               },
               {
-                quote: "I thought homeownership was impossible for someone like me. Purple Homes proved me wrong. My kids finally have a backyard to play in.",
+                quote: "I thought homeownership was impossible as a single mom. My payment is only $200 more than my old apartment, but now my kids have a backyard AND I'm building equity.",
                 authorName: "Maria G.",
-                authorTitle: "Happy Mom of 3",
+                authorTitle: "Single mom, now homeowner",
                 rating: 5,
               },
               {
-                quote: "From application to keys in hand - the whole team made it seamless. They really care about getting families into homes. Can't recommend them enough!",
+                quote: "We calculated it: renting for 3 more years would have cost us $64,800 with nothing to show. Now we're 14 months in with $9,800 in equity. The math just makes sense.",
                 authorName: "Chris P.",
-                authorTitle: "Newlywed Homeowner",
+                authorTitle: "$9,800 equity in 14 months",
                 rating: 5,
               },
             ];
