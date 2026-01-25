@@ -15,6 +15,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { BuyerSegment } from '@/types/funnel';
 import type { AvatarResearchHistory, SegmentInsights, InsightItem, FormulaEffectiveness } from '@/types/avatar-research';
+import { FunnelAnalyticsDashboard } from './FunnelAnalyticsDashboard';
 
 // Buyer segment labels for display
 const SEGMENT_LABELS: Record<BuyerSegment, { label: string; emoji: string; color: string }> = {
@@ -266,6 +267,11 @@ export function AIPerformance() {
             error={error}
           />
         ))}
+      </div>
+
+      {/* Behavioral Analytics */}
+      <div className="pt-4">
+        <FunnelAnalyticsDashboard />
       </div>
     </div>
   );

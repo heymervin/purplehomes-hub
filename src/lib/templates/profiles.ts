@@ -292,6 +292,13 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
   // ----------------------------------------
   // 4. PERSONAL VALUE (Tips)
   // ----------------------------------------
+  // ===========================================
+  // IMEJIS TEMPLATE CONSTRAINTS (800px width):
+  // - tipHeader 1 (tipTopic): 17 characters max
+  // - tipHeader 2 (tipTitle): 19 characters max
+  // - tip1/2/3Header: 25 characters max
+  // Exceeding these limits causes text overflow
+  // ===========================================
   'personal-value': {
     id: 'personal-value',
     imejisTemplateId: 'H-4J7Qo0VFN7W2Gzqh3vT',
@@ -313,19 +320,20 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
       // Two-line header: "HOME BUYER" (topic) + "CRUCIAL TIPS" (title)
       // User enters natural language like "Home buyer crucial tips"
       // which gets parsed into topic + title
+      // CONSTRAINT: tipHeader 1 ≤17 chars, tipHeader 2 ≤19 chars (at 800px width)
       tipHeader: {
         imejisFieldId: '__composite__', // Not a real field - parsed into tipTopic + tipTitle
         source: 'user-input',
         dataType: 'text',
         inputConfig: {
           label: 'Tip Title',
-          placeholder: 'Home buyer crucial tips',
-          helpText: 'Enter topic and title naturally (e.g., "First-time buyer essential advice")',
+          placeholder: 'Home buyer tips',
+          helpText: 'Line 1: max 17 chars, Line 2: max 19 chars',
           required: true,
-          maxLength: 60,
+          maxLength: 36, // 17 (line 1) + 19 (line 2) = 36 total
         },
       },
-      // Derived field - Line 1 (Topic)
+      // Derived field - Line 1 (Topic) - MAX 17 CHARS at 800px width
       tipTopic: {
         imejisFieldId: 'text_comp_1768369845442_d2gkk17q7',
         source: 'derived',
@@ -333,7 +341,7 @@ export const TEMPLATE_PROFILES: Record<string, TemplateProfile> = {
         derivedFrom: 'tipHeader',
         derivedPart: 'topic',
       },
-      // Derived field - Line 2 (Title)
+      // Derived field - Line 2 (Title) - MAX 19 CHARS at 800px width
       tipTitle: {
         imejisFieldId: 'text_comp_1767862944913_m4kenfjln',
         source: 'derived',
