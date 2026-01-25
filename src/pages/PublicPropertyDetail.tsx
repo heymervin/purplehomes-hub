@@ -17,6 +17,7 @@ import { PropertyImageGallery } from '@/components/properties/PropertyImageGalle
 import { useCreateContact } from '@/services/ghlApi';
 import { useAirtableProperties } from '@/services/matchingApi';
 import { generatePropertySlug } from '@/lib/utils/slug';
+import { useFunnelAnalytics } from '@/hooks/useFunnelAnalytics';
 
 // Import Funnel Components
 import {
@@ -324,9 +325,6 @@ function AnimatedStatsSection() {
       <div className="relative z-10 max-w-6xl mx-auto px-4">
         {/* Section header - Enhanced Typography with Reveal */}
         <Reveal className="text-center mb-20">
-          <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
-            Proven Track Record
-          </span>
           <h2 className="text-3xl md:text-4xl text-white leading-tight">
             <span className="font-light">Numbers That</span>{' '}
             <span className="font-bold italic bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent pr-1">
@@ -406,7 +404,7 @@ function AnimatedStatsSection() {
 }
 
 // Virtual Tour Section with GHL-style click-to-play overlay
-function VirtualTourSection({ virtualTourUrl, scrollToForm }: { virtualTourUrl: string; scrollToForm: () => void }) {
+function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { virtualTourUrl: string; scrollToForm: () => void; onVideoPlay?: () => void }) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Extract YouTube video ID for thumbnail
@@ -443,6 +441,7 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm }: { virtualTourUrl: 
   };
 
   const handlePlay = () => {
+    onVideoPlay?.();  // Track video play for analytics
     setIsPlaying(true);
   };
 
@@ -457,9 +456,6 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm }: { virtualTourUrl: 
       <div className="relative z-10 max-w-5xl mx-auto px-4">
         {/* Header */}
         <Reveal className="text-center mb-10">
-          <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
-            Virtual Tour
-          </span>
           <h2 className="text-3xl md:text-4xl text-white mb-3">
             <span className="font-light">Walk Through</span>{' '}
             <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Your Future Home</span>
@@ -626,6 +622,14 @@ export default function PublicPropertyDetail() {
   });
   const [copied, setCopied] = useState(false);
 
+  // Funnel analytics tracking
+  const analytics = useFunnelAnalytics({
+    propertyId: property?.id || '',
+    propertySlug: slug || '',
+    avatarResearchId: funnelContent?.avatarResearchId,
+    buyerSegment: funnelContent?.inputs?.buyerSegment,
+  });
+
   // Fetch funnel content when property is available (need recordId for Airtable lookup)
   useEffect(() => {
     if (!slug || !property?.id) return;
@@ -715,6 +719,9 @@ export default function PublicPropertyDetail() {
         ],
       });
 
+      // Track form submission for analytics (high-value conversion event)
+      analytics.trackFormSubmission();
+
       toast.success('Your application has been submitted! We\'ll contact you within 24 hours.');
       setOfferForm({ firstName: '', lastName: '', email: '', phone: '', offerAmount: '', message: '' });
       setShowOfferForm(false);
@@ -749,6 +756,8 @@ export default function PublicPropertyDetail() {
   };
 
   const scrollToForm = () => {
+    // Track CTA click for analytics
+    analytics.trackCtaClick('modal');
     // Open modal instead of scrolling - users can apply from anywhere
     setIsFormModalOpen(true);
     setShowOfferForm(true);
@@ -1291,13 +1300,6 @@ export default function PublicPropertyDetail() {
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
               {/* Section Header with Animation */}
               <Reveal className="text-center mb-16 md:mb-20">
-                <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-purple-600 to-purple-500 text-white text-[11px] font-black uppercase tracking-[0.2em] mb-8 shadow-xl shadow-purple-500/40">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
-                  </span>
-                  The Challenge
-                </div>
                 <h2 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[1.0] tracking-[-0.02em] max-w-4xl mx-auto mb-6">
                   <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
                     {stripMarkers(extractProblemHeadline(funnelContent.problem))}
@@ -1373,13 +1375,6 @@ export default function PublicPropertyDetail() {
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
               {/* Section Header */}
               <Reveal className="text-center mb-16 md:mb-20">
-                <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white text-[11px] font-black uppercase tracking-[0.2em] mb-8 shadow-xl shadow-purple-500/40">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
-                  </span>
-                  The Solution
-                </div>
                 {/* Extract first 2 sentences for headline */}
                 <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto mb-4">
                   <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
@@ -1892,13 +1887,6 @@ export default function PublicPropertyDetail() {
           <div className="relative z-10 container mx-auto px-4">
             {/* Header with Reveal */}
             <Reveal className="text-center mb-16">
-              <div className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-purple-600 to-purple-500 text-white text-[11px] font-black uppercase tracking-[0.2em] mb-8 shadow-xl shadow-purple-500/40">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
-                </span>
-                Simple Process
-              </div>
               <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-4">
                 <span className="font-light">3 Steps to</span>{' '}
                 <span className="font-black bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">
@@ -2057,9 +2045,6 @@ export default function PublicPropertyDetail() {
                 <div className="absolute bottom-[-40%] right-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
 
                 <Reveal className="text-center mb-10">
-                  <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
-                    Real Stories
-                  </span>
                   <h2 className="text-3xl md:text-4xl text-white">
                     <span className="font-light">What Our</span>{' '}
                     <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Homeowners</span>
@@ -2174,6 +2159,7 @@ export default function PublicPropertyDetail() {
           <VirtualTourSection
             virtualTourUrl={funnelContent.virtualTourUrl}
             scrollToForm={scrollToForm}
+            onVideoPlay={analytics.trackVideoPlay}
           />
         )}
 

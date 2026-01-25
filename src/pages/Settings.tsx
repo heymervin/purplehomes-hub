@@ -3,7 +3,7 @@ import {
   Check, RefreshCw, ExternalLink, Wifi, WifiOff, Key, Save,
   Clock, CheckCircle2, Calculator, Loader2, Target, Home,
   DollarSign, Sliders, ChevronDown, Users, Share2, Settings as SettingsIcon,
-  Link2, Zap, Brain, MessageSquareQuote, Plus, Trash2, Star
+  Link2, Zap, Brain, MessageSquareQuote, Plus, Trash2, Star, BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,6 +36,7 @@ import { useCalculatorDefaults, useUpdateCalculatorDefaults } from '@/services/c
 import { useMatchingPreferences, useUpdateMatchingPreferences } from '@/services/matchingApi';
 import { TeamManagement } from '@/components/settings/team';
 import { AIPerformance } from '@/components/settings/AIPerformance';
+import { FunnelAnalyticsDashboard } from '@/components/settings/FunnelAnalyticsDashboard';
 import type { CalculatorDefaults } from '@/types/calculator';
 import {
   DEFAULT_AFFORDABILITY_SETTINGS,
@@ -478,6 +479,10 @@ export default function Settings() {
           <TabsTrigger value="ai-performance" className="gap-2">
             <Brain className="h-4 w-4" />
             AI Performance
+          </TabsTrigger>
+          <TabsTrigger value="funnel-analytics" className="gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Funnel Analytics
           </TabsTrigger>
           <TabsTrigger value="company" className="gap-2">
             <MessageSquareQuote className="h-4 w-4" />
@@ -1532,6 +1537,11 @@ export default function Settings() {
         {/* AI PERFORMANCE TAB */}
         <TabsContent value="ai-performance" className="space-y-6">
           <AIPerformance />
+        </TabsContent>
+
+        {/* FUNNEL ANALYTICS TAB */}
+        <TabsContent value="funnel-analytics" className="space-y-6">
+          <FunnelAnalyticsDashboard />
         </TabsContent>
 
         {/* COMPANY INFO TAB */}
