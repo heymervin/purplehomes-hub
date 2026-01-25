@@ -1482,10 +1482,11 @@ export default function PublicPropertyDetail() {
         {/* Property Showcase - DARK THEME */}
         {!funnelLoading && funnelContent?.propertyShowcase && (
           <section className="relative py-20 md:py-28">
-            {/* Ambient glow - top bleeds from Solution, bottom bleeds to Investment */}
+            {/* Ambient glow - BOOSTED for visibility */}
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/12 rounded-full blur-[180px]" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-purple-600/10 rounded-full blur-[150px]" />
+              <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-violet-500/18 rounded-full blur-[180px]" />
+              <div className="absolute bottom-[-15%] left-1/3 w-[500px] h-[400px] bg-purple-500/15 rounded-full blur-[150px]" />
             </div>
 
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
@@ -2047,12 +2048,12 @@ export default function PublicPropertyDetail() {
         {/* What's Nearby - Focus on the places */}
         {!funnelLoading && funnelContent?.locationNearby && (
           <section className="relative py-16 md:py-20">
-            {/* Ambient glows - top receives strong bleed from Stats section */}
-            <div className="absolute top-[-40%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-purple-600/22 rounded-full blur-[220px]" />
-            <div className="absolute top-[-20%] left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
-            <div className="absolute top-[30%] right-0 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
+            {/* Ambient glows - BOOSTED for visibility */}
+            <div className="absolute top-[-40%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[220px]" />
+            <div className="absolute top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
+            <div className="absolute top-[30%] right-0 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
             {/* Bottom bleeds to Qualifier */}
-            <div className="absolute bottom-[-35%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/20 rounded-full blur-[200px]" />
+            <div className="absolute bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-purple-500/22 rounded-full blur-[200px]" />
 
             <div className="relative z-10 max-w-4xl mx-auto px-4">
               {/* Section Header */}
@@ -2103,11 +2104,11 @@ export default function PublicPropertyDetail() {
         {/* Qualifier Section - Dark Theme */}
         {!funnelLoading && funnelContent?.qualifier && (
           <section className="relative py-16 md:py-20">
-            {/* Ambient glows - receives bleed from Neighborhood, bleeds to next section */}
-            <div className="absolute top-[-25%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-500/18 rounded-full blur-[200px]" />
-            <div className="absolute top-[20%] left-0 w-[500px] h-[400px] bg-violet-600/15 rounded-full blur-[180px]" />
-            <div className="absolute top-[40%] right-0 w-[450px] h-[350px] bg-purple-400/12 rounded-full blur-[150px]" />
-            <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/20 rounded-full blur-[200px]" />
+            {/* Ambient glows - BOOSTED for visibility */}
+            <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/22 rounded-full blur-[200px]" />
+            <div className="absolute top-[20%] left-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
+            <div className="absolute top-[40%] right-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
+            <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
 
             <div className="relative z-10 max-w-3xl mx-auto px-4">
               <Reveal className="text-center mb-10">
@@ -2152,11 +2153,11 @@ export default function PublicPropertyDetail() {
         {/* FAQ Section - Premium Dark */}
         {parsedFAQs.length > 0 && (
           <section className="relative py-16 md:py-20">
-            {/* Ambient glows - receives bleed from above, bleeds into Urgency section */}
-            <div className="absolute top-[-25%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-500/18 rounded-full blur-[200px]" />
-            <div className="absolute top-[20%] right-0 w-[500px] h-[400px] bg-violet-600/15 rounded-full blur-[180px]" />
-            <div className="absolute top-[50%] left-0 w-[450px] h-[350px] bg-purple-400/12 rounded-full blur-[150px]" />
-            <div className="absolute bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
+            {/* Ambient glows - BOOSTED for visibility */}
+            <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/22 rounded-full blur-[200px]" />
+            <div className="absolute top-[20%] right-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
+            <div className="absolute top-[50%] left-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
+            <div className="absolute bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/25 rounded-full blur-[220px]" />
 
             <div className="relative z-10 max-w-5xl mx-auto px-4">
               <FunnelFAQ
