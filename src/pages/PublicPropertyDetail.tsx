@@ -2208,11 +2208,11 @@ export default function PublicPropertyDetail() {
               <UrgencyCountdown mode={countdownMode} hoursFromNow={countdownHours} deadline={countdownDeadline} />
             </Reveal>
 
-            {/* Scarcity indicator with Reveal */}
+            {/* Scarcity indicator with Reveal - uses funnel urgencyMessage if set */}
             <Reveal delay={300}>
               <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-purple-500/10 border border-purple-500/30 mb-10">
                 <span className="text-2xl">⚡</span>
-                <span className="text-purple-300 font-bold">Only 3 spots left at this price</span>
+                <span className="text-purple-300 font-bold">{funnelContent?.urgencyMessage || 'Only 3 spots left at this price'}</span>
                 <span className="text-2xl">⚡</span>
               </div>
             </Reveal>
