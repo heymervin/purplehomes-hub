@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, Bed, Bath, Maximize2, MapPin, Phone, Wrench, Home,
   DollarSign, Loader2, Share2, Check, ExternalLink, Video,
-  Shield, Clock, Users, Award, CheckCircle, CreditCard
+  Shield, Clock, Users, Award, CheckCircle, CreditCard, X
 } from 'lucide-react';
 import type { PropertyCondition, PropertyType, Property } from '@/types';
 import type { FunnelContent } from '@/types/funnel';
@@ -615,6 +615,7 @@ export default function PublicPropertyDetail() {
 
   // Form state
   const [showOfferForm, setShowOfferForm] = useState(false);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [offerForm, setOfferForm] = useState({
     firstName: '',
     lastName: '',
@@ -748,8 +749,9 @@ export default function PublicPropertyDetail() {
   };
 
   const scrollToForm = () => {
+    // Open modal instead of scrolling - users can apply from anywhere
+    setIsFormModalOpen(true);
     setShowOfferForm(true);
-    document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   // Extract first sentence from problem content for headline
@@ -2440,6 +2442,102 @@ export default function PublicPropertyDetail() {
           </div>
         </section>
       </main>
+
+      {/* Form Modal - Opens from any CTA */}
+      {isFormModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setIsFormModalOpen(false)}
+          />
+
+          {/* Modal Content */}
+          <div className="relative w-full max-w-md bg-gradient-to-br from-purple-900/95 via-purple-800/95 to-purple-900/95 rounded-2xl border border-purple-500/30 shadow-2xl shadow-purple-500/20 animate-in fade-in zoom-in-95 duration-200">
+            {/* Close button */}
+            <button
+              onClick={() => setIsFormModalOpen(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors z-10"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Header */}
+            <div className="bg-gradient-to-r from-purple-600/50 to-violet-600/50 px-6 py-5 text-center text-white rounded-t-2xl">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 backdrop-blur rounded-xl mb-3">
+                <Home className="h-6 w-6 text-white" />
+              </div>
+              <h2 className="text-xl font-bold">Get Pre-Qualified Today</h2>
+              <p className="text-purple-200 text-sm mt-1">No credit check required to start</p>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={(e) => { handleOfferSubmit(e); setIsFormModalOpen(false); }} className="p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-sm font-semibold text-gray-200">First Name *</Label>
+                  <Input
+                    value={offerForm.firstName}
+                    onChange={(e) => setOfferForm(prev => ({ ...prev, firstName: e.target.value }))}
+                    required
+                    placeholder="John"
+                    className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-semibold text-gray-200">Last Name *</Label>
+                  <Input
+                    value={offerForm.lastName}
+                    onChange={(e) => setOfferForm(prev => ({ ...prev, lastName: e.target.value }))}
+                    required
+                    placeholder="Doe"
+                    className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm font-semibold text-gray-200">Phone Number *</Label>
+                <PhoneInput
+                  value={offerForm.phone}
+                  onChange={(value) => setOfferForm(prev => ({ ...prev, phone: value || '' }))}
+                  required
+                  placeholder="Enter phone number"
+                  defaultCountry="US"
+                  className="mt-1 [&_input]:bg-white/10 [&_input]:border-purple-500/30 [&_input]:text-white [&_input]:placeholder:text-gray-400"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-semibold text-gray-200">Email *</Label>
+                <Input
+                  type="email"
+                  value={offerForm.email}
+                  onChange={(e) => setOfferForm(prev => ({ ...prev, email: e.target.value }))}
+                  required
+                  placeholder="john@example.com"
+                  className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
+                />
+              </div>
+              <CTAButton
+                type="submit"
+                size="full"
+                disabled={createContact.isPending}
+              >
+                {createContact.isPending ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit & Get Pre-Qualified'
+                )}
+              </CTAButton>
+              <p className="text-center text-gray-400 text-xs">
+                By submitting, you agree to be contacted about this property.
+              </p>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Sticky Mobile CTA */}
       <StickyMobileCTA
