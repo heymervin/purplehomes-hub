@@ -1659,7 +1659,7 @@ export default function PublicPropertyDetail() {
         <section className="relative py-16 md:py-24">
           {/* Ambient lighting - glows extend to adjacent sections */}
           <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-          <div className="absolute top-[20%] left-0 w-[500px] h-[500px] bg-red-900/12 rounded-full blur-[180px]" />
+          <div className="absolute top-[20%] left-0 w-[500px] h-[500px] bg-slate-700/15 rounded-full blur-[180px]" />
           <div className="absolute top-[30%] right-0 w-[500px] h-[500px] bg-purple-600/18 rounded-full blur-[180px]" />
           {/* Bottom glows bleed into Process Steps */}
           <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
@@ -1676,32 +1676,32 @@ export default function PublicPropertyDetail() {
                 <div className="text-center mb-6 md:mb-8">
                   <div className="inline-block bg-gray-900/80 backdrop-blur border border-gray-700 rounded-xl md:rounded-2xl px-8 md:px-10 py-4 md:py-5 shadow-xl">
                     <h3 className="text-xl md:text-3xl font-black text-white">
-                      The <span className="underline decoration-red-500 decoration-4 md:decoration-[6px] underline-offset-4">Old</span> Way
+                      The <span className="underline decoration-slate-500 decoration-4 md:decoration-[6px] underline-offset-4">Old</span> Way
                     </h3>
                   </div>
                 </div>
 
-                {/* Vertical connecting line */}
-                <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[20px] w-1 bg-gradient-to-b from-red-500/50 via-red-500 to-red-500/50 hidden md:block" />
+                {/* Vertical connecting line - fades before pill */}
+                <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[70px] w-1 bg-gradient-to-b from-slate-500/40 via-slate-500/60 to-transparent hidden md:block" />
 
                 <div className="space-y-3 md:space-y-4">
                   {/* First item - intro */}
                   <div className="relative">
                     <div className="flex items-center gap-2 md:gap-4">
-                      <div className="hidden md:flex w-12 h-12 rounded-full bg-red-500/20 border-2 border-red-500/50 items-center justify-center flex-shrink-0">
-                        <span className="text-red-400 text-2xl font-bold">✗</span>
+                      <div className="hidden md:flex w-12 h-12 rounded-full bg-slate-500/20 border-2 border-slate-500/50 items-center justify-center flex-shrink-0">
+                        <span className="text-slate-400 text-2xl font-bold">✗</span>
                       </div>
-                      <div className="flex-1 bg-gradient-to-r from-red-600 to-red-700 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg border border-red-500/30">
+                      <div className="flex-1 bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg border border-slate-600/30">
                         <div className="font-bold text-base md:text-lg flex items-center gap-2">
-                          <span className="md:hidden text-red-300">✗</span>
+                          <span className="md:hidden text-slate-400">✗</span>
                           Renting Forever
                         </div>
-                        <div className="text-red-200 text-xs md:text-sm ml-5 md:ml-0">Expensive Mistakes, No Progress</div>
+                        <div className="text-slate-300 text-xs md:text-sm ml-5 md:ml-0">Expensive Mistakes, No Progress</div>
                       </div>
                     </div>
                     {/* Arrow down */}
                     <div className="hidden md:flex justify-center mt-2">
-                      <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-red-500" />
+                      <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-slate-500" />
                     </div>
                   </div>
 
@@ -1715,16 +1715,16 @@ export default function PublicPropertyDetail() {
                   ].map((problem, i) => (
                     <div key={i} className="relative">
                       <div className="flex items-center gap-2 md:gap-4">
-                        <div className="hidden md:flex w-12 h-12 rounded-full bg-red-500/20 border-2 border-red-500/50 items-center justify-center flex-shrink-0">
-                          <span className="text-red-400 text-2xl font-bold">✗</span>
+                        <div className="hidden md:flex w-12 h-12 rounded-full bg-slate-500/20 border-2 border-slate-500/50 items-center justify-center flex-shrink-0">
+                          <span className="text-slate-400 text-2xl font-bold">✗</span>
                         </div>
                         <div className="flex-1 relative">
                           {/* Badge - desktop only */}
-                          <span className="hidden md:inline-block absolute -top-2 right-4 bg-red-900 text-red-200 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded z-10 border border-red-700">
+                          <span className="hidden md:inline-block absolute -top-2 right-4 bg-slate-800 text-slate-300 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded z-10 border border-slate-600">
                             Problem
                           </span>
-                          <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 text-white font-semibold md:font-bold text-sm md:text-lg shadow-lg border border-red-500/30 flex items-center gap-2">
-                            <span className="md:hidden text-red-300">✗</span>
+                          <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 text-white font-semibold md:font-bold text-sm md:text-lg shadow-lg border border-slate-600/30 flex items-center gap-2">
+                            <span className="md:hidden text-slate-400">✗</span>
                             {problem}
                           </div>
                         </div>
@@ -1732,7 +1732,7 @@ export default function PublicPropertyDetail() {
                       {/* Arrow down - desktop only */}
                       {i < 5 && (
                         <div className="hidden md:flex justify-center mt-2">
-                          <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-red-500" />
+                          <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-slate-500" />
                         </div>
                       )}
                     </div>
@@ -1740,7 +1740,7 @@ export default function PublicPropertyDetail() {
 
                   {/* Dead end indicator */}
                   <div className="hidden md:block text-center pt-4">
-                    <span className="inline-block bg-red-900 text-red-200 font-bold text-sm px-5 py-2.5 rounded-full border-2 border-red-600 shadow-lg">
+                    <span className="inline-block bg-slate-800 text-slate-300 font-bold text-sm px-5 py-2.5 rounded-full border-2 border-slate-600 shadow-lg">
                       😞 Stuck Forever
                     </span>
                   </div>
@@ -1763,8 +1763,8 @@ export default function PublicPropertyDetail() {
                 {/* Glow effect behind the column */}
                 <div className="absolute inset-0 bg-purple-500/10 rounded-3xl blur-3xl scale-110 hidden md:block" />
 
-                {/* Vertical connecting line with glow */}
-                <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[20px] w-1 bg-gradient-to-b from-purple-400/50 via-purple-400 to-purple-400/50 shadow-[0_0_15px_rgba(168,85,247,0.6)] hidden md:block" />
+                {/* Vertical connecting line with glow - fades before pill */}
+                <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[70px] w-1 bg-gradient-to-b from-purple-400/40 via-purple-400/60 to-transparent shadow-[0_0_15px_rgba(168,85,247,0.4)] hidden md:block" />
 
                 <div className="relative space-y-3 md:space-y-4">
                   {/* First item - intro */}

@@ -53,11 +53,11 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
       return isHighlighted ? (
         <Check className="h-6 w-6 text-green-500 mx-auto" />
       ) : (
-        <X className="h-6 w-6 text-red-400 mx-auto" />
+        <X className="h-6 w-6 text-slate-400 mx-auto" />
       );
     }
     return isHighlighted ? (
-      <X className="h-6 w-6 text-red-400 mx-auto" />
+      <X className="h-6 w-6 text-slate-400 mx-auto" />
     ) : (
       <Check className="h-6 w-6 text-green-500 mx-auto" />
     );
@@ -141,13 +141,13 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
                     "text-sm font-medium",
                     typeof row.optionA === "boolean"
                       ? row.optionA
-                        ? "text-red-400"
+                        ? "text-slate-400"
                         : "text-gray-400"
                       : "text-gray-600"
                   )}>
                     {typeof row.optionA === "boolean" ? (
                       row.optionA ? (
-                        <X className="h-5 w-5 text-red-400" />
+                        <X className="h-5 w-5 text-slate-400" />
                       ) : (
                         <span className="text-gray-400">—</span>
                       )
@@ -349,15 +349,15 @@ const ProsConsList: React.FC<ProsConsListProps> = ({
       </div>
 
       {/* Cons */}
-      <div className="bg-red-50 rounded-xl p-6 border border-red-200">
-        <h4 className="font-bold text-red-800 mb-4 flex items-center gap-2">
+      <div className="bg-slate-100 rounded-xl p-6 border border-slate-300">
+        <h4 className="font-bold text-slate-700 mb-4 flex items-center gap-2">
           <X className="h-5 w-5" />
           {consTitle}
         </h4>
         <ul className="space-y-3">
           {cons.map((con, index) => (
-            <li key={index} className="flex items-start gap-2 text-red-700">
-              <X className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <li key={index} className="flex items-start gap-2 text-slate-600">
+              <X className="h-5 w-5 text-slate-500 flex-shrink-0 mt-0.5" />
               <span>{con}</span>
             </li>
           ))}
