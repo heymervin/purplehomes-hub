@@ -14,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { PropertyImageGallery } from '@/components/properties/PropertyImageGallery';
-import { cn } from '@/lib/utils';
 import { useCreateContact } from '@/services/ghlApi';
 import { useAirtableProperties } from '@/services/matchingApi';
 import { generatePropertySlug } from '@/lib/utils/slug';
@@ -24,18 +23,13 @@ import {
   CTAButton,
   TrustBar,
   TrustIndicators,
-  CountdownTimer,
-  ScarcityBadge,
   LiveViewers,
   QuoteTestimonial,
   TestimonialMarquee,
   StatsBar,
-  ComparisonTable,
   FunnelFAQ,
   FAQCTA,
-  FunnelSection,
   SectionHeader,
-  IconFeature,
   TwoColumnLayout,
   StickyMobileCTA,
   FloatingActionButton,
