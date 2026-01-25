@@ -606,7 +606,7 @@ async function selectFormulas(segment: BuyerSegment): Promise<FormulaSelection> 
   let formulaStats: any = null;
   let totalRated = 0;
   try {
-    const avatarResearchModule = await import('./avatar-research');
+    const avatarResearchModule = await import('./avatar-research.js');
     const history = await avatarResearchModule.loadResearchHistory(segment);
     formulaStats = (history?.insights as any)?.formulaStats;
     totalRated = history?.insights?.totalRated || 0;
@@ -947,7 +947,7 @@ async function generateFunnelContent(data: FunnelContentRequest, avatarResearchI
   // 🧠 LEARNING INJECTION: Get learned insights from rated research
   let learnedInsights = '';
   try {
-    const avatarResearchModule = await import('./avatar-research');
+    const avatarResearchModule = await import('./avatar-research.js');
     learnedInsights = await avatarResearchModule.getLearnedInsightsForPrompt(buyerSegment);
   } catch (error) {
     console.warn('[Funnel API] Could not load learned insights:', error);
@@ -1206,7 +1206,7 @@ async function generateAvatarResearchAndGetId(
   try {
     // Import the avatar research module dynamically
     console.log('[Avatar Research Generation] Importing avatar-research module...');
-    const avatarResearchModule = await import('./avatar-research');
+    const avatarResearchModule = await import('./avatar-research.js');
     console.log('[Avatar Research Generation] Module imported successfully');
 
     // Build property context
@@ -1519,8 +1519,133 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       }
 
+      // ============ ANALYTICS ACTIONS ============
+      case 'analytics-track': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+
+        const trackData = req.body;
+        if (!trackData.propertySlug || !trackData.sessionId) {
+          return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        // Calculate effectiveness score
+        const ANALYTICS_WEIGHTS = { timeOnPage: 0.30, scrollDepth: 0.20, ctaClicks: 0.25, formSubmission: 0.25 };
+        const ANALYTICS_TARGETS = { timeOnPageSeconds: 120, scrollDepthPercent: 75 };
+
+        const timeScore = Math.min(trackData.timeOnPageSeconds / ANALYTICS_TARGETS.timeOnPageSeconds, 1) * 10;
+        const scrollScore = Math.min(trackData.maxScrollDepth / ANALYTICS_TARGETS.scrollDepthPercent, 1) * 10;
+        const ctaScore = trackData.ctaClicks > 0 ? 10 : 0;
+        const formScore = trackData.formSubmitted ? 10 : 0;
+        const effectivenessScore = Math.round((
+          timeScore * ANALYTICS_WEIGHTS.timeOnPage +
+          scrollScore * ANALYTICS_WEIGHTS.scrollDepth +
+          ctaScore * ANALYTICS_WEIGHTS.ctaClicks +
+          formScore * ANALYTICS_WEIGHTS.formSubmission
+        ) * 10) / 10;
+
+        // Save to Airtable FunnelAnalytics table
+        try {
+          const analyticsUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/FunnelAnalytics`;
+          const saveResponse = await fetchWithRetry(analyticsUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              fields: {
+                'SessionID': trackData.sessionId,
+                'PropertyID': trackData.propertyId || '',
+                'PropertySlug': trackData.propertySlug,
+                'AvatarResearchID': trackData.avatarResearchId || null,
+                'BuyerSegment': trackData.buyerSegment || null,
+                'TimeOnPage': trackData.timeOnPageSeconds || 0,
+                'MaxScrollDepth': trackData.maxScrollDepth || 0,
+                'CTAClicks': trackData.ctaClicks || 0,
+                'FormSubmitted': trackData.formSubmitted || false,
+                'VideoPlayed': trackData.videoPlayed || false,
+                'EffectivenessScore': effectivenessScore,
+                'Timestamp': trackData.timestamp || new Date().toISOString()
+              }
+            }),
+          });
+
+          const saved = saveResponse.ok;
+          if (saved) {
+            console.log('[Funnel Analytics] Session saved:', trackData.sessionId);
+          }
+
+          return res.status(200).json({ success: true, saved, effectivenessScore });
+        } catch (error) {
+          console.error('[Funnel Analytics] Error saving:', error);
+          return res.status(200).json({ success: true, saved: false, effectivenessScore });
+        }
+      }
+
+      case 'analytics-aggregate': {
+        if (req.method !== 'GET') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+
+        const { propertyId, propertySlug: aggSlug } = req.query;
+        if (!propertyId && !aggSlug) {
+          return res.status(400).json({ error: 'Missing propertyId or propertySlug' });
+        }
+
+        try {
+          const filterField = propertyId ? 'PropertyID' : 'PropertySlug';
+          const filterValue = propertyId || aggSlug;
+          const formula = encodeURIComponent(`{${filterField}}="${filterValue}"`);
+          const analyticsUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/FunnelAnalytics?filterByFormula=${formula}`;
+
+          const response = await fetchWithRetry(analyticsUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${AIRTABLE_API_KEY}` },
+          });
+
+          if (!response.ok) {
+            return res.status(200).json({ success: true, stats: null });
+          }
+
+          const data = await response.json();
+          const sessions = (data.records || []).map((r: any) => ({
+            timeOnPageSeconds: r.fields.TimeOnPage || 0,
+            maxScrollDepth: r.fields.MaxScrollDepth || 0,
+            ctaClicks: r.fields.CTAClicks || 0,
+            formSubmitted: r.fields.FormSubmitted || false,
+            videoPlayed: r.fields.VideoPlayed || false,
+          }));
+
+          if (sessions.length === 0) {
+            return res.status(200).json({
+              success: true,
+              stats: { propertyId: filterValue, totalSessions: 0, avgTimeOnPage: 0, avgScrollDepth: 0, ctaClickRate: 0, formSubmissionRate: 0, videoPlayRate: 0, avgEffectivenessScore: 0 }
+            });
+          }
+
+          return res.status(200).json({
+            success: true,
+            stats: {
+              propertyId: filterValue,
+              totalSessions: sessions.length,
+              avgTimeOnPage: Math.round(sessions.reduce((s: number, x: any) => s + x.timeOnPageSeconds, 0) / sessions.length),
+              avgScrollDepth: Math.round(sessions.reduce((s: number, x: any) => s + x.maxScrollDepth, 0) / sessions.length),
+              ctaClickRate: Math.round((sessions.filter((x: any) => x.ctaClicks > 0).length / sessions.length) * 100),
+              formSubmissionRate: Math.round((sessions.filter((x: any) => x.formSubmitted).length / sessions.length) * 100),
+              videoPlayRate: Math.round((sessions.filter((x: any) => x.videoPlayed).length / sessions.length) * 100),
+              avgEffectivenessScore: 0 // Simplified
+            }
+          });
+        } catch (error) {
+          console.error('[Funnel Analytics] Aggregate error:', error);
+          return res.status(500).json({ error: 'Failed to aggregate', details: String(error) });
+        }
+      }
+
       default:
-        return res.status(400).json({ error: 'Unknown action', validActions: ['generate', 'get', 'save', 'delete', 'list', 'test', 'clear-inputs'] });
+        return res.status(400).json({ error: 'Unknown action', validActions: ['generate', 'get', 'save', 'delete', 'list', 'test', 'clear-inputs', 'analytics-track', 'analytics-aggregate'] });
     }
   } catch (error) {
     console.error('[Funnel API] Error:', error);

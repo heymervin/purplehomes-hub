@@ -22,7 +22,7 @@
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import * as FormData from 'form-data';
+import FormData from 'form-data';
 
 const GHL_API_URL = 'https://services.leadconnectorhq.com';
 const GHL_API_KEY = process.env.GHL_API_KEY;

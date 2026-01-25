@@ -59,7 +59,7 @@ export function FunnelAnalyticsDashboard() {
       const analyticsPromises = (propertiesData.properties || []).slice(0, 20).map(async (prop: any) => {
         try {
           const slug = prop.slug || generateSlug(prop.address, prop.city);
-          const res = await fetch(`/api/funnel/analytics?action=aggregate&propertySlug=${encodeURIComponent(slug)}`);
+          const res = await fetch(`/api/funnel?action=analytics-aggregate&propertySlug=${encodeURIComponent(slug)}`);
           if (!res.ok) return null;
           const data = await res.json();
           return data.stats ? { ...data.stats, propertySlug: slug } : null;

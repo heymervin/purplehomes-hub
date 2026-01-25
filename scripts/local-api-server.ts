@@ -90,7 +90,6 @@ app.all('/api/calculator', (req, res) => handleApiRequest(req, res, 'calculator'
 app.all('/api/proxy-image', (req, res) => handleApiRequest(req, res, 'proxy-image'));
 app.all('/api/funnel', (req, res) => handleApiRequest(req, res, 'funnel'));
 app.all('/api/funnel/avatar-research', (req, res) => handleApiRequest(req, res, 'funnel/avatar-research'));
-app.all('/api/funnel/analytics', (req, res) => handleApiRequest(req, res, 'funnel/analytics'));
 app.all('/api/testimonials', (req, res) => handleApiRequest(req, res, 'testimonials'));
 app.all('/api/company-info', (req, res) => handleApiRequest(req, res, 'company-info'));
 

@@ -190,13 +190,13 @@ export function useFunnelAnalytics(options: UseFunnelAnalyticsOptions): FunnelAn
 
     // Use sendBeacon for reliable delivery on page close
     const sent = navigator.sendBeacon(
-      '/api/funnel/analytics?action=track',
+      '/api/funnel?action=analytics-track',
       JSON.stringify(payload)
     );
 
     // Fallback to fetch if sendBeacon fails
     if (!sent) {
-      fetch('/api/funnel/analytics?action=track', {
+      fetch('/api/funnel?action=analytics-track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
