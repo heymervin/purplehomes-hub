@@ -2062,9 +2062,6 @@ export default function PublicPropertyDetail() {
             <div className="relative z-10 max-w-4xl mx-auto px-4">
               {/* Section Header */}
               <Reveal className="text-center mb-12">
-                <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
-                  Neighborhood
-                </span>
                 <h2 className="text-3xl md:text-4xl text-white">
                   <span className="font-light">Minutes from</span>{' '}
                   <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Everything</span>
@@ -2117,9 +2114,6 @@ export default function PublicPropertyDetail() {
 
             <div className="relative z-10 max-w-3xl mx-auto px-4">
               <Reveal className="text-center mb-10">
-                <span className="inline-block px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-bold uppercase tracking-[0.2em] mb-6">
-                  Is This Right For You?
-                </span>
                 <h2 className="text-3xl md:text-4xl text-white">
                   <span className="font-light">This Home is</span>{' '}
                   <span className="font-bold italic bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">Perfect</span>
