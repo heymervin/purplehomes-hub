@@ -65,6 +65,9 @@ function useScrollReveal(threshold = 0.1) {
 }
 
 // Reveal wrapper component for cleaner usage
+// Disabled on mobile for snappier scrolling
+const isMobileDevice = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+
 function Reveal({
   children,
   delay = 0,
@@ -75,6 +78,10 @@ function Reveal({
   className?: string;
 }) {
   const { ref, isVisible } = useScrollReveal(0.1);
+
+  if (isMobileDevice) {
+    return <div className={className}>{children}</div>;
+  }
 
   return (
     <div
