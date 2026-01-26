@@ -500,14 +500,14 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
                   />
 
                   {/* Dark gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/40" />
+                  <div className="absolute pointer-events-none inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/40" />
 
                   {/* Large centered play button */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="relative">
                       {/* Pulsing ring behind play button */}
-                      <div className="absolute inset-0 w-24 h-24 md:w-32 md:h-32 bg-purple-500/30 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
-                      <div className="absolute inset-0 w-24 h-24 md:w-32 md:h-32 bg-purple-500/20 rounded-full animate-pulse" />
+                      <div className="absolute pointer-events-none inset-0 w-24 h-24 md:w-32 md:h-32 bg-purple-500/30 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
+                      <div className="absolute pointer-events-none inset-0 w-24 h-24 md:w-32 md:h-32 bg-purple-500/20 rounded-full animate-pulse" />
 
                       {/* Play button */}
                       <div className="relative w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-purple-500 to-violet-600 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(139,92,246,0.5)] group-hover/play:shadow-[0_0_80px_rgba(139,92,246,0.7)] group-hover/play:scale-110 transition-all duration-300">
@@ -1086,7 +1086,7 @@ export default function PublicPropertyDetail() {
                       <div className="flex items-center gap-3 sm:gap-4">
                         <span className="hidden sm:block text-2xl md:text-3xl text-gray-600">—</span>
                         <span className="relative inline-block">
-                          <span className="absolute inset-0 bg-gradient-to-r from-purple-500/30 to-violet-500/30 -skew-x-2 rounded" />
+                          <span className="absolute pointer-events-none inset-0 bg-gradient-to-r from-purple-500/30 to-violet-500/30 -skew-x-2 rounded" />
                           <span className="relative italic font-bold text-purple-300 text-lg sm:text-xl md:text-2xl px-3 py-1">
                             {benefit || 'No bank qualifying'}
                           </span>
@@ -1132,7 +1132,7 @@ export default function PublicPropertyDetail() {
           </div>
 
           {/* Bottom fade to property section */}
-          <div className="absolute bottom-0 left-0 right-0 h-24 md:h-32 bg-gradient-to-t from-black to-transparent" />
+          <div className="absolute pointer-events-none bottom-0 left-0 right-0 h-24 md:h-32 bg-gradient-to-t from-black to-transparent" />
         </section>
 
         {/* Property Image Section - Premium */}
@@ -1348,7 +1348,7 @@ export default function PublicPropertyDetail() {
                     <Reveal key={i} delay={i * 150}>
                       <div className="group relative flex items-center gap-5 bg-gradient-to-r from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 hover:border-purple-400/50 hover:bg-white/[0.08] hover:translate-x-2 transition-all duration-300 cursor-default shadow-lg shadow-purple-900/20 hover:shadow-purple-500/20">
                         {/* Glow effect on hover */}
-                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:to-transparent transition-all duration-300" />
+                        <div className="absolute pointer-events-none inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:to-transparent transition-all duration-300" />
                         <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/40 to-purple-600/30 flex items-center justify-center flex-shrink-0 border border-purple-400/40 group-hover:border-purple-300/60 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-purple-500/30 transition-all duration-300">
                           <span className="text-purple-200 text-2xl font-black">{pain.icon}</span>
                         </div>
@@ -1432,7 +1432,7 @@ export default function PublicPropertyDetail() {
                   ].map((benefit, i) => (
                     <Reveal key={i} delay={i * 150}>
                       <div className="group relative flex items-start gap-5 bg-gradient-to-r from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300 shadow-lg shadow-purple-900/20 hover:shadow-purple-500/20">
-                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:to-transparent transition-all duration-300" />
+                        <div className="absolute pointer-events-none inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:to-transparent transition-all duration-300" />
                         <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/40 to-purple-600/30 flex items-center justify-center flex-shrink-0 border border-purple-400/40 group-hover:border-purple-300/60 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-purple-500/30 transition-all duration-300">
                           <span className="text-purple-200 text-xl font-bold">{benefit.icon}</span>
                         </div>
@@ -1738,7 +1738,7 @@ export default function PublicPropertyDetail() {
                 </div>
 
                 {/* Vertical connecting line - fades before pill */}
-                <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[70px] w-1 bg-gradient-to-b from-slate-500/40 via-slate-500/60 to-transparent hidden md:block" />
+                <div className="absolute pointer-events-none left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[70px] w-1 bg-gradient-to-b from-slate-500/40 via-slate-500/60 to-transparent hidden md:block" />
 
                 <div className="space-y-3 md:space-y-4">
                   {/* First item - intro */}
@@ -1820,7 +1820,7 @@ export default function PublicPropertyDetail() {
                 <div className="absolute pointer-events-none inset-0 bg-purple-500/10 rounded-3xl blur-3xl scale-110 hidden md:block" />
 
                 {/* Vertical connecting line with glow - fades before pill */}
-                <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[70px] w-1 bg-gradient-to-b from-purple-400/40 via-purple-400/60 to-transparent shadow-[0_0_15px_rgba(168,85,247,0.4)] hidden md:block" />
+                <div className="absolute pointer-events-none left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[70px] w-1 bg-gradient-to-b from-purple-400/40 via-purple-400/60 to-transparent shadow-[0_0_15px_rgba(168,85,247,0.4)] hidden md:block" />
 
                 <div className="relative space-y-3 md:space-y-4">
                   {/* First item - intro */}
@@ -2228,7 +2228,7 @@ export default function PublicPropertyDetail() {
           <div className="absolute pointer-events-none bottom-[-20%] right-1/4 w-[600px] h-[500px] bg-purple-500/18 rounded-full blur-[200px]" />
 
           {/* Animated pulse ring - extends toward next section */}
-          <div className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-purple-500/15 animate-ping" style={{ animationDuration: '3s' }} />
+          <div className="absolute pointer-events-none top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-purple-500/15 animate-ping" style={{ animationDuration: '3s' }} />
 
           <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
             {/* Urgency badge with Reveal */}

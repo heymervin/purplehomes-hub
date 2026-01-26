@@ -649,7 +649,7 @@ function calculateInsights(entries: AvatarResearchEntry[]): SegmentInsights {
       .map(([hook]) => hook),
     avgEffectiveness: Math.round(avgEffectiveness * 10) / 10,
     totalResearches: entries.length,
-    totalRated: ratedEntries.length,
+    totalRated: highRatedEntries.length,
     lastUpdated: now,
     formulaStats,
   };

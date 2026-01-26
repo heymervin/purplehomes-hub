@@ -69,14 +69,16 @@ export function AIPerformance() {
     const results = await Promise.all(
       ALL_SEGMENTS.map(async (segment) => {
         try {
-          const response = await fetch(`/research/avatars/${segment}.json`);
+          // Fetch from API (reads from Airtable) instead of static JSON files
+          const response = await fetch(`/api/funnel/avatar-research?action=history&segment=${segment}`);
           if (!response.ok) {
             if (response.status === 404) {
               return { segment, history: null, loading: false, error: null };
             }
             throw new Error(`Failed to load ${segment}`);
           }
-          const history = await response.json();
+          const data = await response.json();
+          const history = data.success ? data.history : null;
           return { segment, history, loading: false, error: null };
         } catch (error) {
           return {
@@ -389,7 +391,7 @@ function InsightsDisplay({ insights }: { insights: SegmentInsights }) {
         <Star className="h-5 w-5 mx-auto mb-2 opacity-50" />
         <p className="text-sm">Rate entries 7+ to build insights.</p>
         <p className="text-xs mt-1">
-          {insights.totalResearches} researches generated, 0 rated high enough yet.
+          {insights.totalResearches} researches generated, {insights.totalRated} rated high enough yet.
         </p>
       </div>
     );

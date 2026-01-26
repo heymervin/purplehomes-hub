@@ -189,9 +189,11 @@ export function useFunnelAnalytics(options: UseFunnelAnalyticsOptions): FunnelAn
     };
 
     // Use sendBeacon for reliable delivery on page close
+    // Must use Blob with application/json type - plain string sends as text/plain which API can't parse
+    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
     const sent = navigator.sendBeacon(
       '/api/funnel?action=analytics-track',
-      JSON.stringify(payload)
+      blob
     );
 
     // Fallback to fetch if sendBeacon fails
