@@ -419,11 +419,10 @@ export default function PublicListings() {
           <div className={cn("flex gap-2", compact && "flex-col gap-1")} data-tour="property-actions">
             {property.lat && property.lng && (
               <Button
-                variant="outline"
                 size="sm"
                 onClick={(e) => handleZoomToProperty(property, e)}
                 className={cn(
-                  "flex-1 gap-1 text-xs",
+                  "flex-1 gap-1 text-xs bg-purple-600 hover:bg-purple-700 text-white",
                   compact && "h-7"
                 )}
               >
@@ -432,7 +431,6 @@ export default function PublicListings() {
               </Button>
             )}
             <Button
-              variant="outline"
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
@@ -440,7 +438,7 @@ export default function PublicListings() {
                 window.open(`/listing/${slug}`, '_blank');
               }}
               className={cn(
-                "flex-1 gap-1 text-xs",
+                "flex-1 gap-1 text-xs bg-purple-600 hover:bg-purple-700 text-white",
                 compact && "h-7"
               )}
             >
@@ -563,13 +561,12 @@ export default function PublicListings() {
 
             {/* Locate Me Button */}
             <Button
-              variant="outline"
               size="icon"
               onClick={handleLocateMe}
               disabled={isLocating}
               className={cn(
-                "flex-shrink-0",
-                userLocation && "bg-purple-100 border-purple-500 text-purple-600"
+                "flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white",
+                userLocation && "bg-purple-800"
               )}
               title="Use my location"
               data-tour="locate-button"
@@ -658,10 +655,9 @@ export default function PublicListings() {
 
           {/* Theme Toggle */}
           <Button
-            variant="outline"
             size="icon"
             onClick={() => setIsDarkMode(!isDarkMode)}
-            className="flex-shrink-0"
+            className="flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white"
             data-tour="theme-toggle"
           >
             {isDarkMode ? (
@@ -674,7 +670,7 @@ export default function PublicListings() {
           {/* More Filters */}
           <Popover open={showFilters} onOpenChange={setShowFilters}>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="gap-2 relative" data-tour="filters-button">
+              <Button className="gap-2 relative bg-purple-600 hover:bg-purple-700 text-white" data-tour="filters-button">
                 <SlidersHorizontal className="h-4 w-4" />
                 <span className="hidden sm:inline">Filters</span>
                 {activeFilterCount > 0 && (
