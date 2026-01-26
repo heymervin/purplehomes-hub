@@ -975,7 +975,7 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
           <SectionCard
             title="Problem"
             description="Pain points of traditional home buying (PAS: Problem)"
-            value={content.problem}
+            value={typeof content.problem === 'object' ? `${content.problem.headline}\n${content.problem.body}` : content.problem}
             onChange={(v) => updateField('problem', v)}
             rows={3}
             sectionKey="problem"

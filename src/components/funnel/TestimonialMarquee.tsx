@@ -1,12 +1,14 @@
 /**
  * Testimonial Marquee Component
  *
- * A slow auto-scrolling horizontal carousel of testimonial cards.
- * Used on property funnel pages for social proof.
+ * Desktop: Slow auto-scrolling horizontal carousel.
+ * Mobile: Static vertical stack for easy reading.
  */
 
 import { useState } from 'react';
 import type { Testimonial } from '@/types/funnel';
+
+const isMobileDevice = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
 
 interface TestimonialMarqueeProps {
   testimonials: Testimonial[];
@@ -29,9 +31,31 @@ function StarRating({ rating = 5 }: { rating?: number }) {
   );
 }
 
-function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
+function TestimonialCard({ testimonial, mobile }: { testimonial: Testimonial; mobile?: boolean }) {
   // Clean quote text - remove any existing surrounding quotes
   const cleanQuote = testimonial.quote.replace(/^["'"]+|["'"]+$/g, '').trim();
+
+  if (mobile) {
+    return (
+      <div className="w-full">
+        <div className="bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] rounded-2xl p-6">
+          <StarRating rating={testimonial.rating} />
+          <p className="text-white/80 text-[15px] leading-[1.7] mt-4 mb-6 font-light">
+            "{cleanQuote}"
+          </p>
+          <div className="flex items-center gap-3 pt-4 border-t border-white/[0.06]">
+            <div className="w-9 h-9 bg-gradient-to-br from-purple-500/80 to-violet-600/80 rounded-full flex items-center justify-center text-white font-medium text-sm">
+              {testimonial.authorName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="text-white/90 font-medium text-sm">{testimonial.authorName}</p>
+              <p className="text-white/40 text-xs">{testimonial.authorTitle || 'Purple Homes Homeowner'}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-shrink-0 w-[300px] md:w-[360px] mx-3 group">
@@ -70,6 +94,18 @@ export function TestimonialMarquee({ testimonials, speed = 30 }: TestimonialMarq
     return null;
   }
 
+  // Mobile: static vertical stack
+  if (isMobileDevice) {
+    return (
+      <div className="px-4 py-6 space-y-4">
+        {testimonials.map((testimonial, index) => (
+          <TestimonialCard key={index} testimonial={testimonial} mobile />
+        ))}
+      </div>
+    );
+  }
+
+  // Desktop: infinite horizontal marquee
   return (
     <div
       className="overflow-hidden py-6"

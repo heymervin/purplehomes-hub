@@ -149,8 +149,8 @@ export interface FunnelContent {
   inputs: FunnelInputs;
 
   // Funnel Sections (PAS + AIDA Framework)
-  hook: string;           // Attention-grabbing headline
-  problem: string;        // Pain points (traditional mortgages, high down payments)
+  hook: string | { headline: string; subheadline?: string; highlight?: string; benefit?: string; urgency?: string; bonus?: string };
+  problem: string | { headline: string; body: string };  // Pain points - structured or flat string
   solution: string;       // Purple Homes creative financing solution
   propertyShowcase: string; // Property description and features
   socialProof: string;    // Testimonials and trust builders

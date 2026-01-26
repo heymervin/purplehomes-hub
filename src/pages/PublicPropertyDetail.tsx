@@ -770,14 +770,26 @@ export default function PublicPropertyDetail() {
     setShowOfferForm(true);
   };
 
-  // Extract first sentence from problem content for headline
-  const extractProblemHeadline = (problem: string): string => {
-    // Extract first sentence (ends with ? or .)
-    const firstSentence = problem.match(/^[^.?!]+[.?!]/)?.[0] || problem.split('.')[0];
-    // If it's a question, use it directly
-    if (firstSentence.includes('?')) return firstSentence.trim();
-    // Otherwise, turn it into a question or return compelling default
+  // Extract problem headline - supports structured { headline, body } or legacy string
+  const extractProblemHeadline = (problem: string | { headline: string; body: string }): string => {
+    if (typeof problem === 'object' && problem.headline) {
+      return problem.headline;
+    }
+    // Legacy string: extract first sentence (ends with ? or . or !)
+    const text = String(problem);
+    const firstSentence = text.match(/^[^.?!]+[.?!]/)?.[0] || text.split('.')[0];
     return firstSentence.trim();
+  };
+
+  // Extract problem body - supports structured { headline, body } or legacy string
+  const extractProblemBody = (problem: string | { headline: string; body: string }): string => {
+    if (typeof problem === 'object' && problem.body) {
+      return problem.body;
+    }
+    // Legacy string: remove headline from the beginning
+    const text = String(problem);
+    const headline = extractProblemHeadline(text);
+    return text.slice(headline.length).trim();
   };
 
   // Strip any underline markers and broken unicode from text
@@ -1155,17 +1167,28 @@ export default function PublicPropertyDetail() {
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                 {/* Left - Price & Address */}
                 <div className="text-center lg:text-left">
-                  {/* Price row */}
-                  <div className="flex flex-wrap items-baseline justify-center lg:justify-start gap-3 mb-3">
-                    <span className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight">
-                      ${property.price.toLocaleString()}
-                    </span>
+                  {/* Down payment as primary price */}
+                  <div className="flex flex-wrap items-baseline justify-center lg:justify-start gap-3 mb-1">
+                    {property.downPayment !== undefined ? (
+                      <span className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight">
+                        ${property.downPayment.toLocaleString()}
+                      </span>
+                    ) : (
+                      <span className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight">
+                        ${property.price.toLocaleString()}
+                      </span>
+                    )}
                     {property.monthlyPayment !== undefined && (
                       <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-sm md:text-base font-bold">
                         ${property.monthlyPayment.toLocaleString()}/mo
                       </span>
                     )}
                   </div>
+                  {property.downPayment !== undefined && (
+                    <p className="text-purple-300/60 text-sm md:text-base font-medium mb-3">
+                      Move-in cost · Owner finance
+                    </p>
+                  )}
 
                   {/* Address */}
                   <h2 className="text-xl md:text-2xl text-white font-semibold mb-1">{property.address}</h2>
@@ -1351,7 +1374,7 @@ export default function PublicPropertyDetail() {
                       <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none" />
 
                       <blockquote className="relative text-xl md:text-2xl text-white/95 leading-relaxed font-medium italic px-4">
-                        {stripMarkers(funnelContent.problem)}
+                        {stripMarkers(extractProblemBody(funnelContent.problem) || String(typeof funnelContent.problem === 'object' ? funnelContent.problem.body || funnelContent.problem.headline : funnelContent.problem))}
                       </blockquote>
 
                       <div className="relative mt-10 pt-8 border-t border-purple-400/20">

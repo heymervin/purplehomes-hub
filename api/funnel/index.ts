@@ -442,13 +442,18 @@ interface HookStructure {
   bonus?: string;        // Extra incentive (e.g., "FREE home warranty for a year")
 }
 
+interface ProblemStructure {
+  headline: string;     // Short punchy question/statement (2-6 words)
+  body: string;         // 2-3 staccato sentences expanding on the pain
+}
+
 interface FunnelContent {
   propertySlug: string;
   generatedAt: string;
   propertyHash: string;
   inputs: FunnelInputs;
   hook: string | HookStructure;  // Support both old string and new structured format
-  problem: string;
+  problem: string | ProblemStructure;  // Support both old string and new structured format
   solution: string;
   propertyShowcase: string;
   socialProof: string;
@@ -1039,7 +1044,15 @@ Generate these sections in JSON format:
      "urgency": "Apply this week for $1,000 off closing costs"
    }
 
-2. **problem** (3-4 sentences using staccato): Address avatar's fears, suspicions, past failures. Make them feel SEEN.
+2. **problem** (STRUCTURED OBJECT with these fields):
+   - "headline": A SHORT punchy question or statement (2-6 words) that hits the avatar's core pain. Examples: "Feeling trapped?", "Tired of renting?", "Banks said no?"
+   - "body": 2-3 sentences using staccato style that expand on the pain. Address avatar's fears, suspicions, past failures. Make them feel SEEN. The body must read as a COMPLETE thought on its own - do NOT start with "But", "And", or words that depend on the headline for context.
+
+   Example format:
+   "problem": {
+     "headline": "Feeling trapped?",
+     "body": "Rent keeps climbing. Banks keep rejecting. You work hard, pay your bills, do everything right — and still can't get approved. It's not fair."
+   }
 
 3. **solution** (3-4 sentences): Bridge from pain to Purple Homes. Address their top objection. Build trust.
 
@@ -1160,13 +1173,26 @@ Respond ONLY in valid JSON with these exact keys.`;
     return ensureString(hookData);
   };
 
+  // Handle problem - can be structured object or string (for backward compatibility)
+  const processProblem = (problemData: unknown): string | ProblemStructure => {
+    if (typeof problemData === 'object' && problemData !== null && 'headline' in problemData) {
+      const structured = problemData as Record<string, unknown>;
+      return {
+        headline: String(structured.headline || ''),
+        body: String(structured.body || ''),
+      };
+    }
+    // Old string format (backward compatible)
+    return ensureString(problemData);
+  };
+
   return {
     propertySlug: slug,
     generatedAt: new Date().toISOString(),
     propertyHash: hash,
     inputs,
     hook: processHook(generatedContent.hook),
-    problem: ensureString(generatedContent.problem),
+    problem: processProblem(generatedContent.problem),
     solution: ensureString(generatedContent.solution),
     propertyShowcase: ensureString(generatedContent.propertyShowcase),
     socialProof: ensureString(generatedContent.socialProof),
