@@ -43,6 +43,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useCreateContact } from '@/services/ghlApi';
 import { calculatePropertyDistance } from '@/lib/proximityCalculator';
 import { useAirtableProperties } from '@/services/matchingApi';
+import { generatePropertySlug } from '@/lib/utils/slug';
 
 const PROPERTY_TYPES: PropertyType[] = [
   'Single Family', 'Duplex', 'Multi Family', 'Condo', 'Lot', 
@@ -323,8 +324,8 @@ export default function PublicListings() {
           compact && "flex"
         )}
         onClick={() => {
-          setSelectedProperty(property);
-          if (isMobile) setMobileDrawerOpen(false);
+          const slug = generatePropertySlug(property.address, property.city);
+          window.open(`/listing/${slug}`, '_blank');
         }}
         onMouseEnter={() => setHoveredPropertyId(property.id)}
         onMouseLeave={() => setHoveredPropertyId(null)}
@@ -434,7 +435,8 @@ export default function PublicListings() {
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                setSelectedProperty(property);
+                const slug = generatePropertySlug(property.address, property.city);
+                window.open(`/listing/${slug}`, '_blank');
               }}
               className={cn(
                 "flex-1 gap-1 text-xs",
