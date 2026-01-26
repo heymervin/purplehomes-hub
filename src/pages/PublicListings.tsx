@@ -324,8 +324,9 @@ export default function PublicListings() {
           compact && "flex"
         )}
         onClick={() => {
-          const slug = generatePropertySlug(property.address, property.city);
-          window.open(`/listing/${slug}`, '_blank');
+          if (property.lat && property.lng) {
+            setZoomTarget({ lat: property.lat, lng: property.lng });
+          }
         }}
         onMouseEnter={() => setHoveredPropertyId(property.id)}
         onMouseLeave={() => setHoveredPropertyId(null)}
