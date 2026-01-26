@@ -247,7 +247,7 @@ function UrgencyCountdown({
         <div key={index} className="text-center">
           <div className="relative">
             {/* Glow behind */}
-            <div className="absolute inset-0 bg-gradient-to-b from-purple-500/30 to-violet-500/30 rounded-2xl blur-xl scale-110" />
+            <div className="absolute pointer-events-none inset-0 bg-gradient-to-b from-purple-500/30 to-violet-500/30 rounded-2xl blur-xl scale-110" />
             <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl px-4 md:px-6 py-4 md:py-6 border border-purple-500/30 shadow-[0_0_30px_rgba(139,92,246,0.2)]">
               <div className="text-4xl md:text-6xl font-black text-white tabular-nums">
                 {String(unit.value).padStart(2, '0')}
@@ -321,12 +321,12 @@ function AnimatedStatsSection() {
   return (
     <section ref={sectionRef} className="relative py-20 md:py-28">
       {/* Ambient lighting - top glow receives bleed from testimonials */}
-      <div className="absolute top-[-25%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[200px]" />
+      <div className="absolute pointer-events-none top-[-25%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+      <div className="absolute pointer-events-none top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+      <div className="absolute pointer-events-none top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[200px]" />
       {/* Bottom glows bleed strongly into Neighborhood section */}
-      <div className="absolute bottom-[-40%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-purple-600/22 rounded-full blur-[220px]" />
-      <div className="absolute bottom-[-25%] right-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
+      <div className="absolute pointer-events-none bottom-[-40%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-purple-600/22 rounded-full blur-[220px]" />
+      <div className="absolute pointer-events-none bottom-[-25%] right-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
 
 
       <div className="relative z-10 max-w-6xl mx-auto px-4">
@@ -359,7 +359,7 @@ function AnimatedStatsSection() {
 
                 {/* Icon with glow */}
                 <div className="relative inline-block mb-6">
-                  <div className="absolute inset-0 bg-purple-500/30 rounded-2xl blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute pointer-events-none inset-0 bg-purple-500/30 rounded-2xl blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 group-hover:scale-110 group-hover:border-purple-400/50 transition-all duration-300">
                     <Icon className="h-8 w-8 text-purple-400" />
                   </div>
@@ -368,7 +368,7 @@ function AnimatedStatsSection() {
                 {/* Animated number - Dramatic Typography */}
                 <div className="relative mb-4">
                   {/* Number glow */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-purple-400/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute pointer-events-none inset-0 bg-gradient-to-b from-purple-400/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                   <div className="relative flex items-baseline justify-center">
                     {/* Prefix */}
@@ -455,10 +455,10 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
   return (
     <section className="relative py-16 md:py-20">
       {/* Ambient glows - receives bleed from above, bleeds to next section */}
-      <div className="absolute top-[-25%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/20 rounded-full blur-[200px]" />
-      <div className="absolute top-[30%] left-0 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
-      <div className="absolute top-[40%] right-0 w-[450px] h-[350px] bg-purple-400/12 rounded-full blur-[150px]" />
-      <div className="absolute bottom-[-30%] left-1/3 w-[700px] h-[500px] bg-purple-500/18 rounded-full blur-[200px]" />
+      <div className="absolute pointer-events-none top-[-25%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/20 rounded-full blur-[200px]" />
+      <div className="absolute pointer-events-none top-[30%] left-0 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
+      <div className="absolute pointer-events-none top-[40%] right-0 w-[450px] h-[350px] bg-purple-400/12 rounded-full blur-[150px]" />
+      <div className="absolute pointer-events-none bottom-[-30%] left-1/3 w-[700px] h-[500px] bg-purple-500/18 rounded-full blur-[200px]" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4">
         {/* Header */}
@@ -476,7 +476,7 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
         <Reveal delay={150}>
           <div className="relative group">
             {/* Outer glow */}
-            <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/30 via-violet-500/30 to-purple-600/30 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+            <div className="absolute pointer-events-none -inset-2 bg-gradient-to-r from-purple-600/30 via-violet-500/30 to-purple-600/30 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
             {/* Video container */}
             <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-purple-500/30 shadow-2xl">
@@ -940,9 +940,9 @@ export default function PublicPropertyDetail() {
         {/* DRAMATIC HERO SECTION - PURPLE HOMES BRANDED - MAXIMUM IMPACT */}
         <section className="relative overflow-hidden">
           {/* Dramatic purple ambient lighting */}
-          <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[600px] md:w-[1200px] h-[400px] md:h-[600px] bg-purple-600/30 rounded-full blur-[150px] md:blur-[200px]" />
-          <div className="absolute bottom-0 left-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-violet-700/20 rounded-full blur-[100px] md:blur-[150px]" />
-          <div className="absolute top-1/2 right-0 w-[250px] md:w-[400px] h-[250px] md:h-[400px] bg-purple-500/15 rounded-full blur-[80px] md:blur-[120px]" />
+          <div className="absolute pointer-events-none top-[-10%] left-1/2 -translate-x-1/2 w-[600px] md:w-[1200px] h-[400px] md:h-[600px] bg-purple-600/30 rounded-full blur-[150px] md:blur-[200px]" />
+          <div className="absolute pointer-events-none bottom-0 left-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-violet-700/20 rounded-full blur-[100px] md:blur-[150px]" />
+          <div className="absolute pointer-events-none top-1/2 right-0 w-[250px] md:w-[400px] h-[250px] md:h-[400px] bg-purple-500/15 rounded-full blur-[80px] md:blur-[120px]" />
 
 
           <div className="relative max-w-5xl mx-auto px-4 py-16 md:py-24 lg:py-32">
@@ -1036,7 +1036,7 @@ export default function PublicPropertyDetail() {
                     // OLD STRING FORMAT - backward compatible, show as-is
                     return (
                       <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white leading-[1.2] mb-6 md:mb-8 tracking-tight max-w-4xl mx-auto">
-                        {hook}
+                        {String(hook)}
                       </h1>
                     );
                   })()
@@ -1073,7 +1073,7 @@ export default function PublicPropertyDetail() {
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-6 mb-8 md:mb-10 px-4">
                       {/* Price with glow - DATA-DRIVEN GRADIENT */}
                       <div className="relative">
-                        <span className="absolute inset-0 bg-purple-500/20 blur-2xl scale-150" />
+                        <span className="absolute inset-0 bg-purple-500/20 blur-2xl scale-150 pointer-events-none" />
                         <span className="relative text-4xl sm:text-5xl md:text-6xl font-black drop-shadow-[0_0_30px_rgba(168,85,247,0.6)]">
                           <GradientPrice
                             amount={property.monthlyPayment || Math.round(property.price * 0.006)}
@@ -1138,15 +1138,15 @@ export default function PublicPropertyDetail() {
         {/* Property Image Section - Premium */}
         <section className="relative">
           {/* Top glow connecting from hero section */}
-          <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[400px] md:h-[500px] bg-purple-600/25 rounded-full blur-[150px] md:blur-[200px]" />
+          <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[400px] md:h-[500px] bg-purple-600/25 rounded-full blur-[150px] md:blur-[200px]" />
           {/* Ambient glow behind image */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+          <div className="absolute pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
 
           <div className="relative max-w-5xl mx-auto px-4 pt-8 md:pt-12 z-10">
             {/* Image with premium frame */}
             <div className="relative group">
               {/* Outer glow */}
-              <div className="absolute -inset-2 bg-gradient-to-r from-purple-600/40 via-violet-500/40 to-purple-600/40 rounded-2xl md:rounded-3xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+              <div className="absolute pointer-events-none -inset-2 bg-gradient-to-r from-purple-600/40 via-violet-500/40 to-purple-600/40 rounded-2xl md:rounded-3xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
               {/* Image container */}
               <div className="relative rounded-xl md:rounded-2xl overflow-hidden border-2 border-purple-500/40 shadow-2xl">
@@ -1322,9 +1322,9 @@ export default function PublicPropertyDetail() {
           <section className="relative py-24 md:py-32">
             {/* Enhanced purple ambient glow - bottom glow bleeds into Solution section */}
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/15 rounded-full blur-[150px]" />
-              <div className="absolute bottom-[-20%] right-1/4 w-[700px] h-[600px] bg-violet-500/15 rounded-full blur-[150px]" />
-              <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-purple-400/8 rounded-full blur-[100px]" />
+              <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/15 rounded-full blur-[150px]" />
+              <div className="absolute pointer-events-none bottom-[-20%] right-1/4 w-[700px] h-[600px] bg-violet-500/15 rounded-full blur-[150px]" />
+              <div className="absolute pointer-events-none top-1/2 left-0 w-[300px] h-[300px] bg-purple-400/8 rounded-full blur-[100px]" />
             </div>
 
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
@@ -1362,8 +1362,8 @@ export default function PublicPropertyDetail() {
                 <Reveal delay={300}>
                   <div className="relative h-full flex items-center">
                     {/* Multi-layer animated glow behind card */}
-                    <div className="absolute -inset-6 bg-gradient-to-br from-purple-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-                    <div className="absolute -inset-3 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
+                    <div className="absolute pointer-events-none -inset-6 bg-gradient-to-br from-purple-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+                    <div className="absolute pointer-events-none -inset-3 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
 
                     <div className="relative w-full bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-purple-400/25 rounded-3xl px-10 py-14 md:px-12 md:py-16 text-center shadow-2xl shadow-purple-900/40 hover:border-purple-300/40 hover:shadow-purple-800/50 transition-all duration-500">
                       {/* Decorative quote marks */}
@@ -1397,9 +1397,9 @@ export default function PublicPropertyDetail() {
           <section className="relative py-24 md:py-32">
             {/* Ambient glow - top glow bleeds from Problem section, bottom bleeds to next */}
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-[-15%] left-1/4 w-[800px] h-[600px] bg-violet-500/15 rounded-full blur-[180px]" />
-              <div className="absolute top-1/3 right-1/4 w-[600px] h-[500px] bg-purple-400/12 rounded-full blur-[150px]" />
-              <div className="absolute bottom-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/15 rounded-full blur-[180px]" />
+              <div className="absolute pointer-events-none top-[-15%] left-1/4 w-[800px] h-[600px] bg-violet-500/15 rounded-full blur-[180px]" />
+              <div className="absolute pointer-events-none top-1/3 right-1/4 w-[600px] h-[500px] bg-purple-400/12 rounded-full blur-[150px]" />
+              <div className="absolute pointer-events-none bottom-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/15 rounded-full blur-[180px]" />
             </div>
 
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
@@ -1449,8 +1449,8 @@ export default function PublicPropertyDetail() {
                 <Reveal delay={300}>
                   <div className="relative h-full flex items-center">
                     {/* Multi-layer glow */}
-                    <div className="absolute -inset-6 bg-gradient-to-br from-purple-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-                    <div className="absolute -inset-3 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
+                    <div className="absolute pointer-events-none -inset-6 bg-gradient-to-br from-purple-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+                    <div className="absolute pointer-events-none -inset-3 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
 
                     <div className="relative w-full bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-purple-400/25 rounded-3xl px-8 py-14 md:px-12 md:py-20 text-center shadow-2xl shadow-purple-900/40 hover:border-purple-300/40 hover:shadow-purple-800/50 transition-all duration-500">
                       {/* Subtle inner glow */}
@@ -1459,7 +1459,7 @@ export default function PublicPropertyDetail() {
                       {/* Big number - ⚠️ BRAND CONSTANT: Update if credit score policy changes */}
                       <div className="relative mb-6 inline-block">
                         {/* Hand-drawn encircle effect */}
-                        <svg className="absolute -inset-4 md:-inset-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] h-[calc(100%+2rem)] md:h-[calc(100%+3rem)]" viewBox="0 0 200 100" preserveAspectRatio="none">
+                        <svg className="absolute -inset-4 md:-inset-6 w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] h-[calc(100%+2rem)] md:h-[calc(100%+3rem)] pointer-events-none" viewBox="0 0 200 100" preserveAspectRatio="none">
                           <ellipse
                             cx="100"
                             cy="50"
@@ -1517,11 +1517,11 @@ export default function PublicPropertyDetail() {
           <section className="relative py-20 md:py-28">
             {/* Ambient glow - BOOSTED + extended bottom bleed to Investment */}
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-violet-500/18 rounded-full blur-[180px]" />
+              <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
+              <div className="absolute pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-violet-500/18 rounded-full blur-[180px]" />
               {/* Extended bottom bleed to reach Investment section */}
-              <div className="absolute bottom-[-45%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-              <div className="absolute bottom-[-30%] left-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[150px]" />
+              <div className="absolute pointer-events-none bottom-[-45%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+              <div className="absolute pointer-events-none bottom-[-30%] left-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[150px]" />
             </div>
 
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
@@ -1589,11 +1589,11 @@ export default function PublicPropertyDetail() {
         {(property.downPayment !== undefined || property.monthlyPayment !== undefined) && (
           <section className="relative py-16 md:py-24">
             {/* Dramatic purple ambient lighting - extends upward to blend with previous section */}
-            <div className="absolute top-[-40%] left-1/2 -translate-x-1/2 w-[600px] md:w-[1000px] h-[400px] md:h-[600px] bg-purple-600/25 rounded-full blur-[150px] md:blur-[200px]" />
-            <div className="absolute top-[30%] right-0 w-[400px] h-[400px] bg-violet-700/15 rounded-full blur-[150px]" />
+            <div className="absolute pointer-events-none top-[-40%] left-1/2 -translate-x-1/2 w-[600px] md:w-[1000px] h-[400px] md:h-[600px] bg-purple-600/25 rounded-full blur-[150px] md:blur-[200px]" />
+            <div className="absolute pointer-events-none top-[30%] right-0 w-[400px] h-[400px] bg-violet-700/15 rounded-full blur-[150px]" />
             {/* Bottom glows bleed into Journey Comparison */}
-            <div className="absolute bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
-            <div className="absolute bottom-[-20%] left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
+            <div className="absolute pointer-events-none bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
+            <div className="absolute pointer-events-none bottom-[-20%] left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
 
 
             <div className="relative max-w-4xl mx-auto px-4">
@@ -1624,21 +1624,21 @@ export default function PublicPropertyDetail() {
               <Reveal delay={150}>
                 <div className="relative">
                   {/* Glow behind card */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/30 via-violet-500/20 to-purple-500/30 blur-3xl scale-110" />
+                  <div className="absolute pointer-events-none inset-0 bg-gradient-to-r from-purple-500/30 via-violet-500/20 to-purple-500/30 blur-3xl scale-110" />
 
                 <div className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-black rounded-3xl border border-purple-500/30 shadow-[0_0_60px_rgba(168,85,247,0.2)] overflow-hidden">
                   {/* Total Price Header */}
                   <div className="relative bg-gradient-to-r from-purple-600 via-violet-600 to-purple-600 p-8 md:p-10 text-center overflow-hidden">
                     {/* Decorative elements */}
-                    <div className="absolute top-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
-                    <div className="absolute bottom-0 right-0 w-40 h-40 bg-purple-900/50 rounded-full blur-3xl" />
+                    <div className="absolute pointer-events-none top-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+                    <div className="absolute pointer-events-none bottom-0 right-0 w-40 h-40 bg-purple-900/50 rounded-full blur-3xl" />
 
                     <div className="relative z-10">
                       <div className="text-xs md:text-sm uppercase tracking-[0.2em] text-purple-200 font-semibold mb-2 md:mb-3">
                         Total Price
                       </div>
                       <div className="relative inline-block">
-                        <span className="absolute inset-0 bg-white/20 blur-xl scale-150" />
+                        <span className="absolute inset-0 bg-white/20 blur-xl scale-150 pointer-events-none" />
                         <span className="relative text-5xl sm:text-6xl md:text-7xl font-black text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]">
                           ${property.price.toLocaleString()}
                         </span>
@@ -1714,12 +1714,12 @@ export default function PublicPropertyDetail() {
         {/* JOURNEY COMPARISON - The Old Way vs The New Way - DARK PREMIUM */}
         <section className="relative py-16 md:py-24">
           {/* Ambient lighting - glows extend to adjacent sections */}
-          <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-          <div className="absolute top-[20%] left-0 w-[500px] h-[500px] bg-slate-700/15 rounded-full blur-[180px]" />
-          <div className="absolute top-[30%] right-0 w-[500px] h-[500px] bg-purple-600/18 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+          <div className="absolute pointer-events-none top-[20%] left-0 w-[500px] h-[500px] bg-slate-700/15 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none top-[30%] right-0 w-[500px] h-[500px] bg-purple-600/18 rounded-full blur-[180px]" />
           {/* Bottom glows bleed into Process Steps */}
-          <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
-          <div className="absolute bottom-[-15%] right-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
+          <div className="absolute pointer-events-none bottom-[-15%] right-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
 
 
           <div className="relative max-w-6xl mx-auto px-4">
@@ -1817,7 +1817,7 @@ export default function PublicPropertyDetail() {
                 </div>
 
                 {/* Glow effect behind the column */}
-                <div className="absolute inset-0 bg-purple-500/10 rounded-3xl blur-3xl scale-110 hidden md:block" />
+                <div className="absolute pointer-events-none inset-0 bg-purple-500/10 rounded-3xl blur-3xl scale-110 hidden md:block" />
 
                 {/* Vertical connecting line with glow - fades before pill */}
                 <div className="absolute left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[70px] w-1 bg-gradient-to-b from-purple-400/40 via-purple-400/60 to-transparent shadow-[0_0_15px_rgba(168,85,247,0.4)] hidden md:block" />
@@ -1906,12 +1906,12 @@ export default function PublicPropertyDetail() {
         {/* Process Steps - Premium Dark */}
         <section className="relative py-20 md:py-28">
           {/* Ambient lighting - glows bleed into adjacent sections */}
-          <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-          <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
-          <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[400px] bg-purple-500/15 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+          <div className="absolute pointer-events-none top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[400px] bg-purple-500/15 rounded-full blur-[180px]" />
           {/* Bottom glows bleed into Testimonials */}
-          <div className="absolute bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
-          <div className="absolute bottom-[-15%] right-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
+          <div className="absolute pointer-events-none bottom-[-15%] right-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
 
 
           <div className="relative z-10 container mx-auto px-4">
@@ -1938,7 +1938,7 @@ export default function PublicPropertyDetail() {
                 <Reveal delay={0} className="relative text-center group">
                   <div className="relative mx-auto mb-8">
                     {/* Glow ring */}
-                    <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute pointer-events-none inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     {/* Number circle */}
                     <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
                       <span className="text-3xl sm:text-4xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
@@ -1958,7 +1958,7 @@ export default function PublicPropertyDetail() {
                 {/* Step 2 */}
                 <Reveal delay={200} className="relative text-center group">
                   <div className="relative mx-auto mb-8">
-                    <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute pointer-events-none inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
                       <span className="text-3xl sm:text-4xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
                         2
@@ -1977,7 +1977,7 @@ export default function PublicPropertyDetail() {
                 {/* Step 3 */}
                 <Reveal delay={400} className="relative text-center group">
                   <div className="relative mx-auto mb-8">
-                    <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute pointer-events-none inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
                       <span className="text-3xl sm:text-4xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
                         3
@@ -2067,12 +2067,12 @@ export default function PublicPropertyDetail() {
               <section className="relative py-16 md:py-20">
                 {/* BOOSTED glows - social proof needs visual weight */}
                 {/* Center spotlight for the testimonial stage */}
-                <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
+                <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
                 {/* Edge glows boosted from 10-12% to 20% */}
-                <div className="absolute top-[-40%] left-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-                <div className="absolute top-[-40%] right-0 w-[500px] h-[600px] bg-violet-500/18 rounded-full blur-[200px]" />
-                <div className="absolute bottom-[-40%] left-0 w-[500px] h-[600px] bg-violet-600/18 rounded-full blur-[200px]" />
-                <div className="absolute bottom-[-40%] right-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+                <div className="absolute pointer-events-none top-[-40%] left-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+                <div className="absolute pointer-events-none top-[-40%] right-0 w-[500px] h-[600px] bg-violet-500/18 rounded-full blur-[200px]" />
+                <div className="absolute pointer-events-none bottom-[-40%] left-0 w-[500px] h-[600px] bg-violet-600/18 rounded-full blur-[200px]" />
+                <div className="absolute pointer-events-none bottom-[-40%] right-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
 
                 <Reveal className="text-center mb-10">
                   <h2 className="text-3xl md:text-4xl text-white">
@@ -2096,11 +2096,11 @@ export default function PublicPropertyDetail() {
         {!funnelLoading && funnelContent?.locationNearby && (
           <section className="relative py-16 md:py-20">
             {/* Ambient glows - BOOSTED for visibility */}
-            <div className="absolute top-[-40%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[220px]" />
-            <div className="absolute top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
-            <div className="absolute top-[30%] right-0 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
+            <div className="absolute pointer-events-none top-[-40%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[220px]" />
+            <div className="absolute pointer-events-none top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
+            <div className="absolute pointer-events-none top-[30%] right-0 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
             {/* Bottom bleeds to Qualifier */}
-            <div className="absolute bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-purple-500/22 rounded-full blur-[200px]" />
+            <div className="absolute pointer-events-none bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-purple-500/22 rounded-full blur-[200px]" />
 
             <div className="relative z-10 max-w-4xl mx-auto px-4">
               {/* Section Header */}
@@ -2124,7 +2124,7 @@ export default function PublicPropertyDetail() {
                     return (
                       <div key={idx} className="group relative">
                         {/* Glow on hover */}
-                        <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/20 to-violet-600/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute pointer-events-none -inset-1 bg-gradient-to-r from-purple-600/20 to-violet-600/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                         <div className="relative bg-purple-500/10 border border-purple-500/20 rounded-xl px-4 py-5 text-center h-full group-hover:border-purple-400/40 group-hover:bg-purple-500/15 transition-all flex flex-col justify-center">
                           <p className="text-white font-medium text-sm leading-tight">
@@ -2149,11 +2149,11 @@ export default function PublicPropertyDetail() {
         {!funnelLoading && funnelContent?.qualifier && (
           <section className="relative py-16 md:py-20">
             {/* Ambient glows - BOOSTED + extended bottom bleed to FAQ */}
-            <div className="absolute top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/22 rounded-full blur-[200px]" />
-            <div className="absolute top-[20%] left-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
-            <div className="absolute top-[40%] right-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
+            <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/22 rounded-full blur-[200px]" />
+            <div className="absolute pointer-events-none top-[20%] left-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
+            <div className="absolute pointer-events-none top-[40%] right-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
             {/* Extended bottom bleed to reach FAQ section */}
-            <div className="absolute bottom-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
+            <div className="absolute pointer-events-none bottom-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
 
             <div className="relative z-10 max-w-3xl mx-auto px-4">
               <Reveal className="text-center mb-10">
@@ -2198,10 +2198,10 @@ export default function PublicPropertyDetail() {
           <section className="relative py-16 md:py-20">
             {/* Ambient glows - BOOSTED + extended top to catch Qualifier bleed */}
             {/* Extended top glow to receive Qualifier section's bleed */}
-            <div className="absolute top-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
-            <div className="absolute top-[20%] right-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
-            <div className="absolute top-[50%] left-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
-            <div className="absolute bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/25 rounded-full blur-[220px]" />
+            <div className="absolute pointer-events-none top-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
+            <div className="absolute pointer-events-none top-[20%] right-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
+            <div className="absolute pointer-events-none top-[50%] left-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
+            <div className="absolute pointer-events-none bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/25 rounded-full blur-[220px]" />
 
             <div className="relative z-10 max-w-5xl mx-auto px-4">
               <FunnelFAQ
@@ -2220,12 +2220,12 @@ export default function PublicPropertyDetail() {
         {/* Urgency / Countdown - Premium Purple */}
         <section className="relative py-20 md:py-28">
           {/* Dramatic urgency lighting - purple glow that bleeds both up and down */}
-          <div className="absolute top-[-50%] left-1/2 -translate-x-1/2 w-[1000px] md:w-[1400px] h-[600px] md:h-[800px] bg-purple-600/20 rounded-full blur-[200px] md:blur-[250px]" />
-          <div className="absolute top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/15 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none top-[-50%] left-1/2 -translate-x-1/2 w-[1000px] md:w-[1400px] h-[600px] md:h-[800px] bg-purple-600/20 rounded-full blur-[200px] md:blur-[250px]" />
+          <div className="absolute pointer-events-none top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/15 rounded-full blur-[180px]" />
           {/* Bottom glows bleed into Final CTA section - stronger connection */}
-          <div className="absolute bottom-[-50%] left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
-          <div className="absolute bottom-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/18 rounded-full blur-[200px]" />
-          <div className="absolute bottom-[-20%] right-1/4 w-[600px] h-[500px] bg-purple-500/18 rounded-full blur-[200px]" />
+          <div className="absolute pointer-events-none bottom-[-50%] left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
+          <div className="absolute pointer-events-none bottom-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/18 rounded-full blur-[200px]" />
+          <div className="absolute pointer-events-none bottom-[-20%] right-1/4 w-[600px] h-[500px] bg-purple-500/18 rounded-full blur-[200px]" />
 
           {/* Animated pulse ring - extends toward next section */}
           <div className="absolute top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-purple-500/15 animate-ping" style={{ animationDuration: '3s' }} />
@@ -2285,11 +2285,11 @@ export default function PublicPropertyDetail() {
         {!funnelLoading && funnelContent?.callToAction && (
           <section className="relative py-16 md:py-20">
             {/* Top glows - extend far up to receive Urgency section's bleed */}
-            <div className="absolute top-[-60%] left-1/2 -translate-x-1/2 w-[1200px] md:w-[1600px] h-[800px] bg-purple-600/28 rounded-full blur-[250px]" />
-            <div className="absolute top-[-40%] left-1/4 w-[700px] h-[600px] bg-violet-500/22 rounded-full blur-[200px]" />
-            <div className="absolute top-[-40%] right-1/4 w-[700px] h-[600px] bg-purple-500/20 rounded-full blur-[200px]" />
+            <div className="absolute pointer-events-none top-[-60%] left-1/2 -translate-x-1/2 w-[1200px] md:w-[1600px] h-[800px] bg-purple-600/28 rounded-full blur-[250px]" />
+            <div className="absolute pointer-events-none top-[-40%] left-1/4 w-[700px] h-[600px] bg-violet-500/22 rounded-full blur-[200px]" />
+            <div className="absolute pointer-events-none top-[-40%] right-1/4 w-[700px] h-[600px] bg-purple-500/20 rounded-full blur-[200px]" />
             {/* Bottom glow - bleeds into Form section */}
-            <div className="absolute bottom-[-50%] left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-purple-600/25 rounded-full blur-[220px]" />
+            <div className="absolute pointer-events-none bottom-[-50%] left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-purple-600/25 rounded-full blur-[220px]" />
 
             <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
@@ -2326,21 +2326,21 @@ export default function PublicPropertyDetail() {
         {/* Contact Form + Footer Section - Combined into one seamless section */}
         <section id="contact-form" className="relative pt-20 md:pt-28 pb-12">
           {/* Ambient glows for the entire form + footer area */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[500px] md:h-[700px] bg-purple-600/28 rounded-full blur-[150px] md:blur-[200px]" />
-          <div className="absolute top-[15%] left-0 w-[600px] h-[500px] bg-violet-500/22 rounded-full blur-[130px]" />
-          <div className="absolute top-[15%] right-0 w-[600px] h-[500px] bg-purple-500/22 rounded-full blur-[130px]" />
+          <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[500px] md:h-[700px] bg-purple-600/28 rounded-full blur-[150px] md:blur-[200px]" />
+          <div className="absolute pointer-events-none top-[15%] left-0 w-[600px] h-[500px] bg-violet-500/22 rounded-full blur-[130px]" />
+          <div className="absolute pointer-events-none top-[15%] right-0 w-[600px] h-[500px] bg-purple-500/22 rounded-full blur-[130px]" />
           {/* Center/bottom glows for footer area */}
-          <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-          <div className="absolute bottom-0 left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
-          <div className="absolute bottom-0 right-1/4 w-[500px] h-[400px] bg-purple-500/15 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none bottom-[10%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+          <div className="absolute pointer-events-none bottom-0 left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none bottom-0 right-1/4 w-[500px] h-[400px] bg-purple-500/15 rounded-full blur-[180px]" />
 
           <div className="relative z-10">
           {/* Form Card */}
           <div className="max-w-xl mx-auto">
             <div className="bg-white/5 backdrop-blur-sm rounded-3xl shadow-2xl border border-purple-500/20 overflow-hidden">
               <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 p-8 text-white text-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-400/20 rounded-full blur-2xl" />
+                <div className="absolute pointer-events-none top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
+                <div className="absolute pointer-events-none bottom-0 left-0 w-32 h-32 bg-purple-400/20 rounded-full blur-2xl" />
                 <div className="relative z-10">
                   <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 backdrop-blur rounded-2xl mb-4 shadow-lg">
                     <Home className="h-7 w-7 text-white" />
