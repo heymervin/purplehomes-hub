@@ -978,6 +978,8 @@ export const useUpdateAirtableProperty = () => {
         description?: string;
         monthlyPayment?: number;
         downPayment?: number;
+        heroImage?: string;
+        images?: string[];
       };
     }): Promise<{ success: boolean; record: any }> => {
       console.log('[Matching API] Updating Airtable property:', update.recordId, update.fields);
@@ -997,6 +999,13 @@ export const useUpdateAirtableProperty = () => {
       if (update.fields.description !== undefined) airtableFields['Notes'] = update.fields.description;
       if (update.fields.monthlyPayment !== undefined) airtableFields['Monthly Payment'] = update.fields.monthlyPayment;
       if (update.fields.downPayment !== undefined) airtableFields['Down Payment'] = update.fields.downPayment;
+      if (update.fields.heroImage !== undefined) airtableFields['Hero Image'] = update.fields.heroImage;
+      if (update.fields.images !== undefined) {
+        // Supporting images are stored in individual fields: Supporting Image 1 through Supporting Image 25
+        for (let i = 1; i <= 25; i++) {
+          airtableFields[`Supporting Image ${i}`] = update.fields.images[i - 1] || '';
+        }
+      }
 
       const response = await fetch(
         `${AIRTABLE_API_BASE}?action=update-record&table=${encodeURIComponent('Properties')}&recordId=${update.recordId}`,

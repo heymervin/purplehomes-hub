@@ -65,6 +65,12 @@ export function PropertyImageGallery({
   };
 
   const setAsHero = (originalImageUrl: string) => {
+    // Demote old hero into regular images, remove new hero from regular images
+    const updatedImages = [
+      ...images.filter(img => img !== originalImageUrl),
+      ...(heroImage && heroImage !== '/placeholder.svg' ? [heroImage] : []),
+    ];
+    onImagesChange(updatedImages);
     onHeroChange(originalImageUrl);
     toast.success('Hero image updated');
   };

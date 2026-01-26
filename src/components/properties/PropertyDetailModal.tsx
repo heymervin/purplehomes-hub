@@ -257,6 +257,8 @@ export function PropertyDetailModal({
               propertyType: formData.propertyType,
               monthlyPayment: formData.monthlyPayment,
               downPayment: formData.downPayment,
+              heroImage: formData.heroImage,
+              images: formData.images,
             },
           });
         } catch (airtableError) {
