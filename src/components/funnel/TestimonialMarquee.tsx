@@ -63,10 +63,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
 export function TestimonialMarquee({ testimonials, speed = 30 }: TestimonialMarqueeProps) {
   const [isPaused, setIsPaused] = useState(false);
 
-  // Double the testimonials for seamless loop (not triple - cleaner math)
-  const items = [...testimonials, ...testimonials];
-
-  // Smooth duration calculation
+  // Smooth duration calculation based on one set of testimonials
   const duration = (testimonials.length * 12) * (30 / speed);
 
   if (testimonials.length === 0) {
@@ -79,7 +76,7 @@ export function TestimonialMarquee({ testimonials, speed = 30 }: TestimonialMarq
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Seamless infinite scroll with GPU acceleration */}
+      {/* Two identical tracks side by side for seamless infinite scroll */}
       <div
         className="flex marquee-track"
         style={{
@@ -87,12 +84,21 @@ export function TestimonialMarquee({ testimonials, speed = 30 }: TestimonialMarq
           animationPlayState: isPaused ? 'paused' : 'running',
         } as React.CSSProperties}
       >
-        {items.map((testimonial, index) => (
-          <TestimonialCard key={`${testimonial.authorName}-${index}`} testimonial={testimonial} />
-        ))}
+        {/* First set */}
+        <div className="flex flex-shrink-0">
+          {testimonials.map((testimonial, index) => (
+            <TestimonialCard key={`a-${index}`} testimonial={testimonial} />
+          ))}
+        </div>
+        {/* Duplicate set for seamless loop */}
+        <div className="flex flex-shrink-0">
+          {testimonials.map((testimonial, index) => (
+            <TestimonialCard key={`b-${index}`} testimonial={testimonial} />
+          ))}
+        </div>
       </div>
 
-      {/* Optimized keyframes for smooth infinite loop */}
+      {/* Keyframes: translate exactly one set's width (50% of the two sets combined) */}
       <style>{`
         @keyframes scroll {
           from {
