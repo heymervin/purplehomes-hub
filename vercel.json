@@ -64,9 +64,6 @@
     },
     "api/funnel/avatar-research.ts": {
       "maxDuration": 60
-    },
-    "api/funnel/analytics.ts": {
-      "maxDuration": 60
     }
   }
 }
