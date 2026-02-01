@@ -1595,7 +1595,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 'FormSubmitted': trackData.formSubmitted || false,
                 'VideoPlayed': trackData.videoPlayed || false,
                 'EffectivenessScore': effectivenessScore,
-                'Timestamp': trackData.timestamp || new Date().toISOString()
+                'TimeStamp': trackData.timestamp || new Date().toISOString()
               }
             }),
           });
