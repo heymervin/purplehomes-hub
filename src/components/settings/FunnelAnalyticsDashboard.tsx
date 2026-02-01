@@ -59,7 +59,7 @@ export function FunnelAnalyticsDashboard() {
     setError(null);
 
     try {
-      const res = await fetch(`/api/funnel/analytics?action=metrics&days=${period}`);
+      const res = await fetch(`/api/funnel?action=analytics-metrics&days=${period}`);
 
       if (!res.ok) {
         setMetrics(null);

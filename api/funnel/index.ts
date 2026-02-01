@@ -1670,8 +1670,159 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
       }
 
+      case 'analytics-metrics': {
+        // Dashboard metrics with segment breakdown
+        if (req.method !== 'GET') {
+          return res.status(405).json({ error: 'Method not allowed' });
+        }
+
+        const days = parseInt(req.query.days as string) || 30;
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - days);
+
+        try {
+          // Fetch all records within timeframe
+          const formula = encodeURIComponent(`IS_AFTER({TimeStamp}, '${cutoffDate.toISOString().split('T')[0]}')`);
+          const analyticsUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/FunnelAnalytics?filterByFormula=${formula}`;
+
+          const response = await fetchWithRetry(analyticsUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${AIRTABLE_API_KEY}` },
+          });
+
+          if (!response.ok) {
+            return res.status(200).json({
+              success: true,
+              metrics: {
+                totalSessions: 0, avgScrollDepth: 0, avgTimeOnPage: 0,
+                avgCTAClicks: 0, conversionRate: 0, videoPlayRate: 0,
+                bySegment: {}, byProperty: {}
+              },
+              period: `${days} days`,
+              message: 'No data available'
+            });
+          }
+
+          const data = await response.json();
+          const records = data.records || [];
+
+          if (records.length === 0) {
+            return res.status(200).json({
+              success: true,
+              metrics: {
+                totalSessions: 0, avgScrollDepth: 0, avgTimeOnPage: 0,
+                avgCTAClicks: 0, conversionRate: 0, videoPlayRate: 0,
+                bySegment: {}, byProperty: {}
+              },
+              period: `${days} days`,
+              message: 'No data available for this period'
+            });
+          }
+
+          // Aggregate metrics
+          let totalScrollDepth = 0;
+          let totalTimeOnPage = 0;
+          let totalCTAClicks = 0;
+          let conversions = 0;
+          let videoPlays = 0;
+
+          const segmentData: Record<string, {
+            sessions: number; scrollDepth: number; timeOnPage: number; clicks: number; conversions: number;
+          }> = {};
+
+          const propertyData: Record<string, {
+            sessions: number; scrollDepth: number; conversions: number; slug: string;
+          }> = {};
+
+          for (const record of records) {
+            const fields = record.fields;
+            const scrollDepth = (fields.MaxScrollDepth as number) || 0;
+            const timeOnPage = (fields.TimeOnPage as number) || 0;
+            const ctaClicks = (fields.CTAClicks as number) || 0;
+            const formSubmitted = fields.FormSubmitted as boolean;
+            const videoPlayed = fields.VideoPlayed as boolean;
+            const segment = (fields.BuyerSegment as string) || 'unknown';
+            const propertyId = (fields.PropertyID as string) || 'unknown';
+            const propertySlug = (fields.PropertySlug as string) || '';
+
+            totalScrollDepth += scrollDepth;
+            totalTimeOnPage += timeOnPage;
+            totalCTAClicks += ctaClicks;
+            if (formSubmitted) conversions++;
+            if (videoPlayed) videoPlays++;
+
+            // Aggregate by segment
+            if (!segmentData[segment]) {
+              segmentData[segment] = { sessions: 0, scrollDepth: 0, timeOnPage: 0, clicks: 0, conversions: 0 };
+            }
+            segmentData[segment].sessions++;
+            segmentData[segment].scrollDepth += scrollDepth;
+            segmentData[segment].timeOnPage += timeOnPage;
+            segmentData[segment].clicks += ctaClicks;
+            if (formSubmitted) segmentData[segment].conversions++;
+
+            // Aggregate by property
+            if (propertyId && propertyId !== 'unknown') {
+              if (!propertyData[propertyId]) {
+                propertyData[propertyId] = { sessions: 0, scrollDepth: 0, conversions: 0, slug: propertySlug };
+              }
+              propertyData[propertyId].sessions++;
+              propertyData[propertyId].scrollDepth += scrollDepth;
+              if (formSubmitted) propertyData[propertyId].conversions++;
+            }
+          }
+
+          // Calculate metrics
+          const totalSessions = records.length;
+          const metrics = {
+            totalSessions,
+            avgScrollDepth: Math.round(totalScrollDepth / totalSessions),
+            avgTimeOnPage: Math.round(totalTimeOnPage / totalSessions),
+            avgCTAClicks: Math.round((totalCTAClicks / totalSessions) * 10) / 10,
+            conversionRate: Math.round((conversions / totalSessions) * 1000) / 10,
+            videoPlayRate: Math.round((videoPlays / totalSessions) * 1000) / 10,
+            bySegment: {} as Record<string, any>,
+            byProperty: {} as Record<string, any>
+          };
+
+          // Calculate segment metrics
+          for (const [segment, sData] of Object.entries(segmentData)) {
+            metrics.bySegment[segment] = {
+              sessions: sData.sessions,
+              avgScrollDepth: Math.round(sData.scrollDepth / sData.sessions),
+              avgTimeOnPage: Math.round(sData.timeOnPage / sData.sessions),
+              ctaClickRate: Math.round((sData.clicks / sData.sessions) * 100) / 100,
+              conversionRate: Math.round((sData.conversions / sData.sessions) * 1000) / 10
+            };
+          }
+
+          // Calculate property metrics (top 10)
+          const sortedProperties = Object.entries(propertyData)
+            .sort((a, b) => b[1].sessions - a[1].sessions)
+            .slice(0, 10);
+
+          for (const [pId, pData] of sortedProperties) {
+            metrics.byProperty[pId] = {
+              sessions: pData.sessions,
+              avgScrollDepth: Math.round(pData.scrollDepth / pData.sessions),
+              conversions: pData.conversions
+            };
+          }
+
+          return res.status(200).json({
+            success: true,
+            metrics,
+            period: `${days} days`,
+            recordCount: records.length
+          });
+        } catch (error) {
+          console.error('[Funnel Analytics] Metrics error:', error);
+          return res.status(500).json({ error: 'Failed to get metrics', details: String(error) });
+        }
+      }
+
       default:
-        return res.status(400).json({ error: 'Unknown action', validActions: ['generate', 'get', 'save', 'delete', 'list', 'test', 'clear-inputs', 'analytics-track', 'analytics-aggregate'] });
+        return res.status(400).json({ error: 'Unknown action', validActions: ['generate', 'get', 'save', 'delete', 'list', 'test', 'clear-inputs', 'analytics-track', 'analytics-aggregate', 'analytics-metrics'] });
     }
   } catch (error) {
     console.error('[Funnel API] Error:', error);
