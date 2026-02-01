@@ -1605,7 +1605,39 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.log('[Funnel Analytics] Session saved:', trackData.sessionId);
           }
 
-          return res.status(200).json({ success: true, saved, effectivenessScore });
+          // ============ AUTO-FEEDBACK LOOP ============
+          // When a visitor converts (form submitted), auto-rate the avatar research
+          // This makes templates evolve based on real conversion data
+          let templateEvolved = false;
+          if (saved && trackData.formSubmitted && trackData.avatarResearchId) {
+            try {
+              console.log('[Funnel Analytics] Conversion detected - auto-rating avatar research:', trackData.avatarResearchId);
+
+              // Call avatar-research API to rate this research as 8 (high rating triggers template evolution)
+              const autoRating = 8;
+              const rateUrl = `https://${req.headers.host}/api/funnel/avatar-research?action=rate`;
+              const rateResponse = await fetch(rateUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  recordId: trackData.avatarResearchId,
+                  rating: autoRating,
+                  feedback: `Auto-rated: Visitor converted (form submitted). Session: ${trackData.sessionId}`
+                })
+              });
+
+              if (rateResponse.ok) {
+                const rateResult = await rateResponse.json();
+                templateEvolved = rateResult.templateEvolved || false;
+                console.log('[Funnel Analytics] Auto-rating successful, template evolved:', templateEvolved);
+              }
+            } catch (rateError) {
+              // Don't fail the whole request if auto-rating fails
+              console.error('[Funnel Analytics] Auto-rating failed (non-blocking):', rateError);
+            }
+          }
+
+          return res.status(200).json({ success: true, saved, effectivenessScore, templateEvolved });
         } catch (error) {
           console.error('[Funnel Analytics] Error saving:', error);
           return res.status(200).json({ success: true, saved: false, effectivenessScore });
