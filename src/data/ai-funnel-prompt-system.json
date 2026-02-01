@@ -162,6 +162,80 @@
         {"objection": "I've been denied before", "counter": "Traditional lenders often don't understand business income. We do."},
         {"objection": "Will I pay higher rates?", "counter": "Possibly slightly higher, but programs exist specifically for self-employed buyers."}
       ]
+    },
+    "hispanic-seller-finance": {
+      "label": "Hispanic/Latino Seller-Finance Buyer",
+      "marketContext": "Southern Louisiana Latino/Hispanic families pursuing seller financing",
+      "identityDriver": "I work hard. I provide. I don't want charity — I want fairness.",
+      "dreams": [
+        "No more landlord surprises, rent increases, or moving kids again",
+        "Pride in saying 'This is MY house' to family here and back home",
+        "Space for family gatherings, multi-generational living",
+        "Stability for children's education and future",
+        "Something to pass down - a family legacy",
+        "Proof of 'making it' in America despite barriers"
+      ],
+      "fears": [
+        "Losing everything due to one mistake or missed payment",
+        "Being targeted or exploited because of no papers or credit",
+        "Hidden clauses or consequences they don't understand",
+        "Shame and loss of dignity if they fail",
+        "Government/immigration attention from buying property",
+        "Scams - taking money and getting nothing",
+        "Making wrong choice and family judgment"
+      ],
+      "suspicions": [
+        "This seems too good to be true - what's the catch?",
+        "Complex contracts designed to trick or trap them",
+        "Banks and institutions don't understand or respect them",
+        "Without bank involvement, who protects the buyer?",
+        "Seller has unfair leverage if problems arise"
+      ],
+      "failures": [
+        "Rejected by banks - ITIN not accepted, no credit history",
+        "Cash income can't be documented or verified",
+        "Pay stubs and tax returns don't reflect actual income",
+        "Past experiences of discrimination in institutional settings",
+        "Stories of family/friends being taken advantage of"
+      ],
+      "enemies": [
+        "Banks that demand SSN and perfect credit history",
+        "Systems that penalize hard workers with cash income",
+        "Predatory lenders targeting immigrant communities",
+        "Landlords who raise rent, make surprise inspections",
+        "The 'paper trail' requirement that ignores real income"
+      ],
+      "beforeState": {
+        "feelings": "Trapped paying rent, vulnerable to landlord, working hard but invisible to system",
+        "daily": "Paying someone else's mortgage, no control, always temporary",
+        "status": "Hard worker who 'can't qualify' - makes good money but doesn't look good on paper"
+      },
+      "afterState": {
+        "feelings": "Dignified, secure, proud - no longer 'at the mercy' of landlords",
+        "daily": "Building equity, making improvements to THEIR home, stability for children",
+        "status": "Homeowner - proof to family that they made it, something to pass down"
+      },
+      "topObjections": [
+        {"objection": "I don't really own the house until it's paid off", "counter": "You receive the deed and legal ownership at closing. The seller holds a lien like a bank would - but YOU own it immediately. Tu casa es tu casa."},
+        {"objection": "The seller can take the house back anytime", "counter": "Only through legal process after documented default. You have rights and time to cure any issues. This is protected by law."},
+        {"objection": "I need perfect credit or papers to qualify", "counter": "We work with ITIN holders, self-employed, and people rebuilding credit. What matters is steady income and down payment - not a number."},
+        {"objection": "My monthly payment can change whenever the seller wants", "counter": "Your payment is fixed in the contract. It cannot change unless we BOTH agree. This protects you."},
+        {"objection": "If the seller dies, I lose the house", "counter": "The contract survives. You continue payments to their estate. Your ownership is not affected. It's written in the documents."}
+      ],
+      "culturalValues": {
+        "familia": "Family is primary - decisions are collective, homeownership is multi-generational legacy",
+        "dignidad": "Being treated with respect is non-negotiable. Never condescend or rush.",
+        "confianza": "Trust is earned through consistency, transparency, and relationship before transaction"
+      },
+      "messagingRules": {
+        "neverSay": ["This is simple", "Don't worry about it", "You're lucky to get this", "You need to decide today"],
+        "alwaysSay": ["Take the time you need", "Many families ask this question", "Let me explain exactly how this works", "This protects you", "I want your whole family to feel good about this"]
+      },
+      "decisionStyle": {
+        "salesCycle": "2-5 months",
+        "decisionMakers": "Both spouses, extended family advisory role",
+        "trustSignals": ["Spanish video testimonials", "Lawyer involvement framed as buyer protection", "Visual payment breakdowns", "In-person meetings", "Patience without pressure"]
+      }
     }
   },
 

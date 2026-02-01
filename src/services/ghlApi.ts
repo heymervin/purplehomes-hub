@@ -607,6 +607,10 @@ export const transformOpportunityToProperty = (opp: GHLOpportunity): Property =>
   const downPayment = downPaymentStr ? parseFloat(downPaymentStr.replace(/[^0-9.]/g, '')) : undefined;
   const monthlyPayment = monthlyPaymentStr ? parseFloat(monthlyPaymentStr.replace(/[^0-9.]/g, '')) : undefined;
 
+  // Parse acquisitions price (purchase price from GHL)
+  const purchasePriceStr = getCustomField(GHL_OPPORTUNITY_FIELDS.purchase_price);
+  const acquisitionsPrice = purchasePriceStr ? parseFloat(purchasePriceStr.replace(/[^0-9.]/g, '')) : undefined;
+
   return {
     id: opp.id,
     ghlOpportunityId: opp.id,
@@ -630,6 +634,7 @@ export const transformOpportunityToProperty = (opp: GHLOpportunity): Property =>
     scheduledDate: getCustomField(PROPERTY_CUSTOM_FIELDS.scheduledDate),
     downPayment: !isNaN(downPayment as number) ? downPayment : undefined,
     monthlyPayment: !isNaN(monthlyPayment as number) ? monthlyPayment : undefined,
+    acquisitionsPrice: !isNaN(acquisitionsPrice as number) ? acquisitionsPrice : undefined,
     createdAt: opp.createdAt,
     isDemo: false,
   };

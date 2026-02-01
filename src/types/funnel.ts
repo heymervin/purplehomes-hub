@@ -15,6 +15,7 @@ export type BuyerSegment =
   | 'investor'
   | 'move-up-buyer'
   | 'self-employed'
+  | 'hispanic-seller-finance'
   | 'general';
 
 /**
@@ -106,6 +107,11 @@ export const BUYER_SEGMENT_OPTIONS: { value: BuyerSegment; label: string; descri
     value: 'self-employed',
     label: 'Self-Employed',
     description: 'Business owner with hard-to-document income'
+  },
+  {
+    value: 'hispanic-seller-finance',
+    label: 'Hispanic/Latino Buyer',
+    description: 'Spanish-first family buyer who can afford a home but not the bank - values respect, transparency, and family legacy'
   },
   {
     value: 'general',

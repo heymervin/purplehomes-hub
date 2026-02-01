@@ -20,7 +20,8 @@ export interface Property {
   address: string;
   city: string;
   state?: string;
-  price: number;
+  price: number; // Dispositions Price (Property Total Price from GHL)
+  acquisitionsPrice?: number; // Acquisitions Price (Purchase Price from GHL)
   beds: number;
   baths: number;
   sqft?: number;

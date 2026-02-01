@@ -45,7 +45,7 @@ import { SocialStatusBadge } from '@/components/ui/social-status-badge';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { toast } from 'sonner';
 import type { Property, PropertyCondition, PropertyType, PropertyStatus } from '@/types';
-import { useUpdateProperty, useProperty, PROPERTY_CUSTOM_FIELDS } from '@/services/ghlApi';
+import { useUpdateProperty, useProperty, PROPERTY_CUSTOM_FIELDS, GHL_OPPORTUNITY_FIELDS } from '@/services/ghlApi';
 import { useUpdateAirtableProperty } from '@/services/matchingApi';
 import { PropertyCalculator } from '@/components/calculator';
 import { FunnelContentEditor } from './FunnelContentEditor';
@@ -204,10 +204,29 @@ export function PropertyDetailModal({
       if (formData.condition) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.condition] = formData.condition;
       if (formData.propertyType) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.propertyType] = formData.propertyType;
       if (formData.heroImage) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.heroImage] = formData.heroImage;
+
+      // Map supporting images to GHL custom fields (1-10)
+      const supportingImageFields = [
+        GHL_OPPORTUNITY_FIELDS.supporting_image_1_upload,
+        GHL_OPPORTUNITY_FIELDS.supporting_image_2_upload,
+        GHL_OPPORTUNITY_FIELDS.supporting_image_3_upload,
+        GHL_OPPORTUNITY_FIELDS.supporting_image_4_upload,
+        GHL_OPPORTUNITY_FIELDS.supporting_image_5_upload,
+        GHL_OPPORTUNITY_FIELDS.supporting_image_6_upload,
+        GHL_OPPORTUNITY_FIELDS.supporting_image_7_upload,
+        GHL_OPPORTUNITY_FIELDS.supporting_image_8_upload,
+        GHL_OPPORTUNITY_FIELDS.supporting_image_9_upload,
+        GHL_OPPORTUNITY_FIELDS.supporting_image_10_upload,
+      ];
+      supportingImageFields.forEach((fieldId, i) => {
+        customFieldsUpdate[fieldId] = formData.images[i] || '';
+      });
+
       if (formData.caption) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.caption] = formData.caption;
       if (formData.socialMediaPropertyDescription !== undefined) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.socialMediaDescription] = formData.socialMediaPropertyDescription;
       if (formData.downPayment !== undefined) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.downPayment] = String(formData.downPayment);
       if (formData.monthlyPayment !== undefined) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.monthlyPayment] = String(formData.monthlyPayment);
+      if (formData.acquisitionsPrice !== undefined) customFieldsUpdate[GHL_OPPORTUNITY_FIELDS.purchase_price] = String(formData.acquisitionsPrice);
 
       // Status mapping
       if (formData.status) {
@@ -469,10 +488,18 @@ export function PropertyDetailModal({
 
                   {/* Pricing Section */}
                   <FieldSection title="Pricing" icon={DollarSign} iconColor="text-green-600">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <CurrencyInput
+                        id="acquisitionsPrice"
+                        label="Acquisitions Price"
+                        value={property.acquisitionsPrice}
+                        onChange={(v) => handleFieldChange('acquisitionsPrice', v)}
+                        icon={<DollarSign className="h-4 w-4 text-blue-600" aria-hidden="true" />}
+                      />
+
                       <CurrencyInput
                         id="price"
-                        label="Listing Price"
+                        label="Dispositions Price"
                         value={property.price}
                         onChange={(v) => handleFieldChange('price', v)}
                         icon={<DollarSign className="h-4 w-4 text-green-600" aria-hidden="true" />}

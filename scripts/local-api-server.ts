@@ -3,19 +3,22 @@
  * This proxies requests to the Vercel serverless functions locally
  */
 
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+import * as express from 'express';
+import * as cors from 'cors';
+import * as dotenv from 'dotenv';
 import * as path from 'path';
+
+type Request = express.Request;
+type Response = express.Response;
 
 // Load environment variables
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
-const app = express();
+const app = (express as any).default();
 const PORT = 3001;
 
-app.use(cors());
-app.use(express.json());
+app.use((cors as any).default());
+app.use((express as any).default.json());
 
 // Dynamic import and execute API handlers
 async function handleApiRequest(req: Request, res: Response, apiPath: string) {
@@ -73,28 +76,28 @@ async function handleUnifiedApi(req: Request, res: Response, service?: string) {
 // ============ API Routes ============
 
 // Legacy routes that map to unified API with service parameter
-app.all('/api/ghl', (req, res) => handleUnifiedApi(req, res, 'ghl'));
-app.all('/api/matching', (req, res) => handleUnifiedApi(req, res, 'matching'));
-app.all('/api/airtable', (req, res) => handleUnifiedApi(req, res, 'airtable'));
-app.all('/api/cache', (req, res) => handleUnifiedApi(req, res, 'cache'));
-app.all('/api/buyers', (req, res) => handleUnifiedApi(req, res, 'buyers'));
+app.all('/api/ghl', (req: Request, res: Response) => handleUnifiedApi(req, res, 'ghl'));
+app.all('/api/matching', (req: Request, res: Response) => handleUnifiedApi(req, res, 'matching'));
+app.all('/api/airtable', (req: Request, res: Response) => handleUnifiedApi(req, res, 'airtable'));
+app.all('/api/cache', (req: Request, res: Response) => handleUnifiedApi(req, res, 'cache'));
+app.all('/api/buyers', (req: Request, res: Response) => handleUnifiedApi(req, res, 'buyers'));
 
 // Unified API endpoint (uses ?service= query param)
-app.all('/api', (req, res) => handleUnifiedApi(req, res));
+app.all('/api', (req: Request, res: Response) => handleUnifiedApi(req, res));
 
 // Standalone API modules
-app.all('/api/ai', (req, res) => handleApiRequest(req, res, 'ai'));
-app.all('/api/zillow', (req, res) => handleApiRequest(req, res, 'zillow'));
-app.all('/api/auth', (req, res) => handleApiRequest(req, res, 'auth'));
-app.all('/api/calculator', (req, res) => handleApiRequest(req, res, 'calculator'));
-app.all('/api/proxy-image', (req, res) => handleApiRequest(req, res, 'proxy-image'));
-app.all('/api/funnel', (req, res) => handleApiRequest(req, res, 'funnel'));
-app.all('/api/funnel/avatar-research', (req, res) => handleApiRequest(req, res, 'funnel/avatar-research'));
-app.all('/api/testimonials', (req, res) => handleApiRequest(req, res, 'testimonials'));
-app.all('/api/company-info', (req, res) => handleApiRequest(req, res, 'company-info'));
+app.all('/api/ai', (req: Request, res: Response) => handleApiRequest(req, res, 'ai'));
+app.all('/api/zillow', (req: Request, res: Response) => handleApiRequest(req, res, 'zillow'));
+app.all('/api/auth', (req: Request, res: Response) => handleApiRequest(req, res, 'auth'));
+app.all('/api/calculator', (req: Request, res: Response) => handleApiRequest(req, res, 'calculator'));
+app.all('/api/proxy-image', (req: Request, res: Response) => handleApiRequest(req, res, 'proxy-image'));
+app.all('/api/funnel', (req: Request, res: Response) => handleApiRequest(req, res, 'funnel'));
+app.all('/api/funnel/avatar-research', (req: Request, res: Response) => handleApiRequest(req, res, 'funnel/avatar-research'));
+app.all('/api/testimonials', (req: Request, res: Response) => handleApiRequest(req, res, 'testimonials'));
+app.all('/api/company-info', (req: Request, res: Response) => handleApiRequest(req, res, 'company-info'));
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 

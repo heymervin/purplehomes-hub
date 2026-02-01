@@ -24,6 +24,7 @@ const SEGMENT_LABELS: Record<BuyerSegment, { label: string; emoji: string; color
   'investor': { label: 'Investors', emoji: '💰', color: 'bg-emerald-500' },
   'move-up-buyer': { label: 'Move-Up Buyers', emoji: '🏡', color: 'bg-purple-500' },
   'self-employed': { label: 'Self-Employed', emoji: '💼', color: 'bg-indigo-500' },
+  'hispanic-seller-finance': { label: 'Hispanic/Latino', emoji: '👨‍👩‍👧‍👦', color: 'bg-rose-500' },
   'general': { label: 'General', emoji: '👥', color: 'bg-gray-500' },
 };
 
@@ -33,6 +34,7 @@ const ALL_SEGMENTS: BuyerSegment[] = [
   'investor',
   'move-up-buyer',
   'self-employed',
+  'hispanic-seller-finance',
   'general',
 ];
 
@@ -197,7 +199,7 @@ export function AIPerformance() {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Active Segments</p>
-                <p className="text-2xl font-bold">{globalStats.activeSegments}/6</p>
+                <p className="text-2xl font-bold">{globalStats.activeSegments}/7</p>
               </div>
             </div>
           </CardContent>

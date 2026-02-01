@@ -33,6 +33,7 @@ const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_API_URL = 'https://api.airtable.com/v0';
 const AVATAR_RESEARCH_TABLE = 'AvatarResearch';
+const AVATAR_TEMPLATES_TABLE = 'AvatarTemplates'; // NEW: Evolving templates per segment
 
 // Check if running on Vercel
 const IS_VERCEL = process.env.VERCEL === '1' || process.env.VERCEL_ENV !== undefined;
@@ -57,7 +58,7 @@ try {
 }
 
 // Types
-type BuyerSegment = 'first-time-buyer' | 'credit-challenged' | 'investor' | 'move-up-buyer' | 'self-employed' | 'general' | 'custom';
+type BuyerSegment = 'first-time-buyer' | 'credit-challenged' | 'investor' | 'move-up-buyer' | 'self-employed' | 'hispanic-seller-finance' | 'general' | 'custom';
 
 interface PropertyContext {
   type?: string;
@@ -157,12 +158,53 @@ interface AvatarResearchHistory {
   insights: SegmentInsights;
 }
 
+// NEW: Evolving Avatar Template - grows with each 7+ rating
+interface LearnedItem {
+  text: string;
+  source: 'original' | 'learned';
+  avgRating?: number;
+  usageCount?: number;
+  addedAt?: string;
+}
+
+interface LearnedObjection {
+  objection: string;
+  counter: string;
+  source: 'original' | 'learned';
+  avgRating?: number;
+  addedAt?: string;
+}
+
+interface AvatarTemplate {
+  segment: BuyerSegment;
+  label: string;
+  version: number;
+  lastUpdated: string;
+  totalLearnings: number;
+  // Core avatar fields - evolve over time
+  dreams: LearnedItem[];
+  fears: LearnedItem[];
+  suspicions: LearnedItem[];
+  failures: LearnedItem[];
+  enemies: LearnedItem[];
+  objections: LearnedObjection[];
+  beforeState: { feelings: string; daily: string; status: string };
+  afterState: { feelings: string; daily: string; status: string };
+  // Optional extended fields (e.g., Hispanic segment)
+  culturalValues?: Record<string, string>;
+  messagingRules?: { neverSay: string[]; alwaysSay: string[] };
+  decisionStyle?: Record<string, any>;
+  airtableRecordId?: string; // Track Airtable record for updates
+}
+
 // Constants
 const RESEARCH_DIR = path.resolve(process.cwd(), 'public/research/avatars');
 const INSIGHTS_DIR = path.resolve(process.cwd(), 'public/research/insights');
 const MAX_ENTRIES = 100;
 const MIN_RATING_FOR_INSIGHTS = 7;
 const MIN_ENTRIES_FOR_PATTERNS = 3;
+const MAX_ITEMS_PER_CATEGORY = 15; // Cap growth to prevent bloat
+const SIMILARITY_THRESHOLD = 0.7; // For deduplication (0-1, higher = stricter)
 
 // ============================================================
 // AIRTABLE OPERATIONS
@@ -441,6 +483,354 @@ async function airtableGetEntry(entryId: string, segment: BuyerSegment): Promise
     console.error('[Avatar Research] Airtable get entry failed:', error);
     return null;
   }
+}
+
+// ============================================================
+// AVATAR TEMPLATES - Evolving base templates (NEW)
+// ============================================================
+
+/**
+ * Simple similarity check using Jaccard index on words
+ * Returns 0-1 where 1 is identical
+ */
+function textSimilarity(a: string, b: string): number {
+  const wordsA = a.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+  const wordsB = b.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+
+  if (wordsA.length === 0 || wordsB.length === 0) return 0;
+
+  const setA = new Set(wordsA);
+  const setB = new Set(wordsB);
+
+  // Count intersection
+  let intersectionCount = 0;
+  wordsA.forEach(word => {
+    if (setB.has(word)) intersectionCount++;
+  });
+
+  // Union = A + B - intersection
+  const unionCount = setA.size + setB.size - intersectionCount;
+
+  return unionCount > 0 ? intersectionCount / unionCount : 0;
+}
+
+/**
+ * Check if an item is a duplicate of existing items
+ */
+function isDuplicate(newText: string, existing: LearnedItem[]): boolean {
+  return existing.some(item => textSimilarity(newText, item.text) >= SIMILARITY_THRESHOLD);
+}
+
+/**
+ * Load avatar template from Airtable
+ */
+async function loadAvatarTemplate(segment: BuyerSegment): Promise<AvatarTemplate | null> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    console.warn('[Avatar Templates] Airtable not configured, using static JSON');
+    return null;
+  }
+
+  try {
+    const formula = encodeURIComponent(`{Segment}="${segment}"`);
+    const response = await fetchWithRetry(
+      `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_TEMPLATES_TABLE}?filterByFormula=${formula}&maxRecords=1`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error('[Avatar Templates] Load failed:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    if (!data.records || data.records.length === 0) {
+      console.log(`[Avatar Templates] No template found for ${segment}, will need seeding`);
+      return null;
+    }
+
+    const record = data.records[0];
+    const template: AvatarTemplate = {
+      segment,
+      label: record.fields['Label'] || segment,
+      version: record.fields['Version'] || 1,
+      lastUpdated: record.fields['LastUpdated'] || new Date().toISOString(),
+      totalLearnings: record.fields['TotalLearnings'] || 0,
+      dreams: record.fields['Dreams'] ? JSON.parse(record.fields['Dreams']) : [],
+      fears: record.fields['Fears'] ? JSON.parse(record.fields['Fears']) : [],
+      suspicions: record.fields['Suspicions'] ? JSON.parse(record.fields['Suspicions']) : [],
+      failures: record.fields['Failures'] ? JSON.parse(record.fields['Failures']) : [],
+      enemies: record.fields['Enemies'] ? JSON.parse(record.fields['Enemies']) : [],
+      objections: record.fields['Objections'] ? JSON.parse(record.fields['Objections']) : [],
+      beforeState: record.fields['BeforeState'] ? JSON.parse(record.fields['BeforeState']) : { feelings: '', daily: '', status: '' },
+      afterState: record.fields['AfterState'] ? JSON.parse(record.fields['AfterState']) : { feelings: '', daily: '', status: '' },
+      culturalValues: record.fields['CulturalValues'] ? JSON.parse(record.fields['CulturalValues']) : undefined,
+      messagingRules: record.fields['MessagingRules'] ? JSON.parse(record.fields['MessagingRules']) : undefined,
+      decisionStyle: record.fields['DecisionStyle'] ? JSON.parse(record.fields['DecisionStyle']) : undefined,
+      airtableRecordId: record.id,
+    };
+
+    console.log(`[Avatar Templates] Loaded template for ${segment}, version ${template.version}, ${template.totalLearnings} learnings`);
+    return template;
+  } catch (error) {
+    console.error('[Avatar Templates] Load error:', error);
+    return null;
+  }
+}
+
+/**
+ * Save avatar template to Airtable (create or update)
+ */
+async function saveAvatarTemplate(template: AvatarTemplate): Promise<boolean> {
+  if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID) {
+    console.warn('[Avatar Templates] Airtable not configured');
+    return false;
+  }
+
+  try {
+    const fields = {
+      'Segment': template.segment,
+      'Label': template.label,
+      'Version': template.version,
+      'LastUpdated': new Date().toISOString().split('T')[0],
+      'TotalLearnings': template.totalLearnings,
+      'Dreams': JSON.stringify(template.dreams),
+      'Fears': JSON.stringify(template.fears),
+      'Suspicions': JSON.stringify(template.suspicions),
+      'Failures': JSON.stringify(template.failures),
+      'Enemies': JSON.stringify(template.enemies),
+      'Objections': JSON.stringify(template.objections),
+      'BeforeState': JSON.stringify(template.beforeState),
+      'AfterState': JSON.stringify(template.afterState),
+      'CulturalValues': template.culturalValues ? JSON.stringify(template.culturalValues) : null,
+      'MessagingRules': template.messagingRules ? JSON.stringify(template.messagingRules) : null,
+      'DecisionStyle': template.decisionStyle ? JSON.stringify(template.decisionStyle) : null,
+    };
+
+    if (template.airtableRecordId) {
+      // Update existing
+      const response = await fetchWithRetry(
+        `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_TEMPLATES_TABLE}/${template.airtableRecordId}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fields }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[Avatar Templates] Update failed:', errorText);
+        return false;
+      }
+
+      console.log(`[Avatar Templates] Updated template for ${template.segment}`);
+      return true;
+    } else {
+      // Create new
+      const response = await fetchWithRetry(
+        `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/${AVATAR_TEMPLATES_TABLE}`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fields }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[Avatar Templates] Create failed:', errorText);
+        return false;
+      }
+
+      console.log(`[Avatar Templates] Created template for ${template.segment}`);
+      return true;
+    }
+  } catch (error) {
+    console.error('[Avatar Templates] Save error:', error);
+    return false;
+  }
+}
+
+/**
+ * Convert static JSON avatar to AvatarTemplate format
+ */
+function convertToTemplate(segment: BuyerSegment, staticAvatar: any): AvatarTemplate {
+  const toLearnedItems = (items: string[] | undefined): LearnedItem[] => {
+    return (items || []).map(text => ({
+      text,
+      source: 'original' as const,
+    }));
+  };
+
+  const toLearnedObjections = (objs: Array<{objection: string; counter: string}> | undefined): LearnedObjection[] => {
+    return (objs || []).map(o => ({
+      objection: o.objection,
+      counter: o.counter,
+      source: 'original' as const,
+    }));
+  };
+
+  return {
+    segment,
+    label: staticAvatar.label || segment,
+    version: 1,
+    lastUpdated: new Date().toISOString(),
+    totalLearnings: 0,
+    dreams: toLearnedItems(staticAvatar.dreams),
+    fears: toLearnedItems(staticAvatar.fears),
+    suspicions: toLearnedItems(staticAvatar.suspicions),
+    failures: toLearnedItems(staticAvatar.failures),
+    enemies: toLearnedItems(staticAvatar.enemies),
+    objections: toLearnedObjections(staticAvatar.topObjections),
+    beforeState: staticAvatar.beforeState || { feelings: '', daily: '', status: '' },
+    afterState: staticAvatar.afterState || { feelings: '', daily: '', status: '' },
+    culturalValues: staticAvatar.culturalValues,
+    messagingRules: staticAvatar.messagingRules,
+    decisionStyle: staticAvatar.decisionStyle,
+  };
+}
+
+/**
+ * Merge high-rated research into template (called when rating >= 7)
+ */
+async function mergeLearnedResearchIntoTemplate(
+  segment: BuyerSegment,
+  research: AvatarResearchResult,
+  rating: number
+): Promise<{ merged: boolean; newItemsCount: number }> {
+  console.log(`[Avatar Templates] Merging learnings from ${rating}/10 rated research into ${segment}`);
+
+  // Load current template
+  let template = await loadAvatarTemplate(segment);
+
+  // If no template exists, create from static JSON
+  if (!template) {
+    const staticAvatar = avatarSystem?.buyerAvatars?.[segment];
+    if (!staticAvatar) {
+      console.warn(`[Avatar Templates] No static avatar found for ${segment}`);
+      return { merged: false, newItemsCount: 0 };
+    }
+    template = convertToTemplate(segment, staticAvatar);
+  }
+
+  let newItemsCount = 0;
+  const now = new Date().toISOString();
+
+  // Helper to merge items
+  const mergeItems = (existing: LearnedItem[], newTexts: string[]): LearnedItem[] => {
+    const updated = [...existing];
+
+    for (const text of newTexts) {
+      if (!text || text.trim().length < 5) continue; // Skip empty/tiny items
+
+      // Check for duplicates
+      const existingMatch = updated.find(item => textSimilarity(text, item.text) >= SIMILARITY_THRESHOLD);
+
+      if (existingMatch) {
+        // Update existing item's rating
+        if (existingMatch.source === 'learned') {
+          const prevCount = existingMatch.usageCount || 1;
+          const prevAvg = existingMatch.avgRating || rating;
+          existingMatch.avgRating = (prevAvg * prevCount + rating) / (prevCount + 1);
+          existingMatch.usageCount = prevCount + 1;
+        }
+      } else {
+        // Add new item
+        updated.push({
+          text,
+          source: 'learned',
+          avgRating: rating,
+          usageCount: 1,
+          addedAt: now,
+        });
+        newItemsCount++;
+      }
+    }
+
+    // Sort by avgRating (highest first) and cap at MAX_ITEMS_PER_CATEGORY
+    return updated
+      .sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0))
+      .slice(0, MAX_ITEMS_PER_CATEGORY);
+  };
+
+  // Merge each category
+  template.dreams = mergeItems(template.dreams, research.dreams || []);
+  template.fears = mergeItems(template.fears, research.fears || []);
+  template.suspicions = mergeItems(template.suspicions, research.suspicions || []);
+  template.failures = mergeItems(template.failures, research.failures || []);
+  template.enemies = mergeItems(template.enemies, research.enemies || []);
+
+  // Merge objections (slightly different structure)
+  for (const obj of research.objections || []) {
+    if (!obj.objection || obj.objection.trim().length < 5) continue;
+
+    const existingMatch = template.objections.find(o =>
+      textSimilarity(obj.objection, o.objection) >= SIMILARITY_THRESHOLD
+    );
+
+    if (existingMatch && existingMatch.source === 'learned') {
+      // Update rating
+      const prevAvg = existingMatch.avgRating || rating;
+      existingMatch.avgRating = (prevAvg + rating) / 2;
+    } else if (!existingMatch) {
+      template.objections.push({
+        objection: obj.objection,
+        counter: obj.counter,
+        source: 'learned',
+        avgRating: rating,
+        addedAt: now,
+      });
+      newItemsCount++;
+    }
+  }
+
+  // Cap objections
+  template.objections = template.objections
+    .sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0))
+    .slice(0, MAX_ITEMS_PER_CATEGORY);
+
+  // Update metadata
+  template.version += 1;
+  template.lastUpdated = now;
+  template.totalLearnings += newItemsCount;
+
+  // Save back to Airtable
+  const saved = await saveAvatarTemplate(template);
+
+  console.log(`[Avatar Templates] Merged ${newItemsCount} new items into ${segment}, version now ${template.version}`);
+
+  return { merged: saved, newItemsCount };
+}
+
+/**
+ * Get template for generation (Airtable first, then static JSON fallback)
+ */
+async function getTemplateForGeneration(segment: BuyerSegment): Promise<AvatarTemplate | null> {
+  // Try Airtable first
+  const template = await loadAvatarTemplate(segment);
+  if (template) {
+    return template;
+  }
+
+  // Fallback to static JSON
+  const staticAvatar = avatarSystem?.buyerAvatars?.[segment];
+  if (staticAvatar) {
+    return convertToTemplate(segment, staticAvatar);
+  }
+
+  return null;
 }
 
 // ============================================================
@@ -761,6 +1151,7 @@ function getSegmentDescription(segment: BuyerSegment): string {
     'investor': 'Real estate investor looking for cash flow or appreciation properties to add to their portfolio',
     'move-up-buyer': 'Current homeowner looking to upgrade to a larger or nicer home',
     'self-employed': 'Self-employed or business owner who has difficulty documenting income for traditional mortgages',
+    'hispanic-seller-finance': 'Hispanic/Latino family seeking seller-financing in Southern Louisiana, often with ITIN, cash income, prioritizing familia, dignidad, and confianza',
     'general': 'General home buyer with no specific targeting',
     'custom': 'Custom buyer segment',
   };
@@ -803,6 +1194,99 @@ Use these as a foundation but generate fresh, specific content.
 `;
 }
 
+/**
+ * Format evolved template content for AI prompt
+ * Shows learned items with ratings to guide AI generation
+ */
+function formatTemplateForPrompt(template: AvatarTemplate): string {
+  const sections: string[] = [];
+
+  // Helper to format items with ratings
+  const formatItems = (items: LearnedItem[], label: string): string => {
+    if (items.length === 0) return '';
+
+    const learned = items.filter(i => i.source === 'learned' && i.avgRating);
+    const original = items.filter(i => i.source === 'original');
+
+    let content = `**${label}:**\n`;
+
+    if (learned.length > 0) {
+      content += `PROVEN (high-rated):\n${learned.slice(0, 5).map(i =>
+        `  - "${i.text}" (rated ${i.avgRating?.toFixed(1) || '?'}/10)`
+      ).join('\n')}\n`;
+    }
+
+    if (original.length > 0) {
+      content += `BASE KNOWLEDGE:\n${original.slice(0, 3).map(i =>
+        `  - "${i.text}"`
+      ).join('\n')}\n`;
+    }
+
+    return content;
+  };
+
+  sections.push(formatItems(template.dreams, 'Dreams'));
+  sections.push(formatItems(template.fears, 'Fears'));
+  sections.push(formatItems(template.suspicions, 'Suspicions'));
+  sections.push(formatItems(template.failures, 'Past Failures'));
+  sections.push(formatItems(template.enemies, 'Enemies'));
+
+  // Objections
+  if (template.objections.length > 0) {
+    const learned = template.objections.filter(o => o.source === 'learned');
+    const original = template.objections.filter(o => o.source === 'original');
+
+    let objContent = '**Top Objections (with counters):**\n';
+
+    if (learned.length > 0) {
+      objContent += 'PROVEN:\n' + learned.slice(0, 3).map(o =>
+        `  - "${o.objection}" → Counter: "${o.counter}" (rated ${o.avgRating?.toFixed(1) || '?'}/10)`
+      ).join('\n') + '\n';
+    }
+
+    if (original.length > 0) {
+      objContent += 'BASE:\n' + original.slice(0, 2).map(o =>
+        `  - "${o.objection}" → Counter: "${o.counter}"`
+      ).join('\n') + '\n';
+    }
+
+    sections.push(objContent);
+  }
+
+  // Before/After states
+  if (template.beforeState.feelings || template.afterState.feelings) {
+    sections.push(`**Transformation:**
+BEFORE: ${template.beforeState.feelings} | ${template.beforeState.daily} | Status: ${template.beforeState.status}
+AFTER: ${template.afterState.feelings} | ${template.afterState.daily} | Status: ${template.afterState.status}`);
+  }
+
+  // Cultural values (for hispanic-seller-finance)
+  if (template.culturalValues) {
+    sections.push(`**Cultural Values:**
+${Object.entries(template.culturalValues).map(([k, v]) => `  - ${k}: ${v}`).join('\n')}`);
+  }
+
+  // Messaging rules
+  if (template.messagingRules) {
+    sections.push(`**Messaging Rules:**
+NEVER SAY: ${template.messagingRules.neverSay?.join(', ') || 'N/A'}
+ALWAYS SAY: ${template.messagingRules.alwaysSay?.join(', ') || 'N/A'}`);
+  }
+
+  const filtered = sections.filter(s => s.trim().length > 0);
+
+  if (filtered.length === 0) return '';
+
+  return `
+=== EVOLVED AVATAR TEMPLATE (v${template.version}, ${template.totalLearnings} learnings) ===
+This template has evolved from ${template.totalLearnings} user ratings. Prioritize PROVEN items.
+
+${filtered.join('\n\n')}
+
+INSTRUCTIONS: Use the PROVEN items as strong foundations. Create variations that capture the same emotional truth. Add fresh perspectives while honoring what's working.
+`;
+}
+
 async function generateAvatarResearch(
   segment: BuyerSegment,
   propertyContext: PropertyContext,
@@ -812,9 +1296,15 @@ async function generateAvatarResearch(
   console.log('[generateAvatarResearch] Segment:', segment);
   console.log('[generateAvatarResearch] PropertyContext:', JSON.stringify(propertyContext));
 
-  const baseAvatar = getBaseAvatar(segment);
-  console.log('[generateAvatarResearch] Base avatar loaded:', baseAvatar ? 'YES' : 'NO');
+  // NEW: Load evolved template from Airtable (with fallback to static JSON)
+  const template = await getTemplateForGeneration(segment);
+  console.log('[generateAvatarResearch] Template loaded:', template ? `v${template.version}, ${template.totalLearnings} learnings` : 'NO');
 
+  // Format template content for prompt (includes proven/learned items)
+  const templatePromptContent = template ? formatTemplateForPrompt(template) : '';
+  console.log('[generateAvatarResearch] Has evolved template content:', templatePromptContent.length > 0);
+
+  // Also load insights from history for additional context
   const history = loadHistory(segment);
   console.log('[generateAvatarResearch] History entries:', history.entries.length);
 
@@ -831,6 +1321,7 @@ async function generateAvatarResearch(
     ? customDescription
     : getSegmentDescription(segment);
 
+  // Build prompt with evolved template knowledge
   const prompt = `You are a master copywriter and market researcher. Your task is to deeply understand a specific buyer avatar for a real estate funnel.
 
 BUYER SEGMENT: ${segment}
@@ -839,15 +1330,17 @@ DESCRIPTION: ${segmentDescription}
 PROPERTY CONTEXT:
 ${propertyContextStr || 'General property listing'}
 
+${templatePromptContent}
+
 ${learnedInsights}
 
 CRITICAL INSTRUCTION: Generate FRESH, UNIQUE content. DO NOT use generic phrases like "stop paying landlord's mortgage" or "build equity" - these are overused. Think deeper about THIS specific buyer in THIS specific location (${propertyContext.city || 'their area'}). What are THEIR unique dreams, fears, and frustrations? Be creative and specific.
 
-${baseAvatar ? `Use these themes as INSPIRATION ONLY (do NOT copy verbatim - create NEW variations):
+${template ? `IMPORTANT: This avatar has EVOLVED based on user ratings. Items marked "PROVEN" have consistently scored 7+/10. Use these as strong foundations - capture their emotional essence but create fresh variations. Items marked "BASE KNOWLEDGE" are starting points - feel free to evolve beyond them.` : `Use these themes as INSPIRATION ONLY (do NOT copy verbatim - create NEW variations):
 - Dreams themes: stability, ownership pride, family space, investment
 - Fear themes: rejection, financial mistakes, hidden problems
 - Suspicion themes: industry distrust, feeling taken advantage of
-` : ''}
+`}
 
 Generate comprehensive avatar research using these frameworks:
 
@@ -914,20 +1407,27 @@ Respond in JSON format with these exact keys:
   console.log('[generateAvatarResearch] Parsed JSON, has dreams:', generated.dreams?.length || 0);
   console.log('[generateAvatarResearch] ====== OpenAI generation COMPLETE ======');
 
+  // Helper to extract text from template items
+  const getTemplateTexts = (items: LearnedItem[] | undefined): string[] =>
+    (items || []).map(i => i.text);
+
+  const getTemplateObjections = (objs: LearnedObjection[] | undefined): Array<{objection: string; counter: string}> =>
+    (objs || []).map(o => ({ objection: o.objection, counter: o.counter }));
+
   return {
     buyerSegment: segment,
-    dreams: generated.dreams || baseAvatar?.dreams || [],
-    fears: generated.fears || baseAvatar?.fears || [],
-    suspicions: generated.suspicions || baseAvatar?.suspicions || [],
-    failures: generated.failures || baseAvatar?.failures || [],
-    enemies: generated.enemies || baseAvatar?.enemies || [],
+    dreams: generated.dreams || getTemplateTexts(template?.dreams) || [],
+    fears: generated.fears || getTemplateTexts(template?.fears) || [],
+    suspicions: generated.suspicions || getTemplateTexts(template?.suspicions) || [],
+    failures: generated.failures || getTemplateTexts(template?.failures) || [],
+    enemies: generated.enemies || getTemplateTexts(template?.enemies) || [],
     diaryEntry: generated.diaryEntry || '',
     keyFrustrations: generated.keyFrustrations || [],
     emotionalTriggers: generated.emotionalTriggers || [],
-    beforeState: generated.beforeState || baseAvatar?.beforeState || { feelings: '', daily: '', status: '' },
-    afterState: generated.afterState || baseAvatar?.afterState || { feelings: '', daily: '', status: '' },
+    beforeState: generated.beforeState || template?.beforeState || { feelings: '', daily: '', status: '' },
+    afterState: generated.afterState || template?.afterState || { feelings: '', daily: '', status: '' },
     transformationNarrative: generated.transformationNarrative || '',
-    objections: generated.objections || baseAvatar?.objections || [],
+    objections: generated.objections || getTemplateObjections(template?.objections) || [],
     recommendedHooks: generated.recommendedHooks || [],
     recommendedAppeals: generated.recommendedAppeals || [],
   };
@@ -1070,16 +1570,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Save updated entry
         const saved = await saveEntryAsync(entry);
 
+        // NEW: Merge into evolving template if rating >= 7
+        let templateLearning = { merged: false, newItemsCount: 0 };
+        if (effectiveness >= MIN_RATING_FOR_INSIGHTS && entry.research) {
+          templateLearning = await mergeLearnedResearchIntoTemplate(
+            segment,
+            entry.research,
+            effectiveness
+          );
+        }
+
         // Reload history to get updated insights
         const history = await loadHistoryAsync(segment);
 
-        console.log('[Avatar Research API] Research rated:', researchId, 'Effectiveness:', effectiveness, 'Saved:', saved);
+        console.log('[Avatar Research API] Research rated:', researchId, 'Effectiveness:', effectiveness, 'Saved:', saved, 'Template learning:', templateLearning);
 
         return res.json({
           success: true,
           updated: true,
           savedToAirtable: saved,
           newInsights: history.insights,
+          templateLearning, // NEW: Info about template updates
         });
       }
 
@@ -1262,10 +1773,84 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
 
+      // --------------------------------------------------------
+      // ACTION: seed-templates - Seed AvatarTemplates from JSON
+      // --------------------------------------------------------
+      case 'seed-templates': {
+        if (req.method !== 'POST') {
+          return res.status(405).json({ error: 'Method not allowed - use POST' });
+        }
+
+        const results: Record<string, { success: boolean; message: string }> = {};
+        const segments: BuyerSegment[] = [
+          'first-time-buyer',
+          'credit-challenged',
+          'investor',
+          'move-up-buyer',
+          'self-employed',
+          'hispanic-seller-finance' as BuyerSegment,
+          'general',
+        ];
+
+        for (const segment of segments) {
+          // Check if template already exists
+          const existing = await loadAvatarTemplate(segment);
+          if (existing) {
+            results[segment] = { success: true, message: `Already exists (v${existing.version}, ${existing.totalLearnings} learnings)` };
+            continue;
+          }
+
+          // Get static avatar from JSON
+          const staticAvatar = avatarSystem?.buyerAvatars?.[segment];
+          if (!staticAvatar) {
+            results[segment] = { success: false, message: 'No static avatar in JSON' };
+            continue;
+          }
+
+          // Convert and save
+          const template = convertToTemplate(segment, staticAvatar);
+          const saved = await saveAvatarTemplate(template);
+
+          results[segment] = saved
+            ? { success: true, message: 'Created from JSON' }
+            : { success: false, message: 'Airtable save failed' };
+        }
+
+        const successCount = Object.values(results).filter(r => r.success).length;
+
+        return res.json({
+          success: true,
+          message: `Seeded ${successCount}/${segments.length} templates`,
+          results,
+        });
+      }
+
+      // --------------------------------------------------------
+      // ACTION: get-template - Get current template for a segment
+      // --------------------------------------------------------
+      case 'get-template': {
+        const segment = req.query.segment as BuyerSegment;
+
+        if (!segment) {
+          return res.status(400).json({ error: 'Missing required parameter: segment' });
+        }
+
+        const template = await getTemplateForGeneration(segment);
+
+        if (!template) {
+          return res.status(404).json({ error: 'Template not found' });
+        }
+
+        return res.json({
+          success: true,
+          template,
+        });
+      }
+
       default:
         return res.status(400).json({
           error: 'Unknown action',
-          validActions: ['generate', 'history', 'rate', 'insights', 'link', 'get', 'test'],
+          validActions: ['generate', 'history', 'rate', 'insights', 'link', 'get', 'test', 'seed-templates', 'get-template'],
         });
     }
   } catch (error) {

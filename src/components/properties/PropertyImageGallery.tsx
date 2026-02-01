@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useHeicImages } from '@/hooks/useHeicImage';
+import { findOrCreateFolder } from '@/services/ghlApi';
 
 interface PropertyImageGalleryProps {
   images: string[];
@@ -146,7 +147,7 @@ export function PropertyImageGallery({
     setDraggedIndex(null);
   };
 
-  // File upload handler (for GHL Media integration)
+  // File upload handler - uploads to GHL Media Library and stores the hosted URL
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -157,23 +158,57 @@ export function PropertyImageGallery({
     }
 
     setIsUploading(true);
-    
+
     try {
-      // Convert to base64 for preview (in production, would upload to GHL Media)
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        onImagesChange([...images, base64]);
-        toast.success('Image uploaded');
-        setIsUploading(false);
-      };
-      reader.onerror = () => {
-        toast.error('Failed to read file');
-        setIsUploading(false);
-      };
-      reader.readAsDataURL(file);
+      // Get or create the "Property Images" folder in GHL Media
+      const folderId = await findOrCreateFolder('Property Images');
+
+      // Convert file to base64 for upload
+      const base64Data = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // Upload to GHL Media Library
+      const uploadResponse = await fetch('/api/ghl?resource=media&action=upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          base64Data,
+          name: file.name,
+          contentType: file.type,
+        }),
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const uploadedFile = await uploadResponse.json();
+
+      // Move to "Property Images" folder
+      if (folderId && uploadedFile.id) {
+        await fetch(`/api/ghl?resource=media&action=move&id=${uploadedFile.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ folderId }),
+        });
+      }
+
+      // Use the hosted URL (not base64)
+      const imageUrl = uploadedFile.url || uploadedFile.fileUrl;
+      if (imageUrl) {
+        onImagesChange([...images, imageUrl]);
+        toast.success('Image uploaded to GHL Media');
+      } else {
+        throw new Error('No URL returned from upload');
+      }
     } catch (error) {
+      console.error('[PropertyImageGallery] Upload error:', error);
       toast.error('Failed to upload image');
+    } finally {
       setIsUploading(false);
     }
   };
