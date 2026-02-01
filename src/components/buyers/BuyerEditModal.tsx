@@ -93,14 +93,14 @@ export function BuyerEditModal({
   const [activeTab, setActiveTab] = useState('contact');
   const [showCloseWarning, setShowCloseWarning] = useState(false);
 
-  // Initialize form when buyer changes
+  // Initialize form when buyer ID changes (not on every object reference change)
   useEffect(() => {
     if (buyer) {
       setFormData(buyerToFormData(buyer));
       setHasChanges(false);
       setActiveTab('contact');
     }
-  }, [buyer]);
+  }, [buyer?.recordId]);
 
   // Update form field
   const updateField = (field: keyof BuyerFormData, value: any) => {

@@ -22,7 +22,143 @@ import { STAGE_ASSOCIATION_IDS } from '@/types/associations';
 import type { ScoredBuyer, PropertyDetails, MatchActivity, MatchActivityType } from '@/types/matching';
 
 const AIRTABLE_API_BASE = '/api/airtable';
+const GHL_API_BASE = '/api/ghl';
 const GHL_PROPERTY_SENT_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/fJgopVh0YwOMQJtUeQRk/webhook-trigger/ee28f7b1-eb36-45cb-a349-e855b2aa0c07';
+
+// GHL Custom Field ID for CB Sent Properties
+const GHL_CB_SENT_PROPERTIES_FIELD_ID = 'qjcg3hcF47rNRA3wmnsc';
+
+/**
+ * Property sent record structure for CB Sent Properties field
+ */
+interface SentPropertyRecord {
+  propertyRecordId: string;
+  address: string;
+  city: string;
+  state: string;
+  price: number;
+  beds: number;
+  baths: number;
+  dateSent: string;
+  sendMethod: 'sms' | 'email' | 'sms-email';
+  matchScore?: number;
+}
+
+/**
+ * Update the "CB Sent Properties" field on each buyer record in both Airtable and GHL
+ * Appends to existing JSON array if there's already data
+ */
+async function updateBuyerSentProperties(
+  property: PropertyDetails,
+  buyers: ScoredBuyer[],
+  sendMethod: 'sms' | 'email' | 'sms-email'
+): Promise<{ updated: number; failed: number; ghlSynced: number }> {
+  let updated = 0;
+  let failed = 0;
+  let ghlSynced = 0;
+
+  const newPropertyRecord: SentPropertyRecord = {
+    propertyRecordId: property.recordId,
+    address: property.address,
+    city: property.city || '',
+    state: property.state || '',
+    price: property.price || 0,
+    beds: property.beds || 0,
+    baths: property.baths || 0,
+    dateSent: new Date().toISOString(),
+    sendMethod,
+  };
+
+  for (const sb of buyers) {
+    try {
+      // First, get the current "CB Sent Properties" value from the buyer record in Airtable
+      const getResponse = await fetch(
+        `${AIRTABLE_API_BASE}?action=get-record&table=Buyers&recordId=${sb.buyer.recordId}`
+      );
+
+      let existingSentProperties: SentPropertyRecord[] = [];
+      if (getResponse.ok) {
+        const buyerData = await getResponse.json();
+        const currentValue = buyerData.record?.fields?.['CB Sent Properties'];
+        if (currentValue) {
+          try {
+            existingSentProperties = JSON.parse(currentValue);
+            if (!Array.isArray(existingSentProperties)) {
+              existingSentProperties = [];
+            }
+          } catch {
+            existingSentProperties = [];
+          }
+        }
+      }
+
+      // Add the match score for this specific buyer
+      const propertyWithScore: SentPropertyRecord = {
+        ...newPropertyRecord,
+        matchScore: sb.score.score,
+      };
+
+      // Append the new property to the list
+      const updatedSentProperties = [...existingSentProperties, propertyWithScore];
+      const jsonValue = JSON.stringify(updatedSentProperties);
+
+      // Update Airtable buyer record
+      const updateResponse = await fetch(
+        `${AIRTABLE_API_BASE}?action=update-record&table=Buyers&recordId=${sb.buyer.recordId}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fields: {
+              'CB Sent Properties': jsonValue,
+            },
+          }),
+        }
+      );
+
+      if (updateResponse.ok) {
+        updated++;
+      } else {
+        const errText = await updateResponse.text().catch(() => null);
+        console.error('[SendPropertyToBuyers] Failed to update CB Sent Properties in Airtable for buyer', sb.buyer.email, errText);
+        failed++;
+      }
+
+      // Also sync to GHL contact if contactId is available
+      if (sb.buyer.contactId) {
+        try {
+          const ghlResponse = await fetch(
+            `${GHL_API_BASE}?resource=contacts&action=update&id=${sb.buyer.contactId}`,
+            {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                customFields: {
+                  [GHL_CB_SENT_PROPERTIES_FIELD_ID]: jsonValue,
+                },
+              }),
+            }
+          );
+
+          if (ghlResponse.ok) {
+            ghlSynced++;
+          } else {
+            const ghlErr = await ghlResponse.text().catch(() => null);
+            console.warn('[SendPropertyToBuyers] Failed to sync CB Sent Properties to GHL for buyer', sb.buyer.email, ghlErr);
+          }
+        } catch (ghlError) {
+          console.warn('[SendPropertyToBuyers] GHL sync error for buyer:', sb.buyer.email, ghlError);
+        }
+      }
+    } catch (error) {
+      console.error('[SendPropertyToBuyers] Error updating CB Sent Properties for buyer:', sb.buyer.email, error);
+      failed++;
+    }
+  }
+
+  console.log(`[SendPropertyToBuyers] Updated CB Sent Properties: ${updated} Airtable, ${ghlSynced} GHL, ${failed} failed`);
+  return { updated, failed, ghlSynced };
+}
 
 /**
  * Trigger GHL webhook when a property is sent to buyers
@@ -363,6 +499,15 @@ export function SendPropertyToBuyersModal({
       );
 
       console.log(`[SendPropertyToBuyers] Updated ${updated} matches, created ${created} new matches, synced ${synced} to GHL, failed ${failed}`);
+
+      // Step 3.5: Update "CB Sent Properties" field on each buyer record
+      const cbSendMethod = willSendSMS && willSendEmail
+        ? 'sms-email'
+        : willSendSMS
+        ? 'sms'
+        : 'email';
+      const cbResult = await updateBuyerSentProperties(property, buyers, cbSendMethod);
+      console.log(`[SendPropertyToBuyers] CB Sent Properties: ${cbResult.updated} Airtable, ${cbResult.ghlSynced} GHL, ${cbResult.failed} failed`);
 
       // Step 4: Trigger GHL webhook for follow-up sequences
       const webhookSendMethod = willSendSMS && willSendEmail
