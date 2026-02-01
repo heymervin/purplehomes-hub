@@ -1,10 +1,12 @@
 /**
- * Funnel Content API v2.0
+ * Funnel Content API v2.1
  *
  * Enhanced AI-powered funnel generation using the Purple Homes Unified Prompt System.
  * Integrates 600+ copywriting techniques, avatar research, and advanced frameworks.
  *
  * Content is stored as markdown files in /public/content/properties/
+ *
+ * v2.1: Added analytics-metrics action for dashboard segment breakdown
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
