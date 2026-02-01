@@ -57,6 +57,8 @@ async function updateBuyerSentProperties(
   let failed = 0;
   let ghlSynced = 0;
 
+  console.log(`[CB Sent Properties] Starting update for ${buyers.length} buyers, property: ${property.address}`);
+
   const newPropertyRecord: SentPropertyRecord = {
     propertyRecordId: property.recordId,
     address: property.address,
@@ -70,6 +72,15 @@ async function updateBuyerSentProperties(
   };
 
   for (const sb of buyers) {
+    console.log(`[CB Sent Properties] Processing buyer: ${sb.buyer.email}, recordId: ${sb.buyer.recordId}, contactId: ${sb.buyer.contactId}`);
+
+    // Skip if no recordId
+    if (!sb.buyer.recordId) {
+      console.error(`[CB Sent Properties] Buyer ${sb.buyer.email} has no recordId, skipping`);
+      failed++;
+      continue;
+    }
+
     try {
       // First, get the current "CB Sent Properties" value from the buyer record in Airtable
       const getResponse = await fetch(
@@ -103,6 +114,7 @@ async function updateBuyerSentProperties(
       const jsonValue = JSON.stringify(updatedSentProperties);
 
       // Update Airtable buyer record
+      console.log(`[CB Sent Properties] Updating Airtable for buyer ${sb.buyer.email}, recordId: ${sb.buyer.recordId}`);
       const updateResponse = await fetch(
         `${AIRTABLE_API_BASE}?action=update-record&table=Buyers&recordId=${sb.buyer.recordId}`,
         {
@@ -116,17 +128,21 @@ async function updateBuyerSentProperties(
         }
       );
 
+      console.log(`[CB Sent Properties] Airtable response status: ${updateResponse.status}`);
+
       if (updateResponse.ok) {
+        console.log(`[CB Sent Properties] Airtable update SUCCESS for buyer ${sb.buyer.email}`);
         updated++;
       } else {
         const errText = await updateResponse.text().catch(() => null);
-        console.error('[SendPropertyToBuyers] Failed to update CB Sent Properties in Airtable for buyer', sb.buyer.email, errText);
+        console.error('[CB Sent Properties] Airtable update FAILED for buyer', sb.buyer.email, 'Status:', updateResponse.status, 'Error:', errText);
         failed++;
       }
 
       // Also sync to GHL contact if contactId is available
       if (sb.buyer.contactId) {
         try {
+          console.log(`[CB Sent Properties] Updating GHL for buyer ${sb.buyer.email}, contactId: ${sb.buyer.contactId}`);
           const ghlResponse = await fetch(
             `${GHL_API_BASE}?resource=contacts&action=update&id=${sb.buyer.contactId}`,
             {
@@ -140,15 +156,20 @@ async function updateBuyerSentProperties(
             }
           );
 
+          console.log(`[CB Sent Properties] GHL response status: ${ghlResponse.status}`);
+
           if (ghlResponse.ok) {
+            console.log(`[CB Sent Properties] GHL update SUCCESS for buyer ${sb.buyer.email}`);
             ghlSynced++;
           } else {
             const ghlErr = await ghlResponse.text().catch(() => null);
-            console.warn('[SendPropertyToBuyers] Failed to sync CB Sent Properties to GHL for buyer', sb.buyer.email, ghlErr);
+            console.error('[CB Sent Properties] GHL update FAILED for buyer', sb.buyer.email, 'Status:', ghlResponse.status, 'Error:', ghlErr);
           }
         } catch (ghlError) {
-          console.warn('[SendPropertyToBuyers] GHL sync error for buyer:', sb.buyer.email, ghlError);
+          console.error('[CB Sent Properties] GHL sync error for buyer:', sb.buyer.email, ghlError);
         }
+      } else {
+        console.warn(`[CB Sent Properties] Buyer ${sb.buyer.email} has no contactId, skipping GHL sync`);
       }
     } catch (error) {
       console.error('[SendPropertyToBuyers] Error updating CB Sent Properties for buyer:', sb.buyer.email, error);
