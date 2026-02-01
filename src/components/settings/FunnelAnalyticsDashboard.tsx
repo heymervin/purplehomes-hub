@@ -255,13 +255,16 @@ export function FunnelAnalyticsDashboard() {
             <Activity className="w-10 h-10 mx-auto text-muted-foreground/40 mb-3" />
             <p className="text-sm text-muted-foreground">No analytics data yet</p>
             <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-              Add the tracking script to your funnel pages to start collecting visitor behavior data
+              Visitor behavior is automatically tracked when people visit your listing pages
             </p>
             <div className="mt-4 p-3 bg-muted/50 rounded-lg text-left text-xs">
-              <p className="font-medium mb-1">Quick Setup:</p>
-              <code className="text-[10px] break-all">
-                {'<script src="https://purplehomes-hub.vercel.app/funnel-tracker.js" data-property-id="YOUR_ID" data-segment="first-time-buyer"></script>'}
-              </code>
+              <p className="font-medium mb-1">How it works:</p>
+              <ul className="text-[10px] space-y-1 text-muted-foreground">
+                <li>• Visitors browse /listing/[property-slug]</li>
+                <li>• Scroll depth, time, clicks tracked automatically</li>
+                <li>• Data saved when they leave the page</li>
+                <li>• Segment breakdown shows which avatars perform best</li>
+              </ul>
             </div>
           </div>
         )}
