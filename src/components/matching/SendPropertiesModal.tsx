@@ -34,6 +34,7 @@ const GHL_CB_SENT_PROPERTIES_FIELD_ID = 'qjcg3hcF47rNRA3wmnsc';
  */
 interface SentPropertyRecord {
   propertyRecordId: string;
+  propertyCode: string;
   address: string;
   city: string;
   state: string;
@@ -59,6 +60,7 @@ async function updateBuyerSentProperties(
   // Build new property records
   const newPropertyRecords: SentPropertyRecord[] = properties.map(sp => ({
     propertyRecordId: sp.property.recordId,
+    propertyCode: sp.property.propertyCode,
     address: sp.property.address,
     city: sp.property.city || '',
     state: sp.property.state || '',
