@@ -399,10 +399,11 @@ export function generatePropertySMS(
       message += `   ${details.join(' • ')}\n`;
     }
 
-    // Add funnel page link
+    // Add funnel page link (clean URL without https://)
     const slug = generatePropertySlug(property.address, property.city || '');
-    const viewLabel = isSpanish ? 'Ver detalles' : 'View details';
-    message += `   🔗 ${viewLabel}: ${SITE_URL}/listing/${slug}\n`;
+    const cleanDomain = SITE_URL.replace(/^https?:\/\//, '');
+    const viewLabel = isSpanish ? 'Ver' : 'View';
+    message += `   🔗 ${viewLabel}: ${cleanDomain}/listing/${slug}\n`;
 
     message += '\n';
   });
