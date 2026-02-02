@@ -582,13 +582,26 @@ export function SendPropertyToBuyersModal({
       console.log(`[SendPropertyToBuyers] Updated ${updated} matches, created ${created} new matches, synced ${synced} to GHL, failed ${failed}`);
 
       // Step 3.5: Update "CB Sent Properties" field on each buyer record
+      console.log(`[SendPropertyToBuyers] === STARTING CB Sent Properties update ===`);
+      console.log(`[SendPropertyToBuyers] Property:`, property.address, property.recordId);
+      console.log(`[SendPropertyToBuyers] Buyers count:`, buyers.length);
+      console.log(`[SendPropertyToBuyers] Buyers with recordId:`, buyers.filter(b => b.buyer.recordId).length);
+      console.log(`[SendPropertyToBuyers] Buyers with contactId:`, buyers.filter(b => b.buyer.contactId).length);
+
       const cbSendMethod = willSendSMS && willSendEmail
         ? 'sms-email'
         : willSendSMS
         ? 'sms'
         : 'email';
-      const cbResult = await updateBuyerSentProperties(property, buyers, cbSendMethod);
-      console.log(`[SendPropertyToBuyers] CB Sent Properties: ${cbResult.updated} Airtable, ${cbResult.ghlSynced} GHL, ${cbResult.failed} failed`);
+      console.log(`[SendPropertyToBuyers] Send method:`, cbSendMethod);
+
+      try {
+        const cbResult = await updateBuyerSentProperties(property, buyers, cbSendMethod);
+        console.log(`[SendPropertyToBuyers] CB Sent Properties: ${cbResult.updated} Airtable, ${cbResult.ghlSynced} GHL, ${cbResult.failed} failed`);
+      } catch (cbError) {
+        console.error(`[SendPropertyToBuyers] CB Sent Properties ERROR:`, cbError);
+      }
+      console.log(`[SendPropertyToBuyers] === FINISHED CB Sent Properties update ===`);
 
       // Step 4: Trigger GHL webhook for follow-up sequences
       const webhookSendMethod = willSendSMS && willSendEmail

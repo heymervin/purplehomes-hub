@@ -23,7 +23,197 @@ import { EmailPreview } from './EmailPreview';
 import type { ScoredProperty, BuyerCriteria, MatchActivity, MatchActivityType } from '@/types/matching';
 
 const AIRTABLE_API_BASE = '/api/airtable';
+const GHL_API_BASE = '/api/ghl';
 const GHL_PROPERTY_SENT_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/fJgopVh0YwOMQJtUeQRk/webhook-trigger/ee28f7b1-eb36-45cb-a349-e855b2aa0c07';
+
+// GHL Custom Field ID for CB Sent Properties
+const GHL_CB_SENT_PROPERTIES_FIELD_ID = 'qjcg3hcF47rNRA3wmnsc';
+
+/**
+ * Property sent record structure for CB Sent Properties field
+ */
+interface SentPropertyRecord {
+  propertyRecordId: string;
+  address: string;
+  city: string;
+  state: string;
+  price: number;
+  beds: number;
+  baths: number;
+  dateSent: string;
+  sendMethod: 'sms' | 'email' | 'sms-email';
+  matchScore?: number;
+}
+
+/**
+ * Update the "CB Sent Properties" field on the buyer record in both Airtable and GHL
+ * Fetches current data from BOTH systems in parallel, appends new properties, then updates both
+ */
+async function updateBuyerSentProperties(
+  buyer: BuyerCriteria,
+  properties: ScoredProperty[],
+  sendMethod: 'sms' | 'email' | 'sms-email'
+): Promise<{ airtableSuccess: boolean; ghlSuccess: boolean }> {
+  console.log(`[CB Sent Properties] Starting update for buyer ${buyer.email}, ${properties.length} properties`);
+
+  // Build new property records
+  const newPropertyRecords: SentPropertyRecord[] = properties.map(sp => ({
+    propertyRecordId: sp.property.recordId,
+    address: sp.property.address,
+    city: sp.property.city || '',
+    state: sp.property.state || '',
+    price: sp.property.price || 0,
+    beds: sp.property.beds || 0,
+    baths: sp.property.baths || 0,
+    dateSent: new Date().toISOString(),
+    sendMethod,
+    matchScore: sp.score.score,
+  }));
+
+  // Fetch current values from both Airtable and GHL in parallel
+  const [airtableResult, ghlResult] = await Promise.all([
+    // Fetch from Airtable if recordId exists
+    buyer.recordId
+      ? fetch(`${AIRTABLE_API_BASE}?action=get-record&table=Buyers&recordId=${buyer.recordId}`)
+          .then(async (res) => {
+            console.log(`[CB Sent Properties] Airtable GET response status: ${res.status}`);
+            if (!res.ok) return { existing: [] as SentPropertyRecord[], error: `Status ${res.status}` };
+            const data = await res.json();
+            const currentValue = data.record?.fields?.['CB Sent Properties'];
+            console.log(`[CB Sent Properties] Airtable CB Sent Properties value:`, currentValue ? `${String(currentValue).substring(0, 100)}...` : 'empty');
+            if (currentValue) {
+              try {
+                const parsed = JSON.parse(currentValue);
+                return { existing: Array.isArray(parsed) ? parsed : [] };
+              } catch (e) {
+                console.error(`[CB Sent Properties] Airtable JSON parse error:`, e);
+                return { existing: [] as SentPropertyRecord[] };
+              }
+            }
+            return { existing: [] as SentPropertyRecord[] };
+          })
+          .catch((err) => {
+            console.error(`[CB Sent Properties] Airtable fetch error:`, err);
+            return { existing: [] as SentPropertyRecord[], error: String(err) };
+          })
+      : Promise.resolve({ existing: [] as SentPropertyRecord[], error: 'No recordId' }),
+
+    // Fetch from GHL if contactId exists
+    buyer.contactId
+      ? fetch(`${GHL_API_BASE}?resource=contacts&action=get&id=${buyer.contactId}`)
+          .then(async (res) => {
+            console.log(`[CB Sent Properties] GHL GET response status: ${res.status}`);
+            if (!res.ok) return { existing: [] as SentPropertyRecord[], error: `Status ${res.status}` };
+            const data = await res.json();
+            const customFields = data.contact?.customFields || data.contact?.customField || [];
+            console.log(`[CB Sent Properties] GHL customFields count:`, Array.isArray(customFields) ? customFields.length : 'not array');
+            const cbField = Array.isArray(customFields)
+              ? customFields.find((f: { id?: string }) => f.id === GHL_CB_SENT_PROPERTIES_FIELD_ID)
+              : null;
+            console.log(`[CB Sent Properties] GHL CB field found:`, cbField ? JSON.stringify(cbField).substring(0, 200) : 'not found');
+            const currentValue = cbField?.value || cbField?.field_value;
+            if (currentValue) {
+              try {
+                const parsed = JSON.parse(currentValue);
+                return { existing: Array.isArray(parsed) ? parsed : [] };
+              } catch (e) {
+                console.error(`[CB Sent Properties] GHL JSON parse error:`, e);
+                return { existing: [] as SentPropertyRecord[] };
+              }
+            }
+            return { existing: [] as SentPropertyRecord[] };
+          })
+          .catch((err) => {
+            console.error(`[CB Sent Properties] GHL fetch error:`, err);
+            return { existing: [] as SentPropertyRecord[], error: String(err) };
+          })
+      : Promise.resolve({ existing: [] as SentPropertyRecord[], error: 'No contactId' }),
+  ]);
+
+  console.log(`[CB Sent Properties] Fetched - Airtable: ${airtableResult.existing.length} existing, GHL: ${ghlResult.existing.length} existing`);
+
+  // Build updated values for each system independently
+  const airtableUpdated = [...airtableResult.existing, ...newPropertyRecords];
+  const ghlUpdated = [...ghlResult.existing, ...newPropertyRecords];
+
+  console.log(`[CB Sent Properties] Will write to Airtable: ${airtableUpdated.length} properties`);
+  console.log(`[CB Sent Properties] Will write to GHL: ${ghlUpdated.length} properties`);
+
+  // Update both systems in parallel
+  const [airtableUpdateResult, ghlUpdateResult] = await Promise.all([
+    // Update Airtable
+    buyer.recordId
+      ? (async () => {
+          console.log(`[CB Sent Properties] Updating Airtable for buyer ${buyer.email}`);
+          try {
+            const updateResponse = await fetch(
+              `${AIRTABLE_API_BASE}?action=update-record&table=Buyers&recordId=${buyer.recordId}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  fields: {
+                    'CB Sent Properties': JSON.stringify(airtableUpdated),
+                  },
+                }),
+              }
+            );
+            console.log(`[CB Sent Properties] Airtable response status: ${updateResponse.status}`);
+            if (updateResponse.ok) {
+              console.log(`[CB Sent Properties] Airtable update SUCCESS`);
+              return { success: true };
+            } else {
+              const errText = await updateResponse.text().catch(() => null);
+              console.error('[CB Sent Properties] Airtable update FAILED:', updateResponse.status, errText);
+              return { success: false, error: errText };
+            }
+          } catch (err) {
+            console.error('[CB Sent Properties] Airtable update error:', err);
+            return { success: false, error: String(err) };
+          }
+        })()
+      : Promise.resolve({ success: false, error: 'No recordId' }),
+
+    // Update GHL
+    buyer.contactId
+      ? (async () => {
+          console.log(`[CB Sent Properties] Updating GHL for buyer ${buyer.email}`);
+          try {
+            const ghlResponse = await fetch(
+              `${GHL_API_BASE}?resource=contacts&action=update&id=${buyer.contactId}`,
+              {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  customFields: [
+                    {
+                      id: GHL_CB_SENT_PROPERTIES_FIELD_ID,
+                      field_value: JSON.stringify(ghlUpdated),
+                    },
+                  ],
+                }),
+              }
+            );
+            console.log(`[CB Sent Properties] GHL response status: ${ghlResponse.status}`);
+            if (ghlResponse.ok) {
+              console.log(`[CB Sent Properties] GHL update SUCCESS`);
+              return { success: true };
+            } else {
+              const ghlErr = await ghlResponse.text().catch(() => null);
+              console.error('[CB Sent Properties] GHL update FAILED:', ghlResponse.status, ghlErr);
+              return { success: false, error: ghlErr };
+            }
+          } catch (err) {
+            console.error('[CB Sent Properties] GHL sync error:', err);
+            return { success: false, error: String(err) };
+          }
+        })()
+      : Promise.resolve({ success: false, error: 'No contactId' }),
+  ]);
+
+  console.log(`[CB Sent Properties] Results - Airtable: ${airtableUpdateResult.success}, GHL: ${ghlUpdateResult.success}`);
+  return { airtableSuccess: airtableUpdateResult.success, ghlSuccess: ghlUpdateResult.success };
+}
 
 /**
  * Trigger GHL webhook when properties are sent to a buyer
@@ -331,6 +521,21 @@ export function SendPropertiesModal({
       );
 
       console.log(`[SendProperties] Updated ${updated} matches, created ${created} new matches, synced ${synced} to GHL, failed ${failed}`);
+
+      // Step 3.5: Update "CB Sent Properties" field on buyer record
+      console.log(`[SendProperties] === STARTING CB Sent Properties update ===`);
+      const cbSendMethod = willSendSMS && willSendEmail
+        ? 'sms-email'
+        : willSendSMS
+        ? 'sms'
+        : 'email';
+      try {
+        const cbResult = await updateBuyerSentProperties(buyer, properties, cbSendMethod);
+        console.log(`[SendProperties] CB Sent Properties: Airtable=${cbResult.airtableSuccess}, GHL=${cbResult.ghlSuccess}`);
+      } catch (cbError) {
+        console.error(`[SendProperties] CB Sent Properties ERROR:`, cbError);
+      }
+      console.log(`[SendProperties] === FINISHED CB Sent Properties update ===`);
 
       // Step 4: Trigger GHL webhook for follow-up sequences
       const webhookSendMethod = willSendSMS && willSendEmail
