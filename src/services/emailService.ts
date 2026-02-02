@@ -1,7 +1,9 @@
 import type { Property } from '@/types';
 import type { AirtablePropertyMatch } from './airtableApi';
+import { generatePropertySlug } from '@/lib/utils/slug';
 
 const API_BASE = '/api/ghl';
+const SITE_URL = typeof window !== 'undefined' ? window.location.origin : 'https://purplehomes-hub.vercel.app';
 
 export interface SendPropertyEmailOptions {
   contactId: string;
@@ -396,6 +398,12 @@ export function generatePropertySMS(
     if (details.length > 0) {
       message += `   ${details.join(' • ')}\n`;
     }
+
+    // Add funnel page link
+    const slug = generatePropertySlug(property.address, property.city || '');
+    const viewLabel = isSpanish ? 'Ver detalles' : 'View details';
+    message += `   🔗 ${viewLabel}: ${SITE_URL}/listing/${slug}\n`;
+
     message += '\n';
   });
 
