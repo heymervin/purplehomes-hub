@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
   ChevronLeft, ChevronRight, Star, Plus, Trash2, ExternalLink,
-  GripVertical, Upload, Loader2, X, AlertTriangle
+  GripVertical, Loader2, X, AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useHeicImages } from '@/hooks/useHeicImage';
-import { findOrCreateFolder } from '@/services/ghlApi';
 
 interface PropertyImageGalleryProps {
   images: string[];
@@ -30,7 +29,6 @@ export function PropertyImageGallery({
   const [newImageUrl, setNewImageUrl] = useState('');
   const [showAddInput, setShowAddInput] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
 
   // Detect problematic URLs (GHL document URLs that won't load as images)
   const isProblematicUrl = (url: string): boolean => {
@@ -152,72 +150,6 @@ export function PropertyImageGallery({
 
   const handleDragEnd = () => {
     setDraggedIndex(null);
-  };
-
-  // File upload handler - uploads to GHL Media Library and stores the hosted URL
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      // Get or create the "Property Images" folder in GHL Media
-      const folderId = await findOrCreateFolder('Property Images');
-
-      // Convert file to base64 for upload
-      const base64Data = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-
-      // Upload to GHL Media Library
-      const uploadResponse = await fetch('/api/ghl?resource=media&action=upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          base64Data,
-          name: file.name,
-          contentType: file.type,
-        }),
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('Upload failed');
-      }
-
-      const uploadedFile = await uploadResponse.json();
-
-      // Move to "Property Images" folder
-      if (folderId && uploadedFile.id) {
-        await fetch(`/api/ghl?resource=media&action=move&id=${uploadedFile.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ folderId }),
-        });
-      }
-
-      // Use the hosted URL (not base64)
-      const imageUrl = uploadedFile.url || uploadedFile.fileUrl;
-      if (imageUrl) {
-        onImagesChange([...images, imageUrl]);
-        toast.success('Image uploaded to GHL Media');
-      } else {
-        throw new Error('No URL returned from upload');
-      }
-    } catch (error) {
-      console.error('[PropertyImageGallery] Upload error:', error);
-      toast.error('Failed to upload image');
-    } finally {
-      setIsUploading(false);
-    }
   };
 
   return (
@@ -426,36 +358,14 @@ export function PropertyImageGallery({
             );
           })}
 
-          {/* Add Image Buttons */}
-          <div className="flex flex-col gap-1.5 flex-shrink-0">
-            {/* URL Input Button */}
-            <button
-              onClick={() => setShowAddInput(true)}
-              className="w-20 h-20 rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 flex flex-col items-center justify-center transition-colors gap-1"
-            >
-              <Plus className="h-5 w-5 text-muted-foreground" />
-              <span className="text-[10px] text-muted-foreground">+ URL</span>
-            </button>
-
-            {/* File Upload Button */}
-            <label className="w-20 h-7 rounded-md border border-dashed border-muted-foreground/30 hover:border-primary/50 flex items-center justify-center transition-colors cursor-pointer gap-1">
-              {isUploading ? (
-                <Loader2 className="h-3 w-3 text-muted-foreground animate-spin" />
-              ) : (
-                <>
-                  <Upload className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-[9px] text-muted-foreground">Upload</span>
-                </>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-                disabled={isUploading}
-              />
-            </label>
-          </div>
+          {/* Add Image Button */}
+          <button
+            onClick={() => setShowAddInput(true)}
+            className="w-20 h-20 rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 flex flex-col items-center justify-center transition-colors gap-1 flex-shrink-0"
+          >
+            <Plus className="h-5 w-5 text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground">+ URL</span>
+          </button>
         </div>
       )}
 
