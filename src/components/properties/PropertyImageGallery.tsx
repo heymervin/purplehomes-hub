@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
   ChevronLeft, ChevronRight, Star, Plus, Trash2, ExternalLink,
-  GripVertical, Upload, Loader2, X
+  GripVertical, Upload, Loader2, X, AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +31,13 @@ export function PropertyImageGallery({
   const [showAddInput, setShowAddInput] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Detect problematic URLs (GHL document URLs that won't load as images)
+  const isProblematicUrl = (url: string): boolean => {
+    if (!url) return false;
+    return url.includes('services.leadconnectorhq.com/documents/download') ||
+           url.includes('/documents/download/');
+  };
 
   // Combine hero + images, ensure hero is first
   const allOriginalImages = useMemo(
@@ -310,80 +317,145 @@ export function PropertyImageGallery({
         </div>
       </div>
 
-      {/* Thumbnail Navigation with Drag & Drop - Only show in editable mode */}
+      {/* Thumbnail Navigation with URLs - Only show in editable mode */}
       {editable && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-3 overflow-x-auto pb-2">
           {allImages.map((img, index) => {
             const originalImg = allOriginalImages[index] || '';
             const isHero = originalImg === heroImage;
+            const hasIssue = isProblematicUrl(originalImg);
 
             return (
-              <button
-                key={`${originalImg}-${index}`}
-                draggable={editable}
-                onDragStart={(e) => handleDragStart(e, index)}
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDrop={(e) => handleDrop(e, index)}
-                onDragEnd={handleDragEnd}
-                onClick={() => setSelectedIndex(index)}
-                className={cn(
-                  "relative flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all duration-200 group/thumb",
-                  selectedIndex === index
-                    ? "border-primary ring-2 ring-primary/30"
-                    : "border-border hover:border-muted-foreground/50",
-                  draggedIndex === index && "opacity-50 scale-95",
-                  "cursor-grab active:cursor-grabbing"
-                )}
-              >
-                <img
-                  src={img}
-                  alt={`Thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/placeholder.svg';
-                  }}
-                />
-                {isHero && (
-                  <div className="absolute inset-0 bg-yellow-500/20 flex items-center justify-center">
-                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+              <div key={`${originalImg}-${index}`} className="flex flex-col gap-1.5 flex-shrink-0">
+                {/* Thumbnail */}
+                <button
+                  draggable={editable}
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragEnd={handleDragEnd}
+                  onClick={() => setSelectedIndex(index)}
+                  className={cn(
+                    "relative w-20 h-20 rounded-md overflow-hidden border-2 transition-all duration-200 group/thumb",
+                    selectedIndex === index
+                      ? "border-primary ring-2 ring-primary/30"
+                      : hasIssue
+                        ? "border-red-500"
+                        : "border-border hover:border-muted-foreground/50",
+                    draggedIndex === index && "opacity-50 scale-95",
+                    "cursor-grab active:cursor-grabbing"
+                  )}
+                >
+                  <img
+                    src={img}
+                    alt={`Thumbnail ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/placeholder.svg';
+                    }}
+                  />
+                  {isHero && (
+                    <div className="absolute inset-0 bg-yellow-500/20 flex items-center justify-center">
+                      <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                    </div>
+                  )}
+                  {hasIssue && (
+                    <div className="absolute top-1 right-1">
+                      <AlertTriangle className="h-4 w-4 text-red-500 drop-shadow-md" />
+                    </div>
+                  )}
+                  {/* Drag handle indicator */}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
+                    <GripVertical className="h-4 w-4 text-white" />
                   </div>
-                )}
-                {/* Drag handle indicator */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center">
-                  <GripVertical className="h-4 w-4 text-white" />
+                </button>
+
+                {/* URL Input */}
+                <Input
+                  value={originalImg}
+                  onChange={(e) => {
+                    const newUrl = e.target.value;
+                    if (isHero) {
+                      onHeroChange(newUrl);
+                    } else {
+                      const actualIndex = images.indexOf(originalImg);
+                      if (actualIndex !== -1) {
+                        const newImages = [...images];
+                        newImages[actualIndex] = newUrl;
+                        onImagesChange(newImages);
+                      }
+                    }
+                  }}
+                  className={cn(
+                    "w-20 text-[9px] font-mono h-7 px-1",
+                    hasIssue && "border-red-500 bg-red-50 dark:bg-red-950/20"
+                  )}
+                  placeholder="URL..."
+                  title={originalImg}
+                />
+
+                {/* Actions */}
+                <div className="flex gap-0.5 justify-center">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => window.open(originalImg, '_blank')}
+                    title="Open URL"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
+                  {!isHero && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-red-500 hover:text-red-700 hover:bg-red-100"
+                      onClick={() => removeImage(originalImg)}
+                      title="Remove"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  )}
                 </div>
-              </button>
+
+                {/* Label */}
+                <span className="text-[9px] text-muted-foreground text-center">
+                  {isHero ? '⭐ Hero' : `#${index + 1}`}
+                </span>
+              </div>
             );
           })}
 
           {/* Add Image Buttons */}
-          {/* URL Input Button */}
-          <button
-            onClick={() => setShowAddInput(true)}
-            className="flex-shrink-0 w-16 h-16 rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 flex flex-col items-center justify-center transition-colors gap-1"
-          >
-            <Plus className="h-4 w-4 text-muted-foreground" />
-            <span className="text-[10px] text-muted-foreground">URL</span>
-          </button>
+          <div className="flex flex-col gap-1.5 flex-shrink-0">
+            {/* URL Input Button */}
+            <button
+              onClick={() => setShowAddInput(true)}
+              className="w-20 h-20 rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 flex flex-col items-center justify-center transition-colors gap-1"
+            >
+              <Plus className="h-5 w-5 text-muted-foreground" />
+              <span className="text-[10px] text-muted-foreground">+ URL</span>
+            </button>
 
-          {/* File Upload Button */}
-          <label className="flex-shrink-0 w-16 h-16 rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 flex flex-col items-center justify-center transition-colors cursor-pointer gap-1">
-            {isUploading ? (
-              <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
-            ) : (
-              <>
-                <Upload className="h-4 w-4 text-muted-foreground" />
-                <span className="text-[10px] text-muted-foreground">File</span>
-              </>
-            )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileUpload}
-              className="hidden"
-              disabled={isUploading}
-            />
-          </label>
+            {/* File Upload Button */}
+            <label className="w-20 h-7 rounded-md border border-dashed border-muted-foreground/30 hover:border-primary/50 flex items-center justify-center transition-colors cursor-pointer gap-1">
+              {isUploading ? (
+                <Loader2 className="h-3 w-3 text-muted-foreground animate-spin" />
+              ) : (
+                <>
+                  <Upload className="h-3 w-3 text-muted-foreground" />
+                  <span className="text-[9px] text-muted-foreground">Upload</span>
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="hidden"
+                disabled={isUploading}
+              />
+            </label>
+          </div>
         </div>
       )}
 
@@ -407,9 +479,9 @@ export function PropertyImageGallery({
           <Button onClick={addImage} size="sm">
             Add
           </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => {
               setShowAddInput(false);
               setNewImageUrl('');
@@ -419,6 +491,7 @@ export function PropertyImageGallery({
           </Button>
         </div>
       )}
+
     </div>
   );
 }
