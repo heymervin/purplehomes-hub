@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
-  ArrowLeft, Bed, Bath, Maximize2, MapPin, Phone, Wrench, Home,
+  ArrowLeft, ArrowRight, Bed, Bath, Maximize2, MapPin, Phone, Wrench, Home,
   DollarSign, Loader2, Share2, Check, ExternalLink, Video,
   Shield, Clock, Users, Award, CheckCircle, CreditCard, X
 } from 'lucide-react';
