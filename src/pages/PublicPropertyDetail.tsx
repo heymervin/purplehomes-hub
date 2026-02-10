@@ -18,6 +18,9 @@ import { useCreateContact } from '@/services/ghlApi';
 import { useAirtableProperties } from '@/services/matchingApi';
 import { generatePropertySlug } from '@/lib/utils/slug';
 import { useFunnelAnalytics } from '@/hooks/useFunnelAnalytics';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageSelectionModal } from '@/components/LanguageSelectionModal';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 // Import Funnel Components
 import {
@@ -36,6 +39,7 @@ import {
   FloatingActionButton,
   PremiumTrustStrip,
 } from '@/components/funnel';
+import { FeaturedTestimonial } from '@/components/funnel/TestimonialCard';
 import type { Testimonial } from '@/types/funnel';
 
 // Scroll Reveal Animation Hook
@@ -561,6 +565,7 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
 export default function PublicPropertyDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { t, language } = useLanguage();
 
   // Fetch all properties and find the one matching the slug
   const { data: airtableData, isLoading, isError } = useAirtableProperties(200);
@@ -896,6 +901,9 @@ export default function PublicPropertyDetail() {
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
+      <LanguageSelectionModal />
+      <LanguageSwitcher />
+
       {/* Header */}
       <header className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm z-50">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -926,7 +934,7 @@ export default function PublicPropertyDetail() {
               className="gap-2"
             >
               {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
-              <span className="hidden sm:inline">{copied ? 'Copied!' : 'Share'}</span>
+              <span className="hidden sm:inline">{copied ? t('common.copied') : t('common.share')}</span>
             </Button>
             <CTAButton size="sm" onClick={scrollToForm} className="hidden sm:inline-flex">
               Get Pre-Qualified
@@ -937,257 +945,97 @@ export default function PublicPropertyDetail() {
 
       {/* Main Content - One infinite black canvas */}
       <main className="relative bg-black">
-        {/* DRAMATIC HERO SECTION - PURPLE HOMES BRANDED - MAXIMUM IMPACT */}
-        <section className="relative overflow-hidden">
-          {/* Dramatic purple ambient lighting */}
-          <div className="absolute pointer-events-none top-[-10%] left-1/2 -translate-x-1/2 w-[600px] md:w-[1200px] h-[400px] md:h-[600px] bg-purple-600/30 rounded-full blur-[150px] md:blur-[200px]" />
-          <div className="absolute pointer-events-none bottom-0 left-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-violet-700/20 rounded-full blur-[100px] md:blur-[150px]" />
-          <div className="absolute pointer-events-none top-1/2 right-0 w-[250px] md:w-[400px] h-[250px] md:h-[400px] bg-purple-500/15 rounded-full blur-[80px] md:blur-[120px]" />
+        {/* Hero Section - Simplified with Integrated Property Image */}
+        <section className="relative overflow-hidden bg-black">
+          {/* Ambient lighting - reduced glows */}
+          <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/25 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none bottom-0 right-1/4 w-[400px] h-[300px] bg-violet-700/15 rounded-full blur-[150px]" />
 
+          <div className="relative max-w-5xl mx-auto px-4 pt-8 sm:pt-10 md:pt-12 lg:pt-14 pb-4 sm:pb-5 md:pb-6 text-center">
+            {/* 1. Headline */}
+            <HeroEntrance delay={0}>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-3 sm:mb-4 md:mb-5 tracking-tight max-w-4xl mx-auto">
+                {t('hero.headline')}
+              </h1>
+            </HeroEntrance>
 
-          <div className="relative max-w-5xl mx-auto px-4 py-16 md:py-24 lg:py-32">
-            <div className="text-center">
-              {/* Eyebrow - Mobile optimized */}
-              <HeroEntrance delay={0}>
-                <div className="inline-flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 bg-purple-500/25 border border-purple-400/40 rounded-full text-purple-300 text-xs md:text-sm font-bold uppercase tracking-wider mb-6 md:mb-8 backdrop-blur-sm">
-                  <span className="relative flex h-2 w-2 md:h-2.5 md:w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 md:h-2.5 md:w-2.5 bg-purple-400"></span>
-                  </span>
-                  <span className="truncate max-w-[200px] md:max-w-none">Limited Time in {property.city}</span>
-                </div>
-              </HeroEntrance>
+            {/* 2. Sub-headline */}
+            <HeroEntrance delay={100}>
+              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium text-gray-400 mb-6 sm:mb-8 md:mb-10 max-w-3xl mx-auto leading-relaxed">
+                {t('hero.subheadline')}
+              </p>
+            </HeroEntrance>
 
-              {/* Main Headline - Dynamic from AI hook with structured styling */}
-              <HeroEntrance delay={100}>
-                {funnelLoading ? (
-                  /* Loading skeleton */
-                  <div className="animate-pulse space-y-4">
-                    <div className="h-12 sm:h-14 md:h-16 lg:h-20 bg-white/10 rounded-lg w-3/4 mx-auto" />
-                    <div className="h-10 sm:h-12 md:h-14 bg-purple-500/20 rounded-lg w-1/2 mx-auto" />
-                    <div className="h-6 sm:h-8 bg-white/5 rounded-lg w-2/3 mx-auto" />
-                  </div>
-                ) : funnelContent?.hook ? (
-                  (() => {
-                    const hook = funnelContent.hook;
+            {/* 3. Primary CTA Button */}
+            <HeroEntrance delay={200}>
+              <div className="flex flex-col items-center gap-2.5 sm:gap-3">
+                <button
+                  onClick={scrollToForm}
+                  className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-8 sm:px-10 md:px-14 py-3.5 sm:py-4 md:py-5 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 border-2 border-purple-300/50 hover:scale-105"
+                >
+                  {t('hero.cta')}
+                  <ArrowRight className="inline-block ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
+                </button>
 
-                    // Check if hook is structured (new format) or string (old format)
-                    const isStructured = typeof hook === 'object' && hook !== null && 'headline' in (hook as object);
-
-                    if (isStructured) {
-                      // NEW STRUCTURED FORMAT - clean, tight layout
-                      const { headline, subheadline, highlight, benefit, urgency, bonus } = hook as {
-                        headline: string;
-                        subheadline?: string;
-                        highlight?: string;
-                        benefit?: string;
-                        urgency?: string;
-                        bonus?: string;
-                      };
-
-                      // Render headline with highlighted phrase
-                      const renderHeadline = () => {
-                        if (!highlight || !headline.includes(highlight)) {
-                          return headline;
-                        }
-                        const parts = headline.split(highlight);
-                        return (
-                          <>
-                            {parts[0]}
-                            <span className="relative inline-block mx-1">
-                              <span className="absolute inset-x-[-4px] md:inset-x-[-8px] bottom-[2px] md:bottom-[4px] top-[4px] md:top-[8px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
-                              <span className="relative px-1 md:px-2">{highlight}</span>
-                            </span>
-                            {parts[1]}
-                          </>
-                        );
-                      };
-
-                      return (
-                        <>
-                          {/* Main Headline with highlighted phrase */}
-                          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-3 md:mb-4 tracking-tight max-w-5xl mx-auto break-words">
-                            {renderHeadline()}
-                          </h1>
-
-                          {/* Subheadline - Supporting line */}
-                          {subheadline && (
-                            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium text-gray-400 mb-6 md:mb-8 max-w-3xl mx-auto leading-relaxed">
-                              {subheadline}
-                            </p>
-                          )}
-
-                          {/* Urgency + Bonus - Amber badge */}
-                          {(urgency || bonus) && (
-                            <div className="inline-flex flex-wrap items-center justify-center gap-2 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-amber-500/20 via-orange-500/25 to-amber-500/20 border border-amber-400/40 rounded-full backdrop-blur-sm mb-6 md:mb-8">
-                              <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
-                              </span>
-                              <span className="text-sm md:text-base font-semibold text-amber-200">
-                                🔥 {urgency}{urgency && bonus ? ' + ' : ''}{bonus && <span className="text-emerald-400">{bonus}</span>}
-                              </span>
-                            </div>
-                          )}
-                        </>
-                      );
-                    }
-
-                    // OLD STRING FORMAT - backward compatible, show as-is
-                    return (
-                      <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-white leading-[1.2] mb-6 md:mb-8 tracking-tight max-w-4xl mx-auto">
-                        {String(hook)}
-                      </h1>
-                    );
-                  })()
-                ) : (
-                  /* Fallback when no funnel content exists */
-                  <>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-2 md:mb-3 tracking-tight">
-                      Stop Paying Your
-                    </h1>
-                    <div className="mb-3 md:mb-4">
-                      <span className="relative inline-block">
-                        <span className="absolute inset-x-[-4px] md:inset-x-[-8px] bottom-[2px] md:bottom-[4px] top-[4px] md:top-[8px] bg-gradient-to-r from-purple-500 via-violet-400 to-purple-500 -skew-x-2 shadow-[0_0_40px_rgba(139,92,246,0.5)]" />
-                        <span className="relative text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white px-1 md:px-2 drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
-                          Landlord's Mortgage
-                        </span>
-                      </span>
-                    </div>
-                    <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-400 mb-6 md:mb-8">
-                      Start Building <span className="text-white">Your Own Wealth</span>
-                    </p>
-                  </>
-                )}
-              </HeroEntrance>
-
-              {/* Price callout with benefit - Combined line */}
-              <HeroEntrance delay={250}>
-                {(() => {
-                  // Get benefit from structured hook if available
-                  const hook = funnelContent?.hook;
-                  const isStructured = typeof hook === 'object' && hook !== null && 'headline' in (hook as object);
-                  const benefit = isStructured ? (hook as { benefit?: string }).benefit : null;
-
-                  return (
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 md:gap-6 mb-8 md:mb-10 px-4">
-                      {/* Price with glow - DATA-DRIVEN GRADIENT */}
-                      <div className="relative">
-                        <span className="absolute inset-0 bg-purple-500/20 blur-2xl scale-150 pointer-events-none" />
-                        <span className="relative text-4xl sm:text-5xl md:text-6xl font-black drop-shadow-[0_0_30px_rgba(168,85,247,0.6)]">
-                          <GradientPrice
-                            amount={property.monthlyPayment || Math.round(property.price * 0.006)}
-                            suffix="/mo"
-                          />
-                        </span>
-                      </div>
-
-                      {/* Separator + Benefit */}
-                      <div className="flex items-center gap-3 sm:gap-4">
-                        <span className="hidden sm:block text-2xl md:text-3xl text-gray-600">—</span>
-                        <span className="relative inline-block">
-                          <span className="absolute pointer-events-none inset-0 bg-gradient-to-r from-purple-500/30 to-violet-500/30 -skew-x-2 rounded" />
-                          <span className="relative italic font-bold text-purple-300 text-lg sm:text-xl md:text-2xl px-3 py-1">
-                            {benefit || 'No bank qualifying'}
-                          </span>
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </HeroEntrance>
-
-              {/* Trust indicators - Mobile stacked, desktop inline */}
-              <HeroEntrance delay={400}>
-                <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-x-6 md:gap-x-8 gap-y-2 text-sm md:text-base text-gray-300 mb-8 md:mb-12">
-                  <div className="flex items-center justify-center gap-2">
-                    <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
-                    <span className="font-medium">No Bank Qualifying</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
-                    <span className="font-medium">Move In 30 Days</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-purple-400" />
-                    <span className="font-medium">Build Equity Now</span>
-                  </div>
-                </div>
-              </HeroEntrance>
-
-              {/* CTA - MAXIMUM glow, mobile friendly */}
-              <HeroEntrance delay={550}>
-                <div className="flex flex-col items-center gap-3 md:gap-4 px-4">
-                  <button
-                    onClick={scrollToForm}
-                    className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-8 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
-                  >
-                    Check If I Qualify
-                    <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
-                  </button>
-                  <span className="text-gray-500 text-xs md:text-sm">Takes less than 2 minutes • No credit check</span>
-                </div>
-              </HeroEntrance>
-            </div>
+                {/* 4. CTA Micro-text */}
+                <p className="text-xs sm:text-sm text-gray-500">
+                  {t('hero.ctaMicro')}
+                </p>
+              </div>
+            </HeroEntrance>
           </div>
 
-          {/* Bottom fade to property section */}
-          <div className="absolute pointer-events-none bottom-0 left-0 right-0 h-24 md:h-32 bg-gradient-to-t from-black to-transparent" />
+          {/* 5. Property Image - INSIDE HERO */}
+          <div className="relative max-w-5xl mx-auto px-4 pb-6 sm:pb-8 md:pb-10 lg:pb-12">
+            <HeroEntrance delay={300}>
+              <div className="relative group">
+                {/* Glow effect */}
+                <div className="absolute -inset-2 bg-gradient-to-br from-purple-500/40 to-violet-500/30 rounded-xl md:rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 pointer-events-none" />
+
+                {/* Image container */}
+                <div className="relative border-2 border-purple-500/40 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
+                  <PropertyImageGallery
+                    images={property.images || [property.heroImage]}
+                    heroImage={property.heroImage || '/placeholder.svg'}
+                    onHeroChange={() => {}}
+                    onImagesChange={() => {}}
+                    editable={false}
+                  />
+                </div>
+              </div>
+            </HeroEntrance>
+          </div>
         </section>
 
-        {/* Property Image Section - Premium */}
+        {/* Property Info - Premium Card Style */}
         <section className="relative">
-          {/* Top glow connecting from hero section */}
-          <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[400px] md:h-[500px] bg-purple-600/25 rounded-full blur-[150px] md:blur-[200px]" />
-          {/* Ambient glow behind image */}
-          <div className="absolute pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-
-          <div className="relative max-w-5xl mx-auto px-4 pt-8 md:pt-12 z-10">
-            {/* Image with premium frame */}
-            <div className="relative group">
-              {/* Outer glow */}
-              <div className="absolute pointer-events-none -inset-2 bg-gradient-to-r from-purple-600/40 via-violet-500/40 to-purple-600/40 rounded-2xl md:rounded-3xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-
-              {/* Image container */}
-              <div className="relative rounded-xl md:rounded-2xl overflow-hidden border-2 border-purple-500/40 shadow-2xl">
-                <PropertyImageGallery
-                  images={property.images || [property.heroImage]}
-                  heroImage={property.heroImage}
-                  onHeroChange={() => {}}
-                  onImagesChange={() => {}}
-                  editable={false}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Property Info - Premium Card Style */}
+          {/* Ambient glow behind card */}
+          <div className="absolute pointer-events-none top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/20 rounded-full blur-[180px]" />
           <div className="relative z-10 max-w-5xl mx-auto px-4 pt-8 pb-10 md:pt-10 md:pb-14">
             <div className="bg-gradient-to-br from-[#1a1625] to-[#0f0d15] border border-purple-500/30 rounded-2xl p-6 md:p-8 shadow-[0_0_60px_rgba(139,92,246,0.15)]">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                 {/* Left - Price & Address */}
                 <div className="text-center lg:text-left">
-                  {/* Down payment as primary price */}
-                  <div className="flex flex-wrap items-baseline justify-center lg:justify-start gap-3 mb-1">
-                    {property.downPayment !== undefined ? (
-                      <span className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight">
-                        ${property.downPayment.toLocaleString()}
-                      </span>
-                    ) : (
-                      <span className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight">
-                        ${property.price.toLocaleString()}
-                      </span>
-                    )}
-                    {property.monthlyPayment !== undefined && (
-                      <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-sm md:text-base font-bold">
-                        ${property.monthlyPayment.toLocaleString()}/mo
-                      </span>
-                    )}
-                  </div>
+                  {/* Primary: Monthly Payment */}
+                  {property.monthlyPayment !== undefined ? (
+                    <div className="mb-2">
+                      <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-none drop-shadow-[0_0_30px_rgba(168,85,247,0.4)]">
+                        ${property.monthlyPayment.toLocaleString()}
+                        <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-purple-300/80 font-bold ml-2">{t('property.monthlyPayment')}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Fallback: Total Price */
+                    <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white mb-2 leading-none">
+                      ${property.price.toLocaleString()}
+                    </div>
+                  )}
+
+                  {/* Secondary: Down Payment (if exists) */}
                   {property.downPayment !== undefined && (
-                    <p className="text-purple-300/60 text-sm md:text-base font-medium mb-3">
-                      Move-in cost · Owner finance
-                    </p>
+                    <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-sm sm:text-base md:text-lg font-semibold mb-3">
+                      ${property.downPayment.toLocaleString()} {t('property.downPayment')}
+                    </div>
                   )}
 
                   {/* Address */}
@@ -1206,14 +1054,14 @@ export default function PublicPropertyDetail() {
                         <Bed className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
                       </div>
                       <p className="text-white font-bold text-lg md:text-xl">{property.beds}</p>
-                      <p className="text-purple-300/60 text-xs uppercase tracking-wider">Beds</p>
+                      <p className="text-purple-300/60 text-xs uppercase tracking-wider">{t('property.beds')}</p>
                     </div>
                     <div className="text-center">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
                         <Bath className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
                       </div>
                       <p className="text-white font-bold text-lg md:text-xl">{property.baths}</p>
-                      <p className="text-purple-300/60 text-xs uppercase tracking-wider">Baths</p>
+                      <p className="text-purple-300/60 text-xs uppercase tracking-wider">{t('property.baths')}</p>
                     </div>
                     {property.sqft && (
                       <div className="text-center">
@@ -1221,31 +1069,40 @@ export default function PublicPropertyDetail() {
                           <Maximize2 className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
                         </div>
                         <p className="text-white font-bold text-lg md:text-xl">{property.sqft.toLocaleString()}</p>
-                        <p className="text-purple-300/60 text-xs uppercase tracking-wider">Sqft</p>
+                        <p className="text-purple-300/60 text-xs uppercase tracking-wider">{t('property.sqft')}</p>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Bottom row - Live viewers + availability status */}
+              {/* Bottom row - People saved + availability status */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-purple-500/20">
-                <LiveViewers count={Math.floor(Math.random() * 5) + 2} variant="premium" />
+                {/* People saved counter */}
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-400"></span>
+                  </span>
+                  <span className="text-purple-300 text-sm font-medium">
+                    💜 {Math.floor(Math.random() * 15) + 5} {t('property.peopleSaved')}
+                  </span>
+                </div>
+
+                {/* Availability status */}
                 {(() => {
                   const status = funnelContent?.inputs?.availabilityStatus || 'Available';
                   const statusStyles: Record<string, { dot: string; text: string; label: string }> = {
-                    'Available': { dot: 'bg-green-400', text: 'text-green-400', label: 'Available Now' },
-                    'Under Review': { dot: 'bg-yellow-400', text: 'text-yellow-400', label: 'Under Review' },
-                    'Multiple Offers': { dot: 'bg-amber-400', text: 'text-amber-400', label: 'Multiple Offers' },
-                    'Pending': { dot: 'bg-red-400', text: 'text-red-400', label: 'Pending' },
+                    'Available': { dot: 'bg-green-400', text: 'text-green-400', label: t('property.availableNow') },
+                    'Under Review': { dot: 'bg-yellow-400', text: 'text-yellow-400', label: t('property.underReview') },
+                    'Multiple Offers': { dot: 'bg-amber-400', text: 'text-amber-400', label: t('property.multipleOffers') },
+                    'Pending': { dot: 'bg-red-400', text: 'text-red-400', label: t('property.pending') },
                   };
                   const style = statusStyles[status] || statusStyles['Available'];
                   return (
                     <div className="flex items-center gap-2 text-sm">
                       <span className={`w-2 h-2 ${style.dot} rounded-full animate-pulse`} />
                       <span className={`${style.text} font-medium`}>{style.label}</span>
-                      <span className="text-gray-500">•</span>
-                      <span className="text-white/70">{status === 'Available' ? 'Ready for move-in' : 'Act fast!'}</span>
                     </div>
                   );
                 })()}
@@ -1255,6 +1112,54 @@ export default function PublicPropertyDetail() {
 
           {/* Premium Trust Strip - inside section for seamless background */}
           <PremiumTrustStrip className="pb-6" />
+        </section>
+
+        {/* Highlighted Solo Testimonial - Featured buyer testimonial */}
+        <section className="py-16 md:py-20">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6">
+            <Reveal delay={0.1}>
+              <FeaturedTestimonial
+                quote={t('highlightedTestimonial.quote')}
+                authorName="Eddie"
+                authorTitle={t('highlightedTestimonial.authorTitle')}
+                authorImage="/images/testimonials/eddie.jpg"
+                rating={5}
+              />
+            </Reveal>
+          </div>
+        </section>
+
+        {/* About This Home Section - Descriptive living experience */}
+        <section className="relative py-20 bg-gray-900">
+          {/* Ambient glow */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/8 rounded-full blur-[130px]" />
+          </div>
+
+          <div className="relative max-w-4xl mx-auto px-4 sm:px-6">
+            <Reveal delay={0.1}>
+              {/* Eyebrow Label */}
+              <div className="flex justify-center mb-6">
+                <span className="inline-flex items-center px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-semibold tracking-wide uppercase">
+                  {t('aboutHome.eyebrow')}
+                </span>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.2}>
+              {/* Headline with Dynamic Address */}
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white text-center leading-tight tracking-tight mb-8">
+                {t('aboutHome.headline')} {property.address}
+              </h2>
+            </Reveal>
+
+            <Reveal delay={0.3}>
+              {/* Description */}
+              <p className="text-lg sm:text-xl text-gray-300 leading-relaxed text-center max-w-3xl mx-auto">
+                {t('aboutHome.description')}
+              </p>
+            </Reveal>
+          </div>
         </section>
 
         {/* Full-page loading skeleton while funnel content loads */}
@@ -1528,10 +1433,10 @@ export default function PublicPropertyDetail() {
               {/* Section Header */}
               <Reveal className="text-center mb-12 md:mb-16">
                 <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
-                  Property Highlights
+                  What to Expect
                 </span>
                 <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-6">
-                  Why This Home?
+                  How Buying This Home Works
                 </h2>
                 <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
                   {funnelContent.propertyShowcase}
@@ -2076,9 +1981,9 @@ export default function PublicPropertyDetail() {
 
                 <Reveal className="text-center mb-10">
                   <h2 className="text-3xl md:text-4xl text-white">
-                    <span className="font-light">What Our</span>{' '}
-                    <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Homeowners</span>
-                    <span className="font-light"> Say</span>
+                    <span className="font-light">What</span>{' '}
+                    <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Buyers</span>
+                    <span className="font-light"> Are Saying</span>
                   </h2>
                 </Reveal>
                 <Reveal delay={200}>
@@ -2094,7 +1999,7 @@ export default function PublicPropertyDetail() {
 
         {/* What's Nearby - Focus on the places */}
         {!funnelLoading && funnelContent?.locationNearby && (
-          <section className="relative py-16 md:py-20">
+          <section className="relative py-20 md:py-24">
             {/* Ambient glows - BOOSTED for visibility */}
             <div className="absolute pointer-events-none top-[-40%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[220px]" />
             <div className="absolute pointer-events-none top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
@@ -2104,8 +2009,8 @@ export default function PublicPropertyDetail() {
 
             <div className="relative z-10 max-w-4xl mx-auto px-4">
               {/* Section Header */}
-              <Reveal className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl text-white">
+              <Reveal className="text-center mb-14 md:mb-16">
+                <h2 className="text-4xl md:text-5xl lg:text-6xl text-white">
                   <span className="font-light">Minutes from</span>{' '}
                   <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Everything</span>
                 </h2>
@@ -2113,7 +2018,7 @@ export default function PublicPropertyDetail() {
 
               {/* Nearby - split place and time for consistency */}
               <Reveal delay={150}>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
                   {funnelContent.locationNearby.split('\n').filter(Boolean).slice(0, 4).map((item, idx) => {
                     const cleanItem = item.replace(/^[•\-\*]\s*/, '').trim();
                     // Try to split "Place - time" but fallback to full text
@@ -2126,12 +2031,12 @@ export default function PublicPropertyDetail() {
                         {/* Glow on hover */}
                         <div className="absolute pointer-events-none -inset-1 bg-gradient-to-r from-purple-600/20 to-violet-600/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                        <div className="relative bg-purple-500/10 border border-purple-500/20 rounded-xl px-4 py-5 text-center h-full group-hover:border-purple-400/40 group-hover:bg-purple-500/15 transition-all flex flex-col justify-center">
-                          <p className="text-white font-medium text-sm leading-tight">
+                        <div className="relative bg-purple-500/10 border border-purple-500/20 rounded-xl px-5 py-6 text-center h-full group-hover:border-purple-400/40 group-hover:bg-purple-500/15 transition-all flex flex-col justify-center">
+                          <p className="text-white font-medium text-base md:text-lg leading-tight">
                             {place}
                           </p>
                           {time && (
-                            <p className="text-purple-300/70 text-xs mt-1">
+                            <p className="text-purple-300/70 text-sm mt-1">
                               {time}
                             </p>
                           )}
@@ -2145,44 +2050,55 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Qualifier Section - Dark Theme */}
-        {!funnelLoading && funnelContent?.qualifier && (
-          <section className="relative py-16 md:py-20">
-            {/* Ambient glows - BOOSTED + extended bottom bleed to FAQ */}
-            <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/22 rounded-full blur-[200px]" />
-            <div className="absolute pointer-events-none top-[20%] left-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
-            <div className="absolute pointer-events-none top-[40%] right-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
-            {/* Extended bottom bleed to reach FAQ section */}
-            <div className="absolute pointer-events-none bottom-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
+        {/* Qualifier Section - Dark Theme (Always Show with Fallback) */}
+        {!funnelLoading && (() => {
+          // Default lifestyle-focused content (fallback when no avatars/qualifier set)
+          const defaultQualifiers = [
+            "You're looking for space to grow — whether that's a home office, playroom, or hobby space",
+            "You want a yard where kids (or pets) can play safely",
+            "You value a quiet neighborhood with a strong sense of community",
+            "You're seeking move-in ready comfort with room to make it your own over time",
+            "You want to be close to work, schools, or amenities that matter to your daily life",
+            "You're ready to settle in and build lasting memories in one place",
+          ];
 
-            <div className="relative z-10 max-w-3xl mx-auto px-4">
-              <Reveal className="text-center mb-10">
-                <h2 className="text-3xl md:text-4xl text-white">
-                  <span className="font-light">This Home is</span>{' '}
-                  <span className="font-bold italic bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">Perfect</span>
-                  <span className="font-light"> For You If...</span>
-                </h2>
-              </Reveal>
+          // Use custom qualifier content if set, otherwise use defaults
+          const qualifierItems = funnelContent?.qualifier
+            ? funnelContent.qualifier.split('\n').filter(Boolean).map(item => item.replace(/^[•\-\*\s]+/, '').trim()).filter(Boolean)
+            : defaultQualifiers;
 
-              <Reveal delay={150}>
-                <div className="space-y-3">
-                  {funnelContent.qualifier.split('\n').filter(Boolean).map((item, idx) => {
-                    // Clean up any existing bullets
-                    const cleanItem = item.replace(/^[•\-\*\s]+/, '').trim();
-                    if (!cleanItem) return null;
+          return (
+            <section className="relative py-16 md:py-20">
+              {/* Ambient glows - BOOSTED + extended bottom bleed to FAQ */}
+              <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/22 rounded-full blur-[200px]" />
+              <div className="absolute pointer-events-none top-[20%] left-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
+              <div className="absolute pointer-events-none top-[40%] right-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
+              {/* Extended bottom bleed to reach FAQ section */}
+              <div className="absolute pointer-events-none bottom-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
 
-                    return (
+              <div className="relative z-10 max-w-3xl mx-auto px-4">
+                <Reveal className="text-center mb-10">
+                  <h2 className="text-3xl md:text-4xl text-white">
+                    <span className="font-light">This Home is</span>{' '}
+                    <span className="font-bold italic bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">Perfect</span>
+                    <span className="font-light"> For You If...</span>
+                  </h2>
+                </Reveal>
+
+                <Reveal delay={150}>
+                  <div className="space-y-3">
+                    {qualifierItems.map((item, idx) => (
                       <div key={idx} className="flex items-start gap-3 bg-purple-500/10 border border-purple-500/20 rounded-xl px-5 py-4 hover:bg-purple-500/15 transition-colors">
                         <CheckCircle className="h-5 w-5 text-purple-400 flex-shrink-0 mt-0.5" />
-                        <p className="text-white/90 leading-relaxed">{cleanItem}</p>
+                        <p className="text-white/90 leading-relaxed">{item}</p>
                       </div>
-                    );
-                  })}
-                </div>
-              </Reveal>
-            </div>
-          </section>
-        )}
+                    ))}
+                  </div>
+                </Reveal>
+              </div>
+            </section>
+          );
+        })()}
 
         {/* Virtual Tour - Premium Dark with Click-to-Play Overlay */}
         {!funnelLoading && funnelContent?.virtualTourUrl && (
@@ -2206,7 +2122,7 @@ export default function PublicPropertyDetail() {
             <div className="relative z-10 max-w-5xl mx-auto px-4">
               <FunnelFAQ
                 title="Frequently Asked Questions"
-                subtitle="Get answers to common questions about our rent-to-own program"
+                subtitle="Get clear answers to common questions about buying this home."
                 items={parsedFAQs}
                 variant="premium"
               />
@@ -2293,31 +2209,30 @@ export default function PublicPropertyDetail() {
 
             <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-                Ready to Stop Renting and Start Owning?
+                {t('finalCta.heading')}
               </h2>
               <p className="text-xl text-gray-400 mb-10">
-                {funnelContent.callToAction}
+                {t('finalCta.subheading')}
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col items-center gap-3">
                 <button
                   onClick={scrollToForm}
-                  className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+                  className="group relative bg-white/90 hover:bg-white text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_30px_rgba(168,85,247,0.25),0_0_50px_rgba(139,92,246,0.15)] hover:shadow-[0_0_40px_rgba(168,85,247,0.35),0_0_60px_rgba(139,92,246,0.2)] transition-all duration-300 hover:-translate-y-0.5 border-2 border-purple-300/40"
                 >
-                  Get Pre-Qualified Now
+                  {t('finalCta.cta')}
                   <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </button>
                 <a
-                  href={`tel:+1${companyPhone.replace(/\D/g, '')}`}
-                  className="inline-flex items-center justify-center gap-2 bg-transparent hover:bg-white/10 text-white font-bold text-lg uppercase tracking-wide px-8 py-4 rounded-xl border-2 border-white/30 hover:border-white/50 transition-all duration-300"
+                  href={`sms:+1${companyPhone.replace(/\D/g, '')}`}
+                  className="text-gray-400 hover:text-white text-sm underline transition-colors"
                 >
-                  <Phone className="h-5 w-5" />
-                  Call {companyPhone}
+                  {t('finalCta.preferToTalk')} {companyPhone}
                 </a>
               </div>
               <TrustIndicators
                 className="mt-10 justify-center"
                 variant="premium"
-                items={["No obligation", "Free consultation", "Fast response"]}
+                items={[t('trustIndicators.noObligation'), t('trustIndicators.freeConsultation'), t('trustIndicators.fastResponse')]}
               />
             </div>
           </section>
@@ -2337,21 +2252,21 @@ export default function PublicPropertyDetail() {
           <div className="relative z-10">
           {/* Form Card */}
           <div className="max-w-xl mx-auto">
-            <div className="bg-white/5 backdrop-blur-sm rounded-3xl shadow-2xl border border-purple-500/20 overflow-hidden">
-              <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 p-8 text-white text-center relative overflow-hidden">
+            <div className="bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 p-6 text-white text-center relative overflow-hidden">
                 <div className="absolute pointer-events-none top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
                 <div className="absolute pointer-events-none bottom-0 left-0 w-32 h-32 bg-purple-400/20 rounded-full blur-2xl" />
                 <div className="relative z-10">
-                  <div className="inline-flex items-center justify-center w-14 h-14 bg-white/20 backdrop-blur rounded-2xl mb-4 shadow-lg">
-                    <Home className="h-7 w-7 text-white" />
+                  <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 backdrop-blur rounded-2xl mb-3 shadow-lg">
+                    <Home className="h-6 w-6 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold">Get Pre-Qualified Today</h2>
-                  <p className="text-purple-200 mt-1">No credit check required to start</p>
+                  <h2 className="text-xl font-bold">{t('form.header')}</h2>
+                  <p className="text-purple-100 mt-2 text-sm max-w-md mx-auto">{t('form.subtitle')}</p>
                 </div>
               </div>
 
               {!showOfferForm ? (
-                <div className="p-8 space-y-5">
+                <div className="p-8 space-y-5 bg-white">
                   <div className="text-center mb-6">
                     <p className="text-gray-300">Interested in {property.address}?</p>
                   </div>
@@ -2375,67 +2290,66 @@ export default function PublicPropertyDetail() {
                   <TrustIndicators className="justify-center" variant="premium" />
                 </div>
               ) : (
-                <form onSubmit={handleOfferSubmit} className="p-4 sm:p-6 space-y-4">
+                <form onSubmit={handleOfferSubmit} className="p-4 sm:p-6 space-y-4 bg-white">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-semibold text-gray-200">First Name *</Label>
+                      <Label className="text-sm font-semibold text-gray-700">{t('form.firstName')} *</Label>
                       <Input
                         value={offerForm.firstName}
                         onChange={(e) => setOfferForm(prev => ({ ...prev, firstName: e.target.value }))}
                         required
-                        placeholder="John"
-                        className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
+                        placeholder={t('form.placeholderFirstName')}
+                        className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
                       />
                     </div>
                     <div>
-                      <Label className="text-sm font-semibold text-gray-200">Last Name *</Label>
+                      <Label className="text-sm font-semibold text-gray-700">{t('form.lastName')} *</Label>
                       <Input
                         value={offerForm.lastName}
                         onChange={(e) => setOfferForm(prev => ({ ...prev, lastName: e.target.value }))}
                         required
-                        placeholder="Doe"
-                        className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
+                        placeholder={t('form.placeholderLastName')}
+                        className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold text-gray-200">Phone Number *</Label>
+                    <Label className="text-sm font-semibold text-gray-700">{t('form.phone')} *</Label>
                     <PhoneInput
                       value={offerForm.phone}
                       onChange={(value) => setOfferForm(prev => ({ ...prev, phone: value || '' }))}
                       required
-                      placeholder="Enter phone number"
+                      placeholder={t('form.placeholderPhone')}
                       defaultCountry="US"
-                      className="mt-1 [&_input]:bg-white/10 [&_input]:border-purple-500/30 [&_input]:text-white [&_input]:placeholder:text-gray-400"
+                      className="mt-1 [&_input]:bg-white [&_input]:border-gray-300 [&_input]:text-gray-900 [&_input]:placeholder:text-gray-400"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold text-gray-200">Email *</Label>
+                    <Label className="text-sm font-semibold text-gray-700">{t('form.emailOptional')}</Label>
                     <Input
                       type="email"
                       value={offerForm.email}
                       onChange={(e) => setOfferForm(prev => ({ ...prev, email: e.target.value }))}
-                      required
-                      placeholder="john@example.com"
-                      className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
+                      placeholder={t('form.placeholderEmail')}
+                      className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold text-gray-200">Your Budget (Optional)</Label>
+                    <Label className="text-sm font-semibold text-gray-700">{t('form.budget')}</Label>
                     <Input
                       placeholder="$1,500/month"
                       value={offerForm.offerAmount}
                       onChange={(e) => setOfferForm(prev => ({ ...prev, offerAmount: e.target.value }))}
-                      className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
+                      className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold text-gray-200">Message (Optional)</Label>
+                    <Label className="text-sm font-semibold text-gray-700">{t('form.messageOptional')}</Label>
                     <Textarea
                       value={offerForm.message}
                       onChange={(e) => setOfferForm(prev => ({ ...prev, message: e.target.value }))}
-                      placeholder="Tell us about your situation..."
-                      className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
+                      placeholder={t('form.tellUsAbout')}
+                      className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
                       rows={3}
                     />
                   </div>
@@ -2501,68 +2415,67 @@ export default function PublicPropertyDetail() {
           />
 
           {/* Modal Content */}
-          <div className="relative w-full max-w-md bg-gradient-to-br from-purple-900/95 via-purple-800/95 to-purple-900/95 rounded-2xl border border-purple-500/30 shadow-2xl shadow-purple-500/20 animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-md bg-white rounded-2xl border border-gray-200 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             {/* Close button */}
             <button
               onClick={() => setIsFormModalOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors z-10"
+              className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 transition-colors z-10"
             >
               <X className="h-5 w-5" />
             </button>
 
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600/50 to-violet-600/50 px-6 py-5 text-center text-white rounded-t-2xl">
+            <div className="bg-gradient-to-r from-purple-600 to-violet-600 px-6 py-5 text-center text-white rounded-t-2xl">
               <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 backdrop-blur rounded-xl mb-3">
                 <Home className="h-6 w-6 text-white" />
               </div>
-              <h2 className="text-xl font-bold">Get Pre-Qualified Today</h2>
-              <p className="text-purple-200 text-sm mt-1">No credit check required to start</p>
+              <h2 className="text-xl font-bold">{t('form.header')}</h2>
+              <p className="text-purple-100 text-sm mt-2">{t('form.subtitle')}</p>
             </div>
 
             {/* Form */}
-            <form onSubmit={(e) => { handleOfferSubmit(e); setIsFormModalOpen(false); }} className="p-5 space-y-4">
+            <form onSubmit={(e) => { handleOfferSubmit(e); setIsFormModalOpen(false); }} className="p-5 space-y-4 bg-white rounded-b-2xl">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-sm font-semibold text-gray-200">First Name *</Label>
+                  <Label className="text-sm font-semibold text-gray-700">{t('form.firstName')} *</Label>
                   <Input
                     value={offerForm.firstName}
                     onChange={(e) => setOfferForm(prev => ({ ...prev, firstName: e.target.value }))}
                     required
-                    placeholder="John"
-                    className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
+                    placeholder={t('form.placeholderFirstName')}
+                    className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
                   />
                 </div>
                 <div>
-                  <Label className="text-sm font-semibold text-gray-200">Last Name *</Label>
+                  <Label className="text-sm font-semibold text-gray-700">{t('form.lastName')} *</Label>
                   <Input
                     value={offerForm.lastName}
                     onChange={(e) => setOfferForm(prev => ({ ...prev, lastName: e.target.value }))}
                     required
-                    placeholder="Doe"
-                    className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
+                    placeholder={t('form.placeholderLastName')}
+                    className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
                   />
                 </div>
               </div>
               <div>
-                <Label className="text-sm font-semibold text-gray-200">Phone Number *</Label>
+                <Label className="text-sm font-semibold text-gray-700">{t('form.phone')} *</Label>
                 <PhoneInput
                   value={offerForm.phone}
                   onChange={(value) => setOfferForm(prev => ({ ...prev, phone: value || '' }))}
                   required
-                  placeholder="Enter phone number"
+                  placeholder={t('form.placeholderPhone')}
                   defaultCountry="US"
-                  className="mt-1 [&_input]:bg-white/10 [&_input]:border-purple-500/30 [&_input]:text-white [&_input]:placeholder:text-gray-400"
+                  className="mt-1 [&_input]:bg-white [&_input]:border-gray-300 [&_input]:text-gray-900 [&_input]:placeholder:text-gray-400"
                 />
               </div>
               <div>
-                <Label className="text-sm font-semibold text-gray-200">Email *</Label>
+                <Label className="text-sm font-semibold text-gray-700">{t('form.emailOptional')}</Label>
                 <Input
                   type="email"
                   value={offerForm.email}
                   onChange={(e) => setOfferForm(prev => ({ ...prev, email: e.target.value }))}
-                  required
-                  placeholder="john@example.com"
-                  className="mt-1 bg-white/10 border-purple-500/30 text-white placeholder:text-gray-400 focus:border-purple-400 focus:ring-purple-400/20"
+                  placeholder={t('form.placeholderEmail')}
+                  className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
                 />
               </div>
               <CTAButton
@@ -2573,10 +2486,10 @@ export default function PublicPropertyDetail() {
                 {createContact.isPending ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
-                    Submitting...
+                    {t('form.submitting')}
                   </>
                 ) : (
-                  'Submit & Get Pre-Qualified'
+                  t('form.submitCta')
                 )}
               </CTAButton>
               <p className="text-center text-gray-400 text-xs">
