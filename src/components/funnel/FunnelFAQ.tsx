@@ -18,20 +18,48 @@ interface FunnelFAQProps {
 
 const defaultFAQs: FAQItem[] = [
   {
-    question: "What credit score do I need?",
-    answer: "Unlike traditional lenders, we work with all credit situations. While a higher score may get better terms, we've helped families with scores as low as 500 achieve homeownership.",
+    question: "Do I need credit to buy this home?",
+    answer: "No. You do not need credit to qualify for this home. We do not approve or deny buyers based on credit scores.\n\nWhat matters is:\nThat you have the down payment, and\nThat your income comfortably supports the monthly payment.\n\nOur goal is to make sure the home and payment are a safe, realistic fit for you. We'll walk through the numbers together so you feel confident before moving forward.",
   },
   {
-    question: "How is rent-to-own different from renting?",
-    answer: "With rent-to-own, a portion of your monthly payment goes toward your future down payment. You're building equity from day one, and you have the option to purchase the home at a locked-in price.",
+    question: "What do you look at to see if this works for me?",
+    answer: "We start with a simple conversation about:\n\nYour down payment range\nYour income and timeline\nAnd whether this home actually fits what you're looking for\n\nThis helps us make sure both the home and the monthly payment are a comfortable, realistic fit for you — not just today, but long-term.",
   },
   {
-    question: "What if I decide not to buy the home?",
-    answer: "Our program is designed to help you succeed, but we understand circumstances change. If you decide not to purchase, you can walk away at the end of your lease term with no obligation.",
+    question: "Am I committing to buy the home just by starting the process?",
+    answer: "No. Starting the process is simply a conversation. There's no commitment until you choose to move forward and sign an agreement.\n\nBefore that, it's just about making sure the home and payment make sense for you.",
   },
   {
-    question: "How much do I need upfront?",
-    answer: "Our move-in costs are typically 3-5% of the home price, much less than a traditional 20% down payment. This includes your option fee which goes toward your purchase.",
+    question: "Is my down payment safe?",
+    answer: "Yes. All funds are handled through the title company as part of the closing process, just like in other home sales.",
+  },
+  {
+    question: "Is this rent-to-own?",
+    answer: "No — and that's an important distinction.\n\nSome rent-to-own arrangements are essentially rentals, where monthly payments don't reduce what you owe and buyers don't build real ownership over time.\n\nWith this home, you're on a true path to ownership from the beginning.\n\nYour purchase price is locked in, your interest in the home is documented and protected through a licensed title company, and your monthly payment is structured so you're paying down the home over time, not just paying rent.\n\nWe've designed this to give buyers the flexibility banks don't offer, without sacrificing the protections and long-term benefits of owning a home.",
+  },
+  {
+    question: "How is this different from going through a bank?",
+    answer: "Banks rely heavily on credit scores and rigid rules to decide who qualifies.\n\nWe take a more human approach.\n\nInstead of focusing on credit, we focus on whether the home and monthly payment are realistic and sustainable for you. At the same time, the payment structure is designed for long-term ownership — similar to a traditional home loan — so you're building equity and stability over time.",
+  },
+  {
+    question: "Is this a real closing through a title company?",
+    answer: "Yes. The purchase is completed through a licensed title company, just like other traditional home sales. All documents are properly handled so your interest in the home is protected.",
+  },
+  {
+    question: "Can I see the home before committing to anything?",
+    answer: "Yes. Once we confirm the home and payment make sense for you, we'll schedule a showing so you can see the home in person before moving forward.",
+  },
+  {
+    question: "What if my situation isn't traditional?",
+    answer: "That's okay. Many buyers we work with are self-employed, contractors, or earn income in non-traditional ways. Some don't fit a bank's checklist — and that doesn't mean homeownership isn't right for them. We focus on whether the home and payment make sense for your real life, not whether you check every box a bank requires.",
+  },
+  {
+    question: "What happens if I decide it's not the right fit?",
+    answer: "There's no obligation to move forward. If the home or payment doesn't feel right after reviewing the details, you're free to walk away.",
+  },
+  {
+    question: "How do I get started?",
+    answer: "Just click the button on this page to start a conversation. It takes a couple of minutes and helps us answer your questions clearly.",
   },
 ];
 
@@ -228,8 +256,7 @@ const FunnelFAQ: React.FC<FunnelFAQProps> = ({
                 FAQ
               </span>
               <h2 className="text-2xl md:text-4xl text-white mb-3">
-                <span className="font-light">Got</span>{' '}
-                <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">Questions?</span>
+                <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Common Questions</span>
               </h2>
               {subtitle && <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto px-4">{subtitle}</p>}
             </div>

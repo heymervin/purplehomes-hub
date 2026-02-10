@@ -1080,12 +1080,14 @@ Generate these sections in JSON format:
 
 7. **locationNearby**: ${inputs.nearbyPlaces ? `Based on: ${inputs.nearbyPlaces}. ` : ''}One place per line, format: "Place Name - X min drive". NO bullet characters.
 
-8. **qualifier**: Generate 4 statements for ideal buyer criteria. One per line, NO bullet characters. Example:
-   "You're tired of paying rent with nothing to show for it
-   You have steady income but banks keep saying no
-   You want a safe neighborhood with good schools
-   You're ready to stop dreaming and start owning"
-   Tailor to ${buyerSegment} avatar. Do NOT just output "This home is perfect for you if..."
+8. **qualifier**: Generate 4-6 lifestyle-focused statements about who this home is perfect for. Focus on LIFESTYLE, LIVABILITY, and QUALITY OF LIFE — NOT financing or program details. One per line, NO bullet characters. Example:
+   "You're looking for space to grow — whether that's a home office, playroom, or hobby space
+   You want a yard where kids (or pets) can play safely
+   You value a quiet neighborhood with a strong sense of community
+   You're seeking move-in ready comfort with room to make it your own over time
+   You want to be close to work, schools, or amenities that matter to your daily life
+   You're ready to settle in and build lasting memories in one place"
+   Tailor to ${buyerSegment} avatar with LIFESTYLE needs (not financing concerns). Do NOT mention credit, banks, down payments, or rent. Focus on how they'll LIVE in this home.
 
 9. **pricingOptions**: Clean breakdown with all payment details
 

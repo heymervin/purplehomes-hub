@@ -1264,7 +1264,7 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
               {/* Qualifier */}
               <SectionCard
                 title="Qualifier"
-                description="&quot;This home is perfect for you if...&quot; - helps buyers self-select"
+                description="&quot;This home is perfect for you if...&quot; - Focus on LIFESTYLE, LIVABILITY, and QUALITY OF LIFE (not financing)"
                 value={content.qualifier || ''}
                 onChange={(v) => updateField('qualifier', v)}
                 rows={4}
