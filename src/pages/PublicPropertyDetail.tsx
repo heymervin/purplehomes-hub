@@ -1112,53 +1112,53 @@ export default function PublicPropertyDetail() {
 
           {/* Premium Trust Strip - inside section for seamless background */}
           <PremiumTrustStrip className="pb-6" />
-        </section>
 
-        {/* Highlighted Solo Testimonial - Featured buyer testimonial */}
-        <section className="py-16 md:py-20">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6">
-            <Reveal delay={0.1}>
-              <FeaturedTestimonial
-                quote={t('highlightedTestimonial.quote')}
-                authorName="Eddie"
-                authorTitle={t('highlightedTestimonial.authorTitle')}
-                authorImage="/images/testimonials/eddie.jpg"
-                rating={5}
-              />
-            </Reveal>
-          </div>
-        </section>
-
-        {/* About This Home Section - Descriptive living experience */}
-        <section className="relative py-20 bg-gray-900">
-          {/* Ambient glow */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/8 rounded-full blur-[130px]" />
+          {/* Highlighted Solo Testimonial - inside section for seamless flow */}
+          <div className="relative pt-12 pb-8 md:pt-16 md:pb-10">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6">
+              <Reveal delay={0.1}>
+                <FeaturedTestimonial
+                  quote={t('highlightedTestimonial.quote')}
+                  authorName="Eddie"
+                  authorTitle={t('highlightedTestimonial.authorTitle')}
+                  authorImage="/images/testimonials/eddie.jpg"
+                  rating={5}
+                />
+              </Reveal>
+            </div>
           </div>
 
-          <div className="relative max-w-4xl mx-auto px-4 sm:px-6">
-            <Reveal delay={0.1}>
-              {/* Eyebrow Label */}
-              <div className="flex justify-center mb-6">
-                <span className="inline-flex items-center px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-sm font-semibold tracking-wide uppercase">
-                  {t('aboutHome.eyebrow')}
-                </span>
-              </div>
-            </Reveal>
+          {/* About This Home - inside section for seamless flow */}
+          <div className="relative pt-8 pb-12 md:pt-10 md:pb-16">
+            {/* Purple ambient glow */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[130px]" />
+            </div>
 
-            <Reveal delay={0.2}>
-              {/* Headline with Dynamic Address */}
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white text-center leading-tight tracking-tight mb-8">
-                {t('aboutHome.headline')} {property.address}
-              </h2>
-            </Reveal>
+            <div className="relative max-w-4xl mx-auto px-4 sm:px-6">
+              <Reveal delay={0.1}>
+                {/* Eyebrow Label */}
+                <div className="flex justify-center mb-6">
+                  <span className="inline-flex items-center px-4 py-2 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-300 text-sm font-semibold tracking-wide uppercase">
+                    {t('aboutHome.eyebrow')}
+                  </span>
+                </div>
+              </Reveal>
 
-            <Reveal delay={0.3}>
-              {/* Description */}
-              <p className="text-lg sm:text-xl text-gray-300 leading-relaxed text-center max-w-3xl mx-auto">
-                {t('aboutHome.description')}
-              </p>
-            </Reveal>
+              <Reveal delay={0.2}>
+                {/* Headline with Dynamic Address */}
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white text-center leading-tight tracking-tight mb-8">
+                  {t('aboutHome.headline')} {property.address}
+                </h2>
+              </Reveal>
+
+              <Reveal delay={0.3}>
+                {/* Description */}
+                <p className="text-lg sm:text-xl text-gray-300 leading-relaxed text-center max-w-3xl mx-auto">
+                  {t('aboutHome.description')}
+                </p>
+              </Reveal>
+            </div>
           </div>
         </section>
 
