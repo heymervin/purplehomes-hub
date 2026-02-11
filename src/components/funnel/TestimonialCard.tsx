@@ -420,13 +420,13 @@ const FeaturedTestimonial: React.FC<FeaturedTestimonialProps> = ({
       {/* Content */}
       <div className="relative z-10 max-w-3xl mx-auto text-center">
         {/* Quote icon */}
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl mb-8 shadow-lg shadow-purple-500/30">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl mb-8 shadow-lg shadow-purple-500/30 animate-[fadeInDown_0.6s_ease-out_both]">
           <Quote className="h-8 w-8 text-white" />
         </div>
 
         {/* Stars */}
         {rating > 0 && (
-          <div className="flex justify-center gap-1 mb-6">
+          <div className="flex justify-center gap-1 mb-6 animate-[fadeInUp_0.5s_ease-out_0.2s_both]">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
@@ -440,12 +440,12 @@ const FeaturedTestimonial: React.FC<FeaturedTestimonialProps> = ({
         )}
 
         {/* Quote */}
-        <blockquote className="text-2xl md:text-3xl text-white font-medium leading-relaxed mb-10">
+        <blockquote className="text-3xl md:text-4xl lg:text-[2.75rem] text-white font-medium leading-relaxed mb-10 animate-[fadeInUp_0.6s_ease-out_0.35s_both]">
           "{quote}"
         </blockquote>
 
         {/* Author */}
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center justify-center gap-4 animate-[fadeInUp_0.5s_ease-out_0.55s_both]">
           {authorImage ? (
             <img
               src={authorImage}

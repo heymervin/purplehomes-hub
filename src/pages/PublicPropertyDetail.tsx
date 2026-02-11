@@ -1033,7 +1033,7 @@ export default function PublicPropertyDetail() {
 
                   {/* Secondary: Down Payment (if exists) */}
                   {property.downPayment !== undefined && (
-                    <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-sm sm:text-base md:text-lg font-semibold mb-3">
+                    <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mt-2 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-sm sm:text-base md:text-lg font-semibold mb-3">
                       ${property.downPayment.toLocaleString()} {t('property.downPayment')}
                     </div>
                   )}
