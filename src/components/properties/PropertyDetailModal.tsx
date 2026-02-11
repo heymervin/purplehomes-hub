@@ -9,7 +9,7 @@ import { QuickStatsBar } from './QuickStatsBar';
 import { LocationFields } from './LocationFields';
 import { FieldSection } from './FieldSection';
 import { AICaptionGenerator } from '@/components/social/AICaptionGenerator';
-import { getGhlOpportunityUrl } from '@/lib/ghlUrls';
+import { getGhlOpportunityUrl, isGhlDocumentUrl, getProxiedImageUrl } from '@/lib/ghlUrls';
 import {
   Dialog,
   DialogContent,
@@ -45,7 +45,7 @@ import { SocialStatusBadge } from '@/components/ui/social-status-badge';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { toast } from 'sonner';
 import type { Property, PropertyCondition, PropertyType, PropertyStatus } from '@/types';
-import { useUpdateProperty, useProperty, PROPERTY_CUSTOM_FIELDS, GHL_OPPORTUNITY_FIELDS } from '@/services/ghlApi';
+import { useUpdateProperty, useProperty, useUploadMedia, PROPERTY_CUSTOM_FIELDS, GHL_OPPORTUNITY_FIELDS } from '@/services/ghlApi';
 import { useUpdateAirtableProperty } from '@/services/matchingApi';
 import { PropertyCalculator } from '@/components/calculator';
 import { FunnelContentEditor } from './FunnelContentEditor';
@@ -107,6 +107,7 @@ export function PropertyDetailModal({
 }: PropertyDetailModalProps) {
   const updateProperty = useUpdateProperty();
   const updateAirtableProperty = useUpdateAirtableProperty();
+  const uploadMedia = useUploadMedia();
 
   // Fetch raw opportunity data to get current custom field values
   const { data: opportunityData } = useProperty(initialProperty?.ghlOpportunityId || '');
@@ -175,6 +176,56 @@ export function PropertyDetailModal({
     onOpenChange(false);
   };
 
+  // Helper: Upload URL to GHL media library
+  const uploadImageUrl = async (url: string): Promise<string> => {
+    if (!url || url === '/placeholder.svg') return url;
+
+    console.log('[PropertyDetailModal] Uploading image URL to GHL:', url);
+
+    try {
+      // For GHL document URLs, fetch through proxy and convert to base64
+      if (isGhlDocumentUrl(url)) {
+        console.log('[PropertyDetailModal] GHL document URL detected, fetching through proxy...');
+        const proxiedUrl = getProxiedImageUrl(url);
+
+        // Fetch image through our proxy
+        const response = await fetch(proxiedUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        const base64Data = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(blob);
+        });
+
+        console.log('[PropertyDetailModal] Converting to base64 and uploading...');
+        const result = await uploadMedia.mutateAsync({
+          base64Data,
+          name: `property-image-${Date.now()}.jpg`,
+          contentType: blob.type || 'image/jpeg',
+        });
+
+        console.log('[PropertyDetailModal] Upload successful:', result);
+        return result.url || url;
+      }
+
+      // For regular URLs, let GHL fetch them directly
+      const result = await uploadMedia.mutateAsync({
+        fileUrl: url,
+        name: `property-image-${Date.now()}.jpg`,
+      });
+
+      console.log('[PropertyDetailModal] Upload successful:', result);
+      return result.url || url; // Return GHL-hosted URL or fallback to original
+    } catch (error) {
+      console.error('[PropertyDetailModal] Upload failed:', error);
+      throw new Error(`Failed to upload image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   const handleSave = async () => {
     console.log('[PropertyDetailModal] Save attempt:', {
       propertyId: initialProperty?.id,
@@ -192,7 +243,45 @@ export function PropertyDetailModal({
       // Combine location data for city field
       const combinedCity = combineCityField(locationData.city, locationData.state, locationData.zip);
 
-      // Build custom fields update for GHL
+      // Upload images to GHL media library first (for FILE_UPLOAD fields)
+      console.log('[PropertyDetailModal] Uploading images to GHL media library...');
+      toast.loading('Uploading images...', { id: 'upload-images' });
+
+      let ghlHostedHeroImage = formData.heroImage;
+      let ghlHostedSupportingImages = formData.images || [];
+
+      try {
+        // Upload hero image if it exists and is a URL
+        if (formData.heroImage && formData.heroImage !== '/placeholder.svg') {
+          console.log('[PropertyDetailModal] Uploading hero image:', formData.heroImage);
+          ghlHostedHeroImage = await uploadImageUrl(formData.heroImage);
+          console.log('[PropertyDetailModal] Hero image uploaded:', ghlHostedHeroImage);
+        }
+
+        // Upload supporting images in parallel
+        if (formData.images && formData.images.length > 0) {
+          console.log('[PropertyDetailModal] Uploading supporting images:', formData.images);
+          ghlHostedSupportingImages = await Promise.all(
+            formData.images.map(async (imgUrl) => {
+              if (!imgUrl || imgUrl === '/placeholder.svg') return '';
+              try {
+                return await uploadImageUrl(imgUrl);
+              } catch (error) {
+                console.error('[PropertyDetailModal] Failed to upload supporting image:', imgUrl, error);
+                return imgUrl; // Fallback to original URL if upload fails
+              }
+            })
+          );
+          console.log('[PropertyDetailModal] Supporting images uploaded:', ghlHostedSupportingImages);
+        }
+
+        toast.success('Images uploaded!', { id: 'upload-images' });
+      } catch (error) {
+        toast.error('Failed to upload images', { id: 'upload-images' });
+        throw error;
+      }
+
+      // Build custom fields update for GHL (using GHL-hosted URLs)
       const customFieldsUpdate: Record<string, string> = {};
 
       // Map form data to custom fields
@@ -203,9 +292,9 @@ export function PropertyDetailModal({
       if (formData.sqft !== undefined) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.sqft] = String(formData.sqft);
       if (formData.condition) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.condition] = formData.condition;
       if (formData.propertyType) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.propertyType] = formData.propertyType;
-      if (formData.heroImage) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.heroImage] = formData.heroImage;
+      if (ghlHostedHeroImage) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.heroImage] = ghlHostedHeroImage;
 
-      // Map supporting images to GHL custom fields (1-10)
+      // Map supporting images to GHL custom fields (1-10) - using GHL-hosted URLs
       const supportingImageFields = [
         GHL_OPPORTUNITY_FIELDS.supporting_image_1_upload,
         GHL_OPPORTUNITY_FIELDS.supporting_image_2_upload,
@@ -219,7 +308,7 @@ export function PropertyDetailModal({
         GHL_OPPORTUNITY_FIELDS.supporting_image_10_upload,
       ];
       supportingImageFields.forEach((fieldId, i) => {
-        customFieldsUpdate[fieldId] = formData.images[i] || '';
+        customFieldsUpdate[fieldId] = ghlHostedSupportingImages[i] || '';
       });
 
       if (formData.caption) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.caption] = formData.caption;
@@ -276,8 +365,8 @@ export function PropertyDetailModal({
               propertyType: formData.propertyType,
               monthlyPayment: formData.monthlyPayment,
               downPayment: formData.downPayment,
-              heroImage: formData.heroImage,
-              images: formData.images,
+              heroImage: ghlHostedHeroImage,
+              images: ghlHostedSupportingImages,
             },
           });
         } catch (airtableError) {

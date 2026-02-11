@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
   ChevronLeft, ChevronRight, Star, Plus, Trash2, ExternalLink,
-  GripVertical, Loader2, X, AlertTriangle
+  GripVertical, Loader2, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,12 +30,12 @@ export function PropertyImageGallery({
   const [showAddInput, setShowAddInput] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
-  // Detect problematic URLs (GHL document URLs that won't load as images)
-  const isProblematicUrl = (url: string): boolean => {
-    if (!url) return false;
-    return url.includes('services.leadconnectorhq.com/documents/download') ||
-           url.includes('/documents/download/');
-  };
+  // Note: GHL document URLs are now auto-uploaded on save, no need to warn users
+  // const isProblematicUrl = (url: string): boolean => {
+  //   if (!url) return false;
+  //   return url.includes('services.leadconnectorhq.com/documents/download') ||
+  //          url.includes('/documents/download/');
+  // };
 
   // Combine hero + images, ensure hero is first
   const allOriginalImages = useMemo(
@@ -255,7 +255,7 @@ export function PropertyImageGallery({
           {allImages.map((img, index) => {
             const originalImg = allOriginalImages[index] || '';
             const isHero = originalImg === heroImage;
-            const hasIssue = isProblematicUrl(originalImg);
+            const hasIssue = false; // Auto-upload handles all URLs now
 
             return (
               <div key={`${originalImg}-${index}`} className="flex flex-col gap-1.5 flex-shrink-0">
