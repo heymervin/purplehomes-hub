@@ -1575,36 +1575,129 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           formScore * ANALYTICS_WEIGHTS.formSubmission
         ) * 10) / 10;
 
-        // Save to Airtable FunnelAnalytics table
+        // ============ DAILY AGGREGATE STORAGE ============
+        // Instead of 1 row per session (burns through Airtable 50k limit),
+        // we upsert 1 row per property per day. JSON in BuyerSegment field
+        // stores segment breakdowns and precise counts.
+        // Row usage: (properties × days) instead of (total sessions).
         try {
           const analyticsUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/FunnelAnalytics`;
-          const saveResponse = await fetchWithRetry(analyticsUrl, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              fields: {
-                'SessionID': trackData.sessionId,
-                'PropertyID': trackData.propertyId || '',
-                'PropertySlug': trackData.propertySlug,
-                'AvatarResearchID': trackData.avatarResearchId || null,
-                'BuyerSegment': trackData.buyerSegment || null,
-                'TimeOnPage': trackData.timeOnPageSeconds || 0,
-                'MaxScrollDepth': trackData.maxScrollDepth || 0,
-                'CTAClicks': trackData.ctaClicks || 0,
-                'FormSubmitted': trackData.formSubmitted || false,
-                'VideoPlayed': trackData.videoPlayed || false,
-                'EffectivenessScore': effectivenessScore,
-                'TimeStamp': trackData.timestamp || new Date().toISOString()
-              }
-            }),
+          const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+          const aggKey = `agg|${trackData.propertySlug}|${today}`;
+          const segment = trackData.buyerSegment || 'unknown';
+          const scrollDepth = trackData.maxScrollDepth || 0;
+          const timeOnPage = trackData.timeOnPageSeconds || 0;
+          const ctaClicks = trackData.ctaClicks || 0;
+          const formSubmitted = trackData.formSubmitted || false;
+          const videoPlayed = trackData.videoPlayed || false;
+
+          // Try to find existing aggregate row for this property + today
+          const findFormula = encodeURIComponent(`{SessionID}="${aggKey}"`);
+          const findUrl = `${analyticsUrl}?filterByFormula=${findFormula}&maxRecords=1`;
+          const findResponse = await fetchWithRetry(findUrl, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${AIRTABLE_API_KEY}` },
           });
 
-          const saved = saveResponse.ok;
+          let saved = false;
+
+          if (findResponse.ok) {
+            const findData = await findResponse.json();
+            const existingRecord = findData.records?.[0];
+
+            if (existingRecord) {
+              // ---- UPDATE existing aggregate row ----
+              const ef = existingRecord.fields;
+
+              // Parse existing JSON aggregate data
+              let aggData: any = { sessions: 0, conversions: 0, videoPlays: 0, engagedCount: 0, ctaClickedCount: 0, segments: {} };
+              try {
+                if (ef.BuyerSegment) aggData = JSON.parse(ef.BuyerSegment as string);
+              } catch { /* start fresh if corrupt */ }
+
+              // Increment counters
+              aggData.sessions = (aggData.sessions || 0) + 1;
+              if (formSubmitted) aggData.conversions = (aggData.conversions || 0) + 1;
+              if (videoPlayed) aggData.videoPlays = (aggData.videoPlays || 0) + 1;
+              if (scrollDepth > 25) aggData.engagedCount = (aggData.engagedCount || 0) + 1;
+              if (ctaClicks > 0) aggData.ctaClickedCount = (aggData.ctaClickedCount || 0) + 1;
+
+              // Increment segment data
+              if (!aggData.segments) aggData.segments = {};
+              if (!aggData.segments[segment]) {
+                aggData.segments[segment] = { s: 0, sd: 0, tp: 0, c: 0, cv: 0 };
+              }
+              aggData.segments[segment].s += 1;
+              aggData.segments[segment].sd += scrollDepth;
+              aggData.segments[segment].tp += timeOnPage;
+              aggData.segments[segment].c += ctaClicks;
+              if (formSubmitted) aggData.segments[segment].cv += 1;
+
+              const updateResponse = await fetchWithRetry(`${analyticsUrl}/${existingRecord.id}`, {
+                method: 'PATCH',
+                headers: {
+                  'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  fields: {
+                    'TimeOnPage': ((ef.TimeOnPage as number) || 0) + timeOnPage,
+                    'MaxScrollDepth': ((ef.MaxScrollDepth as number) || 0) + scrollDepth,
+                    'CTAClicks': ((ef.CTAClicks as number) || 0) + ctaClicks,
+                    'FormSubmitted': ((ef.FormSubmitted as boolean) || false) || formSubmitted,
+                    'VideoPlayed': ((ef.VideoPlayed as boolean) || false) || videoPlayed,
+                    'EffectivenessScore': aggData.sessions, // Repurposed as session count
+                    'BuyerSegment': JSON.stringify(aggData),
+                  }
+                }),
+              });
+
+              saved = updateResponse.ok;
+            } else {
+              // ---- CREATE new aggregate row for today ----
+              const aggData = {
+                sessions: 1,
+                conversions: formSubmitted ? 1 : 0,
+                videoPlays: videoPlayed ? 1 : 0,
+                engagedCount: scrollDepth > 25 ? 1 : 0,
+                ctaClickedCount: ctaClicks > 0 ? 1 : 0,
+                segments: {
+                  [segment]: {
+                    s: 1, sd: scrollDepth, tp: timeOnPage, c: ctaClicks, cv: formSubmitted ? 1 : 0,
+                  }
+                }
+              };
+
+              const createResponse = await fetchWithRetry(analyticsUrl, {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  fields: {
+                    'SessionID': aggKey,
+                    'PropertyID': trackData.propertyId || '',
+                    'PropertySlug': trackData.propertySlug,
+                    'AvatarResearchID': null,
+                    'BuyerSegment': JSON.stringify(aggData),
+                    'TimeOnPage': timeOnPage,
+                    'MaxScrollDepth': scrollDepth,
+                    'CTAClicks': ctaClicks,
+                    'FormSubmitted': formSubmitted,
+                    'VideoPlayed': videoPlayed,
+                    'EffectivenessScore': 1, // Session count
+                    'TimeStamp': `${today}T00:00:00.000Z`
+                  }
+                }),
+              });
+
+              saved = createResponse.ok;
+            }
+          }
+
           if (saved) {
-            console.log('[Funnel Analytics] Session saved:', trackData.sessionId);
+            console.log('[Funnel Analytics] Session aggregated:', aggKey);
           }
 
           // ============ AUTO-FEEDBACK LOOP ============
@@ -1672,32 +1765,58 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           }
 
           const data = await response.json();
-          const sessions = (data.records || []).map((r: any) => ({
-            timeOnPageSeconds: r.fields.TimeOnPage || 0,
-            maxScrollDepth: r.fields.MaxScrollDepth || 0,
-            ctaClicks: r.fields.CTAClicks || 0,
-            formSubmitted: r.fields.FormSubmitted || false,
-            videoPlayed: r.fields.VideoPlayed || false,
-          }));
+          const rawRecords = data.records || [];
 
-          if (sessions.length === 0) {
+          if (rawRecords.length === 0) {
             return res.status(200).json({
               success: true,
               stats: { propertyId: filterValue, totalSessions: 0, avgTimeOnPage: 0, avgScrollDepth: 0, ctaClickRate: 0, formSubmissionRate: 0, videoPlayRate: 0, avgEffectivenessScore: 0 }
             });
           }
 
+          // Aggregate - handles both aggregate rows (agg|) and legacy session rows
+          let aggTotalSessions = 0;
+          let aggTotalTime = 0;
+          let aggTotalScroll = 0;
+          let aggCtaClickers = 0;
+          let aggFormSubmitters = 0;
+          let aggVideoPlayers = 0;
+
+          for (const r of rawRecords) {
+            const f = r.fields;
+            const sid = (f.SessionID as string) || '';
+
+            if (sid.startsWith('agg|')) {
+              let ad: any = {};
+              try { ad = JSON.parse((f.BuyerSegment as string) || '{}'); } catch { continue; }
+              const sc = ad.sessions || (f.EffectivenessScore as number) || 1;
+              aggTotalSessions += sc;
+              aggTotalTime += (f.TimeOnPage as number) || 0;
+              aggTotalScroll += (f.MaxScrollDepth as number) || 0;
+              aggCtaClickers += ad.ctaClickedCount || 0;
+              aggFormSubmitters += ad.conversions || 0;
+              aggVideoPlayers += ad.videoPlays || 0;
+            } else {
+              aggTotalSessions += 1;
+              aggTotalTime += (f.TimeOnPage as number) || 0;
+              aggTotalScroll += (f.MaxScrollDepth as number) || 0;
+              if ((f.CTAClicks as number) > 0) aggCtaClickers++;
+              if (f.FormSubmitted) aggFormSubmitters++;
+              if (f.VideoPlayed) aggVideoPlayers++;
+            }
+          }
+
           return res.status(200).json({
             success: true,
             stats: {
               propertyId: filterValue,
-              totalSessions: sessions.length,
-              avgTimeOnPage: Math.round(sessions.reduce((s: number, x: any) => s + x.timeOnPageSeconds, 0) / sessions.length),
-              avgScrollDepth: Math.round(sessions.reduce((s: number, x: any) => s + x.maxScrollDepth, 0) / sessions.length),
-              ctaClickRate: Math.round((sessions.filter((x: any) => x.ctaClicks > 0).length / sessions.length) * 100),
-              formSubmissionRate: Math.round((sessions.filter((x: any) => x.formSubmitted).length / sessions.length) * 100),
-              videoPlayRate: Math.round((sessions.filter((x: any) => x.videoPlayed).length / sessions.length) * 100),
-              avgEffectivenessScore: 0 // Simplified
+              totalSessions: aggTotalSessions,
+              avgTimeOnPage: aggTotalSessions > 0 ? Math.round(aggTotalTime / aggTotalSessions) : 0,
+              avgScrollDepth: aggTotalSessions > 0 ? Math.round(aggTotalScroll / aggTotalSessions) : 0,
+              ctaClickRate: aggTotalSessions > 0 ? Math.round((aggCtaClickers / aggTotalSessions) * 100) : 0,
+              formSubmissionRate: aggTotalSessions > 0 ? Math.round((aggFormSubmitters / aggTotalSessions) * 100) : 0,
+              videoPlayRate: aggTotalSessions > 0 ? Math.round((aggVideoPlayers / aggTotalSessions) * 100) : 0,
+              avgEffectivenessScore: 0
             }
           });
         } catch (error) {
@@ -1712,55 +1831,74 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(405).json({ error: 'Method not allowed' });
         }
 
-        const days = parseInt(req.query.days as string) || 30;
+        const days = Math.min(Math.max(parseInt(req.query.days as string) || 30, 1), 365);
+        const comparisonMode = req.query.comparisonMode as string | undefined; // 'yoy' | 'mom' | 'wow' | undefined
         const cutoffDate = new Date();
         cutoffDate.setDate(cutoffDate.getDate() - days);
 
         try {
-          // Fetch all records within timeframe
+          // Paginated Airtable fetch helper
+          const fetchAllPages = async (baseUrl: string): Promise<any[]> => {
+            let all: any[] = [];
+            let pageOffset: string | undefined = undefined;
+            do {
+              const url = pageOffset ? `${baseUrl}&offset=${pageOffset}` : baseUrl;
+              const resp = await fetchWithRetry(url, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${AIRTABLE_API_KEY}` },
+              });
+              if (!resp.ok) break;
+              const d = await resp.json();
+              all.push(...(d.records || []));
+              pageOffset = d.offset;
+            } while (pageOffset);
+            return all;
+          };
+
+          // Build URLs for current + previous period
           const formula = encodeURIComponent(`IS_AFTER({TimeStamp}, '${cutoffDate.toISOString().split('T')[0]}')`);
-          const analyticsUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/FunnelAnalytics?filterByFormula=${formula}`;
+          const baseAnalyticsUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/FunnelAnalytics?filterByFormula=${formula}&pageSize=100`;
 
-          const response = await fetchWithRetry(analyticsUrl, {
-            method: 'GET',
-            headers: { 'Authorization': `Bearer ${AIRTABLE_API_KEY}` },
-          });
+          const prevCutoffStart = new Date(cutoffDate);
+          prevCutoffStart.setDate(prevCutoffStart.getDate() - days);
+          const prevFormula = encodeURIComponent(
+            `AND(IS_AFTER({TimeStamp}, '${prevCutoffStart.toISOString().split('T')[0]}'), IS_BEFORE({TimeStamp}, '${cutoffDate.toISOString().split('T')[0]}'))`
+          );
+          const basePrevUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/FunnelAnalytics?filterByFormula=${prevFormula}&pageSize=100`;
 
-          if (!response.ok) {
-            return res.status(200).json({
-              success: true,
-              metrics: {
-                totalSessions: 0, avgScrollDepth: 0, avgTimeOnPage: 0,
-                avgCTAClicks: 0, conversionRate: 0, videoPlayRate: 0,
-                bySegment: {}, byProperty: {}
-              },
-              period: `${days} days`,
-              message: 'No data available'
-            });
-          }
-
-          const data = await response.json();
-          const records = data.records || [];
+          // Fetch BOTH periods in parallel (cuts response time ~50%)
+          const [records, prevRecords] = await Promise.all([
+            fetchAllPages(baseAnalyticsUrl),
+            fetchAllPages(basePrevUrl),
+          ]);
 
           if (records.length === 0) {
             return res.status(200).json({
               success: true,
               metrics: {
-                totalSessions: 0, avgScrollDepth: 0, avgTimeOnPage: 0,
+                totalSessions: 0, engagedSessions: 0, ctaClickedSessions: 0,
+                avgScrollDepth: 0, avgTimeOnPage: 0,
                 avgCTAClicks: 0, conversionRate: 0, videoPlayRate: 0,
                 bySegment: {}, byProperty: {}
+              },
+              previousMetrics: {
+                totalSessions: 0, avgScrollDepth: 0, avgTimeOnPage: 0,
+                avgCTAClicks: 0, conversionRate: 0, videoPlayRate: 0,
               },
               period: `${days} days`,
               message: 'No data available for this period'
             });
           }
 
-          // Aggregate metrics
+          // Aggregate metrics - handles both aggregate rows (JSON) and legacy session rows
           let totalScrollDepth = 0;
           let totalTimeOnPage = 0;
           let totalCTAClicks = 0;
           let conversions = 0;
           let videoPlays = 0;
+          let engagedSessions = 0;
+          let ctaClickedSessions = 0;
+          let totalSessionCount = 0;
 
           const segmentData: Record<string, {
             sessions: number; scrollDepth: number; timeOnPage: number; clicks: number; conversions: number;
@@ -1772,49 +1910,178 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
           for (const record of records) {
             const fields = record.fields;
-            const scrollDepth = (fields.MaxScrollDepth as number) || 0;
-            const timeOnPage = (fields.TimeOnPage as number) || 0;
-            const ctaClicks = (fields.CTAClicks as number) || 0;
-            const formSubmitted = fields.FormSubmitted as boolean;
-            const videoPlayed = fields.VideoPlayed as boolean;
-            const segment = (fields.BuyerSegment as string) || 'unknown';
-            const propertyId = (fields.PropertyID as string) || 'unknown';
-            const propertySlug = (fields.PropertySlug as string) || '';
+            const sessionId = (fields.SessionID as string) || '';
 
-            totalScrollDepth += scrollDepth;
-            totalTimeOnPage += timeOnPage;
-            totalCTAClicks += ctaClicks;
-            if (formSubmitted) conversions++;
-            if (videoPlayed) videoPlays++;
+            if (sessionId.startsWith('agg|')) {
+              // ---- AGGREGATE ROW: parse JSON, add totals ----
+              let aggData: any = {};
+              try {
+                aggData = JSON.parse((fields.BuyerSegment as string) || '{}');
+              } catch { continue; }
 
-            // Aggregate by segment
-            if (!segmentData[segment]) {
-              segmentData[segment] = { sessions: 0, scrollDepth: 0, timeOnPage: 0, clicks: 0, conversions: 0 };
-            }
-            segmentData[segment].sessions++;
-            segmentData[segment].scrollDepth += scrollDepth;
-            segmentData[segment].timeOnPage += timeOnPage;
-            segmentData[segment].clicks += ctaClicks;
-            if (formSubmitted) segmentData[segment].conversions++;
+              const rowSessions = aggData.sessions || (fields.EffectivenessScore as number) || 1;
+              totalSessionCount += rowSessions;
+              totalScrollDepth += (fields.MaxScrollDepth as number) || 0;
+              totalTimeOnPage += (fields.TimeOnPage as number) || 0;
+              totalCTAClicks += (fields.CTAClicks as number) || 0;
+              conversions += aggData.conversions || 0;
+              videoPlays += aggData.videoPlays || 0;
+              engagedSessions += aggData.engagedCount || 0;
+              ctaClickedSessions += aggData.ctaClickedCount || 0;
 
-            // Aggregate by property
-            if (propertyId && propertyId !== 'unknown') {
-              if (!propertyData[propertyId]) {
-                propertyData[propertyId] = { sessions: 0, scrollDepth: 0, conversions: 0, slug: propertySlug };
+              // Process segments from JSON
+              const segments = aggData.segments || {};
+              for (const [seg, sd] of Object.entries(segments)) {
+                const s = sd as any;
+                if (!segmentData[seg]) {
+                  segmentData[seg] = { sessions: 0, scrollDepth: 0, timeOnPage: 0, clicks: 0, conversions: 0 };
+                }
+                segmentData[seg].sessions += s.s || 0;
+                segmentData[seg].scrollDepth += s.sd || 0;
+                segmentData[seg].timeOnPage += s.tp || 0;
+                segmentData[seg].clicks += s.c || 0;
+                segmentData[seg].conversions += s.cv || 0;
               }
-              propertyData[propertyId].sessions++;
-              propertyData[propertyId].scrollDepth += scrollDepth;
-              if (formSubmitted) propertyData[propertyId].conversions++;
+
+              // Property data from aggregate row
+              const propertyId = (fields.PropertyID as string) || 'unknown';
+              const propertySlug = (fields.PropertySlug as string) || '';
+              if (propertyId && propertyId !== 'unknown') {
+                if (!propertyData[propertyId]) {
+                  propertyData[propertyId] = { sessions: 0, scrollDepth: 0, conversions: 0, slug: propertySlug };
+                }
+                propertyData[propertyId].sessions += rowSessions;
+                propertyData[propertyId].scrollDepth += (fields.MaxScrollDepth as number) || 0;
+                propertyData[propertyId].conversions += aggData.conversions || 0;
+              }
+            } else {
+              // ---- LEGACY ROW: 1 row = 1 session (backward compatible) ----
+              totalSessionCount += 1;
+              const scrollDepth = (fields.MaxScrollDepth as number) || 0;
+              const timeOnPage = (fields.TimeOnPage as number) || 0;
+              const ctaClicks = (fields.CTAClicks as number) || 0;
+              const formSubmitted = fields.FormSubmitted as boolean;
+              const videoPlayed = fields.VideoPlayed as boolean;
+              const segment = (fields.BuyerSegment as string) || 'unknown';
+              const propertyId = (fields.PropertyID as string) || 'unknown';
+              const propertySlug = (fields.PropertySlug as string) || '';
+
+              totalScrollDepth += scrollDepth;
+              totalTimeOnPage += timeOnPage;
+              totalCTAClicks += ctaClicks;
+              if (formSubmitted) conversions++;
+              if (videoPlayed) videoPlays++;
+              if (scrollDepth > 25) engagedSessions++;
+              if (ctaClicks > 0) ctaClickedSessions++;
+
+              if (!segmentData[segment]) {
+                segmentData[segment] = { sessions: 0, scrollDepth: 0, timeOnPage: 0, clicks: 0, conversions: 0 };
+              }
+              segmentData[segment].sessions++;
+              segmentData[segment].scrollDepth += scrollDepth;
+              segmentData[segment].timeOnPage += timeOnPage;
+              segmentData[segment].clicks += ctaClicks;
+              if (formSubmitted) segmentData[segment].conversions++;
+
+              if (propertyId && propertyId !== 'unknown') {
+                if (!propertyData[propertyId]) {
+                  propertyData[propertyId] = { sessions: 0, scrollDepth: 0, conversions: 0, slug: propertySlug };
+                }
+                propertyData[propertyId].sessions++;
+                propertyData[propertyId].scrollDepth += scrollDepth;
+                if (formSubmitted) propertyData[propertyId].conversions++;
+              }
             }
           }
 
-          // Calculate metrics
-          const totalSessions = records.length;
-          const metrics = {
+          // ============ TIME-SERIES DATA GROUPING ============
+          // Group records by date for trend charts
+          interface DailyMetrics {
+            date: string;
+            sessions: number;
+            conversions: number;
+            engaged: number;
+            ctaClicked: number;
+            scrollDepthSum: number;
+            timeOnPageSum: number;
+          }
+
+          const dailyMap = new Map<string, DailyMetrics>();
+
+          for (const record of records) {
+            const fields = record.fields;
+            const sessionId = (fields.SessionID as string) || '';
+            const timestamp = fields.TimeStamp as string;
+            if (!timestamp) continue;
+
+            const date = timestamp.split('T')[0]; // YYYY-MM-DD
+
+            if (!dailyMap.has(date)) {
+              dailyMap.set(date, {
+                date,
+                sessions: 0,
+                conversions: 0,
+                engaged: 0,
+                ctaClicked: 0,
+                scrollDepthSum: 0,
+                timeOnPageSum: 0
+              });
+            }
+
+            const dayData = dailyMap.get(date)!;
+
+            if (sessionId.startsWith('agg|')) {
+              // Aggregate row
+              let aggData: any = {};
+              try { aggData = JSON.parse((fields.BuyerSegment as string) || '{}'); } catch { continue; }
+
+              const rowSessions = aggData.sessions || (fields.EffectivenessScore as number) || 1;
+              dayData.sessions += rowSessions;
+              dayData.conversions += aggData.conversions || 0;
+              dayData.engaged += aggData.engagedCount || 0;
+              dayData.ctaClicked += aggData.ctaClickedCount || 0;
+              dayData.scrollDepthSum += (fields.MaxScrollDepth as number) || 0;
+              dayData.timeOnPageSum += (fields.TimeOnPage as number) || 0;
+            } else {
+              // Legacy row
+              dayData.sessions += 1;
+              const scrollDepth = (fields.MaxScrollDepth as number) || 0;
+              const timeOnPage = (fields.TimeOnPage as number) || 0;
+              const ctaClicks = (fields.CTAClicks as number) || 0;
+              const formSubmitted = fields.FormSubmitted as boolean;
+
+              if (formSubmitted) dayData.conversions += 1;
+              if (scrollDepth > 25) dayData.engaged += 1;
+              if (ctaClicks > 0) dayData.ctaClicked += 1;
+              dayData.scrollDepthSum += scrollDepth;
+              dayData.timeOnPageSum += timeOnPage;
+            }
+          }
+
+          // Convert to sorted array with calculated metrics
+          const timeSeriesData = Array.from(dailyMap.values())
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .map(d => ({
+              date: d.date,
+              sessions: d.sessions,
+              conversions: d.conversions,
+              engaged: d.engaged,
+              ctaClicked: d.ctaClicked,
+              avgScrollDepth: d.sessions > 0 ? Math.round(d.scrollDepthSum / d.sessions) : 0,
+              avgTimeOnPage: d.sessions > 0 ? Math.round(d.timeOnPageSum / d.sessions) : 0,
+              conversionRate: d.sessions > 0 ? Math.round((d.conversions / d.sessions) * 1000) / 10 : 0
+            }));
+
+          // Calculate metrics (totalSessionCount instead of records.length)
+          const totalSessions = totalSessionCount;
+          const metrics: Record<string, any> = {
             totalSessions,
+            engagedSessions,
+            ctaClickedSessions,
             avgScrollDepth: Math.round(totalScrollDepth / totalSessions),
             avgTimeOnPage: Math.round(totalTimeOnPage / totalSessions),
             avgCTAClicks: Math.round((totalCTAClicks / totalSessions) * 10) / 10,
+            conversions,
             conversionRate: Math.round((conversions / totalSessions) * 1000) / 10,
             videoPlayRate: Math.round((videoPlays / totalSessions) * 1000) / 10,
             bySegment: {} as Record<string, any>,
@@ -1827,7 +2094,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               sessions: sData.sessions,
               avgScrollDepth: Math.round(sData.scrollDepth / sData.sessions),
               avgTimeOnPage: Math.round(sData.timeOnPage / sData.sessions),
-              ctaClickRate: Math.round((sData.clicks / sData.sessions) * 100) / 100,
+              ctaClickRate: Math.round((sData.clicks / sData.sessions) * 10000) / 100,
               conversionRate: Math.round((sData.conversions / sData.sessions) * 1000) / 10
             };
           }
@@ -1841,15 +2108,158 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             metrics.byProperty[pId] = {
               sessions: pData.sessions,
               avgScrollDepth: Math.round(pData.scrollDepth / pData.sessions),
-              conversions: pData.conversions
+              conversions: pData.conversions,
+              slug: pData.slug
             };
+          }
+
+          // ============ PREVIOUS PERIOD COMPARISON ============
+          // (prevRecords already fetched in parallel above)
+
+          let prevTotalScrollDepth = 0;
+          let prevTotalTimeOnPage = 0;
+          let prevTotalCTAClicks = 0;
+          let prevConversions = 0;
+          let prevVideoPlays = 0;
+          let prevSessionCount = 0;
+
+          for (const record of prevRecords) {
+            const fields = record.fields;
+            const sessionId = (fields.SessionID as string) || '';
+
+            if (sessionId.startsWith('agg|')) {
+              // Aggregate row
+              let aggData: any = {};
+              try { aggData = JSON.parse((fields.BuyerSegment as string) || '{}'); } catch { continue; }
+              prevSessionCount += aggData.sessions || (fields.EffectivenessScore as number) || 1;
+              prevTotalScrollDepth += (fields.MaxScrollDepth as number) || 0;
+              prevTotalTimeOnPage += (fields.TimeOnPage as number) || 0;
+              prevTotalCTAClicks += (fields.CTAClicks as number) || 0;
+              prevConversions += aggData.conversions || 0;
+              prevVideoPlays += aggData.videoPlays || 0;
+            } else {
+              // Legacy row
+              prevSessionCount += 1;
+              prevTotalScrollDepth += (fields.MaxScrollDepth as number) || 0;
+              prevTotalTimeOnPage += (fields.TimeOnPage as number) || 0;
+              prevTotalCTAClicks += (fields.CTAClicks as number) || 0;
+              if (fields.FormSubmitted) prevConversions++;
+              if (fields.VideoPlayed) prevVideoPlays++;
+            }
+          }
+
+          const prevTotalSessions = prevSessionCount;
+          const previousMetrics = {
+            totalSessions: prevTotalSessions,
+            avgScrollDepth: prevTotalSessions > 0 ? Math.round(prevTotalScrollDepth / prevTotalSessions) : 0,
+            avgTimeOnPage: prevTotalSessions > 0 ? Math.round(prevTotalTimeOnPage / prevTotalSessions) : 0,
+            avgCTAClicks: prevTotalSessions > 0 ? Math.round((prevTotalCTAClicks / prevTotalSessions) * 10) / 10 : 0,
+            conversionRate: prevTotalSessions > 0 ? Math.round((prevConversions / prevTotalSessions) * 1000) / 10 : 0,
+            videoPlayRate: prevTotalSessions > 0 ? Math.round((prevVideoPlays / prevTotalSessions) * 1000) / 10 : 0,
+          };
+
+          // ============ COMPARISON TIME-SERIES (YoY/MoM/WoW) ============
+          let comparisonTimeSeriesData: any[] | undefined = undefined;
+
+          if (comparisonMode && ['yoy', 'mom', 'wow'].includes(comparisonMode)) {
+            // Calculate comparison period date range
+            let comparisonOffset = 0;
+            switch (comparisonMode) {
+              case 'yoy': comparisonOffset = 365; break;
+              case 'mom': comparisonOffset = 30; break;
+              case 'wow': comparisonOffset = 7; break;
+            }
+
+            const compCutoffEnd = new Date(cutoffDate);
+            compCutoffEnd.setDate(compCutoffEnd.getDate() - comparisonOffset);
+            const compCutoffStart = new Date(compCutoffEnd);
+            compCutoffStart.setDate(compCutoffStart.setDate(compCutoffStart.getDate() - days));
+
+            const compFormula = encodeURIComponent(
+              `AND(IS_AFTER({TimeStamp}, '${compCutoffStart.toISOString().split('T')[0]}'), IS_BEFORE({TimeStamp}, '${compCutoffEnd.toISOString().split('T')[0]}'))`
+            );
+            const compUrl = `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/FunnelAnalytics?filterByFormula=${compFormula}&pageSize=100`;
+
+            try {
+              const compRecords = await fetchAllPages(compUrl);
+
+              // Group comparison records by date
+              const compDailyMap = new Map<string, DailyMetrics>();
+
+              for (const record of compRecords) {
+                const fields = record.fields;
+                const sessionId = (fields.SessionID as string) || '';
+                const timestamp = fields.TimeStamp as string;
+                if (!timestamp) continue;
+
+                const date = timestamp.split('T')[0];
+
+                if (!compDailyMap.has(date)) {
+                  compDailyMap.set(date, {
+                    date,
+                    sessions: 0,
+                    conversions: 0,
+                    engaged: 0,
+                    ctaClicked: 0,
+                    scrollDepthSum: 0,
+                    timeOnPageSum: 0
+                  });
+                }
+
+                const dayData = compDailyMap.get(date)!;
+
+                if (sessionId.startsWith('agg|')) {
+                  let aggData: any = {};
+                  try { aggData = JSON.parse((fields.BuyerSegment as string) || '{}'); } catch { continue; }
+
+                  const rowSessions = aggData.sessions || (fields.EffectivenessScore as number) || 1;
+                  dayData.sessions += rowSessions;
+                  dayData.conversions += aggData.conversions || 0;
+                  dayData.engaged += aggData.engagedCount || 0;
+                  dayData.ctaClicked += aggData.ctaClickedCount || 0;
+                  dayData.scrollDepthSum += (fields.MaxScrollDepth as number) || 0;
+                  dayData.timeOnPageSum += (fields.TimeOnPage as number) || 0;
+                } else {
+                  dayData.sessions += 1;
+                  const scrollDepth = (fields.MaxScrollDepth as number) || 0;
+                  const timeOnPage = (fields.TimeOnPage as number) || 0;
+                  const ctaClicks = (fields.CTAClicks as number) || 0;
+                  const formSubmitted = fields.FormSubmitted as boolean;
+
+                  if (formSubmitted) dayData.conversions += 1;
+                  if (scrollDepth > 25) dayData.engaged += 1;
+                  if (ctaClicks > 0) dayData.ctaClicked += 1;
+                  dayData.scrollDepthSum += scrollDepth;
+                  dayData.timeOnPageSum += timeOnPage;
+                }
+              }
+
+              comparisonTimeSeriesData = Array.from(compDailyMap.values())
+                .sort((a, b) => a.date.localeCompare(b.date))
+                .map(d => ({
+                  date: d.date,
+                  sessions: d.sessions,
+                  conversions: d.conversions,
+                  engaged: d.engaged,
+                  ctaClicked: d.ctaClicked,
+                  avgScrollDepth: d.sessions > 0 ? Math.round(d.scrollDepthSum / d.sessions) : 0,
+                  avgTimeOnPage: d.sessions > 0 ? Math.round(d.timeOnPageSum / d.sessions) : 0,
+                  conversionRate: d.sessions > 0 ? Math.round((d.conversions / d.sessions) * 1000) / 10 : 0
+                }));
+            } catch (err) {
+              console.error('[Funnel Analytics] Comparison period fetch error:', err);
+              // Continue without comparison data if fetch fails
+            }
           }
 
           return res.status(200).json({
             success: true,
             metrics,
+            previousMetrics,
             period: `${days} days`,
-            recordCount: records.length
+            recordCount: records.length,
+            timeSeriesData,
+            comparisonTimeSeriesData
           });
         } catch (error) {
           console.error('[Funnel Analytics] Metrics error:', error);
