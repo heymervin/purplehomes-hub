@@ -56,6 +56,8 @@ const CONDITION_OPTIONS: PropertyCondition[] = [
 
 type SortOption = 'price-high' | 'price-low' | 'newest' | 'beds' | 'sqft';
 
+const ITEMS_PER_PAGE = 40;
+
 export default function PublicListings() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -114,7 +116,8 @@ export default function PublicListings() {
   const [showFilters, setShowFilters] = useState(false);
   const [savedProperties, setSavedProperties] = useState<Set<string>>(new Set());
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
-  
+  const [currentPage, setCurrentPage] = useState(1);
+
   // Forms
   const [showOfferForm, setShowOfferForm] = useState(false);
   const [offerForm, setOfferForm] = useState({
@@ -178,6 +181,18 @@ export default function PublicListings() {
 
     return results;
   }, [allProperties, search, zipCode, priceRange, downPaymentRange, beds, baths, condition, propertyType, sortBy, isLoadingProperties, isError]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, zipCode, priceRange, downPaymentRange, beds, baths, condition, propertyType, sortBy]);
+
+  // Paginated properties
+  const totalPages = Math.max(1, Math.ceil(filteredProperties.length / ITEMS_PER_PAGE));
+  const paginatedProperties = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredProperties.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredProperties, currentPage]);
 
   const toggleSaved = (propertyId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -312,16 +327,64 @@ export default function PublicListings() {
     const isSaved = savedProperties.has(property.id);
     const distance = getPropertyDistance(property);
 
+    // Compact layout for mobile drawer
+    if (compact) {
+      return (
+        <div
+          key={property.id}
+          className={cn(
+            "group relative flex rounded-xl overflow-hidden cursor-pointer transition-all duration-300",
+            isDarkMode
+              ? "bg-card border border-border/50 hover:border-purple-500/50"
+              : "bg-white border border-gray-200 hover:border-purple-500/50",
+            isHovered && "ring-2 ring-purple-500 shadow-lg shadow-purple-500/20"
+          )}
+          onClick={() => {
+            if (property.lat && property.lng) {
+              setZoomTarget({ lat: property.lat, lng: property.lng });
+            }
+          }}
+          onMouseEnter={() => setHoveredPropertyId(property.id)}
+          onMouseLeave={() => setHoveredPropertyId(null)}
+        >
+          <div className="w-28 h-28 flex-shrink-0 relative overflow-hidden">
+            <img src={property.heroImage} alt={property.address} className="w-full h-full object-cover" />
+          </div>
+          <div className="py-3 px-3 flex-1 min-w-0">
+            <h3 className={cn("text-sm font-semibold truncate", isDarkMode ? "text-foreground" : "text-gray-900")}>{property.address}</h3>
+            <p className={cn("text-xs truncate", isDarkMode ? "text-muted-foreground" : "text-gray-500")}>{property.city}</p>
+            <div className="flex items-center justify-between mt-1.5">
+              <p className="text-base font-bold text-purple-600">${property.price.toLocaleString()}</p>
+              <span className={cn("text-xs", isDarkMode ? "text-muted-foreground" : "text-gray-500")}>
+                {property.beds} bd &bull; {property.baths} ba
+              </span>
+            </div>
+            <Button
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                const slug = generatePropertySlug(property.address, property.city);
+                window.open(`/listing/${slug}`, '_blank');
+              }}
+              className="w-full mt-2 h-7 gap-1 text-xs bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              <Eye className="h-3 w-3" /> See More
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    // Grid card for desktop panel (2-col layout inspired by reference)
     return (
       <div
         key={property.id}
         className={cn(
-          "group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-300",
+          "group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-200",
           isDarkMode
             ? "bg-card border border-border/50 hover:border-purple-500/50"
-            : "bg-white border border-gray-200 hover:border-purple-500/50",
-          isHovered && "ring-2 ring-purple-500 shadow-lg shadow-purple-500/20",
-          compact && "flex"
+            : "bg-white border border-gray-200 hover:border-purple-400/60 hover:shadow-md",
+          isHovered && "ring-2 ring-purple-500 shadow-lg shadow-purple-500/20"
         )}
         onClick={() => {
           if (property.lat && property.lng) {
@@ -331,103 +394,82 @@ export default function PublicListings() {
         onMouseEnter={() => setHoveredPropertyId(property.id)}
         onMouseLeave={() => setHoveredPropertyId(null)}
       >
-        <div className={cn(
-          "relative overflow-hidden",
-          compact ? "w-28 h-28 flex-shrink-0" : "aspect-video"
-        )}>
+        {/* Image */}
+        <div className="relative aspect-[4/3] overflow-hidden">
           <img
             src={property.heroImage}
             alt={property.address}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-
-          {!compact && (
-            <>
-              {distance !== null && distance >= 0 && (
-                <div className="absolute top-3 left-3">
-                  <ProximityBadge
-                    distance={distance}
-                    variant="compact"
-                    className="bg-white/90 backdrop-blur-sm shadow-md"
-                  />
-                </div>
-              )}
-              <button
-                onClick={(e) => toggleSaved(property.id, e)}
-                className={cn(
-                  "absolute top-3 right-3 p-2 rounded-full transition-all duration-200",
-                  isSaved
-                    ? "bg-purple-500 text-white"
-                    : "bg-black/30 backdrop-blur-sm text-white hover:bg-black/50"
-                )}
-                data-tour="card-save"
-              >
-                <Heart className={cn("h-4 w-4", isSaved && "fill-current")} />
-              </button>
-              <div className="absolute bottom-3 left-3 space-y-1" data-tour="card-pricing">
-                <span className="block text-2xl font-bold text-white drop-shadow-lg">
-                  ${property.price.toLocaleString()}
-                </span>
-                {property.downPayment !== undefined && (
-                  <span className="block text-sm font-medium text-purple-200 drop-shadow-md bg-black/30 backdrop-blur-sm px-2 py-1 rounded">
-                    Down: ${property.downPayment.toLocaleString()}
-                  </span>
-                )}
-              </div>
-            </>
+          {/* Save heart */}
+          <button
+            onClick={(e) => toggleSaved(property.id, e)}
+            className={cn(
+              "absolute top-2 right-2 p-1.5 rounded-full transition-all duration-200",
+              isSaved
+                ? "bg-purple-500 text-white"
+                : "bg-black/30 backdrop-blur-sm text-white hover:bg-black/50"
+            )}
+            data-tour="card-save"
+          >
+            <Heart className={cn("h-3.5 w-3.5", isSaved && "fill-current")} />
+          </button>
+          {/* Distance badge */}
+          {distance !== null && distance >= 0 && (
+            <div className="absolute top-2 left-2">
+              <ProximityBadge
+                distance={distance}
+                variant="compact"
+                className="bg-white/90 backdrop-blur-sm shadow-md text-xs"
+              />
+            </div>
           )}
         </div>
 
-        <div className={cn("p-4", compact && "py-3 flex-1 min-w-0")}>
-          {compact && (
-            <p className="text-lg font-bold text-purple-400 mb-0.5">
+        {/* Info */}
+        <div className="p-3" data-tour="card-location">
+          <h3 className={cn(
+            "text-sm font-semibold truncate leading-tight",
+            isDarkMode ? "text-foreground" : "text-gray-900"
+          )}>{property.address}</h3>
+          <p className={cn(
+            "text-xs truncate mt-0.5",
+            isDarkMode ? "text-muted-foreground" : "text-gray-500"
+          )}>{property.city}</p>
+
+          {/* Price + specs line */}
+          <div className="flex items-center justify-between mt-2" data-tour="card-pricing">
+            <span className="text-base font-bold text-purple-600">
               ${property.price.toLocaleString()}
+            </span>
+            <span className={cn(
+              "text-xs",
+              isDarkMode ? "text-muted-foreground" : "text-gray-500"
+            )} data-tour="card-specs">
+              {property.beds} bd &bull; {property.baths} ba
+            </span>
+          </div>
+
+          {/* Down payment if available */}
+          {property.downPayment !== undefined && (
+            <p className="text-xs text-purple-500 mt-1">
+              Down: ${property.downPayment.toLocaleString()}
             </p>
           )}
-          <div className={cn(
-            "flex items-center gap-3 text-sm mb-2",
-            isDarkMode ? "text-muted-foreground" : "text-gray-600",
-            compact && "gap-2 text-xs mb-1"
-          )} data-tour="card-specs">
-            <span className="flex items-center gap-1 font-medium">
-              <Bed className="h-4 w-4" /> {property.beds}
-            </span>
-            <span className="flex items-center gap-1 font-medium">
-              <Bath className="h-4 w-4" /> {property.baths}
-            </span>
-            {property.sqft && (
-              <span className="flex items-center gap-1 font-medium">
-                {property.sqft.toLocaleString()} sqft
-              </span>
-            )}
-          </div>
 
-          <div data-tour="card-location">
-            <h3 className={cn(
-              "font-semibold truncate",
-              isDarkMode ? "text-foreground" : "text-gray-900",
-              compact && "text-sm"
-            )}>{property.address}</h3>
-            <p className={cn(
-              "text-sm truncate mb-3",
-              isDarkMode ? "text-muted-foreground" : "text-gray-600",
-              compact && "text-xs mb-2"
-            )}>{property.city}</p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className={cn("flex gap-2", compact && "flex-col gap-1")} data-tour="property-actions">
+          {/* Action row */}
+          <div className="flex gap-1.5 mt-2" data-tour="property-actions">
             {property.lat && property.lng && (
               <Button
                 size="sm"
+                variant="outline"
                 onClick={(e) => handleZoomToProperty(property, e)}
                 className={cn(
-                  "flex-1 gap-1 text-xs bg-purple-600 hover:bg-purple-700 text-white",
-                  compact && "h-7"
+                  "flex-1 h-7 gap-1 text-xs",
+                  isDarkMode ? "border-border hover:bg-purple-500/10" : "border-gray-300 hover:border-purple-400"
                 )}
               >
-                <ZoomIn className="h-3 w-3" />
-                <span>Move</span>
+                <ZoomIn className="h-3 w-3" /> Map
               </Button>
             )}
             <Button
@@ -437,13 +479,9 @@ export default function PublicListings() {
                 const slug = generatePropertySlug(property.address, property.city);
                 window.open(`/listing/${slug}`, '_blank');
               }}
-              className={cn(
-                "flex-1 gap-1 text-xs bg-purple-600 hover:bg-purple-700 text-white",
-                compact && "h-7"
-              )}
+              className="flex-1 h-7 gap-1 text-xs bg-purple-600 hover:bg-purple-700 text-white"
             >
-              <Eye className="h-3 w-3" />
-              <span>See More</span>
+              <Eye className="h-3 w-3" /> Details
             </Button>
           </div>
         </div>
@@ -459,11 +497,16 @@ export default function PublicListings() {
         isDarkMode ? "border-border/50 bg-card/50" : "border-gray-200 bg-white"
       )}>
         <div>
-          <h2 className="font-semibold text-purple-600">{filteredProperties.length} Properties</h2>
+          <h2 className={cn(
+            "text-lg font-bold",
+            isDarkMode ? "text-foreground" : "text-gray-900"
+          )}>{filteredProperties.length.toLocaleString()} Properties Found</h2>
           <p className={cn(
             "text-xs",
-            isDarkMode ? "text-muted-foreground" : "text-gray-600"
-          )}>Investment opportunities</p>
+            isDarkMode ? "text-muted-foreground" : "text-gray-500"
+          )}>
+            Showing {paginatedProperties.length} of {filteredProperties.length.toLocaleString()} properties (Page {currentPage} of {totalPages})
+          </p>
         </div>
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
           <SelectTrigger className={cn(
@@ -483,21 +526,60 @@ export default function PublicListings() {
       </div>
 
       <div className="flex-1 overflow-y-auto" data-tour="property-list">
-        <div className="p-4 space-y-4">
-          {filteredProperties.map((property) => renderPropertyCard(property, compact))}
+        <div className={cn(
+          "p-4",
+          compact ? "space-y-4" : "grid grid-cols-2 gap-3"
+        )}>
+          {paginatedProperties.map((property) => renderPropertyCard(property, compact))}
 
           {filteredProperties.length === 0 && (
-            <div className="text-center py-12">
+            <div className={cn("text-center py-12", !compact && "col-span-2")}>
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search className="h-8 w-8 text-gray-400" />
               </div>
-              <p className="text-gray-600">No properties match your criteria</p>
+              <p className={cn(isDarkMode ? "text-muted-foreground" : "text-gray-600")}>No properties match your criteria</p>
               <Button variant="link" onClick={clearFilters} className="text-purple-500">
                 Clear all filters
               </Button>
             </div>
           )}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className={cn(
+            "flex items-center justify-between px-4 py-3 border-t",
+            isDarkMode ? "border-border/50" : "border-gray-200"
+          )}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className={cn(
+                "text-sm",
+                isDarkMode ? "border-border" : "border-gray-300"
+              )}
+            >
+              Previous
+            </Button>
+            <span className={cn(
+              "text-sm font-medium",
+              isDarkMode ? "text-muted-foreground" : "text-gray-600"
+            )}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="text-sm bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
     </>
   );
@@ -536,11 +618,119 @@ export default function PublicListings() {
           </div>
 
           {/* Primary Filters - Always Visible */}
-          <div className="flex-1 flex items-center gap-2 max-w-4xl">
-            {/* ZIP Code - Most Important for Proximity */}
-            <div className="relative w-28" data-tour="zip-search">
-              <MapPin className={cn(
+          <div className="flex-1 flex items-center gap-2 max-w-5xl">
+            {/* Search by city, state, address */}
+            <div className="relative flex-1 min-w-[160px] max-w-xs" data-tour="address-search">
+              <Search className={cn(
                 "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4",
+                isDarkMode ? "text-muted-foreground" : "text-gray-400"
+              )} />
+              <Input
+                placeholder="Search by city, state, or address..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className={cn(
+                  "pl-10 shadow-sm hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent",
+                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 placeholder:text-gray-400 border-gray-300"
+                )}
+              />
+            </div>
+
+            {/* Min/Max Price Inputs - Desktop Only */}
+            <div className="hidden lg:flex items-center gap-1" data-tour="quick-filters">
+              <Input
+                placeholder="Min Price"
+                value={priceRange[0] > 0 ? formatPrice(priceRange[0]) : ''}
+                onChange={(e) => {
+                  const val = parsePrice(e.target.value);
+                  setPriceRange([val === '' ? 0 : val, priceRange[1]]);
+                }}
+                className={cn(
+                  "w-28 text-sm shadow-sm",
+                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
+                )}
+              />
+              <span className={cn("text-xs", isDarkMode ? "text-muted-foreground" : "text-gray-400")}>-</span>
+              <Input
+                placeholder="Max Price"
+                value={priceRange[1] < 1000000 ? formatPrice(priceRange[1]) : ''}
+                onChange={(e) => {
+                  const val = parsePrice(e.target.value);
+                  setPriceRange([priceRange[0], val === '' ? 1000000 : val]);
+                }}
+                className={cn(
+                  "w-28 text-sm shadow-sm",
+                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
+                )}
+              />
+            </div>
+
+            {/* Beds - Desktop */}
+            <div className="hidden lg:block">
+              <Select value={beds} onValueChange={setBeds}>
+                <SelectTrigger className={cn(
+                  "w-[110px] shadow-sm text-sm",
+                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
+                )}>
+                  <Bed className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                  <SelectValue placeholder="Bedrooms" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any Beds</SelectItem>
+                  <SelectItem value="1">1+ Bed</SelectItem>
+                  <SelectItem value="2">2+ Beds</SelectItem>
+                  <SelectItem value="3">3+ Beds</SelectItem>
+                  <SelectItem value="4">4+ Beds</SelectItem>
+                  <SelectItem value="5">5+ Beds</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Baths - Desktop */}
+            <div className="hidden lg:block">
+              <Select value={baths} onValueChange={setBaths}>
+                <SelectTrigger className={cn(
+                  "w-[110px] shadow-sm text-sm",
+                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
+                )}>
+                  <Bath className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                  <SelectValue placeholder="Bathrooms" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any Baths</SelectItem>
+                  <SelectItem value="1">1+ Bath</SelectItem>
+                  <SelectItem value="2">2+ Baths</SelectItem>
+                  <SelectItem value="3">3+ Baths</SelectItem>
+                  <SelectItem value="4">4+ Baths</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Property Type - Desktop */}
+            <div className="hidden xl:block">
+              <Select value={propertyType} onValueChange={setPropertyType}>
+                <SelectTrigger className={cn(
+                  "w-[130px] shadow-sm text-sm",
+                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
+                )}>
+                  <Home className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                  <SelectValue placeholder="Property Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any Type</SelectItem>
+                  {PROPERTY_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>{t}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* ZIP + Locate */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <div className="relative w-24" data-tour="zip-search">
+              <MapPin className={cn(
+                "absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5",
                 isDarkMode ? "text-muted-foreground" : "text-gray-400"
               )} />
               <Input
@@ -549,23 +739,21 @@ export default function PublicListings() {
                 onChange={(e) => {
                   const newZip = e.target.value.replace(/\D/g, '').slice(0, 5);
                   setZipCode(newZip);
-                  setUserLocation(null); // Clear location when typing ZIP
+                  setUserLocation(null);
                 }}
                 className={cn(
-                  "pl-9 shadow-sm hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent",
+                  "pl-8 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-purple-500",
                   isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 placeholder:text-gray-400 border-gray-300"
                 )}
                 maxLength={5}
               />
             </div>
-
-            {/* Locate Me Button */}
             <Button
               size="icon"
               onClick={handleLocateMe}
               disabled={isLocating}
               className={cn(
-                "flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white",
+                "flex-shrink-0 h-9 w-9 bg-purple-600 hover:bg-purple-700 text-white",
                 userLocation && "bg-purple-800"
               )}
               title="Use my location"
@@ -577,80 +765,6 @@ export default function PublicListings() {
                 <Navigation className={cn("h-4 w-4", userLocation && "fill-purple-500")} />
               )}
             </Button>
-
-            {/* Search */}
-            <div className="relative flex-1 min-w-[180px] max-w-xs" data-tour="address-search">
-              <Search className={cn(
-                "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4",
-                isDarkMode ? "text-muted-foreground" : "text-gray-400"
-              )} />
-              <Input
-                placeholder="Search address, city..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className={cn(
-                  "pl-10 shadow-sm hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent",
-                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 placeholder:text-gray-400 border-gray-300"
-                )}
-              />
-            </div>
-
-            {/* Quick Filters - Desktop Only */}
-            <div className="hidden lg:flex items-center gap-2" data-tour="quick-filters">
-              <Select value={beds} onValueChange={setBeds}>
-                <SelectTrigger className={cn(
-                  "w-28 shadow-sm hover:shadow-md transition-shadow",
-                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
-                )}>
-                  <SelectValue placeholder="Beds" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any Beds</SelectItem>
-                  <SelectItem value="1">1+ Bed</SelectItem>
-                  <SelectItem value="2">2+ Beds</SelectItem>
-                  <SelectItem value="3">3+ Beds</SelectItem>
-                  <SelectItem value="4">4+ Beds</SelectItem>
-                  <SelectItem value="5">5+ Beds</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={baths} onValueChange={setBaths}>
-                <SelectTrigger className={cn(
-                  "w-28 shadow-sm hover:shadow-md transition-shadow",
-                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
-                )}>
-                  <SelectValue placeholder="Baths" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any Baths</SelectItem>
-                  <SelectItem value="1">1+ Bath</SelectItem>
-                  <SelectItem value="2">2+ Baths</SelectItem>
-                  <SelectItem value="3">3+ Baths</SelectItem>
-                  <SelectItem value="4">4+ Baths</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={`${priceRange[0]}-${priceRange[1]}`} onValueChange={(value) => {
-                const [min, max] = value.split('-').map(Number);
-                setPriceRange([min, max]);
-              }}>
-                <SelectTrigger className={cn(
-                  "w-36 shadow-sm hover:shadow-md transition-shadow",
-                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
-                )}>
-                  <DollarSign className="h-4 w-4" />
-                  <SelectValue placeholder="Price" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0-1000000">Any Price</SelectItem>
-                  <SelectItem value="0-200000">Under $200K</SelectItem>
-                  <SelectItem value="200000-400000">$200K - $400K</SelectItem>
-                  <SelectItem value="400000-600000">$400K - $600K</SelectItem>
-                  <SelectItem value="600000-800000">$600K - $800K</SelectItem>
-                  <SelectItem value="800000-1000000">$800K+</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
 
           {/* Theme Toggle */}
@@ -878,7 +992,7 @@ export default function PublicListings() {
         )}
 
         {/* Map - Full screen on mobile */}
-        <div className="flex-1 md:flex-none md:w-2/5 relative" data-tour="map-area">
+        <div className="flex-1 md:flex-none md:w-3/5 relative" data-tour="map-area">
           <PropertyMap
             properties={filteredProperties}
             onPropertySelect={setSelectedProperty}
@@ -891,6 +1005,15 @@ export default function PublicListings() {
             onMapLoad={() => setMapLoaded(true)}
             onZoomChange={setCurrentMapZoom}
           />
+
+          {/* Property count overlay on map */}
+          {mapLoaded && (
+            <div className="absolute top-3 left-12 z-10 bg-white/95 backdrop-blur-sm rounded-lg shadow-md px-3 py-1.5 border border-gray-200/60">
+              <span className="text-sm font-semibold text-gray-800">
+                {filteredProperties.length.toLocaleString()} properties
+              </span>
+            </div>
+          )}
 
           {/* Map Coach Marks - Guided Tutorial */}
           <MapCoachMarks

@@ -336,6 +336,20 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
     }
   }, [properties, mapLoaded]);
 
+  // Auto-fit map to show all properties when they first load
+  const hasFittedBounds = useRef(false);
+  useEffect(() => {
+    if (!map.current || !mapLoaded || hasFittedBounds.current) return;
+
+    const withCoords = properties.filter(p => p.lat && p.lng);
+    if (withCoords.length < 2) return;
+
+    const bounds = new mapboxgl.LngLatBounds();
+    withCoords.forEach(p => bounds.extend([p.lng!, p.lat!]));
+    map.current.fitBounds(bounds, { padding: 60, maxZoom: 12 });
+    hasFittedBounds.current = true;
+  }, [properties, mapLoaded]);
+
   // Pan to ZIP code when searched
   useEffect(() => {
     if (!map.current || !mapLoaded || !zipCode || zipCode.length !== 5) return;
