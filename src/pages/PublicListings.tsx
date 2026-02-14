@@ -878,7 +878,7 @@ export default function PublicListings() {
         )}
 
         {/* Map - Full screen on mobile */}
-        <div className="flex-1 relative" data-tour="map-area">
+        <div className="flex-1 md:flex-none md:w-2/5 relative" data-tour="map-area">
           <PropertyMap
             properties={filteredProperties}
             onPropertySelect={setSelectedProperty}
@@ -903,7 +903,7 @@ export default function PublicListings() {
 
         {/* Desktop Side Panel */}
         <div className={cn(
-          "hidden md:flex w-[420px] lg:w-[480px] flex-shrink-0 border-l flex-col",
+          "hidden md:flex md:w-3/5 border-l flex-col",
           isDarkMode ? "border-border bg-card" : "border-gray-200 bg-white"
         )}>
           {renderPropertyListContent(false)}

@@ -3,7 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, ArrowRight, Bed, Bath, Maximize2, MapPin, Phone, Wrench, Home,
   DollarSign, Loader2, Share2, Check, ExternalLink, Video,
-  Shield, Clock, Users, Award, CheckCircle, CreditCard, X
+  Shield, Clock, Users, Award, CheckCircle, CreditCard, X,
+  MessageCircle, FileText, Calendar, Key
 } from 'lucide-react';
 import type { PropertyCondition, PropertyType, Property } from '@/types';
 import type { FunnelContent } from '@/types/funnel';
@@ -1439,12 +1440,105 @@ export default function PublicPropertyDetail() {
                   How Buying This Home Works
                 </h2>
                 <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
-                  {funnelContent.propertyShowcase}
+                  {funnelContent.propertyShowcase || "Instead of going through a bank, the home is purchased directly from the owner. That means there's no traditional loan involved. Our team guides you step by step, and everything is completed through a licensed title company — just like a normal home sale."}
                 </p>
               </Reveal>
 
-              {/* Property Features Grid - Dark Cards */}
+              {/* 4-Step Process - How It Works */}
               <Reveal delay={150}>
+                <div className="grid sm:grid-cols-2 gap-6 md:gap-8 mt-16 mb-12">
+                  {/* Step 1 */}
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                        <MessageCircle className="h-7 w-7 text-purple-300" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-3">Step 1: Start with a Conversation</h3>
+                        <p className="text-gray-400 leading-relaxed mb-2">
+                          Share a few basic details like your timeline, down payment range, and questions about the home.
+                        </p>
+                        <p className="text-sm text-purple-300/80 italic">
+                          This is not a credit check or a bank application.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                        <FileText className="h-7 w-7 text-purple-300" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-3">Step 2: Review the Home & Numbers Together</h3>
+                        <p className="text-gray-400 leading-relaxed mb-2">
+                          We'll go over the home details, the monthly payment, and the down payment so everything is clear upfront.
+                        </p>
+                        <p className="text-sm text-purple-300/80 italic">
+                          No pressure — just clarity.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                        <Calendar className="h-7 w-7 text-purple-300" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-3">Step 3: Make Sure It's the Right Fit</h3>
+                        <p className="text-gray-400 leading-relaxed mb-2">
+                          If the home and monthly payment make sense for you, we'll schedule a showing and explain the simple next steps.
+                        </p>
+                        <p className="text-sm text-purple-300/80 italic">
+                          If it's not the right fit, there's no obligation to move forward.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 4 */}
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                        <Key className="h-7 w-7 text-purple-300" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-3">Step 4: Close & Get the Keys</h3>
+                        <p className="text-gray-400 leading-relaxed mb-2">
+                          When you're ready, the purchase is completed through a licensed title company — just like a traditional sale.
+                        </p>
+                        <p className="text-sm text-purple-300/80 italic">
+                          You get the keys and the security of owning your home.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* CTA Button After Process Steps */}
+              <Reveal delay={200}>
+                <div className="text-center mb-16">
+                  <CTAButton
+                    text="See If This Home Works for You"
+                    onClick={() => {
+                      trackEvent('cta_click', { section: 'how_it_works' });
+                      formRef.current?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  />
+                  <p className="text-sm text-gray-500 mt-3">
+                    Takes less than 2 minutes • No credit check
+                  </p>
+                </div>
+              </Reveal>
+
+              {/* Property Features Grid - Dark Cards */}
+              <Reveal delay={250}>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                   <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
                     <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">

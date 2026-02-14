@@ -442,21 +442,21 @@ export function PropertyDetailModal({
                 <TabsList className="grid w-full grid-cols-3 bg-purple-50/50 dark:bg-purple-950/30 p-1 rounded-lg">
                   <TabsTrigger
                     value="details"
-                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300 data-[state=active]:shadow-sm rounded-md transition-all"
+                    className="text-gray-600 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300 data-[state=active]:shadow-sm rounded-md transition-all"
                   >
                     <Home className="h-4 w-4 mr-2" aria-hidden="true" />
                     Details
                   </TabsTrigger>
                   <TabsTrigger
                     value="social"
-                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300 data-[state=active]:shadow-sm rounded-md transition-all"
+                    className="text-gray-600 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300 data-[state=active]:shadow-sm rounded-md transition-all"
                   >
                     <Share2 className="h-4 w-4 mr-2" aria-hidden="true" />
                     Social
                   </TabsTrigger>
                   <TabsTrigger
                     value="funnel"
-                    className="data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300 data-[state=active]:shadow-sm rounded-md transition-all"
+                    className="text-gray-600 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300 data-[state=active]:shadow-sm rounded-md transition-all"
                   >
                     <FileText className="h-4 w-4 mr-2" aria-hidden="true" />
                     Funnel
@@ -614,12 +614,12 @@ export function PropertyDetailModal({
                 {/* Social Media Tab */}
                 <TabsContent value="social" className="space-y-6 mt-4">
                   {/* Status Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-purple-50/50 rounded-lg border border-purple-100">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-purple-50/50 dark:bg-purple-950/30 rounded-lg border border-purple-100 dark:border-purple-800/50">
                     <div className="flex items-center gap-3">
-                      <Share2 className="h-5 w-5 text-purple-600" />
+                      <Share2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                       <div>
-                        <h4 className="font-semibold text-purple-700">Social Media Status</h4>
-                        <p className="text-sm text-muted-foreground">Manage social media posting for this property</p>
+                        <h4 className="font-semibold text-purple-700 dark:text-purple-300">Social Media Status</h4>
+                        <p className="text-sm text-muted-foreground dark:text-purple-300/70">Manage social media posting for this property</p>
                       </div>
                     </div>
                     <SocialStatusBadge status={property.status || 'pending'} />
