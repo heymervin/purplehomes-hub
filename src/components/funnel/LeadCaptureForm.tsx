@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { CTAButton } from "./CTAButton";
 import { TrustIndicators } from "./TrustBadge";
 import { Loader2, CheckCircle, ArrowRight } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface LeadCaptureFormProps {
   title?: string;
@@ -22,9 +23,9 @@ interface LeadCaptureFormProps {
 }
 
 const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
-  title = "Get Pre-Qualified Today",
-  subtitle = "See if you qualify in just 5 minutes. No credit check required.",
-  ctaText = "Check My Eligibility",
+  title,
+  subtitle,
+  ctaText,
   fields = ["firstName", "phone", "email"],
   onSubmit,
   showTrust = true,
@@ -32,10 +33,15 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   propertyAddress,
   className,
 }) => {
+  const { t } = useLanguage();
   const [formData, setFormData] = React.useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSuccess, setIsSuccess] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  const resolvedTitle = title ?? t('cta.getPreQualifiedToday');
+  const resolvedSubtitle = subtitle ?? t('cta.seeIfQualify');
+  const resolvedCtaText = ctaText ?? t('cta.checkEligibility');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -53,7 +59,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
       }
       setIsSuccess(true);
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      setError(t('form.errorMessage'));
     } finally {
       setIsSubmitting(false);
     }
@@ -63,7 +69,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     firstName: (
       <div key="firstName">
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          First Name *
+          {t('form.firstName')} *
         </label>
         <input
           type="text"
@@ -72,14 +78,14 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           value={formData.firstName || ""}
           onChange={handleChange}
           className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all"
-          placeholder="John"
+          placeholder={t('form.placeholderFirstName')}
         />
       </div>
     ),
     lastName: (
       <div key="lastName">
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Last Name
+          {t('form.lastName')}
         </label>
         <input
           type="text"
@@ -87,14 +93,14 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           value={formData.lastName || ""}
           onChange={handleChange}
           className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all"
-          placeholder="Doe"
+          placeholder={t('form.placeholderLastName')}
         />
       </div>
     ),
     phone: (
       <div key="phone">
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Phone Number *
+          {t('form.phone')} *
         </label>
         <input
           type="tel"
@@ -103,14 +109,14 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           value={formData.phone || ""}
           onChange={handleChange}
           className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all"
-          placeholder="(555) 123-4567"
+          placeholder={t('form.placeholderPhone')}
         />
       </div>
     ),
     email: (
       <div key="email">
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Email Address *
+          {t('form.emailAddress')} *
         </label>
         <input
           type="email"
@@ -119,14 +125,14 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           value={formData.email || ""}
           onChange={handleChange}
           className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all"
-          placeholder="john@example.com"
+          placeholder={t('form.placeholderEmail')}
         />
       </div>
     ),
     budget: (
       <div key="budget">
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Monthly Budget
+          {t('form.monthlyBudget')}
         </label>
         <select
           name="budget"
@@ -134,19 +140,19 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           onChange={handleChange}
           className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all bg-white"
         >
-          <option value="">Select range...</option>
-          <option value="under-1000">Under $1,000/mo</option>
-          <option value="1000-1500">$1,000 - $1,500/mo</option>
-          <option value="1500-2000">$1,500 - $2,000/mo</option>
-          <option value="2000-2500">$2,000 - $2,500/mo</option>
-          <option value="over-2500">Over $2,500/mo</option>
+          <option value="">{t('form.selectRange')}</option>
+          <option value="under-1000">{t('form.budgetUnder1000')}</option>
+          <option value="1000-1500">{t('form.budget1000to1500')}</option>
+          <option value="1500-2000">{t('form.budget1500to2000')}</option>
+          <option value="2000-2500">{t('form.budget2000to2500')}</option>
+          <option value="over-2500">{t('form.budgetOver2500')}</option>
         </select>
       </div>
     ),
     message: (
       <div key="message">
         <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Message (Optional)
+          {t('form.messageOptional')}
         </label>
         <textarea
           name="message"
@@ -154,7 +160,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           value={formData.message || ""}
           onChange={handleChange}
           className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 outline-none transition-all resize-none"
-          placeholder="Tell us about your situation..."
+          placeholder={t('form.tellUsAbout')}
         />
       </div>
     ),
@@ -179,10 +185,10 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
             variant === "dark" ? "text-white" : "text-gray-900"
           )}
         >
-          You're All Set!
+          {t('form.successTitle')}
         </h3>
         <p className={variant === "dark" ? "text-gray-300" : "text-gray-600"}>
-          One of our team members will reach out within 24 hours.
+          {t('form.successMessage')}
         </p>
       </div>
     );
@@ -201,7 +207,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           value={formData.firstName || ""}
           onChange={handleChange}
           className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 outline-none"
-          placeholder="First name"
+          placeholder={t('form.firstName')}
         />
         <input
           type="tel"
@@ -210,13 +216,13 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           value={formData.phone || ""}
           onChange={handleChange}
           className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 outline-none"
-          placeholder="Phone number"
+          placeholder={t('form.phone')}
         />
         <CTAButton type="submit" disabled={isSubmitting} className="md:w-auto">
           {isSubmitting ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
-            ctaText
+            resolvedCtaText
           )}
         </CTAButton>
       </form>
@@ -239,7 +245,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
             value={formData.phone || ""}
             onChange={handleChange}
             className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 outline-none"
-            placeholder="Your phone number"
+            placeholder={t('form.yourPhoneNumber')}
           />
           <CTAButton type="submit" disabled={isSubmitting} size="md">
             {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5" />}
@@ -247,7 +253,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
         </form>
         {showTrust && (
           <p className="text-xs text-center text-gray-500 mt-2">
-            🔒 Your info is secure and never shared
+            {t('trustIndicators.yourInfoSecure')}
           </p>
         )}
       </div>
@@ -264,9 +270,9 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
       >
         <div className="text-center mb-8">
           <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
-            {title}
+            {resolvedTitle}
           </h3>
-          {subtitle && <p className="text-gray-400">{subtitle}</p>}
+          {resolvedSubtitle && <p className="text-gray-400">{resolvedSubtitle}</p>}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -286,17 +292,17 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
             {isSubmitting ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin" />
-                Processing...
+                {t('common.processing')}
               </>
             ) : (
-              ctaText
+              resolvedCtaText
             )}
           </CTAButton>
 
           {showTrust && (
             <TrustIndicators
               className="justify-center text-gray-400"
-              items={["Secure & encrypted", "No spam", "Free consultation"]}
+              items={[t('trustIndicators.secureEncrypted'), t('trustIndicators.noSpam'), t('trustIndicators.freeConsultation')]}
             />
           )}
         </form>
@@ -314,12 +320,12 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     >
       <div className="text-center mb-8">
         <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          {title}
+          {resolvedTitle}
         </h3>
-        {subtitle && <p className="text-gray-500">{subtitle}</p>}
+        {resolvedSubtitle && <p className="text-gray-500">{resolvedSubtitle}</p>}
         {propertyAddress && (
           <p className="text-purple-600 font-medium mt-2">
-            For: {propertyAddress}
+            {t('form.forProperty')} {propertyAddress}
           </p>
         )}
       </div>
@@ -335,10 +341,10 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           {isSubmitting ? (
             <>
               <Loader2 className="h-5 w-5 animate-spin" />
-              Processing...
+              {t('common.processing')}
             </>
           ) : (
-            ctaText
+            resolvedCtaText
           )}
         </CTAButton>
 
@@ -360,10 +366,13 @@ interface QuickContactBarProps {
 
 const QuickContactBar: React.FC<QuickContactBarProps> = ({
   phoneNumber = "(555) 123-4567",
-  ctaText = "Get Pre-Qualified",
+  ctaText,
   onCtaClick,
   className,
 }) => {
+  const { t } = useLanguage();
+  const resolvedCtaText = ctaText ?? t('cta.getPreQualified');
+
   return (
     <div
       className={cn(
@@ -373,13 +382,13 @@ const QuickContactBar: React.FC<QuickContactBarProps> = ({
     >
       <div className="container mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="text-white text-center sm:text-left">
-          <span className="opacity-80">Questions? Call us: </span>
+          <span className="opacity-80">{t('cta.questionsCallUs')} </span>
           <a href={`tel:${phoneNumber.replace(/\D/g, "")}`} className="font-bold hover:underline">
             {phoneNumber}
           </a>
         </div>
         <CTAButton onClick={onCtaClick} size="sm">
-          {ctaText}
+          {resolvedCtaText}
         </CTAButton>
       </div>
     </div>

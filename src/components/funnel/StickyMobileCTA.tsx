@@ -2,6 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { CTAButton } from "./CTAButton";
 import { Phone, MessageCircle, X } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface StickyMobileCTAProps {
   /** Primary CTA text */
@@ -24,7 +25,7 @@ interface StickyMobileCTAProps {
 }
 
 const StickyMobileCTA: React.FC<StickyMobileCTAProps> = ({
-  ctaText = "Get Pre-Qualified",
+  ctaText,
   onCtaClick,
   phoneNumber = "(555) 123-4567",
   showTextOption = true,
@@ -34,8 +35,10 @@ const StickyMobileCTA: React.FC<StickyMobileCTAProps> = ({
   dismissible = false,
   className,
 }) => {
+  const { t } = useLanguage();
   const [isDismissed, setIsDismissed] = React.useState(false);
   const [isVisible, setIsVisible] = React.useState(false);
+  const resolvedCtaText = ctaText ?? t('cta.getPreQualified');
 
   // Show after scrolling down a bit
   React.useEffect(() => {
@@ -68,7 +71,7 @@ const StickyMobileCTA: React.FC<StickyMobileCTAProps> = ({
             size="full"
             className="text-orange-600"
           >
-            {ctaText}
+            {resolvedCtaText}
           </CTAButton>
         </div>
       </div>
@@ -113,7 +116,7 @@ const StickyMobileCTA: React.FC<StickyMobileCTAProps> = ({
           {/* Action buttons */}
           <div className="p-4 space-y-3">
             <CTAButton onClick={onCtaClick} size="full">
-              {ctaText}
+              {resolvedCtaText}
             </CTAButton>
 
             <div className="grid grid-cols-2 gap-3">
@@ -122,7 +125,7 @@ const StickyMobileCTA: React.FC<StickyMobileCTAProps> = ({
                 className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
               >
                 <Phone className="h-5 w-5" />
-                Call
+                {t('cta.callUs')}
               </a>
               {showTextOption && (
                 <a
@@ -130,7 +133,7 @@ const StickyMobileCTA: React.FC<StickyMobileCTAProps> = ({
                   className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
                 >
                   <MessageCircle className="h-5 w-5" />
-                  Text
+                  {t('cta.textUs')}
                 </a>
               )}
             </div>
@@ -162,7 +165,7 @@ const StickyMobileCTA: React.FC<StickyMobileCTAProps> = ({
 
           {/* Main CTA */}
           <CTAButton onClick={onCtaClick} size="full" className="flex-1">
-            {ctaText}
+            {resolvedCtaText}
           </CTAButton>
 
           {/* Text button */}

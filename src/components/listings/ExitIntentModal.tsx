@@ -6,6 +6,7 @@ import { useCreateContact } from '@/services/ghlApi';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Home, CheckCircle, Loader2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ExitIntentModalProps {
   open: boolean;
@@ -26,6 +27,7 @@ export function ExitIntentModal({
   propertyAddress,
   source = 'listings',
 }: ExitIntentModalProps) {
+  const { t } = useLanguage();
   const [form, setForm] = useState({ firstName: '', email: '', phone: '' });
   const [isSuccess, setIsSuccess] = useState(false);
   const createContact = useCreateContact();
@@ -64,7 +66,7 @@ export function ExitIntentModal({
         setForm({ firstName: '', email: '', phone: '' });
       }, 2000);
     } catch {
-      toast.error('Something went wrong. Please try again.');
+      toast.error(t('form.errorMessage'));
     }
   };
 
@@ -92,10 +94,10 @@ export function ExitIntentModal({
               <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              You're All Set!
+              {t('exitIntent.successTitle')}
             </h3>
             <p className="text-gray-600 dark:text-gray-300 text-sm">
-              We'll send you the best listings. Keep an eye on your inbox!
+              {t('exitIntent.successMessage')}
             </p>
           </div>
         ) : (
@@ -107,18 +109,17 @@ export function ExitIntentModal({
               </div>
               <h2 className="text-2xl font-bold mb-2">
                 {source === 'property-detail'
-                  ? 'Interested in This Property?'
-                  : 'Wait — Don\'t Miss Out!'}
+                  ? t('exitIntent.headingProperty')
+                  : t('exitIntent.headingListings')}
               </h2>
               <p className="text-purple-100 text-sm leading-relaxed">
                 {source === 'property-detail'
-                  ? 'Leave your info and we\'ll follow up with details, availability, and similar homes.'
-                  : (<>Get personalized listings sent straight to your inbox.<br />New properties added weekly.</>)}
+                  ? t('exitIntent.subtitleProperty')
+                  : (<>{t('exitIntent.subtitleListings')}<br />{t('exitIntent.subtitleListingsLine2')}</>)}
               </p>
               {source === 'listings' && propertyCount && propertyCount > 0 && (
                 <p className="text-purple-200/80 text-xs mt-3">
-                  {propertyCount.toLocaleString()} properties currently
-                  available
+                  {propertyCount.toLocaleString()} {t('exitIntent.propertiesAvailable')}
                 </p>
               )}
             </div>
@@ -132,7 +133,7 @@ export function ExitIntentModal({
               )}
             >
               <Input
-                placeholder="First Name"
+                placeholder={t('form.firstName')}
                 value={form.firstName}
                 onChange={(e) => handleChange('firstName', e.target.value)}
                 required
@@ -145,7 +146,7 @@ export function ExitIntentModal({
               />
               <Input
                 type="email"
-                placeholder="Email Address"
+                placeholder={t('form.emailAddress')}
                 value={form.email}
                 onChange={(e) => handleChange('email', e.target.value)}
                 required
@@ -158,7 +159,7 @@ export function ExitIntentModal({
               />
               <Input
                 type="tel"
-                placeholder="Phone Number"
+                placeholder={t('form.phone')}
                 value={form.phone}
                 onChange={(e) => handleChange('phone', e.target.value)}
                 required
@@ -181,7 +182,7 @@ export function ExitIntentModal({
                 {createContact.isPending ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                  'Send Me Listings'
+                  t('cta.sendListings')
                 )}
               </CTAButton>
 
@@ -191,7 +192,7 @@ export function ExitIntentModal({
                   isDarkMode ? 'text-gray-500' : 'text-gray-400'
                 )}
               >
-                No spam, ever. Unsubscribe anytime.
+                {t('exitIntent.noSpam')}
               </p>
 
               <button
@@ -204,7 +205,7 @@ export function ExitIntentModal({
                     : 'text-gray-400 hover:text-gray-600'
                 )}
               >
-                No thanks, I'll keep browsing
+                {t('exitIntent.noThanks')}
               </button>
             </form>
           </>

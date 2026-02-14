@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { CTAButton } from "./CTAButton";
 import { TrustBar } from "./TrustBadge";
 import { Play } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HeroSectionProps {
   /** Overline text above headline */
@@ -42,7 +43,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   backgroundImage,
   price,
   monthlyPayment,
-  ctaText = "Get Pre-Qualified Now",
+  ctaText,
   onCtaClick,
   secondaryCtaText,
   onSecondaryCtaClick,
@@ -52,7 +53,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   className,
   children,
 }) => {
+  const { t } = useLanguage();
   const [showVideo, setShowVideo] = React.useState(false);
+  const resolvedCtaText = ctaText ?? t('cta.getPreQualifiedNow');
 
   if (variant === "split") {
     return (
@@ -77,7 +80,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <CTAButton onClick={onCtaClick} size="xl">
-                  {ctaText}
+                  {resolvedCtaText}
                 </CTAButton>
                 {secondaryCtaText && (
                   <CTAButton
@@ -195,7 +198,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
             <CTAButton onClick={onCtaClick} size="xl">
-              {ctaText}
+              {resolvedCtaText}
             </CTAButton>
             {secondaryCtaText && (
               <CTAButton
@@ -236,7 +239,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <CTAButton onClick={onCtaClick} size="lg">
-              {ctaText}
+              {resolvedCtaText}
             </CTAButton>
             {secondaryCtaText && (
               <CTAButton variant="outline" onClick={onSecondaryCtaClick} size="lg">
@@ -290,7 +293,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <CTAButton onClick={onCtaClick} size="lg">
-              {ctaText}
+              {resolvedCtaText}
             </CTAButton>
             {secondaryCtaText && (
               <CTAButton

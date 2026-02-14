@@ -183,6 +183,7 @@ function UrgencyCountdown({
   hoursFromNow?: number;
   deadline?: string | null;
 }) {
+  const { t } = useLanguage();
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
@@ -240,10 +241,10 @@ function UrgencyCountdown({
   }, [mode, hoursFromNow, deadline]);
 
   const units = [
-    { value: timeLeft.days, label: 'Days' },
-    { value: timeLeft.hours, label: 'Hours' },
-    { value: timeLeft.minutes, label: 'Min' },
-    { value: timeLeft.seconds, label: 'Sec' },
+    { value: timeLeft.days, label: t('countdown.days') },
+    { value: timeLeft.hours, label: t('countdown.hours') },
+    { value: timeLeft.minutes, label: t('countdown.minutes') },
+    { value: timeLeft.seconds, label: t('countdown.seconds') },
   ];
 
   return (
@@ -270,15 +271,16 @@ function UrgencyCountdown({
 
 // Animated Stats Section Component
 function AnimatedStatsSection() {
+  const { t } = useLanguage();
   const sectionRef = useRef<HTMLElement>(null);
   const [hasStarted, setHasStarted] = useState(false);
   const [counts, setCounts] = useState([0, 0, 0, 0]);
 
   const statsConfig = [
-    { target: 500, duration: 2500, labelTop: 'Families', labelBottom: 'Helped', suffix: '+', icon: Users },
-    { target: 15, duration: 2000, labelTop: 'Years', labelBottom: 'Experience', suffix: '+', icon: Clock },
-    { target: 98, duration: 2200, labelTop: 'Satisfaction', labelBottom: 'Rate', suffix: '%', icon: Award },
-    { target: 24, duration: 1800, labelTop: 'Hour', labelBottom: 'Response', prefix: '<', icon: Shield },
+    { target: 500, duration: 2500, labelTop: t('stats.families'), labelBottom: t('stats.helped'), suffix: '+', icon: Users },
+    { target: 15, duration: 2000, labelTop: t('stats.years'), labelBottom: t('stats.experience'), suffix: '+', icon: Clock },
+    { target: 98, duration: 2200, labelTop: t('stats.satisfaction'), labelBottom: t('stats.rate'), suffix: '%', icon: Award },
+    { target: 24, duration: 1800, labelTop: t('stats.hour'), labelBottom: t('stats.response'), prefix: '<', icon: Shield },
   ];
 
   // Watch for section visibility
@@ -338,12 +340,12 @@ function AnimatedStatsSection() {
         {/* Section header - Enhanced Typography with Reveal */}
         <Reveal className="text-center mb-20">
           <h2 className="text-3xl md:text-4xl text-white leading-tight">
-            <span className="font-light">Numbers That</span>{' '}
+            <span className="font-light">{t('stats.numbersThat')}</span>{' '}
             <span className="font-bold italic bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent pr-1">
-              Speak
+              {t('stats.speak')}
             </span>
           </h2>
-          <p className="text-gray-500 text-lg mt-4 font-light tracking-wide">for themselves</p>
+          <p className="text-gray-500 text-lg mt-4 font-light tracking-wide">{t('stats.forThemselves')}</p>
         </Reveal>
 
         {/* Stats grid - Premium Typography with Staggered Reveal */}
@@ -417,6 +419,7 @@ function AnimatedStatsSection() {
 
 // Virtual Tour Section with GHL-style click-to-play overlay
 function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { virtualTourUrl: string; scrollToForm: () => void; onVideoPlay?: () => void }) {
+  const { t } = useLanguage();
   const [isPlaying, setIsPlaying] = useState(false);
 
   // Extract YouTube video ID for thumbnail
@@ -469,11 +472,11 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
         {/* Header */}
         <Reveal className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl text-white mb-3">
-            <span className="font-light">Walk Through</span>{' '}
-            <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Your Future Home</span>
+            <span className="font-light">{t('virtualTour.headline')}</span>{' '}
+            <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">{t('virtualTour.headlineHighlight')}</span>
           </h2>
           <p className="text-gray-400 max-w-xl mx-auto">
-            Take a virtual tour and imagine yourself living here. See every room, every detail.
+            {t('virtualTour.description')}
           </p>
         </Reveal>
 
@@ -529,7 +532,7 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
                       <svg className="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.414a5 5 0 001.414 1.414m2.828-9.9a9 9 0 0112.728 0" />
                       </svg>
-                      <span className="text-white text-sm font-medium">Click to watch the tour</span>
+                      <span className="text-white text-sm font-medium">{t('virtualTour.clickToWatch')}</span>
                     </div>
                   </div>
                 </div>
@@ -549,12 +552,12 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
 
         {/* CTA below video */}
         <Reveal delay={200} className="text-center mt-8">
-          <p className="text-purple-300/70 text-sm mb-4">Like what you see?</p>
+          <p className="text-purple-300/70 text-sm mb-4">{t('virtualTour.likeWhatYouSee')}</p>
           <button
             onClick={scrollToForm}
             className="inline-flex items-center gap-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-white font-semibold px-6 py-3 rounded-xl transition-all"
           >
-            Schedule an In-Person Tour
+            {t('cta.scheduleInPersonTour')}
             <span>&rarr;</span>
           </button>
         </Reveal>
@@ -743,13 +746,13 @@ export default function PublicPropertyDetail() {
       // Track form submission for analytics (high-value conversion event)
       analytics.trackFormSubmission();
 
-      toast.success('Your application has been submitted! We\'ll contact you within 24 hours.');
+      toast.success(t('form.applicationSubmitted'));
       setOfferForm({ firstName: '', lastName: '', email: '', phone: '', offerAmount: '', message: '' });
       setShowOfferForm(false);
       setHasSubmittedOffer(true);
     } catch (error) {
       console.error('Contact creation error:', error);
-      toast.error('Failed to submit. Please try again or call us directly.');
+      toast.error(t('form.failedToSubmit'));
     }
   };
 
@@ -773,7 +776,7 @@ export default function PublicPropertyDetail() {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
-    toast.success('Link copied to clipboard!');
+    toast.success(t('common.linkCopied'));
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -823,34 +826,34 @@ export default function PublicPropertyDetail() {
   const getPainPoints = (segment?: string): { icon: string; text: string }[] => {
     const painPointsBySegment: Record<string, { icon: string; text: string }[]> = {
       'first-time-buyer': [
-        { icon: '✗', text: 'Banks saying no to your first home?' },
-        { icon: '✗', text: 'Saving feels endless with no progress?' },
-        { icon: '✗', text: 'Rent keeps rising, equity stays at zero?' },
+        { icon: '✗', text: t('painPoints.firstTimeBuyer1') },
+        { icon: '✗', text: t('painPoints.firstTimeBuyer2') },
+        { icon: '✗', text: t('painPoints.firstTimeBuyer3') },
       ],
       'credit-challenged': [
-        { icon: '✗', text: 'Credit score holding you back?' },
-        { icon: '✗', text: 'Rejected by traditional lenders?' },
-        { icon: '✗', text: 'Past mistakes blocking your future?' },
+        { icon: '✗', text: t('painPoints.creditChallenged1') },
+        { icon: '✗', text: t('painPoints.creditChallenged2') },
+        { icon: '✗', text: t('painPoints.creditChallenged3') },
       ],
       'self-employed': [
-        { icon: '✗', text: 'Income too hard to document?' },
-        { icon: '✗', text: 'Tax returns not showing your true earnings?' },
-        { icon: '✗', text: 'Banks don\'t understand your business?' },
+        { icon: '✗', text: t('painPoints.selfEmployed1') },
+        { icon: '✗', text: t('painPoints.selfEmployed2') },
+        { icon: '✗', text: t('painPoints.selfEmployed3') },
       ],
       'investor': [
-        { icon: '✗', text: 'Traditional financing too slow?' },
-        { icon: '✗', text: 'Tired of complicated loan processes?' },
-        { icon: '✗', text: 'Missing deals due to funding delays?' },
+        { icon: '✗', text: t('painPoints.investor1') },
+        { icon: '✗', text: t('painPoints.investor2') },
+        { icon: '✗', text: t('painPoints.investor3') },
       ],
       'move-up-buyer': [
-        { icon: '✗', text: 'Current home equity tied up?' },
-        { icon: '✗', text: 'Need to sell before you can buy?' },
-        { icon: '✗', text: 'Market timing working against you?' },
+        { icon: '✗', text: t('painPoints.moveUpBuyer1') },
+        { icon: '✗', text: t('painPoints.moveUpBuyer2') },
+        { icon: '✗', text: t('painPoints.moveUpBuyer3') },
       ],
       'general': [
-        { icon: '✗', text: 'Banks keep saying no?' },
-        { icon: '✗', text: 'Credit not where it needs to be?' },
-        { icon: '✗', text: 'Saving for years with no progress?' },
+        { icon: '✗', text: t('painPoints.general1') },
+        { icon: '✗', text: t('painPoints.general2') },
+        { icon: '✗', text: t('painPoints.general3') },
       ],
     };
     return painPointsBySegment[segment || 'general'] || painPointsBySegment['general'];
@@ -862,7 +865,7 @@ export default function PublicPropertyDetail() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center space-y-3">
           <Loader2 className="h-10 w-10 animate-spin text-purple-500 mx-auto" />
-          <p className="text-sm font-medium text-gray-600">Loading property...</p>
+          <p className="text-sm font-medium text-gray-600">{t('common.loadingProperty')}</p>
         </div>
       </div>
     );
@@ -876,16 +879,16 @@ export default function PublicPropertyDetail() {
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
             <Home className="h-8 w-8 text-gray-400" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Property Not Found</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('notFound.title')}</h1>
           <p className="text-gray-600">
-            This property may no longer be available or the link may be incorrect.
+            {t('notFound.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <CTAButton onClick={() => navigate('/listings')} variant="secondary">
-              Browse All Listings
+              {t('notFound.browseListings')}
             </CTAButton>
             <Button variant="outline" onClick={() => navigate(-1)}>
-              Go Back
+              {t('notFound.goBack')}
             </Button>
           </div>
         </div>
@@ -947,7 +950,7 @@ export default function PublicPropertyDetail() {
               <span className="hidden sm:inline">{copied ? t('common.copied') : t('common.share')}</span>
             </Button>
             <CTAButton size="sm" onClick={scrollToForm} className="hidden sm:inline-flex">
-              Get Pre-Qualified
+              {t('cta.getPreQualified')}
             </CTAButton>
           </div>
         </div>
@@ -1251,7 +1254,7 @@ export default function PublicPropertyDetail() {
                   </span>
                 </h2>
                 <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
-                  You're not alone. <span className="text-purple-300 font-medium">Thousands</span> face these same barriers every day.
+                  {t('problem.notAlone')} <span className="text-purple-300 font-medium">Thousands</span> {t('problem.thousandsFace')}
                 </p>
               </Reveal>
 
@@ -1295,7 +1298,7 @@ export default function PublicPropertyDetail() {
                       <div className="relative mt-10 pt-8 border-t border-purple-400/20">
                         <div className="inline-flex items-center gap-3">
                           <span className="w-8 h-[2px] bg-gradient-to-r from-transparent to-purple-400/60" />
-                          <p className="text-purple-300 text-sm font-bold tracking-[0.2em] uppercase">Sound familiar?</p>
+                          <p className="text-purple-300 text-sm font-bold tracking-[0.2em] uppercase">{t('problem.soundFamiliar')}</p>
                           <span className="w-8 h-[2px] bg-gradient-to-l from-transparent to-purple-400/60" />
                         </div>
                       </div>
@@ -1341,9 +1344,9 @@ export default function PublicPropertyDetail() {
                 */}
                 <div className="flex flex-col justify-center space-y-6">
                   {[
-                    { icon: '✓', highlight: 'Your Potential', text: 'We focus on who you are becoming, not where you\'ve been' },
-                    { icon: '✓', highlight: 'Credit Scores 580+', text: 'Traditional banks say no. We say let\'s talk.' },
-                    { icon: '✓', highlight: 'No More Waiting', text: 'Stop watching from the sidelines. Start building equity today.' },
+                    { icon: '✓', highlight: t('solution.yourPotential'), text: t('solution.yourPotentialDesc') },
+                    { icon: '✓', highlight: t('solution.creditScores'), text: t('solution.creditScoresDesc') },
+                    { icon: '✓', highlight: t('solution.noMoreWaiting'), text: t('solution.noMoreWaitingDesc') },
                   ].map((benefit, i) => (
                     <Reveal key={i} delay={i * 150}>
                       <div className="group relative flex items-start gap-5 bg-gradient-to-r from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300 shadow-lg shadow-purple-900/20 hover:shadow-purple-500/20">
@@ -1404,18 +1407,18 @@ export default function PublicPropertyDetail() {
                       </div>
 
                       <p className="relative text-2xl md:text-3xl font-bold text-white mb-3">
-                        Minimum Credit Score
+                        {t('solution.minimumCreditScore')}
                       </p>
 
                       <p className="relative text-lg text-gray-400 font-light max-w-sm mx-auto">
-                        That's all you need to start your journey to homeownership
+                        {t('solution.creditScoreJourney')}
                       </p>
 
                       {/* Bottom accent */}
                       <div className="relative mt-10 pt-8 border-t border-purple-400/20">
                         <div className="inline-flex items-center gap-3">
                           <span className="w-8 h-[2px] bg-gradient-to-r from-transparent to-purple-400/60" />
-                          <p className="text-purple-300 text-sm font-bold tracking-[0.2em] uppercase">We believe in you</p>
+                          <p className="text-purple-300 text-sm font-bold tracking-[0.2em] uppercase">{t('solution.believeInYou')}</p>
                           <span className="w-8 h-[2px] bg-gradient-to-l from-transparent to-purple-400/60" />
                         </div>
                       </div>
@@ -1443,10 +1446,10 @@ export default function PublicPropertyDetail() {
               {/* Section Header */}
               <Reveal className="text-center mb-12 md:mb-16">
                 <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
-                  What to Expect
+                  {t('propertyHighlights.sectionLabel')}
                 </span>
                 <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-6">
-                  How Buying This Home Works
+                  {t('propertyHighlights.sectionHeading')}
                 </h2>
                 <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
                   {funnelContent.propertyShowcase || "Instead of going through a bank, the home is purchased directly from the owner. That means there's no traditional loan involved. Our team guides you step by step, and everything is completed through a licensed title company — just like a normal home sale."}
@@ -1463,12 +1466,12 @@ export default function PublicPropertyDetail() {
                         <MessageCircle className="h-7 w-7 text-purple-300" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-3">Step 1: Start with a Conversation</h3>
+                        <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step1Title')}</h3>
                         <p className="text-gray-400 leading-relaxed mb-2">
-                          Share a few basic details like your timeline, down payment range, and questions about the home.
+                          {t('propertyHighlights.step1Desc')}
                         </p>
                         <p className="text-sm text-purple-300/80 italic">
-                          This is not a credit check or a bank application.
+                          {t('propertyHighlights.step1Note')}
                         </p>
                       </div>
                     </div>
@@ -1481,12 +1484,12 @@ export default function PublicPropertyDetail() {
                         <FileText className="h-7 w-7 text-purple-300" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-3">Step 2: Review the Home & Numbers Together</h3>
+                        <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step2Title')}</h3>
                         <p className="text-gray-400 leading-relaxed mb-2">
-                          We'll go over the home details, the monthly payment, and the down payment so everything is clear upfront.
+                          {t('propertyHighlights.step2Desc')}
                         </p>
                         <p className="text-sm text-purple-300/80 italic">
-                          No pressure — just clarity.
+                          {t('propertyHighlights.step2Note')}
                         </p>
                       </div>
                     </div>
@@ -1499,12 +1502,12 @@ export default function PublicPropertyDetail() {
                         <Calendar className="h-7 w-7 text-purple-300" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-3">Step 3: Make Sure It's the Right Fit</h3>
+                        <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step3Title')}</h3>
                         <p className="text-gray-400 leading-relaxed mb-2">
-                          If the home and monthly payment make sense for you, we'll schedule a showing and explain the simple next steps.
+                          {t('propertyHighlights.step3Desc')}
                         </p>
                         <p className="text-sm text-purple-300/80 italic">
-                          If it's not the right fit, there's no obligation to move forward.
+                          {t('propertyHighlights.step3Note')}
                         </p>
                       </div>
                     </div>
@@ -1517,12 +1520,12 @@ export default function PublicPropertyDetail() {
                         <Key className="h-7 w-7 text-purple-300" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-3">Step 4: Close & Get the Keys</h3>
+                        <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step4Title')}</h3>
                         <p className="text-gray-400 leading-relaxed mb-2">
-                          When you're ready, the purchase is completed through a licensed title company — just like a traditional sale.
+                          {t('propertyHighlights.step4Desc')}
                         </p>
                         <p className="text-sm text-purple-300/80 italic">
-                          You get the keys and the security of owning your home.
+                          {t('propertyHighlights.step4Note')}
                         </p>
                       </div>
                     </div>
@@ -1539,10 +1542,10 @@ export default function PublicPropertyDetail() {
                       formRef.current?.scrollIntoView({ behavior: 'smooth' });
                     }}
                   >
-                    See If This Home Works for You
+                    {t('hero.cta')}
                   </CTAButton>
                   <p className="text-sm text-gray-500 mt-3">
-                    Takes less than 2 minutes • No credit check
+                    {t('hero.ctaMicro')}
                   </p>
                 </div>
               </Reveal>
@@ -1557,7 +1560,7 @@ export default function PublicPropertyDetail() {
                     <div className="text-4xl font-black mb-1">
                       <GradientNumber>{property.beds}</GradientNumber>
                     </div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">Bedrooms</div>
+                    <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.bedrooms')}</div>
                   </div>
                   <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
                     <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
@@ -1566,7 +1569,7 @@ export default function PublicPropertyDetail() {
                     <div className="text-4xl font-black mb-1">
                       <GradientNumber>{property.baths}</GradientNumber>
                     </div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">Bathrooms</div>
+                    <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.bathrooms')}</div>
                   </div>
                   {property.sqft && (
                     <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
@@ -1576,7 +1579,7 @@ export default function PublicPropertyDetail() {
                       <div className="text-4xl font-black mb-1">
                         <GradientNumber>{property.sqft.toLocaleString()}</GradientNumber>
                       </div>
-                      <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">Square Feet</div>
+                      <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.squareFeet')}</div>
                     </div>
                   )}
                   {property.condition && (
@@ -1585,7 +1588,7 @@ export default function PublicPropertyDetail() {
                         <Wrench className="h-7 w-7 text-purple-300" />
                       </div>
                       <div className="text-2xl font-black text-white mb-1">{property.condition}</div>
-                      <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">Condition</div>
+                      <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.condition')}</div>
                     </div>
                   )}
                 </div>
@@ -1612,7 +1615,7 @@ export default function PublicPropertyDetail() {
                   {/* Financing Type + Special Offer badges */}
                   <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
                     <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider">
-                      {funnelContent?.inputs?.financingType || 'Your Investment'}
+                      {funnelContent?.inputs?.financingType || t('pricing.yourInvestment')}
                     </span>
                     {funnelContent?.inputs?.specialOffer && (
                       <span className="inline-block px-4 py-1.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 rounded-full text-xs md:text-sm font-bold">
@@ -1621,10 +1624,10 @@ export default function PublicPropertyDetail() {
                     )}
                   </div>
                   <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-3 md:mb-4">
-                    Affordable Payment Options
+                    {t('pricing.affordablePayments')}
                   </h2>
                   <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto">
-                    We structure deals to fit <span className="text-white font-medium">your budget</span>, not the other way around
+                    {t('pricing.affordablePaymentsDesc')} <span className="text-white font-medium">{t('pricing.yourBudget')}</span>{t('pricing.affordablePaymentsSuffix')}
                   </p>
                 </div>
               </Reveal>
@@ -1644,7 +1647,7 @@ export default function PublicPropertyDetail() {
 
                     <div className="relative z-10">
                       <div className="text-xs md:text-sm uppercase tracking-[0.2em] text-purple-200 font-semibold mb-2 md:mb-3">
-                        Total Price
+                        {t('pricing.totalPrice')}
                       </div>
                       <div className="relative inline-block">
                         <span className="absolute inset-0 bg-white/20 blur-xl scale-150 pointer-events-none" />
@@ -1663,13 +1666,13 @@ export default function PublicPropertyDetail() {
                           <DollarSign className="h-7 w-7 md:h-8 md:w-8 text-white" />
                         </div>
                         <div className="text-xs md:text-sm uppercase tracking-[0.15em] text-gray-500 font-semibold mb-2">
-                          Move-In Cost
+                          {t('pricing.moveInCost')}
                         </div>
                         <div className="text-3xl sm:text-4xl md:text-5xl font-black mb-2">
                           {/* DATA-DRIVEN GRADIENT - Move-in cost */}
                           <GradientMoney amount={property.downPayment} />
                         </div>
-                        <p className="text-sm md:text-base text-gray-400">Goes toward your purchase</p>
+                        <p className="text-sm md:text-base text-gray-400">{t('pricing.goesTowardPurchase')}</p>
                       </div>
                     )}
                     {property.monthlyPayment !== undefined && (
@@ -1678,14 +1681,14 @@ export default function PublicPropertyDetail() {
                           <CreditCard className="h-7 w-7 md:h-8 md:w-8 text-white" />
                         </div>
                         <div className="text-xs md:text-sm uppercase tracking-[0.15em] text-gray-500 font-semibold mb-2">
-                          Monthly Payment
+                          {t('pricing.monthlyPayment')}
                         </div>
                         <div className="text-3xl sm:text-4xl md:text-5xl font-black mb-2">
                           {/* DATA-DRIVEN GRADIENT - Monthly payment */}
                           <GradientPrice amount={property.monthlyPayment} />
                         </div>
                         <p className="text-sm md:text-base text-gray-400">
-                          Build equity every month
+                          {t('pricing.buildEquityMonthly')}
                           {funnelContent?.inputs?.termLength && (
                             <span className="block text-purple-400 mt-1">{funnelContent.inputs.termLength} term</span>
                           )}
@@ -1707,10 +1710,10 @@ export default function PublicPropertyDetail() {
                       onClick={scrollToForm}
                       className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
                     >
-                      Check If You Qualify
+                      {t('pricing.checkIfQualify')}
                       <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
                     </button>
-                    <p className="text-gray-500 text-xs md:text-sm mt-4">No credit check • Takes 2 minutes</p>
+                    <p className="text-gray-500 text-xs md:text-sm mt-4">{t('pricing.noCreditCheck')}</p>
                   </div>
                 </div>
               </div>
@@ -1741,7 +1744,7 @@ export default function PublicPropertyDetail() {
                 <div className="text-center mb-6 md:mb-8">
                   <div className="inline-block bg-gray-900/80 backdrop-blur border border-gray-700 rounded-xl md:rounded-2xl px-8 md:px-10 py-4 md:py-5 shadow-xl">
                     <h3 className="text-xl md:text-3xl font-black text-white">
-                      The <span className="underline decoration-slate-500 decoration-4 md:decoration-[6px] underline-offset-4">Old</span> Way
+                      {t('journey.theWord')} <span className="underline decoration-slate-500 decoration-4 md:decoration-[6px] underline-offset-4">{t('journey.old')}</span> {t('journey.way')}
                     </h3>
                   </div>
                 </div>
@@ -1759,9 +1762,9 @@ export default function PublicPropertyDetail() {
                       <div className="flex-1 bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg border border-slate-600/30">
                         <div className="font-bold text-base md:text-lg flex items-center gap-2">
                           <span className="md:hidden text-slate-400">✗</span>
-                          Renting Forever
+                          {t('journey.rentingForever')}
                         </div>
-                        <div className="text-slate-300 text-xs md:text-sm ml-5 md:ml-0">Expensive Mistakes, No Progress</div>
+                        <div className="text-slate-300 text-xs md:text-sm ml-5 md:ml-0">{t('journey.rentingForeverDesc')}</div>
                       </div>
                     </div>
                     {/* Arrow down */}
@@ -1771,12 +1774,12 @@ export default function PublicPropertyDetail() {
                   </div>
 
                   {[
-                    "Paying Someone Else's Mortgage",
-                    "No Equity Building",
-                    "Rent Increases Every Year",
-                    "No Tax Benefits",
-                    "Can Be Forced to Move",
-                    "Money Down the Drain",
+                    t('journey.payingSomeoneElse'),
+                    t('journey.noEquity'),
+                    t('journey.rentIncreases'),
+                    t('journey.noTaxBenefits'),
+                    t('journey.forcedToMove'),
+                    t('journey.moneyDrain'),
                   ].map((problem, i) => (
                     <div key={i} className="relative">
                       <div className="flex items-center gap-2 md:gap-4">
@@ -1786,7 +1789,7 @@ export default function PublicPropertyDetail() {
                         <div className="flex-1 relative">
                           {/* Badge - desktop only */}
                           <span className="hidden md:inline-block absolute -top-2 right-4 bg-slate-800 text-slate-300 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded z-10 border border-slate-600">
-                            Problem
+                            {t('journey.problem')}
                           </span>
                           <div className="bg-gradient-to-r from-slate-700 to-slate-800 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 text-white font-semibold md:font-bold text-sm md:text-lg shadow-lg border border-slate-600/30 flex items-center gap-2">
                             <span className="md:hidden text-slate-400">✗</span>
@@ -1806,7 +1809,7 @@ export default function PublicPropertyDetail() {
                   {/* Dead end indicator */}
                   <div className="hidden md:block text-center pt-4">
                     <span className="inline-block bg-slate-800 text-slate-300 font-bold text-sm px-5 py-2.5 rounded-full border-2 border-slate-600 shadow-lg">
-                      😞 Stuck Forever
+                      😞 {t('journey.stuckForever')}
                     </span>
                   </div>
                 </div>
@@ -1820,7 +1823,7 @@ export default function PublicPropertyDetail() {
                 <div className="text-center mb-6 md:mb-8">
                   <div className="inline-block bg-gray-900/80 backdrop-blur border border-purple-500/40 rounded-xl md:rounded-2xl px-8 md:px-10 py-4 md:py-5 shadow-xl shadow-purple-500/10">
                     <h3 className="text-xl md:text-3xl font-black text-white">
-                      The <span className="underline decoration-purple-400 decoration-4 md:decoration-[6px] underline-offset-4">New</span> Way
+                      {t('journey.theWord')} <span className="underline decoration-purple-400 decoration-4 md:decoration-[6px] underline-offset-4">{t('journey.new')}</span> {t('journey.way')}
                     </h3>
                   </div>
                 </div>
@@ -1841,9 +1844,9 @@ export default function PublicPropertyDetail() {
                       <div className="flex-1 bg-gradient-to-r from-purple-500 to-violet-500 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg shadow-purple-500/30 border border-purple-400/30">
                         <div className="font-bold text-base md:text-lg flex items-center gap-2">
                           <span className="md:hidden text-purple-200">✓</span>
-                          Rent-to-Own with Purple Homes
+                          {t('journey.rentToOwn')}
                         </div>
-                        <div className="text-purple-100 text-xs md:text-sm ml-5 md:ml-0">Clear. Confident. Homeowner.</div>
+                        <div className="text-purple-100 text-xs md:text-sm ml-5 md:ml-0">{t('journey.rentToOwnDesc')}</div>
                       </div>
                     </div>
                     {/* Arrow down */}
@@ -1853,12 +1856,12 @@ export default function PublicPropertyDetail() {
                   </div>
 
                   {[
-                    "Build YOUR Equity Monthly",
-                    "Wealth That Grows Over Time",
-                    "Price Locked In Today",
-                    "Tax Benefits Available",
-                    "Stability & Security",
-                    "Smart Investment in Your Future",
+                    t('journey.buildEquity'),
+                    t('journey.wealthGrows'),
+                    t('journey.priceLocked'),
+                    t('journey.taxBenefits'),
+                    t('journey.stabilitySecurity'),
+                    t('journey.smartInvestment'),
                   ].map((solution, i) => (
                     <div key={i} className="relative z-10">
                       <div className="flex items-center gap-2 md:gap-4">
@@ -1868,7 +1871,7 @@ export default function PublicPropertyDetail() {
                         <div className="flex-1 relative">
                           {/* Badge - desktop only */}
                           <span className="hidden md:inline-block absolute -top-2 right-4 bg-purple-900 text-purple-200 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded z-10 border border-purple-600">
-                            Solution
+                            {t('journey.solutionBadge')}
                           </span>
                           <div className="bg-gradient-to-r from-purple-500 to-violet-500 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 text-white font-semibold md:font-bold text-sm md:text-lg shadow-lg shadow-purple-500/30 border border-purple-400/30 flex items-center gap-2">
                             <span className="md:hidden text-purple-200">✓</span>
@@ -1888,7 +1891,7 @@ export default function PublicPropertyDetail() {
                   {/* Success indicator */}
                   <div className="hidden md:block text-center pt-2 relative z-10">
                     <span className="inline-block bg-gradient-to-r from-purple-500 to-violet-500 text-white font-bold text-sm px-4 py-2 rounded-full shadow-lg shadow-purple-500/40 border border-purple-300/30">
-                      🏠 You're a Homeowner!
+                      🏠 {t('journey.youreHomeowner')}
                     </span>
                   </div>
                 </div>
@@ -1903,10 +1906,10 @@ export default function PublicPropertyDetail() {
                   onClick={scrollToForm}
                   className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
                 >
-                  Choose The New Way
+                  {t('journey.chooseNewWay')}
                   <span className="ml-3 inline-block group-hover:translate-x-2 transition-transform text-2xl">&rarr;</span>
                 </button>
-                <p className="text-gray-500 text-sm mt-4">Join 500+ families who made the switch</p>
+                <p className="text-gray-500 text-sm mt-4">{t('journey.joinFamilies')}</p>
               </div>
             </Reveal>
           </div>
@@ -1927,13 +1930,13 @@ export default function PublicPropertyDetail() {
             {/* Header with Reveal */}
             <Reveal className="text-center mb-16">
               <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-4">
-                <span className="font-light">3 Steps to</span>{' '}
+                <span className="font-light">{t('processSteps.heading')}</span>{' '}
                 <span className="font-black bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">
-                  Homeownership
+                  {t('processSteps.headingHighlight')}
                 </span>
               </h2>
               <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                Our streamlined process makes becoming a homeowner easier than ever
+                {t('processSteps.subtitle')}
               </p>
             </Reveal>
 
@@ -1955,12 +1958,12 @@ export default function PublicPropertyDetail() {
                       </span>
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-3">Apply Online</h3>
+                  <h3 className="text-2xl font-bold text-white mb-3">{t('processSteps.step1Title')}</h3>
                   <p className="text-gray-400 leading-relaxed max-w-xs mx-auto">
-                    Complete our simple 5-minute application. No credit check required to see if you qualify.
+                    {t('processSteps.step1Desc')}
                   </p>
                   <span className="inline-block mt-4 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
-                    5 minutes
+                    {t('processSteps.step1Time')}
                   </span>
                 </Reveal>
 
@@ -1974,12 +1977,12 @@ export default function PublicPropertyDetail() {
                       </span>
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-3">Choose Your Home</h3>
+                  <h3 className="text-2xl font-bold text-white mb-3">{t('processSteps.step2Title')}</h3>
                   <p className="text-gray-400 leading-relaxed max-w-xs mx-auto">
-                    Browse available properties and schedule tours. We'll help you find the perfect fit for your family.
+                    {t('processSteps.step2Desc')}
                   </p>
                   <span className="inline-block mt-4 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
-                    1-2 weeks
+                    {t('processSteps.step2Time')}
                   </span>
                 </Reveal>
 
@@ -1993,12 +1996,12 @@ export default function PublicPropertyDetail() {
                       </span>
                     </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-3">Move In</h3>
+                  <h3 className="text-2xl font-bold text-white mb-3">{t('processSteps.step3Title')}</h3>
                   <p className="text-gray-400 leading-relaxed max-w-xs mx-auto">
-                    Sign your agreement and get the keys. Start building equity from day one.
+                    {t('processSteps.step3Desc')}
                   </p>
                   <span className="inline-block mt-4 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
-                    30 days
+                    {t('processSteps.step3Time')}
                   </span>
                 </Reveal>
               </div>
@@ -2010,7 +2013,7 @@ export default function PublicPropertyDetail() {
                 onClick={scrollToForm}
                 className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
               >
-                Check If You Qualify
+                {t('processSteps.checkIfQualify')}
                 <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
               </button>
             </div>
@@ -2085,9 +2088,7 @@ export default function PublicPropertyDetail() {
 
                 <Reveal className="text-center mb-10">
                   <h2 className="text-3xl md:text-4xl text-white">
-                    <span className="font-light">What</span>{' '}
-                    <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Buyers</span>
-                    <span className="font-light"> Are Saying</span>
+                    {t('testimonials.heading')}
                   </h2>
                 </Reveal>
                 <Reveal delay={200}>
@@ -2115,8 +2116,7 @@ export default function PublicPropertyDetail() {
               {/* Section Header */}
               <Reveal className="text-center mb-14 md:mb-16">
                 <h2 className="text-4xl md:text-5xl lg:text-6xl text-white">
-                  <span className="font-light">Minutes from</span>{' '}
-                  <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Everything</span>
+                  {t('location.heading')}
                 </h2>
               </Reveal>
 
@@ -2158,12 +2158,12 @@ export default function PublicPropertyDetail() {
         {!funnelLoading && (() => {
           // Default lifestyle-focused content (fallback when no avatars/qualifier set)
           const defaultQualifiers = [
-            "You're looking for space to grow — whether that's a home office, playroom, or hobby space",
-            "You want a yard where kids (or pets) can play safely",
-            "You value a quiet neighborhood with a strong sense of community",
-            "You're seeking move-in ready comfort with room to make it your own over time",
-            "You want to be close to work, schools, or amenities that matter to your daily life",
-            "You're ready to settle in and build lasting memories in one place",
+            t('qualifier.default1'),
+            t('qualifier.default2'),
+            t('qualifier.default3'),
+            t('qualifier.default4'),
+            t('qualifier.default5'),
+            t('qualifier.default6'),
           ];
 
           // Use custom qualifier content if set, otherwise use defaults
@@ -2183,9 +2183,7 @@ export default function PublicPropertyDetail() {
               <div className="relative z-10 max-w-3xl mx-auto px-4">
                 <Reveal className="text-center mb-10">
                   <h2 className="text-3xl md:text-4xl text-white">
-                    <span className="font-light">This Home is</span>{' '}
-                    <span className="font-bold italic bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">Perfect</span>
-                    <span className="font-light"> For You If...</span>
+                    {t('qualifier.heading')}
                   </h2>
                 </Reveal>
 
@@ -2225,8 +2223,8 @@ export default function PublicPropertyDetail() {
 
             <div className="relative z-10 max-w-5xl mx-auto px-4">
               <FunnelFAQ
-                title="Frequently Asked Questions"
-                subtitle="Get clear answers to common questions about buying this home."
+                title={t('faq.frequentlyAsked')}
+                subtitle={t('faq.subtitle')}
                 items={parsedFAQs}
                 variant="premium"
               />
@@ -2255,7 +2253,7 @@ export default function PublicPropertyDetail() {
             <Reveal>
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-purple-500/20 border border-purple-500/40 backdrop-blur-sm mb-8 animate-pulse">
                 <div className="w-2 h-2 rounded-full bg-purple-400" />
-                <span className="text-purple-300 text-sm font-bold tracking-wider uppercase">Limited Time Offer</span>
+                <span className="text-purple-300 text-sm font-bold tracking-wider uppercase">{t('urgency.limitedTimeOffer')}</span>
                 <div className="w-2 h-2 rounded-full bg-purple-400" />
               </div>
             </Reveal>
@@ -2263,13 +2261,13 @@ export default function PublicPropertyDetail() {
             {/* Main headline with Reveal */}
             <Reveal delay={100}>
               <h2 className="text-4xl md:text-5xl lg:text-6xl text-white mb-4">
-                <span className="font-light">This Price</span>{' '}
+                <span className="font-light">{t('urgency.thisPrice')}</span>{' '}
                 <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400">
-                  Won't Last
+                  {t('urgency.wontLast')}
                 </span>
               </h2>
               <p className="text-xl text-gray-400 mb-10 max-w-xl mx-auto">
-                Secure today's pricing before the next increase. Once it's gone, it's gone.
+                {t('urgency.secureToday')}
               </p>
             </Reveal>
 
@@ -2282,7 +2280,7 @@ export default function PublicPropertyDetail() {
             <Reveal delay={300}>
               <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-purple-500/10 border border-purple-500/30 mb-10">
                 <span className="text-2xl">⚡</span>
-                <span className="text-purple-300 font-bold">{funnelContent?.inputs?.urgencyMessage || 'Only 3 spots left at this price'}</span>
+                <span className="text-purple-300 font-bold">{funnelContent?.inputs?.urgencyMessage || t('urgency.defaultScarcity')}</span>
                 <span className="text-2xl">⚡</span>
               </div>
             </Reveal>
@@ -2293,10 +2291,10 @@ export default function PublicPropertyDetail() {
                 onClick={scrollToForm}
                 className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-12 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(168,85,247,0.4),0_0_100px_rgba(139,92,246,0.2)] hover:shadow-[0_0_80px_rgba(168,85,247,0.5),0_0_120px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
               >
-                Lock In This Price Now
+                {t('urgency.lockInPrice')}
                 <span className="ml-3 inline-block group-hover:translate-x-2 transition-transform text-2xl">&rarr;</span>
               </button>
-              <p className="text-gray-500 text-sm mt-4">Price increases after timer expires</p>
+              <p className="text-gray-500 text-sm mt-4">{t('urgency.priceIncreases')}</p>
             </div>
           </div>
         </section>
@@ -2372,22 +2370,22 @@ export default function PublicPropertyDetail() {
               {!showOfferForm ? (
                 <div className="p-8 space-y-5 bg-white">
                   <div className="text-center mb-6">
-                    <p className="text-gray-300">Interested in {property.address}?</p>
+                    <p className="text-gray-300">{t('form.interestedInProperty')} {property.address}?</p>
                   </div>
                   <CTAButton size="full" variant="secondary" onClick={() => setShowOfferForm(true)}>
-                    Yes, I'm Interested!
+                    {t('cta.yesInterested')}
                   </CTAButton>
                   <div className="grid grid-cols-2 gap-3">
                     <Button variant="outline" size="lg" className="w-full border-purple-400/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 hover:text-white" asChild>
                       <a href={`tel:+1${companyPhone.replace(/\D/g, '')}`}>
                         <Phone className="h-4 w-4 mr-2" />
-                        Call Us
+                        {t('cta.callUs')}
                       </a>
                     </Button>
                     <Button variant="outline" size="lg" className="w-full border-purple-400/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 hover:text-white" asChild>
                       <a href={`sms:+1${companyPhone.replace(/\D/g, '')}`}>
                         <Phone className="h-4 w-4 mr-2" />
-                        Text Us
+                        {t('cta.textUs')}
                       </a>
                     </Button>
                   </div>
@@ -2465,10 +2463,10 @@ export default function PublicPropertyDetail() {
                     {createContact.isPending ? (
                       <>
                         <Loader2 className="h-5 w-5 animate-spin" />
-                        Submitting...
+                        {t('form.submitting')}
                       </>
                     ) : (
-                      'Submit & Get Pre-Qualified'
+                      t('cta.submitAndGetPreQualified')
                     )}
                   </CTAButton>
                   <Button
@@ -2477,7 +2475,7 @@ export default function PublicPropertyDetail() {
                     className="w-full text-gray-400 hover:text-white hover:bg-white/10"
                     onClick={() => setShowOfferForm(false)}
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                   <TrustIndicators className="justify-center" variant="premium" />
                 </form>
@@ -2490,8 +2488,8 @@ export default function PublicPropertyDetail() {
             <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex items-center justify-center mx-auto mb-4">
               <span className="text-white font-bold text-2xl">P</span>
             </div>
-            <h3 className="text-xl font-bold mb-2">Purple Homes Solutions</h3>
-            <p className="text-gray-400 mb-4">Creative Real Estate Financing</p>
+            <h3 className="text-xl font-bold mb-2">{t('footer.companyName')}</h3>
+            <p className="text-gray-400 mb-4">{t('footer.tagline')}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <a href={`tel:+1${companyPhone.replace(/\D/g, '')}`} className="text-purple-400 hover:text-purple-300 font-semibold">
                 {companyPhone}
@@ -2502,7 +2500,7 @@ export default function PublicPropertyDetail() {
               </a>
             </div>
             <p className="text-gray-500 text-sm mt-6">
-              © {new Date().getFullYear()} Purple Homes Solutions. All rights reserved.
+              © {new Date().getFullYear()} {t('footer.companyName')}. {t('footer.allRightsReserved')}
             </p>
           </div>
           </div>
@@ -2597,7 +2595,7 @@ export default function PublicPropertyDetail() {
                 )}
               </CTAButton>
               <p className="text-center text-gray-400 text-xs">
-                By submitting, you agree to be contacted about this property.
+                {t('form.bySubmitting')}
               </p>
             </form>
           </div>

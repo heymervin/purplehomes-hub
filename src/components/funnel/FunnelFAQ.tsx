@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { ChevronDown, HelpCircle, MessageCircle } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface FAQItem {
   question: string;
@@ -64,16 +65,20 @@ const defaultFAQs: FAQItem[] = [
 ];
 
 const FunnelFAQ: React.FC<FunnelFAQProps> = ({
-  title = "Frequently Asked Questions",
-  subtitle = "Get answers to common questions about our rent-to-own program",
+  title,
+  subtitle,
   items = defaultFAQs,
   className,
   variant = "default",
   defaultOpenIndex,
 }) => {
+  const { t } = useLanguage();
   const [openIndex, setOpenIndex] = React.useState<number | null>(
     defaultOpenIndex ?? null
   );
+
+  const resolvedTitle = title ?? t('faq.frequentlyAsked');
+  const resolvedSubtitle = subtitle ?? t('faq.defaultSubtitle');
 
   const toggleItem = (index: number) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -82,12 +87,12 @@ const FunnelFAQ: React.FC<FunnelFAQProps> = ({
   if (variant === "cards") {
     return (
       <div className={className}>
-        {title && (
+        {resolvedTitle && (
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              {title}
+              {resolvedTitle}
             </h2>
-            {subtitle && <p className="text-gray-500">{subtitle}</p>}
+            {resolvedSubtitle && <p className="text-gray-500">{resolvedSubtitle}</p>}
           </div>
         )}
 
@@ -134,9 +139,9 @@ const FunnelFAQ: React.FC<FunnelFAQProps> = ({
   if (variant === "minimal") {
     return (
       <div className={className}>
-        {title && (
+        {resolvedTitle && (
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{resolvedTitle}</h2>
           </div>
         )}
 
@@ -180,12 +185,12 @@ const FunnelFAQ: React.FC<FunnelFAQProps> = ({
           className
         )}
       >
-        {title && (
+        {resolvedTitle && (
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              {title}
+              {resolvedTitle}
             </h2>
-            {subtitle && <p className="text-gray-400">{subtitle}</p>}
+            {resolvedSubtitle && <p className="text-gray-400">{resolvedSubtitle}</p>}
           </div>
         )}
 
@@ -250,15 +255,15 @@ const FunnelFAQ: React.FC<FunnelFAQProps> = ({
         `}</style>
 
         <div className="relative z-10">
-          {title && (
+          {resolvedTitle && (
             <div className="text-center mb-8 md:mb-10">
               <span className="inline-block px-4 md:px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-5 md:mb-6">
-                FAQ
+                {t('faq.eyebrow')}
               </span>
               <h2 className="text-2xl md:text-4xl text-white mb-3">
-                <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">Common Questions</span>
+                <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">{t('faq.title')}</span>
               </h2>
-              {subtitle && <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto px-4">{subtitle}</p>}
+              {resolvedSubtitle && <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto px-4">{resolvedSubtitle}</p>}
             </div>
           )}
 
@@ -323,12 +328,12 @@ const FunnelFAQ: React.FC<FunnelFAQProps> = ({
   // Default variant
   return (
     <div className={className}>
-      {title && (
+      {resolvedTitle && (
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            {title}
+            {resolvedTitle}
           </h2>
-          {subtitle && <p className="text-gray-500">{subtitle}</p>}
+          {resolvedSubtitle && <p className="text-gray-500">{resolvedSubtitle}</p>}
         </div>
       )}
 
@@ -391,12 +396,16 @@ interface FAQCTAProps {
 }
 
 const FAQCTA: React.FC<FAQCTAProps> = ({
-  title = "Still have questions?",
-  description = "Our team is here to help you every step of the way.",
+  title,
+  description,
   phoneNumber = "(555) 123-4567",
   className,
   variant = "default",
 }) => {
+  const { t } = useLanguage();
+  const resolvedTitle = title ?? t('faq.stillHaveQuestions');
+  const resolvedDescription = description ?? t('faq.teamHereToHelp');
+
   if (variant === "premium") {
     return (
       <div
@@ -413,15 +422,15 @@ const FAQCTA: React.FC<FAQCTAProps> = ({
             <MessageCircle className="h-5 w-5 md:h-6 md:w-6 text-white" />
           </div>
           <div>
-            <h4 className="font-bold text-white text-sm md:text-base">{title}</h4>
-            <p className="text-gray-400 text-xs md:text-sm">{description}</p>
+            <h4 className="font-bold text-white text-sm md:text-base">{resolvedTitle}</h4>
+            <p className="text-gray-400 text-xs md:text-sm">{resolvedDescription}</p>
           </div>
         </div>
         <a
           href={`sms:${phoneNumber.replace(/\D/g, "")}`}
           className="relative w-full md:w-auto text-center px-6 py-3 bg-white hover:bg-purple-50 text-purple-900 rounded-xl font-bold text-sm md:text-base hover:shadow-[0_0_30px_rgba(168,85,247,0.3)] transition-all whitespace-nowrap"
         >
-          Text Us {phoneNumber}
+          {t('cta.textUs')} {phoneNumber}
         </a>
       </div>
     );
@@ -439,15 +448,15 @@ const FAQCTA: React.FC<FAQCTAProps> = ({
           <MessageCircle className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h4 className="font-bold text-gray-900">{title}</h4>
-          <p className="text-gray-600 text-sm">{description}</p>
+          <h4 className="font-bold text-gray-900">{resolvedTitle}</h4>
+          <p className="text-gray-600 text-sm">{resolvedDescription}</p>
         </div>
       </div>
       <a
         href={`sms:${phoneNumber.replace(/\D/g, "")}`}
         className="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 transition-colors whitespace-nowrap"
       >
-        Text Us {phoneNumber}
+        {t('cta.textUs')} {phoneNumber}
       </a>
     </div>
   );

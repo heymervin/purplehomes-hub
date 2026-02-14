@@ -46,6 +46,7 @@ import { useCreateContact } from '@/services/ghlApi';
 import { calculatePropertyDistance } from '@/lib/proximityCalculator';
 import { useAirtableProperties } from '@/services/matchingApi';
 import { generatePropertySlug } from '@/lib/utils/slug';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const PROPERTY_TYPES: PropertyType[] = [
   'Single Family', 'Duplex', 'Multi Family', 'Condo', 'Lot', 
@@ -63,6 +64,7 @@ const ITEMS_PER_PAGE = 40;
 export default function PublicListings() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
 
   // Fetch properties from Airtable (same source as Properties page and Property Matching)
   const { data: airtableData, isLoading: isLoadingProperties, isError, error } = useAirtableProperties(200);
@@ -211,10 +213,10 @@ export default function PublicListings() {
       const next = new Set(prev);
       if (next.has(propertyId)) {
         next.delete(propertyId);
-        toast.success('Removed from saved');
+        toast.success(t('listings.removedFromSaved'));
       } else {
         next.add(propertyId);
-        toast.success('Saved to favorites');
+        toast.success(t('listings.savedToFavorites'));
       }
       return next;
     });
@@ -244,13 +246,13 @@ export default function PublicListings() {
         ],
       });
 
-      toast.success('Your offer has been submitted! We\'ll contact you within 24 hours.');
+      toast.success(t('listings.offerSubmitted'));
       setOfferForm({ firstName: '', lastName: '', email: '', phone: '', offerAmount: '', message: '' });
       setShowOfferForm(false);
       setHasSubmittedOffer(true);
     } catch (error) {
       console.error('Contact creation error:', error);
-      toast.error('Failed to submit offer. Please try again or call us directly.');
+      toast.error(t('listings.offerFailed'));
     }
   };
 
@@ -380,7 +382,7 @@ export default function PublicListings() {
               }}
               className="w-full mt-2 h-7 gap-1 text-xs bg-purple-600 hover:bg-purple-700 text-white"
             >
-              <Eye className="h-3 w-3" /> See More
+              <Eye className="h-3 w-3" /> {t('common.seeMore')}
             </Button>
           </div>
         </div>
@@ -481,7 +483,7 @@ export default function PublicListings() {
                   isDarkMode ? "border-border hover:bg-purple-500/10" : "border-gray-300 hover:border-purple-400"
                 )}
               >
-                <ZoomIn className="h-3 w-3" /> Map
+                <ZoomIn className="h-3 w-3" /> {t('common.map')}
               </Button>
             )}
             <Button
@@ -493,7 +495,7 @@ export default function PublicListings() {
               }}
               className="flex-1 h-7 gap-1 text-xs bg-purple-600 hover:bg-purple-700 text-white"
             >
-              <Eye className="h-3 w-3" /> Details
+              <Eye className="h-3 w-3" /> {t('common.details')}
             </Button>
           </div>
         </div>
@@ -512,12 +514,12 @@ export default function PublicListings() {
           <h2 className={cn(
             "text-lg font-bold",
             isDarkMode ? "text-foreground" : "text-gray-900"
-          )}>{filteredProperties.length.toLocaleString()} Properties Found</h2>
+          )}>{filteredProperties.length.toLocaleString()} {t('listings.propertiesFound')}</h2>
           <p className={cn(
             "text-xs",
             isDarkMode ? "text-muted-foreground" : "text-gray-500"
           )}>
-            Showing {paginatedProperties.length} of {filteredProperties.length.toLocaleString()} properties (Page {currentPage} of {totalPages})
+            {t('listings.showing')} {paginatedProperties.length} {t('listings.of')} {filteredProperties.length.toLocaleString()} {t('listings.properties')} ({t('listings.page')} {currentPage} {t('listings.of')} {totalPages})
           </p>
         </div>
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
@@ -528,11 +530,11 @@ export default function PublicListings() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="price-high">Price: High to Low</SelectItem>
-            <SelectItem value="price-low">Price: Low to High</SelectItem>
-            <SelectItem value="newest">Newest</SelectItem>
-            <SelectItem value="beds">Most Bedrooms</SelectItem>
-            <SelectItem value="sqft">Largest</SelectItem>
+            <SelectItem value="price-high">{t('listings.sortPriceHigh')}</SelectItem>
+            <SelectItem value="price-low">{t('listings.sortPriceLow')}</SelectItem>
+            <SelectItem value="newest">{t('listings.sortNewest')}</SelectItem>
+            <SelectItem value="beds">{t('listings.sortBeds')}</SelectItem>
+            <SelectItem value="sqft">{t('listings.sortLargest')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -549,9 +551,9 @@ export default function PublicListings() {
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search className="h-8 w-8 text-gray-400" />
               </div>
-              <p className={cn(isDarkMode ? "text-muted-foreground" : "text-gray-600")}>No properties match your criteria</p>
+              <p className={cn(isDarkMode ? "text-muted-foreground" : "text-gray-600")}>{t('listings.noMatch')}</p>
               <Button variant="link" onClick={clearFilters} className="text-purple-500">
-                Clear all filters
+                {t('listings.clearAllFilters')}
               </Button>
             </div>
           )}
@@ -573,13 +575,13 @@ export default function PublicListings() {
                 isDarkMode ? "border-border" : "border-gray-300"
               )}
             >
-              Previous
+              {t('common.previous')}
             </Button>
             <span className={cn(
               "text-sm font-medium",
               isDarkMode ? "text-muted-foreground" : "text-gray-600"
             )}>
-              Page {currentPage} of {totalPages}
+              {t('listings.page')} {currentPage} {t('listings.of')} {totalPages}
             </span>
             <Button
               variant="outline"
@@ -588,7 +590,7 @@ export default function PublicListings() {
               disabled={currentPage === totalPages}
               className="text-sm bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
             >
-              Next
+              {t('common.next')}
             </Button>
           </div>
         )}
@@ -788,7 +790,7 @@ export default function PublicListings() {
             <PopoverTrigger asChild>
               <Button className="gap-2 relative bg-purple-600 hover:bg-purple-700 text-white" data-tour="filters-button">
                 <SlidersHorizontal className="h-4 w-4" />
-                <span className="hidden sm:inline">Filters</span>
+                <span className="hidden sm:inline">{t('listings.filters')}</span>
                 {activeFilterCount > 0 && (
                   <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-purple-500 text-white text-xs flex items-center justify-center">
                     {activeFilterCount}
@@ -799,19 +801,19 @@ export default function PublicListings() {
             <PopoverContent className="w-80" align="end" data-tour="filters-panel">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-semibold">All Filters</h4>
-                  <Button variant="ghost" size="sm" onClick={clearFilters}>Clear</Button>
+                  <h4 className="font-semibold">{t('listings.allFilters')}</h4>
+                  <Button variant="ghost" size="sm" onClick={clearFilters}>{t('common.clear')}</Button>
                 </div>
 
                 <div className="space-y-3">
                   <div>
-                    <Label className="text-xs text-gray-600">Property Type</Label>
+                    <Label className="text-xs text-gray-600">{t('listings.propertyType')}</Label>
                     <Select value={propertyType} onValueChange={setPropertyType}>
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Any" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="any">Any Type</SelectItem>
+                        <SelectItem value="any">{t('listings.anyType')}</SelectItem>
                         {PROPERTY_TYPES.map((t) => (
                           <SelectItem key={t} value={t}>{t}</SelectItem>
                         ))}
@@ -910,7 +912,7 @@ export default function PublicListings() {
           <div className="hidden md:flex items-center gap-4 text-sm">
             <a href="sms:+15044750672" className="hover:text-purple-700 transition-colors flex items-center gap-1.5 text-purple-600 font-medium">
               <Phone className="h-4 w-4" />
-              <span className="hidden xl:inline">Send Message</span>
+              <span className="hidden xl:inline">{t('cta.sendMessage')}</span>
             </a>
           </div>
         </div>
@@ -920,7 +922,7 @@ export default function PublicListings() {
       {activeFilterCount > 0 && (
         <div className="flex-shrink-0 bg-purple-50 border-b border-purple-100 px-4 py-2.5">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="text-sm text-purple-700 font-semibold">Active Filters:</span>
+            <span className="text-sm text-purple-700 font-semibold">{t('listings.activeFilters')}</span>
 
             {zipCode && (
               <Badge variant="secondary" className="gap-1.5 text-sm px-3 py-1">
@@ -977,7 +979,7 @@ export default function PublicListings() {
               onClick={clearFilters}
               className="h-7 text-sm text-purple-600 hover:text-purple-700 hover:bg-purple-100 font-medium"
             >
-              Clear All
+              {t('common.clearAll')}
             </Button>
           </div>
         </div>
@@ -990,7 +992,7 @@ export default function PublicListings() {
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="text-center space-y-3">
               <Loader2 className="h-10 w-10 animate-spin text-purple-500 mx-auto" />
-              <p className="text-sm font-medium">Initializing properties...</p>
+              <p className="text-sm font-medium">{t('listings.initializingProperties')}</p>
             </div>
           </div>
         )}
@@ -1051,7 +1053,7 @@ export default function PublicListings() {
             </DrawerTrigger>
             <DrawerContent className="h-[85vh]">
               <DrawerHeader className="sr-only">
-                <DrawerTitle>Property Listings</DrawerTitle>
+                <DrawerTitle>{t('listings.propertyListings')}</DrawerTitle>
               </DrawerHeader>
               <div className="flex flex-col h-full">
                 {renderPropertyListContent(true)}
@@ -1134,7 +1136,7 @@ export default function PublicListings() {
                     </div>
                     <div>
                       <p className="text-2xl font-bold">{selectedProperty.beds}</p>
-                      <p className="text-sm text-gray-600">Bedrooms</p>
+                      <p className="text-sm text-gray-600">{t('property.bedrooms')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -1143,7 +1145,7 @@ export default function PublicListings() {
                     </div>
                     <div>
                       <p className="text-2xl font-bold">{selectedProperty.baths}</p>
-                      <p className="text-sm text-gray-600">Bathrooms</p>
+                      <p className="text-sm text-gray-600">{t('property.bathrooms')}</p>
                     </div>
                   </div>
                   {selectedProperty.sqft && (
@@ -1153,7 +1155,7 @@ export default function PublicListings() {
                       </div>
                       <div>
                         <p className="text-2xl font-bold">{selectedProperty.sqft.toLocaleString()}</p>
-                        <p className="text-sm text-gray-600">Sq Ft</p>
+                        <p className="text-sm text-gray-600">{t('property.sqft')}</p>
                       </div>
                     </div>
                   )}
@@ -1164,7 +1166,7 @@ export default function PublicListings() {
                       </div>
                       <div>
                         <p className="text-lg font-bold">{selectedProperty.condition}</p>
-                        <p className="text-sm text-gray-600">Condition</p>
+                        <p className="text-sm text-gray-600">{t('property.condition')}</p>
                       </div>
                     </div>
                   )}
@@ -1175,7 +1177,7 @@ export default function PublicListings() {
                       </div>
                       <div>
                         <p className="text-lg font-bold">{selectedProperty.propertyType}</p>
-                        <p className="text-sm text-gray-600">Type</p>
+                        <p className="text-sm text-gray-600">{t('property.type')}</p>
                       </div>
                     </div>
                   )}
@@ -1186,7 +1188,7 @@ export default function PublicListings() {
                       </div>
                       <div>
                         <p className="text-lg font-bold">${selectedProperty.downPayment.toLocaleString()}</p>
-                        <p className="text-sm text-gray-600">Down Payment</p>
+                        <p className="text-sm text-gray-600">{t('property.downPayment')}</p>
                       </div>
                     </div>
                   )}
@@ -1197,7 +1199,7 @@ export default function PublicListings() {
                       </div>
                       <div>
                         <p className="text-lg font-bold">${selectedProperty.monthlyPayment.toLocaleString()}/mo</p>
-                        <p className="text-sm text-gray-600">Monthly Payment</p>
+                        <p className="text-sm text-gray-600">{t('property.monthlyPayment')}</p>
                       </div>
                     </div>
                   )}
@@ -1205,7 +1207,7 @@ export default function PublicListings() {
 
                 {selectedProperty.description && (
                   <div>
-                    <h3 className="font-semibold mb-2">About This Property</h3>
+                    <h3 className="font-semibold mb-2">{t('property.aboutThisProperty')}</h3>
                     <p className="text-gray-600">{selectedProperty.description}</p>
                   </div>
                 )}
@@ -1217,54 +1219,54 @@ export default function PublicListings() {
                       className="flex-1 btn-purple-gradient pulse-purple"
                       onClick={() => setShowOfferForm(true)}
                     >
-                      Make an Offer
+                      {t('cta.makeOffer')}
                     </Button>
                     <Button variant="outline" size="lg" className="flex-1 scale-hover" asChild>
                       <a href="sms:+15044750672">
                         <Phone className="h-4 w-4 mr-2" />
-                        Text Us
+                        {t('cta.textUs')}
                       </a>
                     </Button>
                   </div>
                 ) : (
                   <form onSubmit={handleOfferSubmit} className="space-y-4 animate-fade-in">
-                    <h3 className="font-semibold">Submit Your Offer</h3>
+                    <h3 className="font-semibold">{t('listings.submitYourOffer')}</h3>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <Label>First Name *</Label>
+                        <Label>{t('form.firstName')} *</Label>
                         <Input
                           value={offerForm.firstName}
                           onChange={(e) => setOfferForm(prev => ({ ...prev, firstName: e.target.value }))}
                           required
-                          placeholder="John"
+                          placeholder={t('form.placeholderFirstName')}
                           className="mt-1"
                         />
                       </div>
                       <div>
-                        <Label>Last Name *</Label>
+                        <Label>{t('form.lastName')} *</Label>
                         <Input
                           value={offerForm.lastName}
                           onChange={(e) => setOfferForm(prev => ({ ...prev, lastName: e.target.value }))}
                           required
-                          placeholder="Doe"
+                          placeholder={t('form.placeholderLastName')}
                           className="mt-1"
                         />
                       </div>
                     </div>
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <Label>Email *</Label>
+                        <Label>{t('form.email')} *</Label>
                         <Input
                           type="email"
                           value={offerForm.email}
                           onChange={(e) => setOfferForm(prev => ({ ...prev, email: e.target.value }))}
                           required
-                          placeholder="john@example.com"
+                          placeholder={t('form.placeholderEmail')}
                           className="mt-1"
                         />
                       </div>
                       <div>
-                        <Label>Phone *</Label>
+                        <Label>{t('form.phone')} *</Label>
                         <PhoneInput
                           value={offerForm.phone}
                           onChange={(value) => setOfferForm(prev => ({ ...prev, phone: value || '' }))}
@@ -1276,7 +1278,7 @@ export default function PublicListings() {
                       </div>
                     </div>
                     <div>
-                      <Label>Your Offer Amount</Label>
+                      <Label>{t('listings.yourOfferAmount')}</Label>
                       <Input
                         placeholder="$250,000"
                         value={offerForm.offerAmount}
@@ -1285,21 +1287,21 @@ export default function PublicListings() {
                       />
                     </div>
                     <div>
-                      <Label>Message (Optional)</Label>
+                      <Label>{t('form.messageOptional')}</Label>
                       <Textarea
                         value={offerForm.message}
                         onChange={(e) => setOfferForm(prev => ({ ...prev, message: e.target.value }))}
-                        placeholder="Tell us about your investment goals..."
+                        placeholder={t('listings.tellUsAboutInvestment')}
                         className="mt-1"
                         rows={3}
                       />
                     </div>
                     <div className="flex gap-3">
                       <Button type="submit" className="flex-1 btn-purple-gradient">
-                        Submit Offer
+                        {t('cta.submitOffer')}
                       </Button>
                       <Button type="button" variant="outline" onClick={() => setShowOfferForm(false)} className="scale-hover">
-                        Cancel
+                        {t('common.cancel')}
                       </Button>
                     </div>
                   </form>
