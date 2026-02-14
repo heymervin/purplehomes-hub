@@ -51,6 +51,7 @@ export const es = {
   },
   problem: {
     notAlone: 'No estás solo.',
+    thousands: 'Miles',
     thousandsFace: 'enfrentan estas mismas barreras cada día.',
     soundFamiliar: '¿Te suena familiar?',
   },

@@ -615,6 +615,28 @@ export default function PublicPropertyDetail() {
   const [funnelContent, setFunnelContent] = useState<FunnelContent | null>(null);
   const [funnelLoading, setFunnelLoading] = useState(false);
 
+  // Resolve funnel fields to the correct language (Spanish when available, else English)
+  const localizedFunnel = useMemo(() => {
+    if (!funnelContent) return null;
+    const useEs = language === 'es' && funnelContent.es;
+    return {
+      hook: useEs ? funnelContent.es!.hook : funnelContent.hook,
+      problem: useEs ? funnelContent.es!.problem : funnelContent.problem,
+      solution: useEs ? funnelContent.es!.solution : funnelContent.solution,
+      propertyShowcase: useEs ? funnelContent.es!.propertyShowcase : funnelContent.propertyShowcase,
+      callToAction: useEs ? funnelContent.es!.callToAction : funnelContent.callToAction,
+      qualifier: useEs && funnelContent.es!.qualifier ? funnelContent.es!.qualifier : funnelContent.qualifier,
+      faq: useEs && funnelContent.es!.faq ? funnelContent.es!.faq : funnelContent.faq,
+      testimonials: useEs && funnelContent.es!.testimonials?.length ? funnelContent.es!.testimonials : funnelContent.testimonials,
+      // Non-translatable fields pass through
+      locationNearby: funnelContent.locationNearby,
+      pricingOptions: funnelContent.pricingOptions,
+      virtualTourUrl: funnelContent.virtualTourUrl,
+      inputs: funnelContent.inputs,
+      socialProof: funnelContent.socialProof,
+    };
+  }, [funnelContent, language]);
+
   // Global testimonials (from Settings)
   const [globalTestimonials, setGlobalTestimonials] = useState<Testimonial[]>([]);
 
@@ -896,9 +918,9 @@ export default function PublicPropertyDetail() {
     );
   }
 
-  // Parse FAQ from funnel content
-  const parsedFAQs = funnelContent?.faq
-    ? funnelContent.faq
+  // Parse FAQ from funnel content (uses localized version for Spanish)
+  const parsedFAQs = localizedFunnel?.faq
+    ? localizedFunnel.faq
         .split(/(?=Q:)/g)
         .filter(Boolean)
         .map((qa) => {
@@ -1250,11 +1272,11 @@ export default function PublicPropertyDetail() {
               <Reveal className="text-center mb-16 md:mb-20">
                 <h2 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[1.0] tracking-[-0.02em] max-w-4xl mx-auto mb-6">
                   <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
-                    {stripMarkers(extractProblemHeadline(funnelContent.problem))}
+                    {stripMarkers(extractProblemHeadline(localizedFunnel.problem))}
                   </span>
                 </h2>
                 <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
-                  {t('problem.notAlone')} <span className="text-purple-300 font-medium">Thousands</span> {t('problem.thousandsFace')}
+                  {t('problem.notAlone')} <span className="text-purple-300 font-medium">{t('problem.thousands')}</span> {t('problem.thousandsFace')}
                 </p>
               </Reveal>
 
@@ -1262,7 +1284,7 @@ export default function PublicPropertyDetail() {
               <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
                 {/* Left - Dynamic Pain Points with Enhanced Styling */}
                 <div className="flex flex-col justify-center space-y-5">
-                  {getPainPoints(funnelContent.inputs?.buyerSegment).map((pain, i) => (
+                  {getPainPoints(localizedFunnel.inputs?.buyerSegment).map((pain, i) => (
                     <Reveal key={i} delay={i * 150}>
                       <div className="group relative flex items-center gap-5 bg-gradient-to-r from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 hover:border-purple-400/50 hover:bg-white/[0.08] hover:translate-x-2 transition-all duration-300 cursor-default shadow-lg shadow-purple-900/20 hover:shadow-purple-500/20">
                         {/* Glow effect on hover */}
@@ -1292,7 +1314,7 @@ export default function PublicPropertyDetail() {
                       <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none" />
 
                       <blockquote className="relative text-xl md:text-2xl text-white/95 leading-relaxed font-medium italic px-4">
-                        {stripMarkers(extractProblemBody(funnelContent.problem) || String(typeof funnelContent.problem === 'object' ? funnelContent.problem.body || funnelContent.problem.headline : funnelContent.problem))}
+                        {stripMarkers(extractProblemBody(localizedFunnel.problem) || String(typeof localizedFunnel.problem === 'object' ? localizedFunnel.problem.body || localizedFunnel.problem.headline : localizedFunnel.problem))}
                       </blockquote>
 
                       <div className="relative mt-10 pt-8 border-t border-purple-400/20">
@@ -1327,7 +1349,7 @@ export default function PublicPropertyDetail() {
                 <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto mb-4">
                   <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
                     {stripMarkers((() => {
-                      const sentences = funnelContent.solution.match(/[^.!?]+[.!?]+/g) || [funnelContent.solution];
+                      const sentences = localizedFunnel.solution.match(/[^.!?]+[.!?]+/g) || [localizedFunnel.solution];
                       return sentences.slice(0, 2).join(' ').trim();
                     })())}
                   </span>
@@ -1452,7 +1474,7 @@ export default function PublicPropertyDetail() {
                   {t('propertyHighlights.sectionHeading')}
                 </h2>
                 <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
-                  {funnelContent.propertyShowcase || "Instead of going through a bank, the home is purchased directly from the owner. That means there's no traditional loan involved. Our team guides you step by step, and everything is completed through a licensed title company — just like a normal home sale."}
+                  {localizedFunnel.propertyShowcase || "Instead of going through a bank, the home is purchased directly from the owner. That means there's no traditional loan involved. Our team guides you step by step, and everything is completed through a licensed title company — just like a normal home sale."}
                 </p>
               </Reveal>
 
@@ -1615,11 +1637,11 @@ export default function PublicPropertyDetail() {
                   {/* Financing Type + Special Offer badges */}
                   <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
                     <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider">
-                      {funnelContent?.inputs?.financingType || t('pricing.yourInvestment')}
+                      {localizedFunnel?.inputs?.financingType || t('pricing.yourInvestment')}
                     </span>
-                    {funnelContent?.inputs?.specialOffer && (
+                    {localizedFunnel?.inputs?.specialOffer && (
                       <span className="inline-block px-4 py-1.5 bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 rounded-full text-xs md:text-sm font-bold">
-                        🎁 {funnelContent.inputs.specialOffer}
+                        🎁 {localizedFunnel.inputs.specialOffer}
                       </span>
                     )}
                   </div>
@@ -1689,8 +1711,8 @@ export default function PublicPropertyDetail() {
                         </div>
                         <p className="text-sm md:text-base text-gray-400">
                           {t('pricing.buildEquityMonthly')}
-                          {funnelContent?.inputs?.termLength && (
-                            <span className="block text-purple-400 mt-1">{funnelContent.inputs.termLength} term</span>
+                          {localizedFunnel?.inputs?.termLength && (
+                            <span className="block text-purple-400 mt-1">{localizedFunnel.inputs.termLength} term</span>
                           )}
                         </p>
                       </div>
@@ -1698,9 +1720,9 @@ export default function PublicPropertyDetail() {
                   </div>
 
                   {/* Pricing Options / Additional Notes */}
-                  {funnelContent?.pricingOptions && (
+                  {localizedFunnel?.pricingOptions && (
                     <div className="px-6 md:px-8 py-4 border-t border-purple-500/20">
-                      <p className="text-sm text-gray-400 text-center">{funnelContent.pricingOptions}</p>
+                      <p className="text-sm text-gray-400 text-center">{localizedFunnel.pricingOptions}</p>
                     </div>
                   )}
 
@@ -2066,8 +2088,8 @@ export default function PublicPropertyDetail() {
             // Priority: 1) Property-specific testimonials, 2) Global testimonials from API, 3) Default brand testimonials
             let testimonials: Testimonial[] = [];
 
-            if (funnelContent?.testimonials?.length) {
-              testimonials = funnelContent.testimonials;
+            if (localizedFunnel?.testimonials?.length) {
+              testimonials = localizedFunnel.testimonials as Testimonial[];
             } else if (globalTestimonials.length) {
               testimonials = globalTestimonials;
             } else {
@@ -2123,7 +2145,7 @@ export default function PublicPropertyDetail() {
               {/* Nearby - split place and time for consistency */}
               <Reveal delay={150}>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
-                  {funnelContent.locationNearby.split('\n').filter(Boolean).slice(0, 4).map((item, idx) => {
+                  {localizedFunnel.locationNearby!.split('\n').filter(Boolean).slice(0, 4).map((item, idx) => {
                     const cleanItem = item.replace(/^[•\-\*]\s*/, '').trim();
                     // Try to split "Place - time" but fallback to full text
                     const dashMatch = cleanItem.match(/^(.+?)\s*[-–]\s*(.+)$/);
@@ -2167,8 +2189,8 @@ export default function PublicPropertyDetail() {
           ];
 
           // Use custom qualifier content if set, otherwise use defaults
-          const qualifierItems = funnelContent?.qualifier
-            ? funnelContent.qualifier.split('\n').filter(Boolean).map(item => item.replace(/^[•\-\*\s]+/, '').trim()).filter(Boolean)
+          const qualifierItems = localizedFunnel?.qualifier
+            ? localizedFunnel.qualifier.split('\n').filter(Boolean).map(item => item.replace(/^[•\-\*\s]+/, '').trim()).filter(Boolean)
             : defaultQualifiers;
 
           return (
@@ -2203,9 +2225,9 @@ export default function PublicPropertyDetail() {
         })()}
 
         {/* Virtual Tour - Premium Dark with Click-to-Play Overlay */}
-        {!funnelLoading && funnelContent?.virtualTourUrl && (
+        {!funnelLoading && localizedFunnel?.virtualTourUrl && (
           <VirtualTourSection
-            virtualTourUrl={funnelContent.virtualTourUrl}
+            virtualTourUrl={localizedFunnel.virtualTourUrl}
             scrollToForm={scrollToForm}
             onVideoPlay={analytics.trackVideoPlay}
           />

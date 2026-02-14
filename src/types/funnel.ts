@@ -181,6 +181,18 @@ export interface FunnelContent {
 
   // Formula Tracking (v2.1 - Strategy Learning)
   formulasUsed?: FormulaSelection;  // Which formulas were used to generate this funnel
+
+  // Spanish Translations (v2.3 - Bilingual Funnel Support)
+  es?: {
+    hook: string | { headline: string; subheadline?: string; highlight?: string; benefit?: string; urgency?: string; bonus?: string };
+    problem: string | { headline: string; body: string };
+    solution: string;
+    propertyShowcase: string;
+    callToAction: string;
+    qualifier?: string;
+    faq?: string;
+    testimonials?: Testimonial[];
+  };
 }
 
 export interface FunnelContentRequest {

@@ -473,6 +473,17 @@ interface FunnelContent {
   avatarResearchId?: string;
   // Formula Tracking (Strategy Learning)
   formulasUsed?: FormulaSelection;
+  // Spanish Translations (v2.3 - Bilingual Funnel Support)
+  es?: {
+    hook: string | HookStructure;
+    problem: string | ProblemStructure;
+    solution: string;
+    propertyShowcase: string;
+    callToAction: string;
+    qualifier?: string;
+    faq?: string;
+    testimonials?: Array<{ quote: string; authorName: string; authorTitle?: string; rating?: number }>;
+  };
 }
 
 /**
@@ -1218,6 +1229,114 @@ Respond ONLY in valid JSON with these exact keys.`;
 }
 
 /**
+ * Generate Spanish translations of the key funnel content fields
+ * Uses a focused translation prompt for high-quality, culturally appropriate Spanish
+ */
+async function generateSpanishTranslation(englishContent: FunnelContent): Promise<FunnelContent['es']> {
+  console.log('[Funnel API] Generating Spanish translation...');
+
+  // Build a compact payload of just the fields that need translation
+  const toTranslate: Record<string, unknown> = {
+    hook: englishContent.hook,
+    problem: englishContent.problem,
+    solution: englishContent.solution,
+    propertyShowcase: englishContent.propertyShowcase,
+    callToAction: englishContent.callToAction,
+  };
+  if (englishContent.qualifier) toTranslate.qualifier = englishContent.qualifier;
+  if (englishContent.faq) toTranslate.faq = englishContent.faq;
+
+  const translationPrompt = `You are a professional Spanish translator specializing in real estate marketing for the US Hispanic market. Translate the following funnel content into natural, emotionally compelling Latin American Spanish.
+
+RULES:
+- Use "tú" form (informal), not "usted"
+- Keep the same emotional intensity, urgency, and persuasive power as the English
+- Adapt idioms and cultural references naturally — don't translate literally
+- Keep proper nouns (Purple Homes Solutions, city names, addresses) in English
+- Keep phone numbers and dollar amounts as-is
+- For FAQ sections, translate both questions and answers
+- Maintain the same JSON structure exactly
+
+CONTENT TO TRANSLATE:
+${JSON.stringify(toTranslate, null, 2)}
+
+Respond ONLY in valid JSON with the same keys and structure as the input. For structured objects (hook, problem), keep the same field names (headline, subheadline, highlight, benefit, urgency, bonus, body) — only translate the values.`;
+
+  try {
+    const response = await getOpenAI().chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: translationPrompt }],
+      temperature: 0.3, // Lower temperature for more accurate translation
+      response_format: { type: 'json_object' },
+    });
+
+    const translated = JSON.parse(response.choices[0].message.content || '{}');
+
+    // Process structured fields the same way as English
+    const processHookEs = (hookData: unknown): string | HookStructure => {
+      if (typeof hookData === 'object' && hookData !== null && 'headline' in hookData) {
+        const s = hookData as Record<string, unknown>;
+        return {
+          headline: String(s.headline || ''),
+          subheadline: s.subheadline ? String(s.subheadline) : undefined,
+          highlight: s.highlight ? String(s.highlight) : undefined,
+          benefit: s.benefit ? String(s.benefit) : undefined,
+          urgency: s.urgency ? String(s.urgency) : undefined,
+          bonus: s.bonus ? String(s.bonus) : undefined,
+        };
+      }
+      return typeof hookData === 'string' ? hookData : '';
+    };
+
+    const processProblemEs = (problemData: unknown): string | ProblemStructure => {
+      if (typeof problemData === 'object' && problemData !== null && 'headline' in problemData) {
+        const s = problemData as Record<string, unknown>;
+        return {
+          headline: String(s.headline || ''),
+          body: String(s.body || ''),
+        };
+      }
+      return typeof problemData === 'string' ? problemData : '';
+    };
+
+    const ensureStringEs = (value: unknown): string => {
+      if (typeof value === 'string') return value;
+      if (value === null || value === undefined) return '';
+      if (Array.isArray(value)) {
+        if (value.length > 0 && typeof value[0] === 'object') {
+          const first = value[0] as Record<string, unknown>;
+          if ('question' in first || 'Q' in first) {
+            return value.map((item: Record<string, unknown>) => {
+              const q = String(item.question || item.Q || '');
+              const a = String(item.answer || item.A || '');
+              return `Q: ${q}\nA: ${a}`;
+            }).join('\n\n');
+          }
+        }
+        return value.map(item => typeof item === 'string' ? item : String(item)).join('\n');
+      }
+      return String(value);
+    };
+
+    const result: FunnelContent['es'] = {
+      hook: processHookEs(translated.hook),
+      problem: processProblemEs(translated.problem),
+      solution: ensureStringEs(translated.solution),
+      propertyShowcase: ensureStringEs(translated.propertyShowcase),
+      callToAction: ensureStringEs(translated.callToAction),
+      qualifier: translated.qualifier ? ensureStringEs(translated.qualifier) : undefined,
+      faq: translated.faq ? ensureStringEs(translated.faq) : undefined,
+    };
+
+    console.log('[Funnel API] Spanish translation generated successfully');
+    return result;
+  } catch (error) {
+    console.error('[Funnel API] Spanish translation failed:', error);
+    return undefined;
+  }
+}
+
+/**
  * Generate avatar research and get the research ID
  */
 /**
@@ -1323,6 +1442,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         const content = await generateFunnelContent(propertyData, avatarResearchId);
         console.log('[Funnel API] Content generated, avatarResearchId in content:', content.avatarResearchId || 'NOT SET');
+
+        // Generate Spanish translation in parallel (non-blocking - won't fail the generation)
+        try {
+          const spanishContent = await generateSpanishTranslation(content);
+          if (spanishContent) {
+            content.es = spanishContent;
+            console.log('[Funnel API] Spanish translation attached to content');
+          }
+        } catch (error) {
+          console.warn('[Funnel API] Spanish translation skipped:', (error as Error)?.message);
+        }
 
         // Try to auto-save to filesystem (works on local, skipped on Vercel)
         const savedToFile = tryWriteContent(content.propertySlug, content);
