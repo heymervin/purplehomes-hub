@@ -19,6 +19,8 @@ import { useCreateContact } from '@/services/ghlApi';
 import { useAirtableProperties } from '@/services/matchingApi';
 import { generatePropertySlug } from '@/lib/utils/slug';
 import { useFunnelAnalytics } from '@/hooks/useFunnelAnalytics';
+import { useExitIntent } from '@/hooks/useExitIntent';
+import { ExitIntentModal } from '@/components/listings/ExitIntentModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelectionModal } from '@/components/LanguageSelectionModal';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -625,6 +627,7 @@ export default function PublicPropertyDetail() {
   // Form state
   const [showOfferForm, setShowOfferForm] = useState(false);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [hasSubmittedOffer, setHasSubmittedOffer] = useState(false);
   const [offerForm, setOfferForm] = useState({
     firstName: '',
     lastName: '',
@@ -708,6 +711,13 @@ export default function PublicPropertyDetail() {
 
   const createContact = useCreateContact();
 
+  // Exit intent popup
+  const { showExitIntent, dismiss: dismissExitIntent, markConverted: markExitConverted } = useExitIntent({
+    delayMs: 10000,
+    sessionKey: 'ph-property-exit-intent',
+    disabled: hasSubmittedOffer || isFormModalOpen,
+  });
+
   const handleOfferSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!property) return;
@@ -738,6 +748,7 @@ export default function PublicPropertyDetail() {
       toast.success('Your application has been submitted! We\'ll contact you within 24 hours.');
       setOfferForm({ firstName: '', lastName: '', email: '', phone: '', offerAmount: '', message: '' });
       setShowOfferForm(false);
+      setHasSubmittedOffer(true);
     } catch (error) {
       console.error('Contact creation error:', error);
       toast.error('Failed to submit. Please try again or call us directly.');
@@ -2607,6 +2618,16 @@ export default function PublicPropertyDetail() {
         icon="message"
         href={`sms:+1${companyPhone.replace(/\D/g, '')}`}
         label="Text Us"
+      />
+
+      {/* Exit Intent Lead Capture */}
+      <ExitIntentModal
+        open={showExitIntent}
+        onClose={dismissExitIntent}
+        onSubmitted={markExitConverted}
+        isDarkMode={false}
+        propertyAddress={property?.address}
+        source="property-detail"
       />
     </div>
   );

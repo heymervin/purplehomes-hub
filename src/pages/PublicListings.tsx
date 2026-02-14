@@ -1012,8 +1012,8 @@ export default function PublicListings() {
 
           {/* Property count overlay on map */}
           {mapLoaded && (
-            <div className="absolute top-4 left-44 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-full shadow-md px-3 py-2 border border-gray-200/60 dark:border-gray-700">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+            <div className="absolute bottom-4 left-4 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-full shadow-md px-3 py-1.5 border border-gray-200/60 dark:border-gray-700">
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
                 {filteredProperties.length.toLocaleString()} properties
               </span>
             </div>

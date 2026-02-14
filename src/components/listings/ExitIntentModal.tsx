@@ -13,6 +13,8 @@ interface ExitIntentModalProps {
   onSubmitted: () => void;
   isDarkMode: boolean;
   propertyCount?: number;
+  propertyAddress?: string;
+  source?: 'listings' | 'property-detail';
 }
 
 export function ExitIntentModal({
@@ -21,6 +23,8 @@ export function ExitIntentModal({
   onSubmitted,
   isDarkMode,
   propertyCount,
+  propertyAddress,
+  source = 'listings',
 }: ExitIntentModalProps) {
   const [form, setForm] = useState({ firstName: '', email: '', phone: '' });
   const [isSuccess, setIsSuccess] = useState(false);
@@ -33,12 +37,23 @@ export function ExitIntentModal({
         firstName: form.firstName,
         email: form.email,
         phone: form.phone,
-        tags: ['Exit Intent Lead', 'Listings Browser', 'Website Lead'],
+        tags: [
+          'Exit Intent Lead',
+          'Website Lead',
+          ...(source === 'property-detail' && propertyAddress
+            ? [`Property: ${propertyAddress}`]
+            : ['Listings Browser']),
+        ],
         customFields: [
           {
             id: 'wAnKlytGK8s8dmL1vBkV',
-            value: 'Captured via exit intent popup on listings page',
+            value: source === 'property-detail' && propertyAddress
+              ? `Exit intent on property: ${propertyAddress}`
+              : 'Exit intent on listings page',
           },
+          ...(propertyAddress
+            ? [{ id: 'UcJ0Qoz3kh0OjC9oLVsK', value: propertyAddress }]
+            : []),
         ],
       });
       setIsSuccess(true);
@@ -91,14 +106,16 @@ export function ExitIntentModal({
                 <Home className="h-7 w-7" />
               </div>
               <h2 className="text-2xl font-bold mb-2">
-                Wait — Don't Miss Out!
+                {source === 'property-detail'
+                  ? 'Interested in This Property?'
+                  : 'Wait — Don\'t Miss Out!'}
               </h2>
               <p className="text-purple-100 text-sm leading-relaxed">
-                Get personalized listings sent straight to your inbox.
-                <br />
-                New properties added weekly.
+                {source === 'property-detail'
+                  ? 'Leave your info and we\'ll follow up with details, availability, and similar homes.'
+                  : (<>Get personalized listings sent straight to your inbox.<br />New properties added weekly.</>)}
               </p>
-              {propertyCount && propertyCount > 0 && (
+              {source === 'listings' && propertyCount && propertyCount > 0 && (
                 <p className="text-purple-200/80 text-xs mt-3">
                   {propertyCount.toLocaleString()} properties currently
                   available

@@ -14,7 +14,7 @@ interface UseExitIntentReturn {
 
 export function useExitIntent(options: UseExitIntentOptions = {}): UseExitIntentReturn {
   const {
-    delayMs = 5000,
+    delayMs = 10000,
     sessionKey = 'ph-exit-intent-shown',
     disabled = false,
   } = options;
