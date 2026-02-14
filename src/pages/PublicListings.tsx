@@ -36,10 +36,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { PropertyMap } from '@/components/listings/PropertyMap';
 import { MapCoachMarks } from '@/components/listings/MapCoachMarks';
+import { ExitIntentModal } from '@/components/listings/ExitIntentModal';
 import { ProximityBadge } from '@/components/listings/ProximityBadge';
 import { PropertyImageGallery } from '@/components/properties/PropertyImageGallery';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useExitIntent } from '@/hooks/useExitIntent';
 import { useCreateContact } from '@/services/ghlApi';
 import { calculatePropertyDistance } from '@/lib/proximityCalculator';
 import { useAirtableProperties } from '@/services/matchingApi';
@@ -129,8 +131,17 @@ export default function PublicListings() {
     message: ''
   });
   
+  const [hasSubmittedOffer, setHasSubmittedOffer] = useState(false);
+
   // GHL Contact creation (more reliable than Form API)
   const createContact = useCreateContact();
+
+  // Exit intent popup
+  const { showExitIntent, dismiss: dismissExitIntent, markConverted: markExitConverted } = useExitIntent({
+    delayMs: 5000,
+    sessionKey: 'ph-listings-exit-intent',
+    disabled: hasSubmittedOffer || !!selectedProperty,
+  });
 
   const filteredProperties = useMemo(() => {
     // Wait for properties to load before filtering
@@ -236,6 +247,7 @@ export default function PublicListings() {
       toast.success('Your offer has been submitted! We\'ll contact you within 24 hours.');
       setOfferForm({ firstName: '', lastName: '', email: '', phone: '', offerAmount: '', message: '' });
       setShowOfferForm(false);
+      setHasSubmittedOffer(true);
     } catch (error) {
       console.error('Contact creation error:', error);
       toast.error('Failed to submit offer. Please try again or call us directly.');
@@ -1000,8 +1012,8 @@ export default function PublicListings() {
 
           {/* Property count overlay on map */}
           {mapLoaded && (
-            <div className="absolute top-3 left-12 z-10 bg-white/95 backdrop-blur-sm rounded-lg shadow-md px-3 py-1.5 border border-gray-200/60">
-              <span className="text-sm font-semibold text-gray-800">
+            <div className="absolute top-4 left-44 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-full shadow-md px-3 py-2 border border-gray-200/60 dark:border-gray-700">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
                 {filteredProperties.length.toLocaleString()} properties
               </span>
             </div>
@@ -1297,6 +1309,15 @@ export default function PublicListings() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Exit Intent Lead Capture */}
+      <ExitIntentModal
+        open={showExitIntent}
+        onClose={dismissExitIntent}
+        onSubmitted={markExitConverted}
+        isDarkMode={isDarkMode}
+        propertyCount={filteredProperties.length}
+      />
     </div>
   );
 }
