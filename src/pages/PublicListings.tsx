@@ -333,7 +333,7 @@ export default function PublicListings() {
       >
         <div className={cn(
           "relative overflow-hidden",
-          compact ? "w-28 h-28 flex-shrink-0" : "aspect-[4/3]"
+          compact ? "w-28 h-28 flex-shrink-0" : "aspect-video"
         )}>
           <img
             src={property.heroImage}

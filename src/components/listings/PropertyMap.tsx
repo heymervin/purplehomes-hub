@@ -80,12 +80,26 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
         ];
       }
 
+      // Calculate bounds to fit all properties
+      let bounds: mapboxgl.LngLatBounds | null = null;
+      if (propertiesWithCoords.length > 1) {
+        bounds = new mapboxgl.LngLatBounds();
+        propertiesWithCoords.forEach(p => bounds!.extend([p.lng!, p.lat!]));
+      }
+
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: isDarkMode ? 'mapbox://styles/mapbox/dark-v11' : 'mapbox://styles/mapbox/light-v11',
         center,
-        zoom: 10,
+        zoom: propertiesWithCoords.length <= 1 ? 10 : 4,
       });
+
+      // Fit map to show all properties with padding
+      if (bounds) {
+        map.current.once('load', () => {
+          map.current!.fitBounds(bounds!, { padding: 60, maxZoom: 12 });
+        });
+      }
 
       map.current.addControl(
         new mapboxgl.NavigationControl({ visualizePitch: false }),
