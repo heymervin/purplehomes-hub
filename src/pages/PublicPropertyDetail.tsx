@@ -38,8 +38,6 @@ import {
   FAQCTA,
   SectionHeader,
   TwoColumnLayout,
-  StickyMobileCTA,
-  FloatingActionButton,
   PremiumTrustStrip,
 } from '@/components/funnel';
 import { FeaturedTestimonial } from '@/components/funnel/TestimonialCard';
@@ -1536,12 +1534,13 @@ export default function PublicPropertyDetail() {
               <Reveal delay={200}>
                 <div className="text-center mb-16">
                   <CTAButton
-                    text="See If This Home Works for You"
                     onClick={() => {
                       trackEvent('cta_click', { section: 'how_it_works' });
                       formRef.current?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                  />
+                  >
+                    See If This Home Works for You
+                  </CTAButton>
                   <p className="text-sm text-gray-500 mt-3">
                     Takes less than 2 minutes • No credit check
                   </p>
@@ -2604,21 +2603,6 @@ export default function PublicPropertyDetail() {
           </div>
         </div>
       )}
-
-      {/* Sticky Mobile CTA */}
-      <StickyMobileCTA
-        ctaText="Get Pre-Qualified"
-        onCtaClick={scrollToForm}
-        phoneNumber={companyPhone}
-        variant="simple"
-      />
-
-      {/* Floating Action Button (Desktop) - SMS for better conversion */}
-      <FloatingActionButton
-        icon="message"
-        href={`sms:+1${companyPhone.replace(/\D/g, '')}`}
-        label="Text Us"
-      />
 
       {/* Exit Intent Lead Capture */}
       <ExitIntentModal
