@@ -618,119 +618,11 @@ export default function PublicListings() {
           </div>
 
           {/* Primary Filters - Always Visible */}
-          <div className="flex-1 flex items-center gap-2 max-w-5xl">
-            {/* Search by city, state, address */}
-            <div className="relative flex-1 min-w-[160px] max-w-xs" data-tour="address-search">
-              <Search className={cn(
-                "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4",
-                isDarkMode ? "text-muted-foreground" : "text-gray-400"
-              )} />
-              <Input
-                placeholder="Search by city, state, or address..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className={cn(
-                  "pl-10 shadow-sm hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent",
-                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 placeholder:text-gray-400 border-gray-300"
-                )}
-              />
-            </div>
-
-            {/* Min/Max Price Inputs - Desktop Only */}
-            <div className="hidden lg:flex items-center gap-1" data-tour="quick-filters">
-              <Input
-                placeholder="Min Price"
-                value={priceRange[0] > 0 ? formatPrice(priceRange[0]) : ''}
-                onChange={(e) => {
-                  const val = parsePrice(e.target.value);
-                  setPriceRange([val === '' ? 0 : val, priceRange[1]]);
-                }}
-                className={cn(
-                  "w-28 text-sm shadow-sm",
-                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
-                )}
-              />
-              <span className={cn("text-xs", isDarkMode ? "text-muted-foreground" : "text-gray-400")}>-</span>
-              <Input
-                placeholder="Max Price"
-                value={priceRange[1] < 1000000 ? formatPrice(priceRange[1]) : ''}
-                onChange={(e) => {
-                  const val = parsePrice(e.target.value);
-                  setPriceRange([priceRange[0], val === '' ? 1000000 : val]);
-                }}
-                className={cn(
-                  "w-28 text-sm shadow-sm",
-                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
-                )}
-              />
-            </div>
-
-            {/* Beds - Desktop */}
-            <div className="hidden lg:block">
-              <Select value={beds} onValueChange={setBeds}>
-                <SelectTrigger className={cn(
-                  "w-[110px] shadow-sm text-sm",
-                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
-                )}>
-                  <Bed className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                  <SelectValue placeholder="Bedrooms" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any Beds</SelectItem>
-                  <SelectItem value="1">1+ Bed</SelectItem>
-                  <SelectItem value="2">2+ Beds</SelectItem>
-                  <SelectItem value="3">3+ Beds</SelectItem>
-                  <SelectItem value="4">4+ Beds</SelectItem>
-                  <SelectItem value="5">5+ Beds</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Baths - Desktop */}
-            <div className="hidden lg:block">
-              <Select value={baths} onValueChange={setBaths}>
-                <SelectTrigger className={cn(
-                  "w-[110px] shadow-sm text-sm",
-                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
-                )}>
-                  <Bath className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                  <SelectValue placeholder="Bathrooms" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any Baths</SelectItem>
-                  <SelectItem value="1">1+ Bath</SelectItem>
-                  <SelectItem value="2">2+ Baths</SelectItem>
-                  <SelectItem value="3">3+ Baths</SelectItem>
-                  <SelectItem value="4">4+ Baths</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Property Type - Desktop */}
-            <div className="hidden xl:block">
-              <Select value={propertyType} onValueChange={setPropertyType}>
-                <SelectTrigger className={cn(
-                  "w-[130px] shadow-sm text-sm",
-                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
-                )}>
-                  <Home className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                  <SelectValue placeholder="Property Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any Type</SelectItem>
-                  {PROPERTY_TYPES.map((t) => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* ZIP + Locate */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <div className="relative w-24" data-tour="zip-search">
+          <div className="flex-1 flex items-center gap-2 max-w-4xl">
+            {/* ZIP Code */}
+            <div className="relative w-28" data-tour="zip-search">
               <MapPin className={cn(
-                "absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5",
+                "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4",
                 isDarkMode ? "text-muted-foreground" : "text-gray-400"
               )} />
               <Input
@@ -742,18 +634,20 @@ export default function PublicListings() {
                   setUserLocation(null);
                 }}
                 className={cn(
-                  "pl-8 text-sm shadow-sm focus-visible:ring-2 focus-visible:ring-purple-500",
+                  "pl-9 shadow-sm hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent",
                   isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 placeholder:text-gray-400 border-gray-300"
                 )}
                 maxLength={5}
               />
             </div>
+
+            {/* Locate Me */}
             <Button
               size="icon"
               onClick={handleLocateMe}
               disabled={isLocating}
               className={cn(
-                "flex-shrink-0 h-9 w-9 bg-purple-600 hover:bg-purple-700 text-white",
+                "flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white",
                 userLocation && "bg-purple-800"
               )}
               title="Use my location"
@@ -765,6 +659,102 @@ export default function PublicListings() {
                 <Navigation className={cn("h-4 w-4", userLocation && "fill-purple-500")} />
               )}
             </Button>
+
+            {/* Search */}
+            <div className="relative flex-1 min-w-[180px] max-w-xs" data-tour="address-search">
+              <Search className={cn(
+                "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4",
+                isDarkMode ? "text-muted-foreground" : "text-gray-400"
+              )} />
+              <Input
+                placeholder="City, state, or address..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className={cn(
+                  "pl-10 shadow-sm hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent",
+                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 placeholder:text-gray-400 border-gray-300"
+                )}
+              />
+            </div>
+
+            {/* Quick Filters - Desktop Only */}
+            <div className="hidden lg:flex items-center gap-2" data-tour="quick-filters">
+              <Select value={beds} onValueChange={setBeds}>
+                <SelectTrigger className={cn(
+                  "w-28 shadow-sm hover:shadow-md transition-shadow",
+                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
+                )}>
+                  <SelectValue placeholder="Beds" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any Beds</SelectItem>
+                  <SelectItem value="1">1+ Bed</SelectItem>
+                  <SelectItem value="2">2+ Beds</SelectItem>
+                  <SelectItem value="3">3+ Beds</SelectItem>
+                  <SelectItem value="4">4+ Beds</SelectItem>
+                  <SelectItem value="5">5+ Beds</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={baths} onValueChange={setBaths}>
+                <SelectTrigger className={cn(
+                  "w-28 shadow-sm hover:shadow-md transition-shadow",
+                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
+                )}>
+                  <SelectValue placeholder="Baths" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any Baths</SelectItem>
+                  <SelectItem value="1">1+ Bath</SelectItem>
+                  <SelectItem value="2">2+ Baths</SelectItem>
+                  <SelectItem value="3">3+ Baths</SelectItem>
+                  <SelectItem value="4">4+ Baths</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={`${priceRange[0]}-${priceRange[1]}`} onValueChange={(value) => {
+                const [min, max] = value.split('-').map(Number);
+                setPriceRange([min, max]);
+              }}>
+                <SelectTrigger className={cn(
+                  "w-36 shadow-sm hover:shadow-md transition-shadow",
+                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
+                )}>
+                  <DollarSign className="h-4 w-4" />
+                  <SelectValue placeholder="Price" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0-1000000">Any Price</SelectItem>
+                  <SelectItem value="0-100000">Under $100K</SelectItem>
+                  <SelectItem value="0-200000">Under $200K</SelectItem>
+                  <SelectItem value="200000-400000">$200K - $400K</SelectItem>
+                  <SelectItem value="400000-600000">$400K - $600K</SelectItem>
+                  <SelectItem value="600000-1000000">$600K+</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Down Payment - key differentiator */}
+              <Select value={`${downPaymentRange[0]}-${downPaymentRange[1]}`} onValueChange={(value) => {
+                const [min, max] = value.split('-').map(Number);
+                setDownPaymentRange([min, max]);
+              }}>
+                <SelectTrigger className={cn(
+                  "w-36 shadow-sm hover:shadow-md transition-shadow",
+                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 border-gray-300"
+                )}>
+                  <DollarSign className="h-4 w-4" />
+                  <SelectValue placeholder="Down Pmt" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0-1000000">Any Down</SelectItem>
+                  <SelectItem value="0-10000">Under $10K</SelectItem>
+                  <SelectItem value="0-25000">Under $25K</SelectItem>
+                  <SelectItem value="0-50000">Under $50K</SelectItem>
+                  <SelectItem value="0-100000">Under $100K</SelectItem>
+                  <SelectItem value="100000-1000000">$100K+</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Theme Toggle */}
@@ -833,39 +823,41 @@ export default function PublicListings() {
                   </div>
 
                   <div>
-                    <Label className="text-xs text-gray-600">Down Payment Range</Label>
+                    <Label className="text-xs text-gray-600">Price Range</Label>
                     <Slider
-                      value={downPaymentRange}
+                      value={priceRange}
                       min={0}
                       max={1000000}
-                      step={5000}
-                      onValueChange={(value) => setDownPaymentRange(value as [number, number])}
+                      step={25000}
+                      onValueChange={(value) => setPriceRange(value as [number, number])}
                       className="mt-3"
                     />
                     <div className="flex justify-between text-xs text-gray-600 mt-1">
-                      <span>${downPaymentRange[0].toLocaleString()}</span>
-                      <span>{downPaymentRange[1] >= 1000000 ? '$1M+' : `$${downPaymentRange[1].toLocaleString()}`}</span>
+                      <span>${priceRange[0].toLocaleString()}</span>
+                      <span>{priceRange[1] >= 1000000 ? '$1M+' : `$${priceRange[1].toLocaleString()}`}</span>
                     </div>
                   </div>
 
-                  {/* Mobile-only filters */}
-                  <div className="lg:hidden space-y-3">
-                    <div>
-                      <Label className="text-xs text-gray-600">Price Range</Label>
-                      <Slider
-                        value={priceRange}
-                        min={0}
-                        max={1000000}
-                        step={25000}
-                        onValueChange={(value) => setPriceRange(value as [number, number])}
-                        className="mt-3"
-                      />
-                      <div className="flex justify-between text-xs text-gray-600 mt-1">
-                        <span>${priceRange[0].toLocaleString()}</span>
-                        <span>{priceRange[1] >= 1000000 ? '$1M+' : `$${priceRange[1].toLocaleString()}`}</span>
-                      </div>
+                  <div>
+                    <Label className="text-xs text-gray-600">Max Down Payment</Label>
+                    <Slider
+                      value={[downPaymentRange[1]]}
+                      min={0}
+                      max={1000000}
+                      step={5000}
+                      onValueChange={(value) => setDownPaymentRange([0, value[0]])}
+                      className="mt-3"
+                    />
+                    <div className="flex justify-between text-xs text-gray-600 mt-1">
+                      <span>$0</span>
+                      <span className="font-medium text-purple-600">
+                        {downPaymentRange[1] >= 1000000 ? 'Any' : `Up to $${downPaymentRange[1].toLocaleString()}`}
+                      </span>
                     </div>
+                  </div>
 
+                  {/* Mobile-only filters (already in header on desktop) */}
+                  <div className="lg:hidden space-y-3">
                     <div>
                       <Label className="text-xs text-gray-600">Bedrooms</Label>
                       <Select value={beds} onValueChange={setBeds}>
@@ -903,10 +895,10 @@ export default function PublicListings() {
           </Popover>
 
           {/* Contact */}
-          <div className="hidden md:flex items-center gap-4 text-sm text-muted-foreground">
-            <a href="tel:+1234567890" className="hover:text-foreground transition-colors flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-4 text-sm">
+            <a href="sms:+15044750672" className="hover:text-purple-700 transition-colors flex items-center gap-1.5 text-purple-600 font-medium">
               <Phone className="h-4 w-4" />
-              <span className="hidden xl:inline">(123) 456-7890</span>
+              <span className="hidden xl:inline">Send Message</span>
             </a>
           </div>
         </div>
@@ -914,56 +906,56 @@ export default function PublicListings() {
 
       {/* Active Filters Bar */}
       {activeFilterCount > 0 && (
-        <div className="flex-shrink-0 bg-purple-50 border-b border-purple-100 px-4 py-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-purple-700 font-medium">Active Filters:</span>
+        <div className="flex-shrink-0 bg-purple-50 border-b border-purple-100 px-4 py-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span className="text-sm text-purple-700 font-semibold">Active Filters:</span>
 
             {zipCode && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1.5 text-sm px-3 py-1">
                 ZIP: {zipCode}
-                <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => setZipCode('')} />
+                <X className="h-3.5 w-3.5 cursor-pointer hover:text-destructive" onClick={() => setZipCode('')} />
               </Badge>
             )}
 
             {beds !== 'any' && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1.5 text-sm px-3 py-1">
                 Beds: {beds}+
-                <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => setBeds('any')} />
+                <X className="h-3.5 w-3.5 cursor-pointer hover:text-destructive" onClick={() => setBeds('any')} />
               </Badge>
             )}
 
             {baths !== 'any' && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1.5 text-sm px-3 py-1">
                 Baths: {baths}+
-                <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => setBaths('any')} />
+                <X className="h-3.5 w-3.5 cursor-pointer hover:text-destructive" onClick={() => setBaths('any')} />
               </Badge>
             )}
 
             {(priceRange[0] > 0 || priceRange[1] < 1000000) && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1.5 text-sm px-3 py-1">
                 ${(priceRange[0]/1000).toFixed(0)}K - {priceRange[1] >= 1000000 ? '$1M+' : `$${(priceRange[1]/1000).toFixed(0)}K`}
-                <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => setPriceRange([0, 1000000])} />
+                <X className="h-3.5 w-3.5 cursor-pointer hover:text-destructive" onClick={() => setPriceRange([0, 1000000])} />
               </Badge>
             )}
 
             {propertyType !== 'any' && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1.5 text-sm px-3 py-1">
                 {propertyType}
-                <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => setPropertyType('any')} />
+                <X className="h-3.5 w-3.5 cursor-pointer hover:text-destructive" onClick={() => setPropertyType('any')} />
               </Badge>
             )}
 
             {condition !== 'any' && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1.5 text-sm px-3 py-1">
                 {condition}
-                <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => setCondition('any')} />
+                <X className="h-3.5 w-3.5 cursor-pointer hover:text-destructive" onClick={() => setCondition('any')} />
               </Badge>
             )}
 
             {(downPaymentRange[0] > 0 || downPaymentRange[1] < 1000000) && (
-              <Badge variant="secondary" className="gap-1">
-                Down: ${(downPaymentRange[0]/1000).toFixed(0)}K - {downPaymentRange[1] >= 1000000 ? '$1M+' : `$${(downPaymentRange[1]/1000).toFixed(0)}K`}
-                <X className="h-3 w-3 cursor-pointer hover:text-destructive" onClick={() => setDownPaymentRange([0, 1000000])} />
+              <Badge variant="secondary" className="gap-1.5 text-sm px-3 py-1">
+                Down: up to ${(downPaymentRange[1]/1000).toFixed(0)}K
+                <X className="h-3.5 w-3.5 cursor-pointer hover:text-destructive" onClick={() => setDownPaymentRange([0, 1000000])} />
               </Badge>
             )}
 
@@ -971,7 +963,7 @@ export default function PublicListings() {
               variant="ghost"
               size="sm"
               onClick={clearFilters}
-              className="h-6 text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+              className="h-7 text-sm text-purple-600 hover:text-purple-700 hover:bg-purple-100 font-medium"
             >
               Clear All
             </Button>
@@ -1216,7 +1208,7 @@ export default function PublicListings() {
                       Make an Offer
                     </Button>
                     <Button variant="outline" size="lg" className="flex-1 scale-hover" asChild>
-                      <a href="sms:+1234567890">
+                      <a href="sms:+15044750672">
                         <Phone className="h-4 w-4 mr-2" />
                         Text Us
                       </a>
