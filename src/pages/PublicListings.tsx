@@ -903,7 +903,7 @@ export default function PublicListings() {
 
         {/* Desktop Side Panel */}
         <div className={cn(
-          "hidden md:flex md:w-3/5 border-l flex-col",
+          "hidden md:flex md:w-2/5 border-l flex-col",
           isDarkMode ? "border-border bg-card" : "border-gray-200 bg-white"
         )}>
           {renderPropertyListContent(false)}
