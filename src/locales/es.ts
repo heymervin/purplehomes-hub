@@ -91,6 +91,7 @@ export const es = {
   propertyHighlights: {
     sectionLabel: 'Qué Esperar',
     sectionHeading: 'Cómo Funciona la Compra de Esta Casa',
+    showcaseText: 'En lugar de pasar por un banco, la casa se compra directamente del propietario. Eso significa que no hay un préstamo tradicional involucrado. Nuestro equipo te guía paso a paso, y todo se completa a través de una compañía de títulos licenciada — igual que una venta normal de casa.',
     step1Title: 'Paso 1: Comienza con una Conversación',
     step1Desc: 'Comparte algunos detalles básicos como tu plazo, rango de pago inicial y preguntas sobre la casa.',
     step1Note: 'Esto no es una verificación de crédito ni una solicitud bancaria.',

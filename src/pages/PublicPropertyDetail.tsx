@@ -623,7 +623,7 @@ export default function PublicPropertyDetail() {
       hook: useEs ? funnelContent.es!.hook : funnelContent.hook,
       problem: useEs ? funnelContent.es!.problem : funnelContent.problem,
       solution: useEs ? funnelContent.es!.solution : funnelContent.solution,
-      propertyShowcase: useEs ? funnelContent.es!.propertyShowcase : funnelContent.propertyShowcase,
+      // propertyShowcase is now a hardcoded translated string, not from funnel content
       callToAction: useEs ? funnelContent.es!.callToAction : funnelContent.callToAction,
       qualifier: useEs && funnelContent.es!.qualifier ? funnelContent.es!.qualifier : funnelContent.qualifier,
       faq: useEs && funnelContent.es!.faq ? funnelContent.es!.faq : funnelContent.faq,
@@ -1453,7 +1453,7 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* Property Showcase - DARK THEME */}
-        {!funnelLoading && funnelContent?.propertyShowcase && (
+        {!funnelLoading && (
           <section className="relative py-20 md:py-28">
             {/* Ambient glow - BOOSTED + extended bottom bleed to Investment */}
             <div className="absolute inset-0 pointer-events-none">
@@ -1474,7 +1474,7 @@ export default function PublicPropertyDetail() {
                   {t('propertyHighlights.sectionHeading')}
                 </h2>
                 <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
-                  {localizedFunnel.propertyShowcase || "Instead of going through a bank, the home is purchased directly from the owner. That means there's no traditional loan involved. Our team guides you step by step, and everything is completed through a licensed title company — just like a normal home sale."}
+                  {t('propertyHighlights.showcaseText')}
                 </p>
               </Reveal>
 

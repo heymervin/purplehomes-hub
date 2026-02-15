@@ -91,6 +91,7 @@ export const en = {
   propertyHighlights: {
     sectionLabel: 'What to Expect',
     sectionHeading: 'How Buying This Home Works',
+    showcaseText: "Instead of going through a bank, the home is purchased directly from the owner. That means there's no traditional loan involved. Our team guides you step by step, and everything is completed through a licensed title company — just like a normal home sale.",
     step1Title: 'Step 1: Start with a Conversation',
     step1Desc: 'Share a few basic details like your timeline, down payment range, and questions about the home.',
     step1Note: 'This is not a credit check or a bank application.',

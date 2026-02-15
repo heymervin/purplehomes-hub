@@ -40,7 +40,6 @@ const WORD_LIMITS: Record<string, { recommended: number; warning: number; max: n
   hook: { recommended: 25, warning: 35, max: 50 },
   problem: { recommended: 60, warning: 90, max: 120 },
   solution: { recommended: 60, warning: 90, max: 120 },
-  propertyShowcase: { recommended: 100, warning: 140, max: 180 },
   socialProof: { recommended: 50, warning: 80, max: 100 },
   callToAction: { recommended: 30, warning: 45, max: 60 },
 };
@@ -989,16 +988,6 @@ export function FunnelContentEditor({ property, onSaveStateChange }: FunnelConte
             onChange={(v) => updateField('solution', v)}
             rows={3}
             sectionKey="solution"
-          />
-
-          {/* Property Showcase */}
-          <SectionCard
-            title="Property Showcase"
-            description="Property description and features (AIDA: Interest/Desire)"
-            value={content.propertyShowcase}
-            onChange={(v) => updateField('propertyShowcase', v)}
-            rows={4}
-            sectionKey="propertyShowcase"
           />
 
           {/* Testimonials - User Managed */}
