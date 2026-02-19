@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, Bed, Bath, Maximize2, Phone, MapPin, X, Wrench, Heart, ChevronDown, SlidersHorizontal, ChevronUp, List as ListIcon, DollarSign, Home, Moon, Sun, ArrowLeft, Navigation, Loader2, ZoomIn, Eye } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Search, Bed, Bath, Maximize2, Phone, MapPin, X, Wrench, Heart, ChevronDown, SlidersHorizontal, ChevronUp, List as ListIcon, DollarSign, Home, Moon, Sun, ArrowLeft, Navigation, Loader2, ZoomIn, Eye, ExternalLink } from 'lucide-react';
 import type { PropertyCondition, PropertyType, Property } from '@/types';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
@@ -16,6 +16,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import {
   Popover,
@@ -1066,6 +1067,9 @@ export default function PublicListings() {
       {/* Property Detail Modal */}
       <Dialog open={!!selectedProperty} onOpenChange={() => setSelectedProperty(null)}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogTitle className="sr-only">
+            {selectedProperty?.address || 'Property Details'}
+          </DialogTitle>
           {selectedProperty && (
             <>
               <div className="relative">
@@ -1214,18 +1218,17 @@ export default function PublicListings() {
 
                 {!showOfferForm ? (
                   <div className="flex flex-col sm:flex-row gap-3">
-                    <Button
-                      size="lg"
-                      className="flex-1 btn-purple-gradient pulse-purple"
-                      onClick={() => setShowOfferForm(true)}
-                    >
-                      {t('cta.makeOffer')}
+                    <Button size="lg" className="flex-1 btn-purple-gradient pulse-purple" asChild>
+                      <a href="tel:+15044750672">
+                        <Phone className="h-4 w-4 mr-2" />
+                        {t('cta.textUsPhone')}
+                      </a>
                     </Button>
                     <Button variant="outline" size="lg" className="flex-1 scale-hover" asChild>
-                      <a href="sms:+15044750672">
-                        <Phone className="h-4 w-4 mr-2" />
-                        {t('cta.textUs')}
-                      </a>
+                      <Link to={`/listing/${generatePropertySlug(selectedProperty.address, selectedProperty.city)}`}>
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        {t('cta.details')}
+                      </Link>
                     </Button>
                   </div>
                 ) : (

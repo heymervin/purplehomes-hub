@@ -161,6 +161,7 @@ export const en = {
     submitOffer: 'Submit Offer',
     submitAndGetPreQualified: 'Submit & Get Pre-Qualified',
     textUs: 'Text Us',
+    textUsPhone: 'Text Us (504) 475-0672',
     callUs: 'Call Us',
     yesInterested: 'Yes, I\'m Interested!',
     scheduleInPersonTour: 'Schedule an In-Person Tour',

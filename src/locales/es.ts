@@ -161,6 +161,7 @@ export const es = {
     submitOffer: 'Enviar Oferta',
     submitAndGetPreQualified: 'Enviar y Precalificar',
     textUs: 'Envíanos un Texto',
+    textUsPhone: 'Envíanos un Texto (504) 475-0672',
     callUs: 'Llámanos',
     yesInterested: '¡Sí, Me Interesa!',
     scheduleInPersonTour: 'Programar una Visita en Persona',

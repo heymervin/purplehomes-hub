@@ -1192,19 +1192,55 @@ if (resource === 'opportunities') {
       }
       
       if (method === 'POST' && action === 'upload') {
-        // If fileUrl is provided, use the hosted upload method
+        // If fileUrl is provided, fetch the image and upload as multipart form-data
         if (body.fileUrl) {
-          const payload = {
-            altId: GHL_LOCATION_ID,
-            altType: 'location',
-            name: body.name,
-            hosted: true,
-            fileUrl: body.fileUrl
-          };
-          const response = await fetch(`${GHL_API_URL}/medias/upload-file`, {
-            method: 'POST', headers, body: JSON.stringify(payload)
-          });
-          return res.status(response.ok ? 201 : response.status).json(await response.json());
+          console.log('[MEDIA] Uploading image from URL:', body.fileUrl);
+          try {
+            // Fetch the image from the URL
+            const imageResponse = await fetch(body.fileUrl);
+            if (!imageResponse.ok) {
+              return res.status(400).json({ error: `Failed to fetch image from URL: ${imageResponse.status}` });
+            }
+            const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+            const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+            const fileName = body.name || `image-${Date.now()}.${contentType.split('/')[1] || 'jpg'}`;
+
+            // Upload as multipart form-data (same as base64 path)
+            const form = new FormData();
+            form.append('file', imageBuffer, {
+              filename: fileName,
+              contentType: contentType,
+            });
+            form.append('hosted', 'false');
+            form.append('name', fileName);
+
+            const formBuffer = form.getBuffer();
+            const response = await fetch(
+              `${GHL_API_URL}/medias/upload-file?altId=${GHL_LOCATION_ID}&altType=location`,
+              {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${GHL_API_KEY}`,
+                  'Version': '2021-07-28',
+                  ...form.getHeaders()
+                },
+                body: new Uint8Array(formBuffer)
+              }
+            );
+
+            const responseText = await response.text();
+            console.log('[MEDIA] URL upload response:', response.status, responseText.substring(0, 500));
+            let data;
+            try { data = responseText ? JSON.parse(responseText) : {}; } catch { data = { message: responseText }; }
+            if (!response.ok) {
+              console.error('[MEDIA] URL upload failed:', data);
+              return res.status(response.status).json(data);
+            }
+            return res.status(201).json(data);
+          } catch (err) {
+            console.error('[MEDIA] URL upload error:', err);
+            return res.status(500).json({ error: `Failed to upload from URL: ${(err as Error).message}` });
+          }
         }
 
         // If base64 data is provided, upload using multipart form-data
