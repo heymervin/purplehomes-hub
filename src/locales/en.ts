@@ -128,7 +128,7 @@ export const en = {
     monthlyBudget: 'Monthly Budget',
     message: 'Message',
     messageOptional: 'Message (Optional)',
-    submitCta: 'See If I Qualify',
+    submitCta: 'Talk With Our Team',
     submitting: 'Submitting...',
     successTitle: 'You\'re All Set!',
     successMessage: 'One of our team members will reach out within 24 hours.',

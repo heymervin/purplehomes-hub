@@ -128,7 +128,7 @@ export const es = {
     monthlyBudget: 'Presupuesto Mensual',
     message: 'Mensaje',
     messageOptional: 'Mensaje (Opcional)',
-    submitCta: 'Ver Si Califico',
+    submitCta: 'Hablar Con Nuestro Equipo',
     submitting: 'Enviando...',
     successTitle: '¡Todo Listo!',
     successMessage: 'Un miembro de nuestro equipo se comunicará contigo dentro de 24 horas.',
