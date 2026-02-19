@@ -137,8 +137,8 @@ const PremiumTrustStrip: React.FC<PremiumTrustStripProps> = ({ className }) => {
       <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
         {[
           { icon: BadgeCheck, label: "Licensed Title Company Closing" },
-          { icon: Shield, label: "Secure, Transparent Process" },
-          { icon: Home, label: "Local Team, Local Homes" },
+          { icon: Banknote, label: "No Bank Loan Needed" },
+          { icon: Shield, label: "No Credit Required" },
           { icon: Star, label: "5-Star Reviews from Local Buyers" },
         ].map((item, i) => (
           <div key={i} className="flex items-center gap-2 text-white">

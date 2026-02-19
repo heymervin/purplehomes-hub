@@ -569,7 +569,7 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
 export default function PublicPropertyDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
 
   // Fetch all properties and find the one matching the slug
   const { data: airtableData, isLoading, isError } = useAirtableProperties(200);
@@ -951,17 +951,20 @@ export default function PublicPropertyDetail() {
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <Link to="/listings" className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-gradient-to-br from-purple-600 to-purple-700 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/20">
-                <span className="text-white font-bold text-lg">P</span>
-              </div>
-              <span className="hidden sm:block text-lg font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
-                Purple Homes
-              </span>
+            <Link to="/listings" className="text-lg font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
+              Purple Homes
             </Link>
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Language Toggle - inline in nav */}
+            <button
+              onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}
+              className="px-3 py-1.5 text-sm font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-full transition-colors"
+              aria-label={language === 'en' ? 'Cambiar a Español' : 'Switch to English'}
+            >
+              {language === 'en' ? 'Español' : 'English'}
+            </button>
             <Button
               variant="outline"
               size="sm"
@@ -989,40 +992,26 @@ export default function PublicPropertyDetail() {
           <div className="relative max-w-5xl mx-auto px-4 pt-8 sm:pt-10 md:pt-12 lg:pt-14 pb-4 sm:pb-5 md:pb-6 text-center">
             {/* 1. Headline */}
             <HeroEntrance delay={0}>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-white leading-[1.1] mb-3 sm:mb-4 md:mb-5 tracking-tight max-w-4xl mx-auto">
-                {t('hero.headline')}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.1] mb-3 sm:mb-4 md:mb-5 tracking-tight max-w-4xl mx-auto">
+                <span className="bg-gradient-to-r from-white via-purple-100 to-white bg-clip-text text-transparent">
+                  {t('hero.headline')}
+                </span>
               </h1>
             </HeroEntrance>
 
             {/* 2. Sub-headline */}
             <HeroEntrance delay={100}>
-              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium text-gray-400 mb-6 sm:mb-8 md:mb-10 max-w-3xl mx-auto leading-relaxed">
-                {t('hero.subheadline')}
+              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium mb-6 sm:mb-8 md:mb-10 max-w-3xl mx-auto leading-relaxed">
+                <span className="bg-gradient-to-r from-gray-400 via-purple-300 to-gray-400 bg-clip-text text-transparent">
+                  {t('hero.subheadline')}
+                </span>
               </p>
-            </HeroEntrance>
-
-            {/* 3. Primary CTA Button */}
-            <HeroEntrance delay={200}>
-              <div className="flex flex-col items-center gap-2.5 sm:gap-3">
-                <button
-                  onClick={scrollToForm}
-                  className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-8 sm:px-10 md:px-14 py-3.5 sm:py-4 md:py-5 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 border-2 border-purple-300/50 hover:scale-105"
-                >
-                  {t('hero.cta')}
-                  <ArrowRight className="inline-block ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-
-                {/* 4. CTA Micro-text */}
-                <p className="text-xs sm:text-sm text-gray-500">
-                  {t('hero.ctaMicro')}
-                </p>
-              </div>
             </HeroEntrance>
           </div>
 
-          {/* 5. Property Image - INSIDE HERO */}
-          <div className="relative max-w-5xl mx-auto px-4 pb-6 sm:pb-8 md:pb-10 lg:pb-12">
-            <HeroEntrance delay={300}>
+          {/* 3. Property Image - INSIDE HERO */}
+          <div className="relative max-w-5xl mx-auto px-4 pb-6 sm:pb-8">
+            <HeroEntrance delay={200}>
               <div className="relative group">
                 {/* Glow effect */}
                 <div className="absolute -inset-2 bg-gradient-to-br from-purple-500/40 to-violet-500/30 rounded-xl md:rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 pointer-events-none" />
@@ -1040,6 +1029,25 @@ export default function PublicPropertyDetail() {
               </div>
             </HeroEntrance>
           </div>
+
+          {/* 4. Primary CTA Button + Micro-text - Below image */}
+          <div className="relative max-w-5xl mx-auto px-4 pb-8 sm:pb-10 md:pb-12 lg:pb-14 text-center">
+            <HeroEntrance delay={300}>
+              <div className="flex flex-col items-center gap-2.5 sm:gap-3">
+                <button
+                  onClick={scrollToForm}
+                  className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-8 sm:px-10 md:px-14 py-3.5 sm:py-4 md:py-5 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 border-2 border-purple-300/50 hover:scale-105"
+                >
+                  {t('hero.cta')}
+                  <ArrowRight className="inline-block ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+
+                <p className="text-xs sm:text-sm text-gray-500">
+                  {t('hero.ctaMicro')}
+                </p>
+              </div>
+            </HeroEntrance>
+          </div>
         </section>
 
         {/* Property Info - Premium Card Style */}
@@ -1048,8 +1056,8 @@ export default function PublicPropertyDetail() {
           <div className="absolute pointer-events-none top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/20 rounded-full blur-[180px]" />
           <div className="relative z-10 max-w-5xl mx-auto px-4 pt-8 pb-10 md:pt-10 md:pb-14">
             <div className="bg-gradient-to-br from-[#1a1625] to-[#0f0d15] border border-purple-500/30 rounded-2xl p-6 md:p-8 shadow-[0_0_60px_rgba(139,92,246,0.15)]">
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                {/* Left - Price & Address */}
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+                {/* Left - Price */}
                 <div className="text-center lg:text-left">
                   {/* Primary: Monthly Payment */}
                   {property.monthlyPayment !== undefined ? (
@@ -1066,19 +1074,26 @@ export default function PublicPropertyDetail() {
                     </div>
                   )}
 
-                  {/* Secondary: Down Payment (if exists) */}
-                  {property.downPayment !== undefined && (
-                    <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 mt-2 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-sm sm:text-base md:text-lg font-semibold mb-3">
-                      ${property.downPayment.toLocaleString()} {t('property.downPayment')}
+                  {/* Secondary: Down Payment + Purchase Price */}
+                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mt-2 mb-3">
+                    {property.downPayment !== undefined && (
+                      <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-sm sm:text-base font-semibold">
+                        ${property.downPayment.toLocaleString()} {t('property.downPayment')}
+                      </div>
+                    )}
+                    <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/5 border border-purple-500/20 rounded-full text-purple-300/70 text-sm sm:text-base font-medium">
+                      ${property.price.toLocaleString()} {t('property.purchasePrice')}
                     </div>
-                  )}
+                  </div>
 
-                  {/* Address */}
-                  <h2 className="text-xl md:text-2xl text-white font-semibold mb-1">{property.address}</h2>
-                  <p className="text-purple-300/70 flex items-center justify-center lg:justify-start gap-1.5">
-                    <MapPin className="h-4 w-4" />
-                    {property.city}
-                  </p>
+                  {/* Address - one line on desktop */}
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:gap-2">
+                    <h2 className="text-xl md:text-2xl text-white font-semibold">{property.address}</h2>
+                    <p className="text-purple-300/70 flex items-center justify-center lg:justify-start gap-1.5">
+                      <MapPin className="h-4 w-4 flex-shrink-0" />
+                      {property.city}
+                    </p>
+                  </div>
                 </div>
 
                 {/* Right - Specs Grid */}
@@ -1111,17 +1126,23 @@ export default function PublicPropertyDetail() {
                 </div>
               </div>
 
-              {/* Bottom row - People saved + availability status */}
+              {/* Bottom row - People saved + Includes closing costs + availability */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-purple-500/20">
-                {/* People saved counter */}
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-400"></span>
-                  </span>
-                  <span className="text-purple-300 text-sm font-medium">
-                    💜 {Math.floor(Math.random() * 15) + 5} {t('property.peopleSaved')}
-                  </span>
+                {/* People saved counter + Closing costs */}
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-400"></span>
+                    </span>
+                    <span className="text-purple-300 text-sm font-medium capitalize-words">
+                      {Math.floor(Math.random() * 15) + 5} {t('property.peopleSaved')}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+                    <Check className="h-3.5 w-3.5 text-emerald-400" />
+                    <span className="text-emerald-300 text-sm font-medium">{t('property.includesClosingCosts')}</span>
+                  </div>
                 </div>
 
                 {/* Availability status */}

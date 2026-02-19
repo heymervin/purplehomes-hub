@@ -5,10 +5,12 @@ export function LanguageSwitcher() {
   const { language, setLanguage } = useLanguage();
   const location = useLocation();
 
-  // Only show on public funnel pages
-  const isPublicPage = location.pathname.startsWith('/listing/');
+  // Only show floating button on the listings index page
+  // Property detail pages have their own inline toggle in the nav
+  const isPropertyDetailPage = /^\/listing\/[^/]+/.test(location.pathname);
+  const isPublicPage = location.pathname.startsWith('/listing');
 
-  if (!isPublicPage) {
+  if (!isPublicPage || isPropertyDetailPage) {
     return null;
   }
 
