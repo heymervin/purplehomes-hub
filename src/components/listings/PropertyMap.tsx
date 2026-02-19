@@ -29,6 +29,12 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
   const [mapLoaded, setMapLoaded] = useState(false);
   const prevIsDarkModeRef = useRef<boolean | null>(null);
 
+  // Refs to avoid stale closures in Mapbox event handlers registered at init time
+  const propertiesRef = useRef<Property[]>(properties);
+  const onPropertySelectRef = useRef(onPropertySelect);
+  useEffect(() => { propertiesRef.current = properties; }, [properties]);
+  useEffect(() => { onPropertySelectRef.current = onPropertySelect; }, [onPropertySelect]);
+
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
   // Create GeoJSON from properties
@@ -226,8 +232,8 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
           const features = e.features;
           if (!features || features.length === 0) return;
           const props = features[0].properties;
-          const property = properties.find(p => p.id === props?.id);
-          if (property) onPropertySelect(property);
+          const property = propertiesRef.current.find(p => p.id === props?.id);
+          if (property) onPropertySelectRef.current(property);
         });
 
         // Hover effects
@@ -237,7 +243,7 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
           const features = e.features;
           if (!features || features.length === 0) return;
           const props = features[0].properties;
-          const property = properties.find(p => p.id === props?.id);
+          const property = propertiesRef.current.find(p => p.id === props?.id);
           if (property) setHoveredProperty(property);
         });
 
