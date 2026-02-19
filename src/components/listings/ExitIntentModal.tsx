@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { CTAButton } from '@/components/funnel/CTAButton';
 import { useCreateContact } from '@/services/ghlApi';
 import { toast } from 'sonner';
@@ -28,16 +29,23 @@ export function ExitIntentModal({
   source = 'listings',
 }: ExitIntentModalProps) {
   const { t } = useLanguage();
-  const [form, setForm] = useState({ firstName: '', email: '', phone: '' });
+  const [form, setForm] = useState({ firstName: '', email: '', phone: '', whatLooking: '' });
   const [isSuccess, setIsSuccess] = useState(false);
   const createContact = useCreateContact();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const noteValue = source === 'property-detail'
+        ? [
+            propertyAddress ? `Exit intent on property: ${propertyAddress}` : 'Exit intent on property detail page',
+            form.whatLooking ? `Looking for: ${form.whatLooking}` : '',
+          ].filter(Boolean).join(' | ')
+        : 'Exit intent on listings page';
+
       await createContact.mutateAsync({
         firstName: form.firstName,
-        email: form.email,
+        email: form.email || undefined,
         phone: form.phone,
         tags: [
           'Exit Intent Lead',
@@ -47,12 +55,7 @@ export function ExitIntentModal({
             : ['Listings Browser']),
         ],
         customFields: [
-          {
-            id: 'wAnKlytGK8s8dmL1vBkV',
-            value: source === 'property-detail' && propertyAddress
-              ? `Exit intent on property: ${propertyAddress}`
-              : 'Exit intent on listings page',
-          },
+          { id: 'wAnKlytGK8s8dmL1vBkV', value: noteValue },
           ...(propertyAddress
             ? [{ id: 'UcJ0Qoz3kh0OjC9oLVsK', value: propertyAddress }]
             : []),
@@ -61,9 +64,8 @@ export function ExitIntentModal({
       setIsSuccess(true);
       setTimeout(() => {
         onSubmitted();
-        // Reset for next potential use
         setIsSuccess(false);
-        setForm({ firstName: '', email: '', phone: '' });
+        setForm({ firstName: '', email: '', phone: '', whatLooking: '' });
       }, 2000);
     } catch {
       toast.error(t('form.errorMessage'));
@@ -73,6 +75,15 @@ export function ExitIntentModal({
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
+
+  const inputClass = cn(
+    'h-11',
+    isDarkMode
+      ? 'bg-gray-800 border-gray-700 text-white placeholder:text-gray-400'
+      : 'bg-gray-50 border-gray-200'
+  );
+
+  const isPropertyDetail = source === 'property-detail';
 
   return (
     <Dialog
@@ -108,16 +119,22 @@ export function ExitIntentModal({
                 <Home className="h-7 w-7" />
               </div>
               <h2 className="text-2xl font-bold mb-2">
-                {source === 'property-detail'
+                {isPropertyDetail
                   ? t('exitIntent.headingProperty')
                   : t('exitIntent.headingListings')}
               </h2>
               <p className="text-purple-100 text-sm leading-relaxed">
-                {source === 'property-detail'
-                  ? t('exitIntent.subtitleProperty')
-                  : (<>{t('exitIntent.subtitleListings')}<br />{t('exitIntent.subtitleListingsLine2')}</>)}
+                {isPropertyDetail ? (
+                  <>
+                    {t('exitIntent.subtitleProperty')}
+                    <br /><br />
+                    {t('exitIntent.subtitlePropertyLine2')}
+                  </>
+                ) : (
+                  <>{t('exitIntent.subtitleListings')}<br />{t('exitIntent.subtitleListingsLine2')}</>
+                )}
               </p>
-              {source === 'listings' && propertyCount && propertyCount > 0 && (
+              {!isPropertyDetail && propertyCount && propertyCount > 0 && (
                 <p className="text-purple-200/80 text-xs mt-3">
                   {propertyCount.toLocaleString()} {t('exitIntent.propertiesAvailable')}
                 </p>
@@ -132,55 +149,85 @@ export function ExitIntentModal({
                 isDarkMode ? 'bg-gray-900' : 'bg-white'
               )}
             >
-              <Input
-                placeholder={t('form.firstName')}
-                value={form.firstName}
-                onChange={(e) => handleChange('firstName', e.target.value)}
-                required
-                className={cn(
-                  'h-11',
-                  isDarkMode
-                    ? 'bg-gray-800 border-gray-700 text-white placeholder:text-gray-400'
-                    : 'bg-gray-50 border-gray-200'
-                )}
-              />
-              <Input
-                type="email"
-                placeholder={t('form.emailAddress')}
-                value={form.email}
-                onChange={(e) => handleChange('email', e.target.value)}
-                required
-                className={cn(
-                  'h-11',
-                  isDarkMode
-                    ? 'bg-gray-800 border-gray-700 text-white placeholder:text-gray-400'
-                    : 'bg-gray-50 border-gray-200'
-                )}
-              />
-              <Input
-                type="tel"
-                placeholder={t('form.phone')}
-                value={form.phone}
-                onChange={(e) => handleChange('phone', e.target.value)}
-                required
-                className={cn(
-                  'h-11',
-                  isDarkMode
-                    ? 'bg-gray-800 border-gray-700 text-white placeholder:text-gray-400'
-                    : 'bg-gray-50 border-gray-200'
-                )}
-              />
+              {isPropertyDetail ? (
+                /* Property-detail variant: First Name*, Phone*, Email (optional), What looking for (optional) */
+                <>
+                  <Input
+                    placeholder={`${t('form.firstName')} *`}
+                    value={form.firstName}
+                    onChange={(e) => handleChange('firstName', e.target.value)}
+                    required
+                    className={inputClass}
+                  />
+                  <Input
+                    type="tel"
+                    placeholder={`${t('form.phone')} *`}
+                    value={form.phone}
+                    onChange={(e) => handleChange('phone', e.target.value)}
+                    required
+                    className={inputClass}
+                  />
+                  <Input
+                    type="email"
+                    placeholder={t('form.emailOptional')}
+                    value={form.email}
+                    onChange={(e) => handleChange('email', e.target.value)}
+                    className={inputClass}
+                  />
+                  <Textarea
+                    placeholder={t('exitIntent.whatLookingPlaceholder')}
+                    value={form.whatLooking}
+                    onChange={(e) => handleChange('whatLooking', e.target.value)}
+                    rows={3}
+                    className={cn(
+                      'resize-none',
+                      isDarkMode
+                        ? 'bg-gray-800 border-gray-700 text-white placeholder:text-gray-400'
+                        : 'bg-gray-50 border-gray-200'
+                    )}
+                  />
+                </>
+              ) : (
+                /* Listings variant: First Name*, Email*, Phone* */
+                <>
+                  <Input
+                    placeholder={t('form.firstName')}
+                    value={form.firstName}
+                    onChange={(e) => handleChange('firstName', e.target.value)}
+                    required
+                    className={inputClass}
+                  />
+                  <Input
+                    type="email"
+                    placeholder={t('form.emailAddress')}
+                    value={form.email}
+                    onChange={(e) => handleChange('email', e.target.value)}
+                    required
+                    className={inputClass}
+                  />
+                  <Input
+                    type="tel"
+                    placeholder={t('form.phone')}
+                    value={form.phone}
+                    onChange={(e) => handleChange('phone', e.target.value)}
+                    required
+                    className={inputClass}
+                  />
+                </>
+              )}
 
               <CTAButton
                 type="submit"
                 variant="primary"
                 size="full"
-                icon="sparkle"
+                icon={isPropertyDetail ? undefined : 'sparkle'}
                 disabled={createContact.isPending}
                 className="mt-2"
               >
                 {createContact.isPending ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
+                ) : isPropertyDetail ? (
+                  t('common.submit')
                 ) : (
                   t('cta.sendListings')
                 )}
