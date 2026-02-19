@@ -17,9 +17,10 @@ interface PropertyMapProps {
   onZoomComplete?: () => void;
   onMapLoad?: () => void;
   onZoomChange?: (zoom: number) => void;
+  fitBoundsKey?: number;
 }
 
-export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, zipCode, isDarkMode = false, userLocation, zoomTarget, onZoomComplete, onMapLoad, onZoomChange }: PropertyMapProps) {
+export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, zipCode, isDarkMode = false, userLocation, zoomTarget, onZoomComplete, onMapLoad, onZoomChange, fitBoundsKey }: PropertyMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -394,6 +395,20 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
       setTimeout(() => onZoomComplete(), 1600);
     }
   }, [zoomTarget, mapLoaded, onZoomComplete]);
+
+  // Fit map to all filtered properties when fitBoundsKey changes (e.g. user searched)
+  useEffect(() => {
+    if (!map.current || !mapLoaded || fitBoundsKey === undefined || fitBoundsKey === 0) return;
+    const withCoords = properties.filter(p => p.lat && p.lng);
+    if (withCoords.length === 0) return;
+    if (withCoords.length === 1) {
+      map.current.flyTo({ center: [withCoords[0].lng!, withCoords[0].lat!], zoom: 13, duration: 1000 });
+      return;
+    }
+    const bounds = new mapboxgl.LngLatBounds();
+    withCoords.forEach(p => bounds.extend([p.lng!, p.lat!]));
+    map.current.fitBounds(bounds, { padding: 60, maxZoom: 14, duration: 1000 });
+  }, [fitBoundsKey, mapLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Update map style when theme changes
   useEffect(() => {

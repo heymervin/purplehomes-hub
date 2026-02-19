@@ -75,7 +75,6 @@ export default function PublicListings() {
     if (!airtableData?.properties) return [];
 
     const properties = airtableData.properties
-      .filter(p => p.heroImage) // Only show properties with images for public listings
       .map((p): Property => ({
         id: p.recordId,
         ghlOpportunityId: p.opportunityId,
@@ -103,9 +102,11 @@ export default function PublicListings() {
   }, [airtableData]);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [search, setSearch] = useState('');
+  // zipCode is auto-derived from search when user types a 5-digit number
   const [zipCode, setZipCode] = useState('');
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isLocating, setIsLocating] = useState(false);
+  const [fitBoundsKey, setFitBoundsKey] = useState(0);
   const [zoomTarget, setZoomTarget] = useState<{ lat: number; lng: number } | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [currentMapZoom, setCurrentMapZoom] = useState(10);
@@ -155,15 +156,17 @@ export default function PublicListings() {
 
     let results = allProperties.filter((property) => {
       if (search) {
-        const searchLower = search.toLowerCase();
-        if (!property.address.toLowerCase().includes(searchLower) &&
-            !property.city.toLowerCase().includes(searchLower)) {
-          return false;
+        const searchLower = search.toLowerCase().trim();
+        const isZipSearch = /^\d{3,5}$/.test(searchLower);
+        if (isZipSearch) {
+          const propertyZip = property.city.match(/\d{5}/)?.[0] || '';
+          if (!propertyZip.startsWith(searchLower)) return false;
+        } else {
+          if (!property.address.toLowerCase().includes(searchLower) &&
+              !property.city.toLowerCase().includes(searchLower)) {
+            return false;
+          }
         }
-      }
-      if (zipCode) {
-        const zip = property.city.match(/\d{5}/)?.[0] || '';
-        if (!zip.includes(zipCode)) return false;
       }
       if (property.price < priceRange[0] || property.price > priceRange[1]) return false;
       if (property.downPayment !== undefined &&
@@ -194,12 +197,26 @@ export default function PublicListings() {
     }
 
     return results;
-  }, [allProperties, search, zipCode, priceRange, downPaymentRange, beds, baths, condition, propertyType, sortBy, isLoadingProperties, isError]);
+  }, [allProperties, search, priceRange, downPaymentRange, beds, baths, condition, propertyType, sortBy, isLoadingProperties, isError]);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, zipCode, priceRange, downPaymentRange, beds, baths, condition, propertyType, sortBy]);
+  }, [search, priceRange, downPaymentRange, beds, baths, condition, propertyType, sortBy]);
+
+  // Auto-derive ZIP from unified search field for map panning + distance calc
+  useEffect(() => {
+    const trimmed = search.trim();
+    const isZip = /^\d{5}$/.test(trimmed);
+    setZipCode(isZip ? trimmed : '');
+  }, [search]);
+
+  // Auto-fit map to search results when search text changes
+  useEffect(() => {
+    if (search && filteredProperties.length > 0) {
+      setFitBoundsKey(k => k + 1);
+    }
+  }, [search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Paginated properties
   const totalPages = Math.max(1, Math.ceil(filteredProperties.length / ITEMS_PER_PAGE));
@@ -217,7 +234,20 @@ export default function PublicListings() {
         toast.success(t('listings.removedFromSaved'));
       } else {
         next.add(propertyId);
-        toast.success(t('listings.savedToFavorites'));
+        // On first save, prompt lead capture if not yet submitted
+        if (prev.size === 0 && !hasSubmittedOffer) {
+          setTimeout(() => {
+            toast.success(t('listings.savedToFavorites'), {
+              description: 'Enter your info to get notified about this property!',
+              action: {
+                label: 'Save My Info',
+                onClick: () => setShowOfferForm(true),
+              },
+            });
+          }, 300);
+        } else {
+          toast.success(t('listings.savedToFavorites'));
+        }
       }
       return next;
     });
@@ -259,7 +289,6 @@ export default function PublicListings() {
 
   const clearFilters = () => {
     setSearch('');
-    setZipCode('');
     setBeds('any');
     setBaths('any');
     setCondition('any');
@@ -279,24 +308,24 @@ export default function PublicListings() {
       (position) => {
         const { latitude, longitude } = position.coords;
         setUserLocation({ lat: latitude, lng: longitude });
-        setZipCode(''); // Clear ZIP when using location
+        setSearch(''); // Clear search when using location
         setIsLocating(false);
-        toast.success('Found your location!');
+        toast.success('Showing properties near you!');
       },
       (error) => {
         setIsLocating(false);
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            toast.error('Location access denied. Please enable location permissions.');
+            toast.error('To find properties near you, allow location access in your browser settings.');
             break;
           case error.POSITION_UNAVAILABLE:
-            toast.error('Location information unavailable.');
+            toast.error('Your location could not be determined right now.');
             break;
           case error.TIMEOUT:
-            toast.error('Location request timed out.');
+            toast.error('Location request timed out — try searching by city instead.');
             break;
           default:
-            toast.error('Failed to get your location.');
+            toast.error('Could not get your location. Try searching by city or ZIP.');
         }
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -311,6 +340,7 @@ export default function PublicListings() {
   };
 
   const activeFilterCount = [
+    !!search,
     beds !== 'any',
     baths !== 'any',
     condition !== 'any',
@@ -354,11 +384,7 @@ export default function PublicListings() {
               : "bg-white border border-gray-200 hover:border-purple-500/50",
             isHovered && "ring-2 ring-purple-500 shadow-lg shadow-purple-500/20"
           )}
-          onClick={() => {
-            if (property.lat && property.lng) {
-              setZoomTarget({ lat: property.lat, lng: property.lng });
-            }
-          }}
+          onClick={() => setSelectedProperty(property)}
           onMouseEnter={() => setHoveredPropertyId(property.id)}
           onMouseLeave={() => setHoveredPropertyId(null)}
         >
@@ -401,11 +427,7 @@ export default function PublicListings() {
             : "bg-white border border-gray-200 hover:border-purple-400/60 hover:shadow-md",
           isHovered && "ring-2 ring-purple-500 shadow-lg shadow-purple-500/20"
         )}
-        onClick={() => {
-          if (property.lat && property.lng) {
-            setZoomTarget({ lat: property.lat, lng: property.lng });
-          }
-        }}
+        onClick={() => setSelectedProperty(property)}
         onMouseEnter={() => setHoveredPropertyId(property.id)}
         onMouseLeave={() => setHoveredPropertyId(null)}
       >
@@ -620,12 +642,12 @@ export default function PublicListings() {
             <span className="hidden sm:inline">Back</span>
           </Button>
 
-          {/* Logo */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Logo - hidden on mobile to save space */}
+          <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
             <div className="w-9 h-9 bg-gradient-to-br from-purple-600 to-purple-700 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/20">
               <span className="text-white font-bold text-lg">P</span>
             </div>
-            <div className="hidden sm:block">
+            <div className="hidden md:block">
               <h1 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
                 Purple Homes
               </h1>
@@ -634,62 +656,41 @@ export default function PublicListings() {
 
           {/* Primary Filters - Always Visible */}
           <div className="flex-1 flex items-center gap-2 max-w-4xl">
-            {/* ZIP Code */}
-            <div className="relative w-28" data-tour="zip-search">
-              <MapPin className={cn(
-                "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4",
+            {/* Unified Search Field */}
+            <div className="relative flex-1 min-w-[180px]" data-tour="address-search">
+              <Search className={cn(
+                "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none",
                 isDarkMode ? "text-muted-foreground" : "text-gray-400"
               )} />
               <Input
-                placeholder="ZIP"
-                value={zipCode}
+                placeholder="City, state, ZIP, or address..."
+                value={search}
                 onChange={(e) => {
-                  const newZip = e.target.value.replace(/\D/g, '').slice(0, 5);
-                  setZipCode(newZip);
+                  setSearch(e.target.value);
                   setUserLocation(null);
                 }}
                 className={cn(
-                  "pl-9 shadow-sm hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent",
+                  "pl-10 pr-10 shadow-sm hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent",
                   isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 placeholder:text-gray-400 border-gray-300"
                 )}
-                maxLength={5}
               />
-            </div>
-
-            {/* Locate Me */}
-            <Button
-              size="icon"
-              onClick={handleLocateMe}
-              disabled={isLocating}
-              className={cn(
-                "flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white",
-                userLocation && "bg-purple-800"
-              )}
-              title="Use my location"
-              data-tour="locate-button"
-            >
-              {isLocating ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Navigation className={cn("h-4 w-4", userLocation && "fill-purple-500")} />
-              )}
-            </Button>
-
-            {/* Search */}
-            <div className="relative flex-1 min-w-[180px] max-w-xs" data-tour="address-search">
-              <Search className={cn(
-                "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4",
-                isDarkMode ? "text-muted-foreground" : "text-gray-400"
-              )} />
-              <Input
-                placeholder="City, state, or address..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+              {/* Locate Me - inline right icon */}
+              <button
+                onClick={handleLocateMe}
+                disabled={isLocating}
+                title="Use my location"
+                data-tour="locate-button"
                 className={cn(
-                  "pl-10 shadow-sm hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent",
-                  isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 placeholder:text-gray-400 border-gray-300"
+                  "absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded transition-colors",
+                  userLocation ? "text-purple-600" : isDarkMode ? "text-muted-foreground hover:text-foreground" : "text-gray-400 hover:text-purple-600"
                 )}
-              />
+              >
+                {isLocating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Navigation className={cn("h-4 w-4", userLocation && "fill-purple-200")} />
+                )}
+              </button>
             </div>
 
             {/* Quick Filters - Desktop Only */}
@@ -909,13 +910,14 @@ export default function PublicListings() {
             </PopoverContent>
           </Popover>
 
-          {/* Contact */}
-          <div className="hidden md:flex items-center gap-4 text-sm">
-            <a href="sms:+15044750672" className="hover:text-purple-700 transition-colors flex items-center gap-1.5 text-purple-600 font-medium">
-              <Phone className="h-4 w-4" />
-              <span className="hidden xl:inline">{t('cta.sendMessage')}</span>
-            </a>
-          </div>
+          {/* Contact - always visible */}
+          <a
+            href="tel:+15044750672"
+            className="flex-shrink-0 flex items-center gap-1.5 text-purple-600 font-medium hover:text-purple-700 transition-colors text-sm"
+          >
+            <Phone className="h-4 w-4" />
+            <span className="hidden sm:inline">(504) 475-0672</span>
+          </a>
         </div>
       </header>
 
@@ -925,10 +927,10 @@ export default function PublicListings() {
           <div className="flex items-center gap-2.5 flex-wrap">
             <span className="text-sm text-purple-700 font-semibold">{t('listings.activeFilters')}</span>
 
-            {zipCode && (
+            {search && (
               <Badge variant="secondary" className="gap-1.5 text-sm px-3 py-1">
-                ZIP: {zipCode}
-                <X className="h-3.5 w-3.5 cursor-pointer hover:text-destructive" onClick={() => setZipCode('')} />
+                "{search}"
+                <X className="h-3.5 w-3.5 cursor-pointer hover:text-destructive" onClick={() => setSearch('')} />
               </Badge>
             )}
 
@@ -1011,6 +1013,7 @@ export default function PublicListings() {
             onZoomComplete={() => setZoomTarget(null)}
             onMapLoad={() => setMapLoaded(true)}
             onZoomChange={setCurrentMapZoom}
+            fitBoundsKey={fitBoundsKey}
           />
 
           {/* Property count overlay on map */}
