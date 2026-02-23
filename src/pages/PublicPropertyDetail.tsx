@@ -653,11 +653,9 @@ export default function PublicPropertyDetail() {
   const [hasSubmittedOffer, setHasSubmittedOffer] = useState(false);
   const [offerForm, setOfferForm] = useState({
     firstName: '',
-    lastName: '',
     email: '',
     phone: '',
-    offerAmount: '',
-    message: ''
+    question: '',
   });
   const [copied, setCopied] = useState(false);
 
@@ -749,19 +747,16 @@ export default function PublicPropertyDetail() {
       // Create contact directly via Contact API (more reliable than Form API)
       await createContact.mutateAsync({
         firstName: offerForm.firstName,
-        lastName: offerForm.lastName,
-        email: offerForm.email,
+        email: offerForm.email || undefined,
         phone: offerForm.phone,
         tags: ['Funnel Lead', 'Interested Buyer', `Property: ${property.address}`],
         customFields: [
-          // Budget/Offer Amount
-          { id: 'RsonBtVCorhBi4ehUeAY', value: offerForm.offerAmount || '' },
           // Property Address interested in
           { id: 'UcJ0Qoz3kh0OjC9oLVsK', value: property.address },
           // Property City
           { id: 'JiQiZk4AwSIuggxs8ryC', value: property.city },
-          // Notes/Message
-          { id: 'wAnKlytGK8s8dmL1vBkV', value: offerForm.message || `Interested in ${property.address} - $${property.price.toLocaleString()}` },
+          // Notes/Question
+          { id: 'wAnKlytGK8s8dmL1vBkV', value: offerForm.question || `Interested in ${property.address} - $${property.price.toLocaleString()}` },
         ],
       });
 
@@ -769,7 +764,7 @@ export default function PublicPropertyDetail() {
       analytics.trackFormSubmission();
 
       toast.success(t('form.applicationSubmitted'));
-      setOfferForm({ firstName: '', lastName: '', email: '', phone: '', offerAmount: '', message: '' });
+      setOfferForm({ firstName: '', email: '', phone: '', question: '' });
       setShowOfferForm(false);
       setHasSubmittedOffer(true);
     } catch (error) {
@@ -2410,7 +2405,16 @@ export default function PublicPropertyDetail() {
                 </div>
               </div>
 
-              {!showOfferForm ? (
+              {hasSubmittedOffer ? (
+                /* Success state */
+                <div className="p-8 text-center space-y-4">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                    <CheckCircle className="h-8 w-8 text-green-500" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">{t('form.successTitle')}</h3>
+                  <p className="text-gray-500 text-sm">{t('form.successMessage')}</p>
+                </div>
+              ) : !showOfferForm ? (
                 <div className="p-8 space-y-5 bg-white">
                   <div className="text-center mb-6">
                     <p className="text-gray-300">{t('form.interestedInProperty')} {property.address}?</p>
@@ -2436,27 +2440,15 @@ export default function PublicPropertyDetail() {
                 </div>
               ) : (
                 <form onSubmit={handleOfferSubmit} className="p-4 sm:p-6 space-y-4 bg-white">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm font-semibold text-gray-700">{t('form.firstName')} *</Label>
-                      <Input
-                        value={offerForm.firstName}
-                        onChange={(e) => setOfferForm(prev => ({ ...prev, firstName: e.target.value }))}
-                        required
-                        placeholder={t('form.placeholderFirstName')}
-                        className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-sm font-semibold text-gray-700">{t('form.lastName')} *</Label>
-                      <Input
-                        value={offerForm.lastName}
-                        onChange={(e) => setOfferForm(prev => ({ ...prev, lastName: e.target.value }))}
-                        required
-                        placeholder={t('form.placeholderLastName')}
-                        className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
-                      />
-                    </div>
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-700">{t('form.firstName')} *</Label>
+                    <Input
+                      value={offerForm.firstName}
+                      onChange={(e) => setOfferForm(prev => ({ ...prev, firstName: e.target.value }))}
+                      required
+                      placeholder={t('form.placeholderFirstName')}
+                      className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                    />
                   </div>
                   <div>
                     <Label className="text-sm font-semibold text-gray-700">{t('form.phone')} *</Label>
@@ -2480,20 +2472,11 @@ export default function PublicPropertyDetail() {
                     />
                   </div>
                   <div>
-                    <Label className="text-sm font-semibold text-gray-700">{t('form.budget')}</Label>
-                    <Input
-                      placeholder="$1,500/month"
-                      value={offerForm.offerAmount}
-                      onChange={(e) => setOfferForm(prev => ({ ...prev, offerAmount: e.target.value }))}
-                      className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm font-semibold text-gray-700">{t('form.messageOptional')}</Label>
+                    <Label className="text-sm font-semibold text-gray-700">{t('form.questionLabel')}</Label>
                     <Textarea
-                      value={offerForm.message}
-                      onChange={(e) => setOfferForm(prev => ({ ...prev, message: e.target.value }))}
-                      placeholder={t('form.tellUsAbout')}
+                      value={offerForm.question}
+                      onChange={(e) => setOfferForm(prev => ({ ...prev, question: e.target.value }))}
+                      placeholder={t('form.questionPlaceholder')}
                       className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
                       rows={3}
                     />
@@ -2509,7 +2492,7 @@ export default function PublicPropertyDetail() {
                         {t('form.submitting')}
                       </>
                     ) : (
-                      t('cta.submitAndGetPreQualified')
+                      t('form.submitCta')
                     )}
                   </CTAButton>
                   <Button
@@ -2579,28 +2562,16 @@ export default function PublicPropertyDetail() {
             </div>
 
             {/* Form */}
-            <form onSubmit={(e) => { handleOfferSubmit(e); setIsFormModalOpen(false); }} className="p-5 space-y-4 bg-white rounded-b-2xl">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label className="text-sm font-semibold text-gray-700">{t('form.firstName')} *</Label>
-                  <Input
-                    value={offerForm.firstName}
-                    onChange={(e) => setOfferForm(prev => ({ ...prev, firstName: e.target.value }))}
-                    required
-                    placeholder={t('form.placeholderFirstName')}
-                    className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
-                  />
-                </div>
-                <div>
-                  <Label className="text-sm font-semibold text-gray-700">{t('form.lastName')} *</Label>
-                  <Input
-                    value={offerForm.lastName}
-                    onChange={(e) => setOfferForm(prev => ({ ...prev, lastName: e.target.value }))}
-                    required
-                    placeholder={t('form.placeholderLastName')}
-                    className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
-                  />
-                </div>
+            <form onSubmit={handleOfferSubmit} className="p-5 space-y-4 bg-white rounded-b-2xl">
+              <div>
+                <Label className="text-sm font-semibold text-gray-700">{t('form.firstName')} *</Label>
+                <Input
+                  value={offerForm.firstName}
+                  onChange={(e) => setOfferForm(prev => ({ ...prev, firstName: e.target.value }))}
+                  required
+                  placeholder={t('form.placeholderFirstName')}
+                  className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                />
               </div>
               <div>
                 <Label className="text-sm font-semibold text-gray-700">{t('form.phone')} *</Label>
@@ -2621,6 +2592,16 @@ export default function PublicPropertyDetail() {
                   onChange={(e) => setOfferForm(prev => ({ ...prev, email: e.target.value }))}
                   placeholder={t('form.placeholderEmail')}
                   className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-semibold text-gray-700">{t('form.questionLabel')}</Label>
+                <Textarea
+                  value={offerForm.question}
+                  onChange={(e) => setOfferForm(prev => ({ ...prev, question: e.target.value }))}
+                  placeholder={t('form.questionPlaceholder')}
+                  className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                  rows={3}
                 />
               </div>
               <CTAButton
