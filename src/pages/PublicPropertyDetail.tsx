@@ -1576,8 +1576,8 @@ export default function PublicPropertyDetail() {
                 <div className="text-center mb-16">
                   <CTAButton
                     onClick={() => {
-                      trackEvent('cta_click', { section: 'how_it_works' });
-                      formRef.current?.scrollIntoView({ behavior: 'smooth' });
+                      analytics.trackCtaClick('how_it_works');
+                      setIsFormModalOpen(true);
                     }}
                   >
                     {t('hero.cta')}
@@ -2263,7 +2263,7 @@ export default function PublicPropertyDetail() {
               <FunnelFAQ
                 title={t('faq.frequentlyAsked')}
                 subtitle={t('faq.subtitle')}
-                items={parsedFAQs}
+                items={parsedFAQs.length > 0 ? parsedFAQs : undefined}
                 variant="premium"
               />
               <div className="mt-10 max-w-3xl mx-auto">
