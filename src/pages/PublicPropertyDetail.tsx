@@ -2262,7 +2262,7 @@ export default function PublicPropertyDetail() {
               <FunnelFAQ
                 title={t('faq.frequentlyAsked')}
                 subtitle={t('faq.subtitle')}
-                items={parsedFAQs.length > 0 ? parsedFAQs : undefined}
+                items={undefined}
                 variant="premium"
               />
               <div className="mt-10 max-w-3xl mx-auto">
