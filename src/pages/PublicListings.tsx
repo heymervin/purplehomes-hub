@@ -642,17 +642,6 @@ export default function PublicListings() {
             <span className="hidden sm:inline">Back</span>
           </Button>
 
-          {/* Logo - hidden on mobile to save space */}
-          <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
-            <div className="w-9 h-9 bg-gradient-to-br from-purple-600 to-purple-700 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/20">
-              <span className="text-white font-bold text-lg">P</span>
-            </div>
-            <div className="hidden md:block">
-              <h1 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
-                Purple Homes
-              </h1>
-            </div>
-          </div>
 
           {/* Primary Filters - Always Visible */}
           <div className="flex-1 flex items-center gap-2 max-w-4xl">
