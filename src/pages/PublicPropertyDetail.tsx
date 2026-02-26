@@ -970,7 +970,7 @@ export default function PublicPropertyDetail() {
               <span className="hidden sm:inline">{copied ? t('common.copied') : t('common.share')}</span>
             </Button>
             <CTAButton size="sm" onClick={scrollToForm} className="hidden sm:inline-flex">
-              {t('cta.getPreQualified')}
+              {t('cta.seeIfHomeWorks')}
             </CTAButton>
           </div>
         </div>
@@ -2250,8 +2250,7 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* FAQ Section - Premium Dark */}
-        {parsedFAQs.length > 0 && (
-          <section className="relative py-16 md:py-20">
+        <section className="relative py-16 md:py-20">
             {/* Ambient glows - BOOSTED + extended top to catch Qualifier bleed */}
             {/* Extended top glow to receive Qualifier section's bleed */}
             <div className="absolute pointer-events-none top-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
@@ -2271,7 +2270,6 @@ export default function PublicPropertyDetail() {
               </div>
             </div>
           </section>
-        )}
 
         {/* Urgency / Countdown - Premium Purple */}
         <section className="relative py-20 md:py-28">

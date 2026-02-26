@@ -155,6 +155,7 @@ export const en = {
   },
   cta: {
     getPreQualified: 'Get Pre-Qualified',
+    seeIfHomeWorks: 'See if this home works for you',
     getPreQualifiedNow: 'Get Pre-Qualified Now',
     getPreQualifiedToday: 'Get Pre-Qualified Today',
     checkEligibility: 'Check My Eligibility',

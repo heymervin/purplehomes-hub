@@ -155,6 +155,7 @@ export const es = {
   },
   cta: {
     getPreQualified: 'Precalificar',
+    seeIfHomeWorks: 'Ver si esta casa funciona para usted',
     getPreQualifiedNow: 'Precalificar Ahora',
     getPreQualifiedToday: 'Precalifique Hoy',
     checkEligibility: 'Verificar Mi Elegibilidad',
