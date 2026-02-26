@@ -1005,14 +1005,14 @@ export default function PublicPropertyDetail() {
           </div>
 
           {/* 3. Property Image - INSIDE HERO */}
-          <div className="relative max-w-5xl mx-auto px-4 pb-3 sm:pb-4">
+          <div className="relative max-w-xs sm:max-w-sm md:max-w-md mx-auto px-4 pb-3 sm:pb-4">
             <HeroEntrance delay={200}>
               <div className="relative group">
                 {/* Glow effect */}
                 <div className="absolute -inset-2 bg-gradient-to-br from-purple-500/40 to-violet-500/30 rounded-xl md:rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 pointer-events-none" />
 
-                {/* Image container - capped height so it stays above the fold */}
-                <div className="relative border-2 border-purple-500/40 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl max-h-[260px] sm:max-h-[300px] md:max-h-[340px] lg:max-h-[380px]">
+                {/* Image container - square aspect ratio */}
+                <div className="relative border-2 border-purple-500/40 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl [&_.aspect-video]:aspect-square">
                   <PropertyImageGallery
                     images={property.images || [property.heroImage]}
                     heroImage={property.heroImage || '/placeholder.svg'}
