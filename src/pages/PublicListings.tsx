@@ -1230,7 +1230,7 @@ export default function PublicListings() {
                     <Button variant="outline" size="lg" className="flex-1 scale-hover" asChild>
                       <Link to={`/listing/${generatePropertySlug(selectedProperty.address, selectedProperty.city)}`}>
                         <ExternalLink className="h-4 w-4 mr-2" />
-                        {t('cta.details')}
+                        {t('common.details')}
                       </Link>
                     </Button>
                   </div>
