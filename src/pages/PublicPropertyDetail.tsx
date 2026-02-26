@@ -984,10 +984,10 @@ export default function PublicPropertyDetail() {
           <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/25 rounded-full blur-[180px]" />
           <div className="absolute pointer-events-none bottom-0 right-1/4 w-[400px] h-[300px] bg-violet-700/15 rounded-full blur-[150px]" />
 
-          <div className="relative max-w-5xl mx-auto px-4 pt-8 sm:pt-10 md:pt-12 lg:pt-14 pb-4 sm:pb-5 md:pb-6 text-center">
+          <div className="relative max-w-5xl mx-auto px-4 pt-4 sm:pt-6 md:pt-8 pb-3 sm:pb-4 text-center">
             {/* 1. Headline */}
             <HeroEntrance delay={0}>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.1] mb-3 sm:mb-4 md:mb-5 tracking-tight max-w-4xl mx-auto">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-[1.1] mb-2 sm:mb-3 tracking-tight max-w-4xl mx-auto">
                 <span className="bg-gradient-to-r from-white via-purple-100 to-white bg-clip-text text-transparent">
                   {t('hero.headline')}
                 </span>
@@ -996,7 +996,7 @@ export default function PublicPropertyDetail() {
 
             {/* 2. Sub-headline */}
             <HeroEntrance delay={100}>
-              <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium mb-6 sm:mb-8 md:mb-10 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl font-medium mb-3 sm:mb-4 max-w-3xl mx-auto leading-relaxed">
                 <span className="bg-gradient-to-r from-gray-400 via-purple-300 to-gray-400 bg-clip-text text-transparent">
                   {t('hero.subheadline')}
                 </span>
@@ -1005,14 +1005,14 @@ export default function PublicPropertyDetail() {
           </div>
 
           {/* 3. Property Image - INSIDE HERO */}
-          <div className="relative max-w-5xl mx-auto px-4 pb-6 sm:pb-8">
+          <div className="relative max-w-5xl mx-auto px-4 pb-3 sm:pb-4">
             <HeroEntrance delay={200}>
               <div className="relative group">
                 {/* Glow effect */}
                 <div className="absolute -inset-2 bg-gradient-to-br from-purple-500/40 to-violet-500/30 rounded-xl md:rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 pointer-events-none" />
 
-                {/* Image container */}
-                <div className="relative border-2 border-purple-500/40 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl">
+                {/* Image container - capped height so it stays above the fold */}
+                <div className="relative border-2 border-purple-500/40 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl max-h-[260px] sm:max-h-[300px] md:max-h-[340px] lg:max-h-[380px]">
                   <PropertyImageGallery
                     images={property.images || [property.heroImage]}
                     heroImage={property.heroImage || '/placeholder.svg'}
@@ -1026,7 +1026,7 @@ export default function PublicPropertyDetail() {
           </div>
 
           {/* 4. Primary CTA Button + Micro-text - Below image */}
-          <div className="relative max-w-5xl mx-auto px-4 pb-8 sm:pb-10 md:pb-12 lg:pb-14 text-center">
+          <div className="relative max-w-5xl mx-auto px-4 pb-5 sm:pb-6 md:pb-8 text-center">
             <HeroEntrance delay={300}>
               <div className="flex flex-col items-center gap-2.5 sm:gap-3">
                 <button
@@ -1069,30 +1069,27 @@ export default function PublicPropertyDetail() {
                     </div>
                   )}
 
-                  {/* Secondary: Down Payment + Purchase Price */}
-                  <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mt-2 mb-3">
+                  {/* Secondary: Down Payment (own row), then Purchase Price + Closing Costs */}
+                  <div className="flex flex-col items-center lg:items-start gap-2 mt-2 mb-3">
                     {property.downPayment !== undefined && (
                       <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-sm sm:text-base font-semibold">
                         ${property.downPayment.toLocaleString()} {t('property.downPayment')}
                       </div>
                     )}
-                    <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/5 border border-purple-500/20 rounded-full text-purple-300/70 text-sm sm:text-base font-medium">
-                      ${property.price.toLocaleString()} {t('property.purchasePrice')}
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+                      <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/5 border border-purple-500/20 rounded-full text-purple-300/70 text-sm sm:text-base font-medium">
+                        ${property.price.toLocaleString()} {t('property.purchasePrice')}
+                      </div>
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+                        <Check className="h-3.5 w-3.5 text-emerald-400" />
+                        <span className="text-emerald-300 text-sm font-medium">{t('property.includesClosingCosts')}</span>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Address - one line on desktop */}
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:gap-2">
-                    <h2 className="text-xl md:text-2xl text-white font-semibold">{property.address}</h2>
-                    <p className="text-purple-300/70 flex items-center justify-center lg:justify-start gap-1.5">
-                      <MapPin className="h-4 w-4 flex-shrink-0" />
-                      {property.city}
-                    </p>
                   </div>
                 </div>
 
-                {/* Right - Specs Grid */}
-                <div className="flex justify-center lg:justify-end">
+                {/* Right - Specs Grid + Address below */}
+                <div className="flex flex-col items-center lg:items-end gap-4">
                   <div className="inline-grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
                     <div className="text-center">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
@@ -1118,6 +1115,14 @@ export default function PublicPropertyDetail() {
                       </div>
                     )}
                   </div>
+                  {/* Address - below specs */}
+                  <div className="text-center lg:text-right">
+                    <h2 className="text-lg md:text-xl text-white font-semibold">{property.address}</h2>
+                    <p className="text-purple-300/70 flex items-center justify-center lg:justify-end gap-1.5 text-sm mt-0.5">
+                      <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+                      {property.city}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -1133,10 +1138,6 @@ export default function PublicPropertyDetail() {
                     <span className="text-purple-300 text-sm font-medium capitalize-words">
                       {Math.floor(Math.random() * 15) + 5} {t('property.peopleSaved')}
                     </span>
-                  </div>
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
-                    <Check className="h-3.5 w-3.5 text-emerald-400" />
-                    <span className="text-emerald-300 text-sm font-medium">{t('property.includesClosingCosts')}</span>
                   </div>
                 </div>
 
