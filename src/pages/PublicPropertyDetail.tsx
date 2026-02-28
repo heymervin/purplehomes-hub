@@ -1075,6 +1075,77 @@ export default function PublicPropertyDetail() {
           {/* Premium Trust Strip */}
           <PremiumTrustStrip className="pb-6" />
 
+          {/* 4 Steps to Homeownership - What to Expect */}
+          <div className="relative py-12 md:py-16">
+            <div className="relative z-10 container mx-auto px-4">
+              <Reveal className="text-center mb-10">
+                <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
+                  <span className="font-light">{t('processSteps.heading')}</span>{' '}
+                  <span className="font-black bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">
+                    {t('processSteps.headingHighlight')}
+                  </span>
+                </h2>
+                <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+                  {t('processSteps.subtitle')}
+                </p>
+              </Reveal>
+
+              <div className="max-w-4xl mx-auto grid sm:grid-cols-2 gap-6 md:gap-8">
+                {/* Step 1 */}
+                <Reveal delay={0} className="relative text-center group">
+                  <div className="relative mx-auto mb-6">
+                    <div className="absolute pointer-events-none inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
+                      <span className="text-3xl sm:text-4xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">1</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{t('processSteps.step1Title')}</h3>
+                  <p className="text-gray-400 leading-relaxed max-w-xs mx-auto text-sm">{t('processSteps.step1Desc')}</p>
+                  <span className="inline-block mt-3 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">{t('processSteps.step1Time')}</span>
+                </Reveal>
+
+                {/* Step 2 */}
+                <Reveal delay={100} className="relative text-center group">
+                  <div className="relative mx-auto mb-6">
+                    <div className="absolute pointer-events-none inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
+                      <span className="text-3xl sm:text-4xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">2</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{t('processSteps.step2Title')}</h3>
+                  <p className="text-gray-400 leading-relaxed max-w-xs mx-auto text-sm">{t('processSteps.step2Desc')}</p>
+                  <span className="inline-block mt-3 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">{t('processSteps.step2Time')}</span>
+                </Reveal>
+
+                {/* Step 3 */}
+                <Reveal delay={200} className="relative text-center group">
+                  <div className="relative mx-auto mb-6">
+                    <div className="absolute pointer-events-none inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
+                      <span className="text-3xl sm:text-4xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">3</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{t('processSteps.step3Title')}</h3>
+                  <p className="text-gray-400 leading-relaxed max-w-xs mx-auto text-sm">{t('processSteps.step3Desc')}</p>
+                  <span className="inline-block mt-3 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">{t('processSteps.step3Time')}</span>
+                </Reveal>
+
+                {/* Step 4 */}
+                <Reveal delay={300} className="relative text-center group">
+                  <div className="relative mx-auto mb-6">
+                    <div className="absolute pointer-events-none inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
+                      <span className="text-3xl sm:text-4xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">4</span>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{t('processSteps.step4Title')}</h3>
+                  <p className="text-gray-400 leading-relaxed max-w-xs mx-auto text-sm">{t('processSteps.step4Desc')}</p>
+                  <span className="inline-block mt-3 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">{t('processSteps.step4Time')}</span>
+                </Reveal>
+              </div>
+            </div>
+          </div>
+
           {/* Highlighted Solo Testimonial - inside section for seamless flow */}
           <div className="relative pt-12 pb-8 md:pt-16 md:pb-10">
             <div className="max-w-5xl mx-auto px-4 sm:px-6">
@@ -1735,111 +1806,6 @@ export default function PublicPropertyDetail() {
                 <p className="text-gray-500 text-sm mt-4">{t('journey.joinFamilies')}</p>
               </div>
             </Reveal>
-          </div>
-        </section>
-
-        {/* Process Steps - Premium Dark */}
-        <section className="relative py-20 md:py-28">
-          {/* Ambient lighting - glows bleed into adjacent sections */}
-          <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-          <div className="absolute pointer-events-none top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
-          <div className="absolute pointer-events-none top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[400px] bg-purple-500/15 rounded-full blur-[180px]" />
-          {/* Bottom glows bleed into Testimonials */}
-          <div className="absolute pointer-events-none bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
-          <div className="absolute pointer-events-none bottom-[-15%] right-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
-
-
-          <div className="relative z-10 container mx-auto px-4">
-            {/* Header with Reveal */}
-            <Reveal className="text-center mb-16">
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-4">
-                <span className="font-light">{t('processSteps.heading')}</span>{' '}
-                <span className="font-black bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">
-                  {t('processSteps.headingHighlight')}
-                </span>
-              </h2>
-              <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                {t('processSteps.subtitle')}
-              </p>
-            </Reveal>
-
-            {/* Steps */}
-            <div className="max-w-5xl mx-auto">
-              {/* Connecting line */}
-              <div className="hidden md:block absolute left-1/2 top-[320px] -translate-x-1/2 w-[60%] h-[2px] bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
-
-              <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-                {/* Step 1 */}
-                <Reveal delay={0} className="relative text-center group">
-                  <div className="relative mx-auto mb-8">
-                    {/* Glow ring */}
-                    <div className="absolute pointer-events-none inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    {/* Number circle */}
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
-                      <span className="text-3xl sm:text-4xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
-                        1
-                      </span>
-                    </div>
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-3">{t('processSteps.step1Title')}</h3>
-                  <p className="text-gray-400 leading-relaxed max-w-xs mx-auto">
-                    {t('processSteps.step1Desc')}
-                  </p>
-                  <span className="inline-block mt-4 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
-                    {t('processSteps.step1Time')}
-                  </span>
-                </Reveal>
-
-                {/* Step 2 */}
-                <Reveal delay={200} className="relative text-center group">
-                  <div className="relative mx-auto mb-8">
-                    <div className="absolute pointer-events-none inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
-                      <span className="text-3xl sm:text-4xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
-                        2
-                      </span>
-                    </div>
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-3">{t('processSteps.step2Title')}</h3>
-                  <p className="text-gray-400 leading-relaxed max-w-xs mx-auto">
-                    {t('processSteps.step2Desc')}
-                  </p>
-                  <span className="inline-block mt-4 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
-                    {t('processSteps.step2Time')}
-                  </span>
-                </Reveal>
-
-                {/* Step 3 */}
-                <Reveal delay={400} className="relative text-center group">
-                  <div className="relative mx-auto mb-8">
-                    <div className="absolute pointer-events-none inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
-                      <span className="text-3xl sm:text-4xl md:text-6xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">
-                        3
-                      </span>
-                    </div>
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-3">{t('processSteps.step3Title')}</h3>
-                  <p className="text-gray-400 leading-relaxed max-w-xs mx-auto">
-                    {t('processSteps.step3Desc')}
-                  </p>
-                  <span className="inline-block mt-4 px-4 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm font-medium border border-purple-500/30">
-                    {t('processSteps.step3Time')}
-                  </span>
-                </Reveal>
-              </div>
-            </div>
-
-            {/* CTA */}
-            <div className="text-center mt-16">
-              <button
-                onClick={scrollToForm}
-                className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4),0_0_80px_rgba(139,92,246,0.2)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
-              >
-                {t('processSteps.checkIfQualify')}
-                <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
-              </button>
-            </div>
           </div>
         </section>
 
