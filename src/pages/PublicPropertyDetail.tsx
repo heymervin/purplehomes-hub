@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, Bed, Bath, Maximize2, MapPin, Phone, Wrench, Home,
+  ArrowLeft, ArrowRight, Bed, Bath, Maximize2, Phone, Wrench, Home,
   Loader2, Share2, Check,
   Shield, Clock, Users, Award, CheckCircle, X,
   MessageCircle, FileText, Calendar, Key
@@ -952,26 +952,89 @@ export default function PublicPropertyDetail() {
           <div className="relative max-w-5xl mx-auto px-4 py-8 sm:py-10 md:py-12">
             <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-12">
 
-              {/* Left: Headline + Subheadline + CTA */}
+              {/* Left: Headline + Subheadline + Price + Specs + CTA */}
               <div className="flex-1 text-center md:text-left">
                 <HeroEntrance delay={0}>
-                  <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-black leading-[1.1] mb-3 tracking-tight">
+                  <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-black leading-[1.1] mb-2 tracking-tight">
                     <span className="bg-gradient-to-r from-white via-purple-100 to-white bg-clip-text text-transparent">
                       {t('hero.headline')}
                     </span>
                   </h1>
                 </HeroEntrance>
 
-                <HeroEntrance delay={100}>
-                  <p className="text-base sm:text-lg md:text-xl font-medium mb-6 leading-relaxed">
+                <HeroEntrance delay={80}>
+                  <p className="text-base sm:text-lg font-medium mb-4 leading-relaxed">
                     <span className="bg-gradient-to-r from-gray-400 via-purple-300 to-gray-400 bg-clip-text text-transparent">
                       {t('hero.subheadline')}
                     </span>
                   </p>
                 </HeroEntrance>
 
-                <HeroEntrance delay={200}>
-                  <div className="flex flex-col items-center md:items-start gap-2.5">
+                {/* Price + specs block */}
+                <HeroEntrance delay={140}>
+                  <div className="mb-4">
+                    {/* Monthly payment */}
+                    {property.monthlyPayment !== undefined && (
+                      <div className="mb-2">
+                        <span className="text-4xl sm:text-5xl font-black text-white leading-none drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+                          ${property.monthlyPayment.toLocaleString()}
+                        </span>
+                        <span className="text-lg sm:text-xl text-purple-300/80 font-bold ml-1.5">{t('property.monthlyPayment')}</span>
+                      </div>
+                    )}
+
+                    {/* Down payment + purchase price + closing costs */}
+                    <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-3">
+                      {property.downPayment !== undefined && (
+                        <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-xs sm:text-sm font-semibold">
+                          ${property.downPayment.toLocaleString()} {t('property.downPayment')}
+                        </span>
+                      )}
+                      <span className="inline-flex items-center px-3 py-1 bg-white/5 border border-purple-500/20 rounded-full text-purple-300/70 text-xs sm:text-sm font-medium">
+                        ${property.price.toLocaleString()} {t('property.purchasePrice')}
+                      </span>
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-300 text-xs sm:text-sm font-medium">
+                        <Check className="h-3 w-3" />{t('property.includesClosingCosts')}
+                      </span>
+                    </div>
+
+                    {/* Beds / baths / sqft / address — compact single row */}
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1 text-sm text-gray-400 mb-1">
+                      <span className="text-white font-semibold">{property.beds} {t('property.beds')}</span>
+                      <span className="text-purple-500/50">·</span>
+                      <span className="text-white font-semibold">{property.baths} {t('property.baths')}</span>
+                      {property.sqft && (
+                        <>
+                          <span className="text-purple-500/50">·</span>
+                          <span className="text-white font-semibold">{property.sqft.toLocaleString()} {t('property.sqft')}</span>
+                        </>
+                      )}
+                      <span className="text-purple-500/50">·</span>
+                      <span className="text-gray-400">{property.address}, {property.city}</span>
+                    </div>
+
+                    {/* Availability status */}
+                    {(() => {
+                      const status = funnelContent?.inputs?.availabilityStatus || 'Available';
+                      const statusStyles: Record<string, { dot: string; text: string; label: string }> = {
+                        'Available': { dot: 'bg-green-400', text: 'text-green-400', label: t('property.availableNow') },
+                        'Under Review': { dot: 'bg-yellow-400', text: 'text-yellow-400', label: t('property.underReview') },
+                        'Multiple Offers': { dot: 'bg-amber-400', text: 'text-amber-400', label: t('property.multipleOffers') },
+                        'Pending': { dot: 'bg-red-400', text: 'text-red-400', label: t('property.pending') },
+                      };
+                      const style = statusStyles[status] || statusStyles['Available'];
+                      return (
+                        <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
+                          <span className={`w-2 h-2 ${style.dot} rounded-full animate-pulse`} />
+                          <span className={`${style.text} text-sm font-medium`}>{style.label}</span>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </HeroEntrance>
+
+                <HeroEntrance delay={220}>
+                  <div className="flex flex-col items-center md:items-start gap-2">
                     <button
                       onClick={scrollToForm}
                       className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg uppercase tracking-wide px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6)] transition-all duration-300 border-2 border-purple-300/50 hover:scale-105"
@@ -1008,124 +1071,8 @@ export default function PublicPropertyDetail() {
           </div>
         </section>
 
-        {/* Property Info - Premium Card Style */}
         <section className="relative">
-          {/* Ambient glow behind card */}
-          <div className="absolute pointer-events-none top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/20 rounded-full blur-[180px]" />
-          <div className="relative z-10 max-w-5xl mx-auto px-4 pt-8 pb-10 md:pt-10 md:pb-14">
-            <div className="bg-gradient-to-br from-[#1a1625] to-[#0f0d15] border border-purple-500/30 rounded-2xl p-6 md:p-8 shadow-[0_0_60px_rgba(139,92,246,0.15)]">
-              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-                {/* Left - Price */}
-                <div className="text-center lg:text-left">
-                  {/* Primary: Monthly Payment */}
-                  {property.monthlyPayment !== undefined ? (
-                    <div className="mb-2">
-                      <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-none drop-shadow-[0_0_30px_rgba(168,85,247,0.4)]">
-                        ${property.monthlyPayment.toLocaleString()}
-                        <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-purple-300/80 font-bold ml-2">{t('property.monthlyPayment')}</span>
-                      </div>
-                    </div>
-                  ) : (
-                    /* Fallback: Total Price */
-                    <div className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white mb-2 leading-none">
-                      ${property.price.toLocaleString()}
-                    </div>
-                  )}
-
-                  {/* Secondary: Down Payment (own row), then Purchase Price + Closing Costs */}
-                  <div className="flex flex-col items-center lg:items-start gap-2 mt-2 mb-3">
-                    {property.downPayment !== undefined && (
-                      <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-sm sm:text-base font-semibold">
-                        ${property.downPayment.toLocaleString()} {t('property.downPayment')}
-                      </div>
-                    )}
-                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
-                      <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white/5 border border-purple-500/20 rounded-full text-purple-300/70 text-sm sm:text-base font-medium">
-                        ${property.price.toLocaleString()} {t('property.purchasePrice')}
-                      </div>
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
-                        <Check className="h-3.5 w-3.5 text-emerald-400" />
-                        <span className="text-emerald-300 text-sm font-medium">{t('property.includesClosingCosts')}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right - Specs Grid + Address below */}
-                <div className="flex flex-col items-center lg:items-end gap-4">
-                  <div className="inline-grid grid-cols-3 gap-2 sm:gap-4 md:gap-6">
-                    <div className="text-center">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
-                        <Bed className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
-                      </div>
-                      <p className="text-white font-bold text-lg md:text-xl">{property.beds}</p>
-                      <p className="text-purple-300/60 text-xs uppercase tracking-wider">{t('property.beds')}</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
-                        <Bath className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
-                      </div>
-                      <p className="text-white font-bold text-lg md:text-xl">{property.baths}</p>
-                      <p className="text-purple-300/60 text-xs uppercase tracking-wider">{t('property.baths')}</p>
-                    </div>
-                    {property.sqft && (
-                      <div className="text-center">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 mx-auto mb-2 bg-purple-500/20 border border-purple-500/30 rounded-xl flex items-center justify-center">
-                          <Maximize2 className="h-5 w-5 md:h-6 md:w-6 text-purple-400" />
-                        </div>
-                        <p className="text-white font-bold text-lg md:text-xl">{property.sqft.toLocaleString()}</p>
-                        <p className="text-purple-300/60 text-xs uppercase tracking-wider">{t('property.sqft')}</p>
-                      </div>
-                    )}
-                  </div>
-                  {/* Address - below specs */}
-                  <div className="text-center lg:text-right">
-                    <h2 className="text-lg md:text-xl text-white font-semibold">{property.address}</h2>
-                    <p className="text-purple-300/70 flex items-center justify-center lg:justify-end gap-1.5 text-sm mt-0.5">
-                      <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-                      {property.city}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom row - People saved + Includes closing costs + availability */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 pt-6 border-t border-purple-500/20">
-                {/* People saved counter + Closing costs */}
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-400"></span>
-                    </span>
-                    <span className="text-purple-300 text-sm font-medium capitalize-words">
-                      {Math.floor(Math.random() * 15) + 5} {t('property.peopleSaved')}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Availability status */}
-                {(() => {
-                  const status = funnelContent?.inputs?.availabilityStatus || 'Available';
-                  const statusStyles: Record<string, { dot: string; text: string; label: string }> = {
-                    'Available': { dot: 'bg-green-400', text: 'text-green-400', label: t('property.availableNow') },
-                    'Under Review': { dot: 'bg-yellow-400', text: 'text-yellow-400', label: t('property.underReview') },
-                    'Multiple Offers': { dot: 'bg-amber-400', text: 'text-amber-400', label: t('property.multipleOffers') },
-                    'Pending': { dot: 'bg-red-400', text: 'text-red-400', label: t('property.pending') },
-                  };
-                  const style = statusStyles[status] || statusStyles['Available'];
-                  return (
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className={`w-2 h-2 ${style.dot} rounded-full animate-pulse`} />
-                      <span className={`${style.text} font-medium`}>{style.label}</span>
-                    </div>
-                  );
-                })()}
-              </div>
-            </div>
-          </div>
-
-          {/* Premium Trust Strip - inside section for seamless background */}
+          {/* Premium Trust Strip */}
           <PremiumTrustStrip className="pb-6" />
 
           {/* Highlighted Solo Testimonial - inside section for seamless flow */}
