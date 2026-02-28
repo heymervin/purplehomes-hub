@@ -1160,8 +1160,10 @@ export default function PublicPropertyDetail() {
 
               <Reveal delay={0.2}>
                 {/* Headline with Dynamic Address */}
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white text-center leading-tight tracking-tight mb-8">
-                  {t('aboutHome.headline')} {property.address}
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-center leading-tight tracking-tight mb-8">
+                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                    {t('aboutHome.headline')} {property.address}
+                  </span>
                 </h2>
               </Reveal>
 
@@ -1174,6 +1176,106 @@ export default function PublicPropertyDetail() {
             </div>
           </div>
         </section>
+
+        {/* What's Nearby - Focus on the places */}
+        {!funnelLoading && funnelContent?.locationNearby && (
+          <section className="relative py-20 md:py-24">
+            {/* Ambient glows - BOOSTED for visibility */}
+            <div className="absolute pointer-events-none top-[-40%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[220px]" />
+            <div className="absolute pointer-events-none top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
+            <div className="absolute pointer-events-none top-[30%] right-0 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
+            {/* Bottom bleeds to Qualifier */}
+            <div className="absolute pointer-events-none bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-purple-500/22 rounded-full blur-[200px]" />
+
+            <div className="relative z-10 max-w-4xl mx-auto px-4">
+              {/* Section Header */}
+              <Reveal className="text-center mb-14 md:mb-16">
+                <h2 className="text-4xl md:text-5xl lg:text-6xl text-white">
+                  {t('location.heading')}
+                </h2>
+              </Reveal>
+
+              {/* Nearby - split place and time for consistency */}
+              <Reveal delay={150}>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
+                  {localizedFunnel.locationNearby!.split('\n').filter(Boolean).slice(0, 4).map((item, idx) => {
+                    const cleanItem = item.replace(/^[•\-\*]\s*/, '').trim();
+                    // Try to split "Place - time" but fallback to full text
+                    const dashMatch = cleanItem.match(/^(.+?)\s*[-–]\s*(.+)$/);
+                    const place = dashMatch ? dashMatch[1].trim() : cleanItem;
+                    const time = dashMatch ? dashMatch[2].trim() : null;
+
+                    return (
+                      <div key={idx} className="group relative">
+                        {/* Glow on hover */}
+                        <div className="absolute pointer-events-none -inset-1 bg-gradient-to-r from-purple-600/20 to-violet-600/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                        <div className="relative bg-purple-500/10 border border-purple-500/20 rounded-xl px-5 py-6 text-center h-full group-hover:border-purple-400/40 group-hover:bg-purple-500/15 transition-all flex flex-col justify-center">
+                          <p className="text-white font-medium text-base md:text-lg leading-tight">
+                            {place}
+                          </p>
+                          {time && (
+                            <p className="text-purple-300/70 text-sm mt-1">
+                              {time}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Reveal>
+            </div>
+          </section>
+        )}
+
+        {/* Qualifier Section - Dark Theme (Always Show with Fallback) */}
+        {!funnelLoading && (() => {
+          // Default lifestyle-focused content (fallback when no avatars/qualifier set)
+          const defaultQualifiers = [
+            t('qualifier.default1'),
+            t('qualifier.default2'),
+            t('qualifier.default3'),
+            t('qualifier.default4'),
+            t('qualifier.default5'),
+            t('qualifier.default6'),
+          ];
+
+          // Use custom qualifier content if set, otherwise use defaults
+          const qualifierItems = localizedFunnel?.qualifier
+            ? localizedFunnel.qualifier.split('\n').filter(Boolean).map(item => item.replace(/^[•\-\*\s]+/, '').trim()).filter(Boolean)
+            : defaultQualifiers;
+
+          return (
+            <section className="relative py-16 md:py-20">
+              {/* Ambient glows - BOOSTED + extended bottom bleed to FAQ */}
+              <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/22 rounded-full blur-[200px]" />
+              <div className="absolute pointer-events-none top-[20%] left-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
+              <div className="absolute pointer-events-none top-[40%] right-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
+              {/* Extended bottom bleed to reach FAQ section */}
+              <div className="absolute pointer-events-none bottom-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
+
+              <div className="relative z-10 max-w-3xl mx-auto px-4">
+                <Reveal className="text-center mb-10">
+                  <h2 className="text-3xl md:text-4xl text-white">
+                    {t('qualifier.heading')}
+                  </h2>
+                </Reveal>
+
+                <Reveal delay={150}>
+                  <div className="space-y-3">
+                    {qualifierItems.map((item, idx) => (
+                      <div key={idx} className="flex items-start gap-3 bg-purple-500/10 border border-purple-500/20 rounded-xl px-5 py-4 hover:bg-purple-500/15 transition-colors">
+                        <CheckCircle className="h-5 w-5 text-purple-400 flex-shrink-0 mt-0.5" />
+                        <p className="text-white/90 leading-relaxed">{item}</p>
+                      </div>
+                    ))}
+                  </div>
+                </Reveal>
+              </div>
+            </section>
+          );
+        })()}
 
         {/* Full-page loading skeleton while funnel content loads */}
         {funnelLoading && (
@@ -1887,106 +1989,6 @@ export default function PublicPropertyDetail() {
 
         {/* Stats Bar - Premium Animated */}
         <AnimatedStatsSection />
-
-        {/* What's Nearby - Focus on the places */}
-        {!funnelLoading && funnelContent?.locationNearby && (
-          <section className="relative py-20 md:py-24">
-            {/* Ambient glows - BOOSTED for visibility */}
-            <div className="absolute pointer-events-none top-[-40%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[220px]" />
-            <div className="absolute pointer-events-none top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
-            <div className="absolute pointer-events-none top-[30%] right-0 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
-            {/* Bottom bleeds to Qualifier */}
-            <div className="absolute pointer-events-none bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-purple-500/22 rounded-full blur-[200px]" />
-
-            <div className="relative z-10 max-w-4xl mx-auto px-4">
-              {/* Section Header */}
-              <Reveal className="text-center mb-14 md:mb-16">
-                <h2 className="text-4xl md:text-5xl lg:text-6xl text-white">
-                  {t('location.heading')}
-                </h2>
-              </Reveal>
-
-              {/* Nearby - split place and time for consistency */}
-              <Reveal delay={150}>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
-                  {localizedFunnel.locationNearby!.split('\n').filter(Boolean).slice(0, 4).map((item, idx) => {
-                    const cleanItem = item.replace(/^[•\-\*]\s*/, '').trim();
-                    // Try to split "Place - time" but fallback to full text
-                    const dashMatch = cleanItem.match(/^(.+?)\s*[-–]\s*(.+)$/);
-                    const place = dashMatch ? dashMatch[1].trim() : cleanItem;
-                    const time = dashMatch ? dashMatch[2].trim() : null;
-
-                    return (
-                      <div key={idx} className="group relative">
-                        {/* Glow on hover */}
-                        <div className="absolute pointer-events-none -inset-1 bg-gradient-to-r from-purple-600/20 to-violet-600/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                        <div className="relative bg-purple-500/10 border border-purple-500/20 rounded-xl px-5 py-6 text-center h-full group-hover:border-purple-400/40 group-hover:bg-purple-500/15 transition-all flex flex-col justify-center">
-                          <p className="text-white font-medium text-base md:text-lg leading-tight">
-                            {place}
-                          </p>
-                          {time && (
-                            <p className="text-purple-300/70 text-sm mt-1">
-                              {time}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </Reveal>
-            </div>
-          </section>
-        )}
-
-        {/* Qualifier Section - Dark Theme (Always Show with Fallback) */}
-        {!funnelLoading && (() => {
-          // Default lifestyle-focused content (fallback when no avatars/qualifier set)
-          const defaultQualifiers = [
-            t('qualifier.default1'),
-            t('qualifier.default2'),
-            t('qualifier.default3'),
-            t('qualifier.default4'),
-            t('qualifier.default5'),
-            t('qualifier.default6'),
-          ];
-
-          // Use custom qualifier content if set, otherwise use defaults
-          const qualifierItems = localizedFunnel?.qualifier
-            ? localizedFunnel.qualifier.split('\n').filter(Boolean).map(item => item.replace(/^[•\-\*\s]+/, '').trim()).filter(Boolean)
-            : defaultQualifiers;
-
-          return (
-            <section className="relative py-16 md:py-20">
-              {/* Ambient glows - BOOSTED + extended bottom bleed to FAQ */}
-              <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/22 rounded-full blur-[200px]" />
-              <div className="absolute pointer-events-none top-[20%] left-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
-              <div className="absolute pointer-events-none top-[40%] right-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
-              {/* Extended bottom bleed to reach FAQ section */}
-              <div className="absolute pointer-events-none bottom-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
-
-              <div className="relative z-10 max-w-3xl mx-auto px-4">
-                <Reveal className="text-center mb-10">
-                  <h2 className="text-3xl md:text-4xl text-white">
-                    {t('qualifier.heading')}
-                  </h2>
-                </Reveal>
-
-                <Reveal delay={150}>
-                  <div className="space-y-3">
-                    {qualifierItems.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-3 bg-purple-500/10 border border-purple-500/20 rounded-xl px-5 py-4 hover:bg-purple-500/15 transition-colors">
-                        <CheckCircle className="h-5 w-5 text-purple-400 flex-shrink-0 mt-0.5" />
-                        <p className="text-white/90 leading-relaxed">{item}</p>
-                      </div>
-                    ))}
-                  </div>
-                </Reveal>
-              </div>
-            </section>
-          );
-        })()}
 
         {/* Virtual Tour - Premium Dark with Click-to-Play Overlay */}
         {!funnelLoading && localizedFunnel?.virtualTourUrl && (
