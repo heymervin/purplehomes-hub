@@ -1167,7 +1167,7 @@ export default function PublicPropertyDetail() {
 
               <Reveal delay={0.3}>
                 {/* Description */}
-                <p className="text-lg sm:text-xl text-gray-300 leading-relaxed text-center max-w-3xl mx-auto">
+                <p className="text-lg sm:text-xl text-gray-300 leading-relaxed text-justify max-w-3xl mx-auto">
                   {t('aboutHome.description')}
                 </p>
               </Reveal>
@@ -1426,6 +1426,23 @@ export default function PublicPropertyDetail() {
                   </div>
                 </Reveal>
               </div>
+
+              {/* CTA After Bullet List */}
+              <Reveal delay={300}>
+                <div className="text-center mt-12">
+                  <CTAButton
+                    onClick={() => {
+                      analytics.trackCtaClick('solution_cta');
+                      setIsFormModalOpen(true);
+                    }}
+                  >
+                    {t('hero.cta')}
+                  </CTAButton>
+                  <p className="text-sm text-gray-500 mt-3">
+                    {t('hero.ctaMicro')}
+                  </p>
+                </div>
+              </Reveal>
             </div>
           </section>
         )}
