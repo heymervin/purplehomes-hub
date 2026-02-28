@@ -1417,7 +1417,8 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* Solution Section - Dynamic from AI */}
-        {!funnelLoading && funnelContent?.solution && (
+        {/* TEMPORARILY HIDDEN - restore by removing the outer {false && ()} wrapper */}
+        {false && !funnelLoading && funnelContent?.solution && (
           <section className="relative py-24 md:py-32">
             {/* Ambient glow - top glow bleeds from Problem section, bottom bleeds to next */}
             <div className="absolute inset-0 pointer-events-none">
@@ -1723,7 +1724,8 @@ export default function PublicPropertyDetail() {
         )}
 
         {/* JOURNEY COMPARISON - The Old Way vs The New Way - DARK PREMIUM */}
-        <section className="relative py-16 md:py-24">
+        {/* TEMPORARILY HIDDEN - restore by removing the {false && (...)} wrapper */}
+        {false && (<section className="relative py-16 md:py-24">
           {/* Ambient lighting - glows extend to adjacent sections */}
           <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
           <div className="absolute pointer-events-none top-[20%] left-0 w-[500px] h-[500px] bg-slate-700/15 rounded-full blur-[180px]" />
@@ -1912,7 +1914,7 @@ export default function PublicPropertyDetail() {
               </div>
             </Reveal>
           </div>
-        </section>
+        </section>)}
 
         {/* Social Proof / Testimonials - Always Scrolling Marquee */}
         {!funnelLoading && (
