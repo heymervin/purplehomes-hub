@@ -643,6 +643,9 @@ export default function PublicListings() {
           </Button>
 
 
+          {/* Brand Name */}
+          <span className="hidden sm:block flex-shrink-0 font-bold text-purple-600 text-lg">Purple Homes</span>
+
           {/* Primary Filters - Always Visible */}
           <div className="flex-1 flex items-center gap-2 max-w-4xl">
             {/* Unified Search Field */}
