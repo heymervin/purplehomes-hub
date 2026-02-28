@@ -984,7 +984,7 @@ export default function PublicPropertyDetail() {
                     )}
 
                     {/* Down payment + purchase price + closing costs */}
-                    <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-3">
+                    <div className="flex flex-wrap gap-2 justify-center md:justify-start mt-2 mb-3">
                       {property.downPayment !== undefined && (
                         <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-xs sm:text-sm font-semibold">
                           ${property.downPayment.toLocaleString()} {t('property.downPayment')}
