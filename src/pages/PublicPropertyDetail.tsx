@@ -1091,7 +1091,7 @@ export default function PublicPropertyDetail() {
                 </p>
               </Reveal>
 
-              <div className="max-w-4xl mx-auto grid sm:grid-cols-2 gap-6 md:gap-8 mt-10">
+              <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mt-10">
                 {[
                   { n: 1, title: t('processSteps.step1Title'), desc: t('processSteps.step1Desc'), note: t('processSteps.step1Note'), delay: 0 },
                   { n: 2, title: t('processSteps.step2Title'), desc: t('processSteps.step2Desc'), note: t('processSteps.step2Note'), delay: 100 },
