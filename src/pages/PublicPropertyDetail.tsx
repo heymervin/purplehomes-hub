@@ -978,70 +978,68 @@ export default function PublicPropertyDetail() {
 
       {/* Main Content - One infinite black canvas */}
       <main className="relative bg-black">
-        {/* Hero Section - Simplified with Integrated Property Image */}
+        {/* Hero Section - Two-column: copy left, image right */}
         <section className="relative overflow-hidden bg-black">
-          {/* Ambient lighting - reduced glows */}
-          <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/25 rounded-full blur-[180px]" />
-          <div className="absolute pointer-events-none bottom-0 right-1/4 w-[400px] h-[300px] bg-violet-700/15 rounded-full blur-[150px]" />
+          {/* Ambient lighting */}
+          <div className="absolute pointer-events-none top-0 left-1/4 w-[600px] h-[400px] bg-purple-600/20 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none top-0 right-1/4 w-[400px] h-[300px] bg-violet-700/15 rounded-full blur-[150px]" />
 
-          <div className="relative max-w-5xl mx-auto px-4 pt-4 sm:pt-6 md:pt-8 pb-3 sm:pb-4 text-center">
-            {/* 1. Headline */}
-            <HeroEntrance delay={0}>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black leading-[1.1] mb-2 sm:mb-3 tracking-tight max-w-4xl mx-auto">
-                <span className="bg-gradient-to-r from-white via-purple-100 to-white bg-clip-text text-transparent">
-                  {t('hero.headline')}
-                </span>
-              </h1>
-            </HeroEntrance>
+          <div className="relative max-w-5xl mx-auto px-4 py-8 sm:py-10 md:py-12">
+            <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-12">
 
-            {/* 2. Sub-headline */}
-            <HeroEntrance delay={100}>
-              <p className="text-base sm:text-lg md:text-xl font-medium mb-3 sm:mb-4 max-w-3xl mx-auto leading-relaxed">
-                <span className="bg-gradient-to-r from-gray-400 via-purple-300 to-gray-400 bg-clip-text text-transparent">
-                  {t('hero.subheadline')}
-                </span>
-              </p>
-            </HeroEntrance>
-          </div>
+              {/* Left: Headline + Subheadline + CTA */}
+              <div className="flex-1 text-center md:text-left">
+                <HeroEntrance delay={0}>
+                  <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-black leading-[1.1] mb-3 tracking-tight">
+                    <span className="bg-gradient-to-r from-white via-purple-100 to-white bg-clip-text text-transparent">
+                      {t('hero.headline')}
+                    </span>
+                  </h1>
+                </HeroEntrance>
 
-          {/* 3. Property Image - INSIDE HERO */}
-          <div className="relative max-w-xs sm:max-w-sm md:max-w-md mx-auto px-4 pb-3 sm:pb-4">
-            <HeroEntrance delay={200}>
-              <div className="relative group">
-                {/* Glow effect */}
-                <div className="absolute -inset-2 bg-gradient-to-br from-purple-500/40 to-violet-500/30 rounded-xl md:rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 pointer-events-none" />
+                <HeroEntrance delay={100}>
+                  <p className="text-base sm:text-lg md:text-xl font-medium mb-6 leading-relaxed">
+                    <span className="bg-gradient-to-r from-gray-400 via-purple-300 to-gray-400 bg-clip-text text-transparent">
+                      {t('hero.subheadline')}
+                    </span>
+                  </p>
+                </HeroEntrance>
 
-                {/* Image container - square aspect ratio */}
-                <div className="relative border-2 border-purple-500/40 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl [&_.aspect-video]:aspect-square">
-                  <PropertyImageGallery
-                    images={property.images || [property.heroImage]}
-                    heroImage={property.heroImage || '/placeholder.svg'}
-                    onHeroChange={() => {}}
-                    onImagesChange={() => {}}
-                    editable={false}
-                  />
-                </div>
+                <HeroEntrance delay={200}>
+                  <div className="flex flex-col items-center md:items-start gap-2.5">
+                    <button
+                      onClick={scrollToForm}
+                      className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg uppercase tracking-wide px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6)] transition-all duration-300 border-2 border-purple-300/50 hover:scale-105"
+                    >
+                      {t('hero.cta')}
+                      <ArrowRight className="inline-block ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      {t('hero.ctaMicro')}
+                    </p>
+                  </div>
+                </HeroEntrance>
               </div>
-            </HeroEntrance>
-          </div>
 
-          {/* 4. Primary CTA Button + Micro-text - Below image */}
-          <div className="relative max-w-5xl mx-auto px-4 pb-5 sm:pb-6 md:pb-8 text-center">
-            <HeroEntrance delay={300}>
-              <div className="flex flex-col items-center gap-2.5 sm:gap-3">
-                <button
-                  onClick={scrollToForm}
-                  className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-8 sm:px-10 md:px-14 py-3.5 sm:py-4 md:py-5 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 border-2 border-purple-300/50 hover:scale-105"
-                >
-                  {t('hero.cta')}
-                  <ArrowRight className="inline-block ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-
-                <p className="text-xs sm:text-sm text-gray-500">
-                  {t('hero.ctaMicro')}
-                </p>
+              {/* Right: Square property image */}
+              <div className="w-full max-w-sm mx-auto md:mx-0 md:w-72 lg:w-80 flex-shrink-0">
+                <HeroEntrance delay={150}>
+                  <div className="relative group">
+                    <div className="absolute -inset-2 bg-gradient-to-br from-purple-500/40 to-violet-500/30 rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 pointer-events-none" />
+                    <div className="relative border-2 border-purple-500/40 rounded-2xl overflow-hidden shadow-2xl [&_.aspect-video]:aspect-square">
+                      <PropertyImageGallery
+                        images={property.images || [property.heroImage]}
+                        heroImage={property.heroImage || '/placeholder.svg'}
+                        onHeroChange={() => {}}
+                        onImagesChange={() => {}}
+                        editable={false}
+                      />
+                    </div>
+                  </div>
+                </HeroEntrance>
               </div>
-            </HeroEntrance>
+
+            </div>
           </div>
         </section>
 
