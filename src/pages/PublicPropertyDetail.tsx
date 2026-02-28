@@ -1190,8 +1190,10 @@ export default function PublicPropertyDetail() {
             <div className="relative z-10 max-w-4xl mx-auto px-4">
               {/* Section Header */}
               <Reveal className="text-center mb-14 md:mb-16">
-                <h2 className="text-4xl md:text-5xl lg:text-6xl text-white">
-                  {t('location.heading')}
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-black">
+                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                    {t('location.heading')}
+                  </span>
                 </h2>
               </Reveal>
 
@@ -1257,8 +1259,10 @@ export default function PublicPropertyDetail() {
 
               <div className="relative z-10 max-w-3xl mx-auto px-4">
                 <Reveal className="text-center mb-10">
-                  <h2 className="text-3xl md:text-4xl text-white">
-                    {t('qualifier.heading')}
+                  <h2 className="text-3xl md:text-4xl font-black">
+                    <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                      {t('qualifier.heading')}
+                    </span>
                   </h2>
                 </Reveal>
 
@@ -1567,8 +1571,10 @@ export default function PublicPropertyDetail() {
                 <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
                   {t('propertyHighlights.sectionLabel')}
                 </span>
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-6">
-                  {t('propertyHighlights.sectionHeading')}
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
+                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                    {t('propertyHighlights.sectionHeading')}
+                  </span>
                 </h2>
                 <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
                   {t('propertyHighlights.showcaseText')}
@@ -1975,8 +1981,10 @@ export default function PublicPropertyDetail() {
                 <div className="absolute pointer-events-none bottom-[-40%] right-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
 
                 <Reveal className="text-center mb-10">
-                  <h2 className="text-3xl md:text-4xl text-white">
-                    {t('testimonials.heading')}
+                  <h2 className="text-3xl md:text-4xl font-black">
+                    <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                      {t('testimonials.heading')}
+                    </span>
                   </h2>
                 </Reveal>
                 <Reveal delay={200}>
