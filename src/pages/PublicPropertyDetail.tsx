@@ -941,10 +941,10 @@ export default function PublicPropertyDetail() {
         </div>
       </header>
 
-      {/* Main Content - One infinite black canvas */}
-      <main className="relative bg-black">
+      {/* Main Content - One unified gradient canvas top to bottom */}
+      <main className="relative" style={{ background: 'linear-gradient(to bottom, #000000 0%, #04000a 8%, #080015 20%, #0c001e 38%, #0e0028 55%, #0c001e 70%, #080015 85%, #04000a 95%, #000000 100%)' }}>
         {/* Hero Section - Two-column: copy left, image right */}
-        <section className="relative overflow-hidden bg-black">
+        <section className="relative overflow-hidden">
           {/* Ambient lighting */}
           <div className="absolute pointer-events-none top-0 left-1/4 w-[600px] h-[400px] bg-purple-600/20 rounded-full blur-[180px]" />
           <div className="absolute pointer-events-none top-0 right-1/4 w-[400px] h-[300px] bg-violet-700/15 rounded-full blur-[150px]" />
