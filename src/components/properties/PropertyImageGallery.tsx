@@ -192,7 +192,7 @@ export function PropertyImageGallery({
             <Button
               variant="ghost"
               size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/90 backdrop-blur-sm hover:bg-background shadow-lg z-10 transition-all"
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/40 backdrop-blur-sm hover:bg-background/80 shadow-lg z-10 transition-all opacity-40 hover:opacity-100"
               onClick={goToPrevious}
             >
               <ChevronLeft className="h-6 w-6" />
@@ -200,7 +200,7 @@ export function PropertyImageGallery({
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/90 backdrop-blur-sm hover:bg-background shadow-lg z-10 transition-all"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/40 backdrop-blur-sm hover:bg-background/80 shadow-lg z-10 transition-all opacity-40 hover:opacity-100"
               onClick={goToNext}
             >
               <ChevronRight className="h-6 w-6" />
