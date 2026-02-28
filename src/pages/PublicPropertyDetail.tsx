@@ -2,8 +2,8 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, ArrowRight, Bed, Bath, Maximize2, MapPin, Phone, Wrench, Home,
-  DollarSign, Loader2, Share2, Check, ExternalLink, Video,
-  Shield, Clock, Users, Award, CheckCircle, CreditCard, X,
+  Loader2, Share2, Check,
+  Shield, Clock, Users, Award, CheckCircle, X,
   MessageCircle, FileText, Calendar, Key
 } from 'lucide-react';
 import type { PropertyCondition, PropertyType, Property } from '@/types';
@@ -28,16 +28,10 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 // Import Funnel Components
 import {
   CTAButton,
-  TrustBar,
   TrustIndicators,
-  LiveViewers,
-  QuoteTestimonial,
   TestimonialMarquee,
-  StatsBar,
   FunnelFAQ,
   FAQCTA,
-  SectionHeader,
-  TwoColumnLayout,
   PremiumTrustStrip,
 } from '@/components/funnel';
 import { FeaturedTestimonial } from '@/components/funnel/TestimonialCard';
@@ -149,21 +143,6 @@ function HeroEntrance({
 //
 /// DO NOT use for: AI-generated text, body copy, or random words
 
-function GradientPrice({ amount, suffix }: { amount: number; suffix?: string }) {
-  return (
-    <span className="bg-gradient-to-r from-purple-300 via-violet-300 to-purple-300 bg-clip-text text-transparent">
-      ${amount.toLocaleString()}{suffix}
-    </span>
-  );
-}
-
-function GradientMoney({ amount }: { amount: number }) {
-  return (
-    <span className="bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">
-      ${amount.toLocaleString()}
-    </span>
-  );
-}
 
 function GradientNumber({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
@@ -914,20 +893,6 @@ export default function PublicPropertyDetail() {
   }
 
   // Parse FAQ from funnel content (uses localized version for Spanish)
-  const parsedFAQs = localizedFunnel?.faq
-    ? localizedFunnel.faq
-        .split(/(?=Q:)/g)
-        .filter(Boolean)
-        .map((qa) => {
-          const questionMatch = qa.match(/Q:\s*(.+?)(?=A:|$)/s);
-          const answerMatch = qa.match(/A:\s*(.+)/s);
-          return {
-            question: questionMatch?.[1]?.trim() || '',
-            answer: answerMatch?.[1]?.trim() || '',
-          };
-        })
-        .filter((item) => item.question && item.answer)
-    : [];
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
