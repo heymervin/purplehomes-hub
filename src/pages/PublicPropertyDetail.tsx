@@ -318,9 +318,10 @@ function AnimatedStatsSection() {
       <div className="relative z-10 max-w-6xl mx-auto px-4">
         {/* Section header - Enhanced Typography with Reveal */}
         <Reveal className="text-center mb-20">
-          <h2 className="text-3xl md:text-4xl font-black leading-tight">
-            <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
-              {t('stats.numbersThat')} {t('stats.speak')}
+          <h2 className="text-3xl md:text-4xl text-white leading-tight">
+            <span className="font-light">{t('stats.numbersThat')}</span>{' '}
+            <span className="font-bold italic bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent pr-1">
+              {t('stats.speak')}
             </span>
           </h2>
           <p className="text-gray-500 text-lg mt-4 font-light tracking-wide">{t('stats.forThemselves')}</p>
@@ -1111,7 +1112,7 @@ export default function PublicPropertyDetail() {
               <Reveal delay={0.2}>
                 {/* Headline with Dynamic Address */}
                 <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-center leading-tight tracking-tight mb-8">
-                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
                     {t('aboutHome.headline')} {property.address}
                   </span>
                 </h2>
@@ -1141,7 +1142,7 @@ export default function PublicPropertyDetail() {
               {/* Section Header */}
               <Reveal className="text-center mb-14 md:mb-16">
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-black">
-                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
                     {t('location.heading')}
                   </span>
                 </h2>
@@ -1210,7 +1211,7 @@ export default function PublicPropertyDetail() {
               <div className="relative z-10 max-w-3xl mx-auto px-4">
                 <Reveal className="text-center mb-10">
                   <h2 className="text-3xl md:text-4xl font-black">
-                    <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                    <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
                       {t('qualifier.heading')}
                     </span>
                   </h2>
@@ -1299,7 +1300,7 @@ export default function PublicPropertyDetail() {
 
                 <Reveal className="text-center mb-10">
                   <h2 className="text-3xl md:text-4xl font-black">
-                    <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                    <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
                       {t('testimonials.heading')}
                     </span>
                   </h2>
@@ -1329,7 +1330,7 @@ export default function PublicPropertyDetail() {
                   {t('propertyHighlights.sectionLabel')}
                 </span>
                 <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
-                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
                     {t('propertyHighlights.sectionHeading')}
                   </span>
                 </h2>
@@ -1525,7 +1526,7 @@ export default function PublicPropertyDetail() {
               {/* Section Header with Animation */}
               <Reveal className="text-center mb-16 md:mb-20">
                 <h2 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[1.0] tracking-[-0.02em] max-w-4xl mx-auto mb-6">
-                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
                     {stripMarkers(extractProblemHeadline(localizedFunnel.problem))}
                   </span>
                 </h2>
@@ -1602,7 +1603,7 @@ export default function PublicPropertyDetail() {
               <Reveal className="text-center mb-16 md:mb-20">
                 {/* Extract first 2 sentences for headline */}
                 <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto mb-4">
-                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
                     {stripMarkers((() => {
                       const sentences = localizedFunnel.solution.match(/[^.!?]+[.!?]+/g) || [localizedFunnel.solution];
                       return sentences.slice(0, 2).join(' ').trim();
@@ -2027,7 +2028,7 @@ export default function PublicPropertyDetail() {
 
             <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-                <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
                   {t('finalCta.heading')}
                 </span>
               </h2>

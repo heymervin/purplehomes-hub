@@ -261,7 +261,7 @@ const FunnelFAQ: React.FC<FunnelFAQProps> = ({
                 {t('faq.eyebrow')}
               </span>
               <h2 className="text-2xl md:text-4xl font-bold mb-3">
-                <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">{resolvedTitle}</span>
+                <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">{resolvedTitle}</span>
               </h2>
               {resolvedSubtitle && <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto px-4">{resolvedSubtitle}</p>}
             </div>
