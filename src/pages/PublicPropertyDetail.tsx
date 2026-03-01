@@ -1075,56 +1075,7 @@ export default function PublicPropertyDetail() {
           {/* Premium Trust Strip */}
           <PremiumTrustStrip className="pb-6" />
 
-          {/* What to Expect - 4 Steps */}
-          <div className="relative py-12 md:py-16">
-            <div className="relative z-10 container mx-auto px-4">
-              <Reveal className="text-center mb-4">
-                <h2 className="text-4xl sm:text-5xl font-black text-white mb-2">
-                  <span className="font-light">{t('processSteps.heading')}</span>{' '}
-                  <span className="font-black bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent pr-1">
-                    {t('processSteps.headingHighlight')}
-                  </span>
-                </h2>
-                <p className="text-purple-300 font-semibold text-lg mb-4">{t('processSteps.subtitle')}</p>
-                <p className="text-gray-400 text-base max-w-2xl mx-auto leading-relaxed">
-                  {t('processSteps.description')}
-                </p>
-              </Reveal>
-
-              <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mt-10">
-                {[
-                  { n: 1, title: t('processSteps.step1Title'), desc: t('processSteps.step1Desc'), note: t('processSteps.step1Note'), delay: 0 },
-                  { n: 2, title: t('processSteps.step2Title'), desc: t('processSteps.step2Desc'), note: t('processSteps.step2Note'), delay: 100 },
-                  { n: 3, title: t('processSteps.step3Title'), desc: t('processSteps.step3Desc'), note: t('processSteps.step3Note'), delay: 200 },
-                  { n: 4, title: t('processSteps.step4Title'), desc: t('processSteps.step4Desc'), note: t('processSteps.step4Note'), delay: 300 },
-                ].map(({ n, title, desc, note, delay }) => (
-                  <Reveal key={n} delay={delay} className="relative text-center group">
-                    <div className="relative mx-auto mb-5">
-                      <div className="absolute pointer-events-none inset-0 rounded-full bg-purple-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30 transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(168,85,247,0.5)] group-hover:-translate-y-2">
-                        <span className="text-3xl sm:text-4xl font-light bg-gradient-to-b from-purple-300 to-purple-500 bg-clip-text text-transparent">{n}</span>
-                      </div>
-                    </div>
-                    <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
-                    <p className="text-gray-400 leading-relaxed max-w-xs mx-auto text-sm mb-2">{desc}</p>
-                    <p className="text-purple-300/70 italic text-xs max-w-xs mx-auto">{note}</p>
-                  </Reveal>
-                ))}
-              </div>
-
-              {/* CTA */}
-              <Reveal delay={400} className="text-center mt-12">
-                <button
-                  onClick={scrollToForm}
-                  className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg uppercase tracking-wide px-10 py-4 rounded-xl shadow-[0_0_50px_rgba(168,85,247,0.4)] hover:shadow-[0_0_70px_rgba(168,85,247,0.5)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
-                >
-                  {t('processSteps.checkIfQualify')}
-                  <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
-                </button>
-                <p className="text-xs sm:text-sm text-gray-500 mt-3">{t('hero.ctaMicro')}</p>
-              </Reveal>
-            </div>
-          </div>
+          {/* What to Expect circles - HIDDEN (replaced by 2x2 box design moved to top) */}
 
           {/* Highlighted Solo Testimonial - inside section for seamless flow */}
           <div className="relative pt-12 pb-8 md:pt-16 md:pb-10">
@@ -1271,7 +1222,7 @@ export default function PublicPropertyDetail() {
                     {qualifierItems.map((item, idx) => (
                       <div key={idx} className="flex items-start gap-3 bg-purple-500/10 border border-purple-500/20 rounded-xl px-5 py-4 hover:bg-purple-500/15 transition-colors">
                         <CheckCircle className="h-5 w-5 text-purple-400 flex-shrink-0 mt-0.5" />
-                        <p className="text-white/90 leading-relaxed">{item}</p>
+                        <p className="text-white/90 leading-relaxed text-justify">{item}</p>
                       </div>
                     ))}
                   </div>
@@ -1280,6 +1231,145 @@ export default function PublicPropertyDetail() {
             </section>
           );
         })()}
+
+        {/* Property Showcase - 2x2 boxes (moved to top) */}
+        <section className="relative py-20 md:py-28">
+            {/* Ambient glow */}
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
+              <div className="absolute pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-violet-500/18 rounded-full blur-[180px]" />
+              <div className="absolute pointer-events-none bottom-[-45%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+              <div className="absolute pointer-events-none bottom-[-30%] left-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[150px]" />
+            </div>
+
+            <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
+              {/* Section Header */}
+              <Reveal className="text-center mb-12 md:mb-16">
+                <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
+                  {t('propertyHighlights.sectionLabel')}
+                </span>
+                <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
+                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                    {t('propertyHighlights.sectionHeading')}
+                  </span>
+                </h2>
+                <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto text-justify">
+                  {t('propertyHighlights.showcaseText')}
+                </p>
+              </Reveal>
+
+              {/* 4-Step Process - 2x2 boxes */}
+              <Reveal delay={150}>
+                <div className="grid sm:grid-cols-2 gap-6 md:gap-8 mt-16 mb-12">
+                  {/* Step 1 */}
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                        <MessageCircle className="h-7 w-7 text-purple-300" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step1Title')}</h3>
+                        <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step1Desc')}</p>
+                        <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step1Note')}</p>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Step 2 */}
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                        <FileText className="h-7 w-7 text-purple-300" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step2Title')}</h3>
+                        <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step2Desc')}</p>
+                        <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step2Note')}</p>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Step 3 */}
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                        <Calendar className="h-7 w-7 text-purple-300" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step3Title')}</h3>
+                        <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step3Desc')}</p>
+                        <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step3Note')}</p>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Step 4 */}
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                        <Key className="h-7 w-7 text-purple-300" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step4Title')}</h3>
+                        <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step4Desc')}</p>
+                        <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step4Note')}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+
+              {/* CTA */}
+              <Reveal delay={200}>
+                <div className="text-center mb-16">
+                  <CTAButton
+                    onClick={() => {
+                      analytics.trackCtaClick('how_it_works');
+                      setIsFormModalOpen(true);
+                    }}
+                  >
+                    {t('hero.cta')}
+                  </CTAButton>
+                  <p className="text-sm text-gray-500 mt-3">{t('hero.ctaMicro')}</p>
+                </div>
+              </Reveal>
+
+              {/* Property Features Grid */}
+              <Reveal delay={250}>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
+                      <Bed className="h-7 w-7 text-purple-300" />
+                    </div>
+                    <div className="text-4xl font-black mb-1"><GradientNumber>{property.beds}</GradientNumber></div>
+                    <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.bedrooms')}</div>
+                  </div>
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
+                      <Bath className="h-7 w-7 text-purple-300" />
+                    </div>
+                    <div className="text-4xl font-black mb-1"><GradientNumber>{property.baths}</GradientNumber></div>
+                    <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.bathrooms')}</div>
+                  </div>
+                  {property.sqft && (
+                    <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                      <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
+                        <Maximize2 className="h-7 w-7 text-purple-300" />
+                      </div>
+                      <div className="text-4xl font-black mb-1"><GradientNumber>{property.sqft.toLocaleString()}</GradientNumber></div>
+                      <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.squareFeet')}</div>
+                    </div>
+                  )}
+                  {property.condition && (
+                    <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                      <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
+                        <Wrench className="h-7 w-7 text-purple-300" />
+                      </div>
+                      <div className="text-2xl font-black text-white mb-1">{property.condition}</div>
+                      <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.condition')}</div>
+                    </div>
+                  )}
+                </div>
+              </Reveal>
+            </div>
+          </section>
 
         {/* Full-page loading skeleton while funnel content loads */}
         {funnelLoading && (
@@ -1359,7 +1449,7 @@ export default function PublicPropertyDetail() {
                     {stripMarkers(extractProblemHeadline(localizedFunnel.problem))}
                   </span>
                 </h2>
-                <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto text-justify">
                   {t('problem.notAlone')} <span className="text-purple-300 font-medium">{t('problem.thousands')}</span> {t('problem.thousandsFace')}
                 </p>
               </Reveal>
@@ -1463,7 +1553,7 @@ export default function PublicPropertyDetail() {
                         </div>
                         <div className="relative">
                           <h3 className="text-xl md:text-2xl font-black text-white mb-2 group-hover:text-purple-100 transition-colors">{benefit.highlight}</h3>
-                          <p className="text-gray-400 text-base leading-relaxed group-hover:text-gray-300 transition-colors">{benefit.text}</p>
+                          <p className="text-gray-400 text-base leading-relaxed group-hover:text-gray-300 transition-colors text-justify">{benefit.text}</p>
                         </div>
                       </div>
                     </Reveal>
@@ -1517,7 +1607,7 @@ export default function PublicPropertyDetail() {
                         {t('solution.minimumCreditScore')}
                       </p>
 
-                      <p className="relative text-lg text-gray-400 font-light max-w-sm mx-auto">
+                      <p className="relative text-lg text-gray-400 font-light max-w-sm mx-auto text-justify">
                         {t('solution.creditScoreJourney')}
                       </p>
 
@@ -1548,175 +1638,6 @@ export default function PublicPropertyDetail() {
                   <p className="text-sm text-gray-500 mt-3">
                     {t('hero.ctaMicro')}
                   </p>
-                </div>
-              </Reveal>
-            </div>
-          </section>
-        )}
-
-        {/* Property Showcase - DARK THEME */}
-        {!funnelLoading && (
-          <section className="relative py-20 md:py-28">
-            {/* Ambient glow - BOOSTED + extended bottom bleed to Investment */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
-              <div className="absolute pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-violet-500/18 rounded-full blur-[180px]" />
-              {/* Extended bottom bleed to reach Investment section */}
-              <div className="absolute pointer-events-none bottom-[-45%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-              <div className="absolute pointer-events-none bottom-[-30%] left-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[150px]" />
-            </div>
-
-            <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
-              {/* Section Header */}
-              <Reveal className="text-center mb-12 md:mb-16">
-                <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
-                  {t('propertyHighlights.sectionLabel')}
-                </span>
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
-                  <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
-                    {t('propertyHighlights.sectionHeading')}
-                  </span>
-                </h2>
-                <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
-                  {t('propertyHighlights.showcaseText')}
-                </p>
-              </Reveal>
-
-              {/* 4-Step Process - How It Works */}
-              <Reveal delay={150}>
-                <div className="grid sm:grid-cols-2 gap-6 md:gap-8 mt-16 mb-12">
-                  {/* Step 1 */}
-                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                        <MessageCircle className="h-7 w-7 text-purple-300" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step1Title')}</h3>
-                        <p className="text-gray-400 leading-relaxed mb-2">
-                          {t('propertyHighlights.step1Desc')}
-                        </p>
-                        <p className="text-sm text-purple-300/80 italic">
-                          {t('propertyHighlights.step1Note')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Step 2 */}
-                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                        <FileText className="h-7 w-7 text-purple-300" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step2Title')}</h3>
-                        <p className="text-gray-400 leading-relaxed mb-2">
-                          {t('propertyHighlights.step2Desc')}
-                        </p>
-                        <p className="text-sm text-purple-300/80 italic">
-                          {t('propertyHighlights.step2Note')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Step 3 */}
-                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                        <Calendar className="h-7 w-7 text-purple-300" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step3Title')}</h3>
-                        <p className="text-gray-400 leading-relaxed mb-2">
-                          {t('propertyHighlights.step3Desc')}
-                        </p>
-                        <p className="text-sm text-purple-300/80 italic">
-                          {t('propertyHighlights.step3Note')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Step 4 */}
-                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                        <Key className="h-7 w-7 text-purple-300" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step4Title')}</h3>
-                        <p className="text-gray-400 leading-relaxed mb-2">
-                          {t('propertyHighlights.step4Desc')}
-                        </p>
-                        <p className="text-sm text-purple-300/80 italic">
-                          {t('propertyHighlights.step4Note')}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-
-              {/* CTA Button After Process Steps */}
-              <Reveal delay={200}>
-                <div className="text-center mb-16">
-                  <CTAButton
-                    onClick={() => {
-                      analytics.trackCtaClick('how_it_works');
-                      setIsFormModalOpen(true);
-                    }}
-                  >
-                    {t('hero.cta')}
-                  </CTAButton>
-                  <p className="text-sm text-gray-500 mt-3">
-                    {t('hero.ctaMicro')}
-                  </p>
-                </div>
-              </Reveal>
-
-              {/* Property Features Grid - Dark Cards */}
-              <Reveal delay={250}>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
-                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
-                      <Bed className="h-7 w-7 text-purple-300" />
-                    </div>
-                    <div className="text-4xl font-black mb-1">
-                      <GradientNumber>{property.beds}</GradientNumber>
-                    </div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.bedrooms')}</div>
-                  </div>
-                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
-                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
-                      <Bath className="h-7 w-7 text-purple-300" />
-                    </div>
-                    <div className="text-4xl font-black mb-1">
-                      <GradientNumber>{property.baths}</GradientNumber>
-                    </div>
-                    <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.bathrooms')}</div>
-                  </div>
-                  {property.sqft && (
-                    <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
-                      <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
-                        <Maximize2 className="h-7 w-7 text-purple-300" />
-                      </div>
-                      <div className="text-4xl font-black mb-1">
-                        <GradientNumber>{property.sqft.toLocaleString()}</GradientNumber>
-                      </div>
-                      <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.squareFeet')}</div>
-                    </div>
-                  )}
-                  {property.condition && (
-                    <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
-                      <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
-                        <Wrench className="h-7 w-7 text-purple-300" />
-                      </div>
-                      <div className="text-2xl font-black text-white mb-1">{property.condition}</div>
-                      <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.condition')}</div>
-                    </div>
-                  )}
                 </div>
               </Reveal>
             </div>
