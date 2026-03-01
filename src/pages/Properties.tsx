@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, X, Send, Calendar, SkipForward, MapPin, Home, RefreshCw, Database, AlertCircle, Loader2, Building2 } from 'lucide-react';
+import { Search, X, Send, Calendar, SkipForward, MapPin, Home, RefreshCw, Database, AlertCircle, Loader2, Building2, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,9 +14,20 @@ import {
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { PropertyDetailModal } from '@/components/properties/PropertyDetailModal';
 import { EmptyState } from '@/components/ui/empty-state';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 // Removed demo data import - using only Airtable data
 import type { PropertyStatus, PropertyType, PropertyCondition, Property } from '@/types';
-import { useAirtableProperties } from '@/services/matchingApi';
+import { useAirtableProperties, useDeleteProperties } from '@/services/matchingApi';
 
 // Property source types for filtering
 const sourceOptions: { value: string; label: string }[] = [
@@ -44,6 +55,7 @@ export default function Properties() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
   // Fetch properties from Airtable (same source as Property Matching)
   const {
@@ -52,6 +64,8 @@ export default function Properties() {
     isError,
     refetch
   } = useAirtableProperties(200);
+
+  const deleteProperties = useDeleteProperties();
 
   // Transform Airtable properties to Property type for display
   const airtableProperties: Property[] = useMemo(() => {
@@ -182,6 +196,18 @@ export default function Properties() {
     console.log('Posting properties:', validIds);
     // TODO: Implement batch posting
     handleClearSelection();
+  };
+
+  const handleBulkDelete = async () => {
+    const recordIds = Array.from(selectedIds);
+    try {
+      const result = await deleteProperties.mutateAsync(recordIds);
+      toast.success(`Deleted ${result.deletedCount} properties and ${result.matchesDeleted} related matches`);
+      setShowBulkDeleteConfirm(false);
+      handleClearSelection();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete properties');
+    }
   };
 
   // Check if we have Airtable data
@@ -319,6 +345,15 @@ export default function Properties() {
               <SkipForward className="h-4 w-4 mr-2" />
               Skip
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-destructive border-destructive/30 hover:bg-destructive/10"
+              onClick={() => setShowBulkDeleteConfirm(true)}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete ({selectedIds.size})
+            </Button>
             <Button size="sm" variant="ghost" onClick={handleClearSelection}>
               <X className="h-4 w-4" />
             </Button>
@@ -384,6 +419,35 @@ export default function Properties() {
         onOpenChange={setIsDetailModalOpen}
         onSaved={() => refetch()}
       />
+
+      {/* Bulk Delete Confirmation */}
+      <AlertDialog open={showBulkDeleteConfirm} onOpenChange={setShowBulkDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} Properties</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure? This will also remove related match records. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteProperties.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBulkDelete}
+              disabled={deleteProperties.isPending}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {deleteProperties.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                `Delete ${selectedIds.size} Properties`
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

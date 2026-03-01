@@ -120,11 +120,23 @@ export async function buyersHandler(req: VercelRequest, res: VercelResponse) {
       case 'update':
         return handleUpdate(req, res, airtableHeaders, ghlHeaders);
 
+      case 'delete':
+        if (req.method !== 'DELETE') {
+          return res.status(405).json({ error: 'Method not allowed. Use DELETE.' });
+        }
+        return handleDelete(req, res, airtableHeaders, ghlHeaders);
+
+      case 'delete-bulk':
+        if (req.method !== 'DELETE') {
+          return res.status(405).json({ error: 'Method not allowed. Use DELETE.' });
+        }
+        return handleDeleteBulk(req, res, airtableHeaders, ghlHeaders);
+
       case 'test':
         return res.status(200).json({ success: true, message: 'Buyers API connection OK' });
 
       default:
-        return res.status(400).json({ error: 'Invalid action. Use: list, get, update' });
+        return res.status(400).json({ error: 'Invalid action. Use: list, get, update, delete, delete-bulk' });
     }
   } catch (error) {
     console.error('[Buyers API] Error:', error);
@@ -450,6 +462,227 @@ async function handleUpdate(
     console.error('[Buyers API] Update error:', error);
     return res.status(500).json({
       error: 'Failed to update buyer',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+}
+
+/**
+ * Cascade delete match records for a given buyer record ID.
+ * Finds all matches referencing this buyer and deletes them in batches of 10.
+ */
+async function cascadeDeleteBuyerMatches(
+  buyerRecordId: string,
+  headers: Record<string, string>
+): Promise<number> {
+  let matchIds: string[] = [];
+  let offset: string | undefined;
+
+  do {
+    const url = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches`);
+    url.searchParams.set('filterByFormula', `SEARCH("${buyerRecordId}", ARRAYJOIN({Contact ID}))`);
+    url.searchParams.set('pageSize', '100');
+    url.searchParams.set('fields[]', 'Match Score');
+    if (offset) url.searchParams.set('offset', offset);
+
+    const response = await fetchWithRetry(url.toString(), { headers });
+    if (!response.ok) break;
+
+    const data = await response.json();
+    matchIds.push(...(data.records || []).map((r: any) => r.id));
+    offset = data.offset;
+  } while (offset);
+
+  if (matchIds.length === 0) return 0;
+
+  console.log(`[Buyers API] Cascade deleting ${matchIds.length} matches for buyer ${buyerRecordId}`);
+
+  const BATCH_SIZE = 10;
+  let deletedCount = 0;
+
+  for (let i = 0; i < matchIds.length; i += BATCH_SIZE) {
+    const batch = matchIds.slice(i, i + BATCH_SIZE);
+    const deleteUrl = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches`);
+    batch.forEach(id => deleteUrl.searchParams.append('records[]', id));
+
+    const deleteRes = await fetchWithRetry(deleteUrl.toString(), {
+      method: 'DELETE',
+      headers,
+    });
+
+    if (!deleteRes.ok) {
+      console.error(`[Buyers API] Cascade delete batch failed: ${deleteRes.status}`);
+      throw new Error(`Failed to cascade delete matches: ${deleteRes.status}`);
+    }
+
+    deletedCount += batch.length;
+  }
+
+  return deletedCount;
+}
+
+/**
+ * Delete a single buyer from Airtable + GHL contact + cascade delete matches
+ */
+async function handleDelete(
+  req: VercelRequest,
+  res: VercelResponse,
+  airtableHeaders: Record<string, string>,
+  ghlHeaders: Record<string, string>
+) {
+  const { recordId, contactId } = req.body;
+
+  if (!recordId) {
+    return res.status(400).json({ error: 'recordId is required' });
+  }
+
+  console.log(`[Buyers API] Deleting buyer ${recordId} (contactId: ${contactId}) with cascade...`);
+
+  try {
+    // Step 1: Cascade delete related matches
+    const matchesDeleted = await cascadeDeleteBuyerMatches(recordId, airtableHeaders);
+    console.log(`[Buyers API] Cascade deleted ${matchesDeleted} matches`);
+
+    // Step 2: Delete from Airtable
+    const deleteUrl = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Buyers`);
+    deleteUrl.searchParams.append('records[]', recordId);
+
+    const deleteRes = await fetchWithRetry(deleteUrl.toString(), {
+      method: 'DELETE',
+      headers: airtableHeaders,
+    });
+
+    if (!deleteRes.ok) {
+      const errorText = await deleteRes.text();
+      console.error(`[Buyers API] Airtable delete failed:`, errorText);
+      throw new Error(`Failed to delete buyer from Airtable: ${deleteRes.status}`);
+    }
+
+    console.log(`[Buyers API] Deleted buyer ${recordId} from Airtable`);
+
+    // Step 3: Delete from GHL (non-blocking — if GHL fails, still succeed)
+    let ghlDeleted = false;
+    if (contactId && GHL_API_KEY) {
+      try {
+        const ghlRes = await fetchWithRetry(
+          `${GHL_API_URL}/contacts/${contactId}`,
+          {
+            method: 'DELETE',
+            headers: ghlHeaders,
+          }
+        );
+
+        if (ghlRes.ok) {
+          ghlDeleted = true;
+          console.log(`[Buyers API] Deleted GHL contact ${contactId}`);
+        } else {
+          console.warn(`[Buyers API] GHL delete failed: ${ghlRes.status}`);
+        }
+      } catch (ghlError) {
+        console.error('[Buyers API] GHL delete error:', ghlError);
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Buyer deleted with ${matchesDeleted} related matches removed`,
+      matchesDeleted,
+      ghlDeleted,
+    });
+  } catch (error) {
+    console.error('[Buyers API] Delete error:', error);
+    return res.status(500).json({
+      error: 'Failed to delete buyer',
+      details: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+}
+
+/**
+ * Bulk delete buyers from Airtable + GHL + cascade delete matches
+ */
+async function handleDeleteBulk(
+  req: VercelRequest,
+  res: VercelResponse,
+  airtableHeaders: Record<string, string>,
+  ghlHeaders: Record<string, string>
+) {
+  const { buyers } = req.body;
+
+  if (!Array.isArray(buyers) || buyers.length === 0) {
+    return res.status(400).json({ error: 'buyers array is required (each with recordId and optional contactId)' });
+  }
+
+  console.log(`[Buyers API] Bulk deleting ${buyers.length} buyers with cascade...`);
+
+  try {
+    let totalMatchesDeleted = 0;
+    let ghlDeletedCount = 0;
+
+    // Step 1: Cascade delete matches for each buyer
+    for (const buyer of buyers) {
+      const matchesDeleted = await cascadeDeleteBuyerMatches(buyer.recordId, airtableHeaders);
+      totalMatchesDeleted += matchesDeleted;
+    }
+
+    console.log(`[Buyers API] Cascade deleted ${totalMatchesDeleted} total matches`);
+
+    // Step 2: Delete buyers from Airtable in batches of 10
+    const recordIds = buyers.map((b: { recordId: string }) => b.recordId);
+    const BATCH_SIZE = 10;
+    let deletedCount = 0;
+
+    for (let i = 0; i < recordIds.length; i += BATCH_SIZE) {
+      const batch = recordIds.slice(i, i + BATCH_SIZE);
+      const deleteUrl = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Buyers`);
+      batch.forEach((id: string) => deleteUrl.searchParams.append('records[]', id));
+
+      const deleteRes = await fetchWithRetry(deleteUrl.toString(), {
+        method: 'DELETE',
+        headers: airtableHeaders,
+      });
+
+      if (!deleteRes.ok) {
+        const errorText = await deleteRes.text();
+        console.error(`[Buyers API] Bulk delete batch failed:`, errorText);
+        throw new Error(`Failed to delete buyers batch: ${deleteRes.status}`);
+      }
+
+      deletedCount += batch.length;
+    }
+
+    // Step 3: Delete from GHL (non-blocking)
+    if (GHL_API_KEY) {
+      for (const buyer of buyers) {
+        if (!buyer.contactId) continue;
+        try {
+          const ghlRes = await fetchWithRetry(
+            `${GHL_API_URL}/contacts/${buyer.contactId}`,
+            {
+              method: 'DELETE',
+              headers: ghlHeaders,
+            }
+          );
+          if (ghlRes.ok) ghlDeletedCount++;
+        } catch {
+          // Non-blocking
+        }
+      }
+    }
+
+    console.log(`[Buyers API] Bulk deleted ${deletedCount} buyers, ${ghlDeletedCount} GHL contacts`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Deleted ${deletedCount} buyers with ${totalMatchesDeleted} related matches removed`,
+      deletedCount,
+      matchesDeleted: totalMatchesDeleted,
+      ghlDeletedCount,
+    });
+  } catch (error) {
+    console.error('[Buyers API] Bulk delete error:', error);
+    return res.status(500).json({
+      error: 'Failed to delete buyers',
       details: error instanceof Error ? error.message : 'Unknown error',
     });
   }

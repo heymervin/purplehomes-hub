@@ -19,6 +19,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { StatusBadge } from '@/components/ui/status-badge';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -26,6 +36,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { demoProperties, mockProperties } from '@/data/mockData.backup';
+import { useDeleteProperty } from '@/services/matchingApi';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -52,6 +63,8 @@ export default function PropertyDetail() {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [heroImage, setHeroImage] = useState(property?.heroImage || '');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const deleteProperty = useDeleteProperty();
 
   if (!property) {
     return (
@@ -101,6 +114,17 @@ export default function PropertyDetail() {
 
   const handleImageSelect = (imageUrl: string) => {
     setHeroImage(imageUrl);
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    try {
+      await deleteProperty.mutateAsync(id);
+      toast.success('Property deleted successfully');
+      navigate('/properties');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete property');
+    }
   };
 
   return (
@@ -339,13 +363,46 @@ export default function PropertyDetail() {
                 Skip Property
               </Button>
             </div>
-            <Button variant="ghost" className="w-full text-destructive hover:text-destructive">
+            <Button
+              variant="ghost"
+              className="w-full text-destructive hover:text-destructive"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Property</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure? This will also remove related match records. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteProperty.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleteProperty.isPending}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {deleteProperty.isPending ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Property'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

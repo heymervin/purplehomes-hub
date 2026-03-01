@@ -99,6 +99,68 @@ export const useUpdateBuyer = () => {
 };
 
 /**
+ * Delete a single buyer with cascade match deletion and GHL contact removal
+ */
+export const useDeleteBuyer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ recordId, contactId }: { recordId: string; contactId?: string }): Promise<{ success: boolean; matchesDeleted: number; ghlDeleted: boolean }> => {
+      console.log('[Buyers API] Deleting buyer:', recordId);
+      const response = await fetch(`${API_BASE}?action=delete`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recordId, contactId }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to delete buyer' }));
+        throw new Error(error.error || 'Failed to delete buyer');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['buyers-list'] });
+      queryClient.invalidateQueries({ queryKey: ['buyer'] });
+      queryClient.invalidateQueries({ queryKey: ['buyers-with-matches'] });
+      queryClient.invalidateQueries({ queryKey: ['match-stats'] });
+    },
+  });
+};
+
+/**
+ * Bulk delete buyers with cascade match deletion and GHL contact removal
+ */
+export const useDeleteBuyers = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (buyers: Array<{ recordId: string; contactId?: string }>): Promise<{ success: boolean; deletedCount: number; matchesDeleted: number; ghlDeletedCount: number }> => {
+      console.log('[Buyers API] Bulk deleting buyers:', buyers.length);
+      const response = await fetch(`${API_BASE}?action=delete-bulk`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ buyers }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to delete buyers' }));
+        throw new Error(error.error || 'Failed to delete buyers');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['buyers-list'] });
+      queryClient.invalidateQueries({ queryKey: ['buyer'] });
+      queryClient.invalidateQueries({ queryKey: ['buyers-with-matches'] });
+      queryClient.invalidateQueries({ queryKey: ['match-stats'] });
+    },
+  });
+};
+
+/**
  * Trigger re-matching for a buyer after preference changes
  */
 export const useRematchBuyer = () => {

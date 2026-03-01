@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   Save, Loader2, Home, Bed, Bath, Square, DollarSign,
   Image as ImageIcon, Tag, Calendar, RefreshCw, Calculator,
-  ExternalLink, Share2, MessageSquare, CheckCircle, FileText
+  ExternalLink, Share2, MessageSquare, CheckCircle, FileText, Trash2
 } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { QuickStatsBar } from './QuickStatsBar';
@@ -46,7 +46,7 @@ import { CurrencyInput } from '@/components/ui/currency-input';
 import { toast } from 'sonner';
 import type { Property, PropertyCondition, PropertyType, PropertyStatus } from '@/types';
 import { useUpdateProperty, useProperty, useUploadMedia, PROPERTY_CUSTOM_FIELDS, GHL_OPPORTUNITY_FIELDS } from '@/services/ghlApi';
-import { useUpdateAirtableProperty } from '@/services/matchingApi';
+import { useUpdateAirtableProperty, useDeleteProperty } from '@/services/matchingApi';
 import { PropertyCalculator } from '@/components/calculator';
 import { FunnelContentEditor } from './FunnelContentEditor';
 
@@ -107,6 +107,7 @@ export function PropertyDetailModal({
 }: PropertyDetailModalProps) {
   const updateProperty = useUpdateProperty();
   const updateAirtableProperty = useUpdateAirtableProperty();
+  const deleteProperty = useDeleteProperty();
   const uploadMedia = useUploadMedia();
 
   // Fetch raw opportunity data to get current custom field values
@@ -119,6 +120,7 @@ export function PropertyDetailModal({
   const [isLoading] = useState(false);
   const [calculatorOpen, setCalculatorOpen] = useState(false);
   const [showCloseWarning, setShowCloseWarning] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState('details');
   // Funnel tab save state
   const [funnelHasChanges, setFunnelHasChanges] = useState(false);
@@ -381,6 +383,20 @@ export function PropertyDetailModal({
     } catch (error) {
       console.error('[PropertyDetailModal] Save error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to save');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!initialProperty?.id) return;
+
+    try {
+      await deleteProperty.mutateAsync(initialProperty.id);
+      toast.success('Property deleted successfully');
+      setShowDeleteConfirm(false);
+      onOpenChange(false);
+      onSaved?.();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete property');
     }
   };
 
@@ -799,6 +815,19 @@ export function PropertyDetailModal({
                 CRM
               </Button>
             )}
+
+            {initialProperty?.id && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="text-destructive border-destructive/30 hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+            )}
           </div>
 
           {/* Right Side - Primary Actions */}
@@ -879,6 +908,35 @@ export function PropertyDetailModal({
               className="bg-red-600 hover:bg-red-700"
             >
               Discard Changes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Property</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure? This will also remove related match records. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteProperty.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleteProperty.isPending}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {deleteProperty.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Property'
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -956,6 +956,66 @@ export const useAirtableProperties = (pageSize: number = 100) => {
 };
 
 /**
+ * Delete a single property with cascade match deletion
+ */
+export const useDeleteProperty = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (recordId: string): Promise<{ success: boolean; matchesDeleted: number }> => {
+      console.log('[Matching API] Deleting property:', recordId);
+      const response = await fetch(`${AIRTABLE_API_BASE}?action=delete-property`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recordId }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to delete property' }));
+        throw new Error(error.error || 'Failed to delete property');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['airtable-properties'] });
+      queryClient.invalidateQueries({ queryKey: ['properties-with-matches'] });
+      queryClient.invalidateQueries({ queryKey: ['match-stats'] });
+    },
+  });
+};
+
+/**
+ * Bulk delete properties with cascade match deletion
+ */
+export const useDeleteProperties = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (recordIds: string[]): Promise<{ success: boolean; deletedCount: number; matchesDeleted: number }> => {
+      console.log('[Matching API] Bulk deleting properties:', recordIds.length);
+      const response = await fetch(`${AIRTABLE_API_BASE}?action=delete-properties`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recordIds }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: 'Failed to delete properties' }));
+        throw new Error(error.error || 'Failed to delete properties');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['airtable-properties'] });
+      queryClient.invalidateQueries({ queryKey: ['properties-with-matches'] });
+      queryClient.invalidateQueries({ queryKey: ['match-stats'] });
+    },
+  });
+};
+
+/**
  * Update a property in Airtable (Properties table)
  * Used when saving property changes directly to Airtable
  */

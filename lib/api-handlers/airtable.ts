@@ -139,9 +139,19 @@ export async function airtableHandler(req: VercelRequest, res: VercelResponse) {
         // Update a single record by ID
         return handleUpdateRecord(req, res, headers, table as string);
 
-      case 'get-record':
-        // Get a single record by ID
-        return handleGetRecord(req, res, headers, table as string);
+      case 'delete-property':
+        // Delete a single property with cascade match deletion
+        if (req.method !== 'DELETE') {
+          return res.status(405).json({ error: 'Method not allowed. Use DELETE.' });
+        }
+        return handleDeleteProperty(req, res, headers);
+
+      case 'delete-properties':
+        // Bulk delete properties with cascade match deletion
+        if (req.method !== 'DELETE') {
+          return res.status(405).json({ error: 'Method not allowed. Use DELETE.' });
+        }
+        return handleDeleteProperties(req, res, headers);
 
       default:
         return res.status(400).json({ error: 'Unknown action', action });
@@ -580,6 +590,183 @@ async function handleUpdateRecord(
       message: error.message,
       table: tableName,
       recordId,
+    });
+  }
+}
+
+/**
+ * Cascade delete match records for a given property record ID.
+ * Finds all matches referencing this property and deletes them in batches of 10.
+ */
+async function cascadeDeletePropertyMatches(
+  propertyRecordId: string,
+  headers: any
+): Promise<number> {
+  const matchFormula = encodeURIComponent(
+    `SEARCH("${propertyRecordId}", ARRAYJOIN({Property Code}))`
+  );
+
+  let matchIds: string[] = [];
+  let offset: string | undefined;
+
+  do {
+    const url = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches`);
+    url.searchParams.set('filterByFormula', `SEARCH("${propertyRecordId}", ARRAYJOIN({Property Code}))`);
+    url.searchParams.set('pageSize', '100');
+    url.searchParams.set('fields[]', 'Match Score');
+    if (offset) url.searchParams.set('offset', offset);
+
+    const response = await fetchWithRetry(url.toString(), { headers });
+    if (!response.ok) break;
+
+    const data = await response.json();
+    matchIds.push(...(data.records || []).map((r: any) => r.id));
+    offset = data.offset;
+  } while (offset);
+
+  if (matchIds.length === 0) return 0;
+
+  console.log(`[Airtable] Cascade deleting ${matchIds.length} matches for property ${propertyRecordId}`);
+
+  const BATCH_SIZE = 10;
+  let deletedCount = 0;
+
+  for (let i = 0; i < matchIds.length; i += BATCH_SIZE) {
+    const batch = matchIds.slice(i, i + BATCH_SIZE);
+    const deleteUrl = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches`);
+    batch.forEach(id => deleteUrl.searchParams.append('records[]', id));
+
+    const deleteRes = await fetchWithRetry(deleteUrl.toString(), {
+      method: 'DELETE',
+      headers,
+    });
+
+    if (!deleteRes.ok) {
+      console.error(`[Airtable] Cascade delete batch failed: ${deleteRes.status}`);
+      throw new Error(`Failed to cascade delete matches: ${deleteRes.status}`);
+    }
+
+    deletedCount += batch.length;
+  }
+
+  return deletedCount;
+}
+
+/**
+ * Delete a single property and its related matches
+ */
+async function handleDeleteProperty(
+  req: VercelRequest,
+  res: VercelResponse,
+  headers: any
+) {
+  const { recordId } = req.body;
+
+  if (!recordId) {
+    return res.status(400).json({ error: 'recordId is required' });
+  }
+
+  console.log(`[Airtable] Deleting property ${recordId} with cascade...`);
+
+  try {
+    // Step 1: Cascade delete related matches
+    const matchesDeleted = await cascadeDeletePropertyMatches(recordId, headers);
+    console.log(`[Airtable] Cascade deleted ${matchesDeleted} matches for property ${recordId}`);
+
+    // Step 2: Delete the property record
+    const deleteUrl = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Properties`);
+    deleteUrl.searchParams.append('records[]', recordId);
+
+    const deleteRes = await fetchWithRetry(deleteUrl.toString(), {
+      method: 'DELETE',
+      headers,
+    });
+
+    if (!deleteRes.ok) {
+      const errorText = await deleteRes.text();
+      console.error(`[Airtable] Property delete failed:`, errorText);
+      throw new Error(`Failed to delete property: ${deleteRes.status}`);
+    }
+
+    console.log(`[Airtable] Successfully deleted property ${recordId}`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Property deleted with ${matchesDeleted} related matches removed`,
+      matchesDeleted,
+    });
+  } catch (error: any) {
+    console.error(`[Airtable] Error in handleDeleteProperty:`, error);
+    return res.status(500).json({
+      error: 'Failed to delete property',
+      message: error.message,
+    });
+  }
+}
+
+/**
+ * Bulk delete properties and their related matches
+ */
+async function handleDeleteProperties(
+  req: VercelRequest,
+  res: VercelResponse,
+  headers: any
+) {
+  const { recordIds } = req.body;
+
+  if (!Array.isArray(recordIds) || recordIds.length === 0) {
+    return res.status(400).json({ error: 'recordIds array is required' });
+  }
+
+  console.log(`[Airtable] Bulk deleting ${recordIds.length} properties with cascade...`);
+
+  try {
+    let totalMatchesDeleted = 0;
+
+    // Step 1: Cascade delete matches for each property
+    for (const recordId of recordIds) {
+      const matchesDeleted = await cascadeDeletePropertyMatches(recordId, headers);
+      totalMatchesDeleted += matchesDeleted;
+    }
+
+    console.log(`[Airtable] Cascade deleted ${totalMatchesDeleted} total matches`);
+
+    // Step 2: Delete properties in batches of 10
+    const BATCH_SIZE = 10;
+    let deletedCount = 0;
+
+    for (let i = 0; i < recordIds.length; i += BATCH_SIZE) {
+      const batch = recordIds.slice(i, i + BATCH_SIZE);
+      const deleteUrl = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Properties`);
+      batch.forEach((id: string) => deleteUrl.searchParams.append('records[]', id));
+
+      const deleteRes = await fetchWithRetry(deleteUrl.toString(), {
+        method: 'DELETE',
+        headers,
+      });
+
+      if (!deleteRes.ok) {
+        const errorText = await deleteRes.text();
+        console.error(`[Airtable] Bulk property delete batch failed:`, errorText);
+        throw new Error(`Failed to delete properties batch: ${deleteRes.status}`);
+      }
+
+      deletedCount += batch.length;
+    }
+
+    console.log(`[Airtable] Successfully deleted ${deletedCount} properties`);
+
+    return res.status(200).json({
+      success: true,
+      message: `Deleted ${deletedCount} properties with ${totalMatchesDeleted} related matches removed`,
+      deletedCount,
+      matchesDeleted: totalMatchesDeleted,
+    });
+  } catch (error: any) {
+    console.error(`[Airtable] Error in handleDeleteProperties:`, error);
+    return res.status(500).json({
+      error: 'Failed to delete properties',
+      message: error.message,
     });
   }
 }

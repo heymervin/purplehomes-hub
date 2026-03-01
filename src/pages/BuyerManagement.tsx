@@ -5,7 +5,7 @@
 
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Users, RefreshCw, AlertCircle, Loader2, Filter, X } from 'lucide-react';
+import { Search, Users, RefreshCw, AlertCircle, Loader2, Filter, X, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,9 +18,21 @@ import {
 } from '@/components/ui/select';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { BuyerManagementCard } from '@/components/buyers/BuyerManagementCard';
 import { BuyerEditModal } from '@/components/buyers/BuyerEditModal';
-import { useBuyersList } from '@/services/buyersApi';
+import { useBuyersList, useDeleteBuyers } from '@/services/buyersApi';
+import { toast } from 'sonner';
 import type { BuyerRecord, BuyerListFilters } from '@/types/buyer';
 import { hasBuyerCriteria } from '@/types/buyer';
 
@@ -43,6 +55,10 @@ export default function BuyerManagement() {
   const [selectedBuyer, setSelectedBuyer] = useState<BuyerRecord | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  // Bulk selection
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+
   // Fetch buyers
   const {
     data: buyersData,
@@ -50,6 +66,8 @@ export default function BuyerManagement() {
     isError,
     refetch,
   } = useBuyersList();
+
+  const deleteBuyers = useDeleteBuyers();
 
   // Filter and paginate buyers
   const { filteredBuyers, stats } = useMemo(() => {
@@ -116,6 +134,39 @@ export default function BuyerManagement() {
   };
 
   const hasActiveFilters = filters.search || filters.qualified !== 'all' || filters.hasCriteria !== 'all';
+
+  // Handle selection
+  const handleToggleSelect = (recordId: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(recordId)) {
+        next.delete(recordId);
+      } else {
+        next.add(recordId);
+      }
+      return next;
+    });
+  };
+
+  const handleClearSelection = () => {
+    setSelectedIds(new Set());
+  };
+
+  const handleBulkDelete = async () => {
+    if (!buyersData?.buyers) return;
+    const buyersToDelete = buyersData.buyers
+      .filter(b => selectedIds.has(b.recordId))
+      .map(b => ({ recordId: b.recordId, contactId: b.contactId }));
+
+    try {
+      const result = await deleteBuyers.mutateAsync(buyersToDelete);
+      toast.success(`Deleted ${result.deletedCount} buyers and ${result.matchesDeleted} related matches`);
+      setShowBulkDeleteConfirm(false);
+      handleClearSelection();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete buyers');
+    }
+  };
 
   // Handle edit
   const handleEdit = (buyer: BuyerRecord) => {
@@ -236,15 +287,45 @@ export default function BuyerManagement() {
         />
       ) : (
         <>
+          {/* Bulk Selection Toolbar */}
+          {selectedIds.size > 0 && (
+            <div className="flex items-center gap-3 p-4 bg-primary/10 rounded-lg animate-in slide-in-from-top-2">
+              <span className="font-medium">
+                {selectedIds.size} buyer{selectedIds.size > 1 ? 's' : ''} selected
+              </span>
+              <div className="flex-1" />
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                onClick={() => setShowBulkDeleteConfirm(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete ({selectedIds.size})
+              </Button>
+              <Button size="sm" variant="ghost" onClick={handleClearSelection}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+
           {/* Buyer List */}
           <div className="space-y-3">
             {paginatedBuyers.map((buyer) => (
-              <BuyerManagementCard
-                key={buyer.recordId}
-                buyer={buyer}
-                onEdit={() => handleEdit(buyer)}
-                onViewMatches={() => handleViewMatches(buyer)}
-              />
+              <div key={buyer.recordId} className="flex items-start gap-3">
+                <Checkbox
+                  checked={selectedIds.has(buyer.recordId)}
+                  onCheckedChange={() => handleToggleSelect(buyer.recordId)}
+                  className="mt-4"
+                />
+                <div className="flex-1">
+                  <BuyerManagementCard
+                    buyer={buyer}
+                    onEdit={() => handleEdit(buyer)}
+                    onViewMatches={() => handleViewMatches(buyer)}
+                  />
+                </div>
+              </div>
             ))}
           </div>
 
@@ -289,6 +370,35 @@ export default function BuyerManagement() {
         onOpenChange={setIsEditModalOpen}
         onSaved={handleModalSaved}
       />
+
+      {/* Bulk Delete Confirmation */}
+      <AlertDialog open={showBulkDeleteConfirm} onOpenChange={setShowBulkDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedIds.size} Buyers</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure? This will also remove related match records and GHL contacts. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteBuyers.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBulkDelete}
+              disabled={deleteBuyers.isPending}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {deleteBuyers.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                `Delete ${selectedIds.size} Buyers`
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

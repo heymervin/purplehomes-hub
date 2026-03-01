@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Mail, Phone, MapPin, Eye, EyeOff, Bed, Bath, DollarSign, Send, Building2, Maximize2, Tag, X, Plus, Search, Loader2, Check, Calculator } from 'lucide-react';
+import { Mail, Phone, MapPin, Eye, EyeOff, Bed, Bath, DollarSign, Send, Building2, Maximize2, Tag, X, Plus, Search, Loader2, Check, Calculator, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -7,6 +7,16 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +41,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { SendInventoryModal } from './SendInventoryModal';
 import { DealCalculatorModal } from '@/components/calculator';
 import { useTags, useUpdateContactTags } from '@/services/ghlApi';
+import { useDeleteBuyer } from '@/services/buyersApi';
 import { toast } from 'sonner';
 import type { Buyer, ChecklistItem } from '@/types';
 
@@ -50,6 +61,7 @@ export function BuyerDetailModal({ buyer, open, onOpenChange, onUpdateChecklist,
   const [tagSearch, setTagSearch] = useState('');
   const [tagsOpen, setTagsOpen] = useState(false);
   const [savingTagId, setSavingTagId] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Fetch all available tags
   const { data: tagsData } = useTags();
@@ -57,6 +69,9 @@ export function BuyerDetailModal({ buyer, open, onOpenChange, onUpdateChecklist,
 
   // Update contact tags mutation
   const updateTagsMutation = useUpdateContactTags();
+
+  // Delete buyer mutation
+  const deleteBuyer = useDeleteBuyer();
 
   // Get current tags from buyer's contact - MUST be before early return
   const currentTags: string[] = useMemo(() => {
@@ -71,6 +86,22 @@ export function BuyerDetailModal({ buyer, open, onOpenChange, onUpdateChecklist,
 
   // Early return AFTER all hooks
   if (!buyer) return null;
+
+  const handleDeleteBuyer = async () => {
+    const recordId = (buyer as any).recordId || buyer.id;
+    const contactId = (buyer as any).contactId || buyer.id;
+    if (!recordId) return;
+
+    try {
+      await deleteBuyer.mutateAsync({ recordId, contactId });
+      toast.success('Buyer deleted successfully');
+      setShowDeleteConfirm(false);
+      onOpenChange(false);
+      onUpdate?.();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete buyer');
+    }
+  };
 
   const filteredAvailableTags = availableTags.filter((tag: any) =>
     tag.name.toLowerCase().includes(tagSearch.toLowerCase())
@@ -439,6 +470,15 @@ export function BuyerDetailModal({ buyer, open, onOpenChange, onUpdateChecklist,
                     Deal Calculator
                   </Button>
                 </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-destructive border-destructive/30 hover:bg-destructive/10"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Buyer
+                </Button>
               </div>
 
               <Separator />
@@ -519,6 +559,35 @@ export function BuyerDetailModal({ buyer, open, onOpenChange, onUpdateChecklist,
         onOpenChange={setCalculatorOpen}
         buyerContactId={(buyer as any).contactId || buyer.id}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Buyer</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure? This will also remove related match records and the GHL contact. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteBuyer.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteBuyer}
+              disabled={deleteBuyer.isPending}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {deleteBuyer.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete Buyer'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
