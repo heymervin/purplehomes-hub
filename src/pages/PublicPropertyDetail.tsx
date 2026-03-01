@@ -1232,6 +1232,87 @@ export default function PublicPropertyDetail() {
           );
         })()}
 
+        {/* Social Proof / Testimonials - Always Scrolling Marquee */}
+        {!funnelLoading && (
+          (() => {
+            // Default testimonials - Purple Homes brand stories (used when no custom testimonials exist)
+            const defaultTestimonials: Testimonial[] = [
+              {
+                quote: "I was rejected by three banks. Then Purple Homes helped me get into my dream home. 18 months later, I've built $12,400 in equity instead of throwing away $21,600 in rent.",
+                authorName: "Sarah M.",
+                authorTitle: "Built $12,400 equity in 18 months",
+                rating: 5,
+              },
+              {
+                quote: "After my divorce, my credit dropped to 580. Banks wouldn't touch me. Purple Homes got me into a home at $1,450/month — $350 less than I was paying in rent. Now my score is back to 720.",
+                authorName: "Marcus T.",
+                authorTitle: "Credit improved 580 → 720",
+                rating: 5,
+              },
+              {
+                quote: "As a self-employed contractor, banks called me 'high risk.' Purple Homes approved me in 72 hours. 2 years later, I refinanced into a traditional mortgage at 6.2%.",
+                authorName: "Jennifer L.",
+                authorTitle: "Approved in 72 hours",
+                rating: 5,
+              },
+              {
+                quote: "We went from application to keys in just 3 weeks. Our payment is $1,680/month and $380 of that goes straight to our equity. We're actually building wealth now.",
+                authorName: "David R.",
+                authorTitle: "$380/month building equity",
+                rating: 5,
+              },
+              {
+                quote: "I thought homeownership was impossible as a single mom. My payment is only $200 more than my old apartment, but now my kids have a backyard AND I'm building equity.",
+                authorName: "Maria G.",
+                authorTitle: "Single mom, now homeowner",
+                rating: 5,
+              },
+              {
+                quote: "We calculated it: renting for 3 more years would have cost us $64,800 with nothing to show. Now we're 14 months in with $9,800 in equity. The math just makes sense.",
+                authorName: "Chris P.",
+                authorTitle: "$9,800 equity in 14 months",
+                rating: 5,
+              },
+            ];
+
+            // Priority: 1) Property-specific testimonials, 2) Global testimonials from API, 3) Default brand testimonials
+            let testimonials: Testimonial[] = [];
+
+            if (localizedFunnel?.testimonials?.length) {
+              testimonials = localizedFunnel.testimonials as Testimonial[];
+            } else if (globalTestimonials.length) {
+              testimonials = globalTestimonials;
+            } else {
+              // Use default Purple Homes testimonials
+              testimonials = defaultTestimonials;
+            }
+
+            return (
+              <section className="relative py-16 md:py-20">
+                {/* BOOSTED glows - social proof needs visual weight */}
+                {/* Center spotlight for the testimonial stage */}
+                <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
+                {/* Edge glows boosted from 10-12% to 20% */}
+                <div className="absolute pointer-events-none top-[-40%] left-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+                <div className="absolute pointer-events-none top-[-40%] right-0 w-[500px] h-[600px] bg-violet-500/18 rounded-full blur-[200px]" />
+                <div className="absolute pointer-events-none bottom-[-40%] left-0 w-[500px] h-[600px] bg-violet-600/18 rounded-full blur-[200px]" />
+                <div className="absolute pointer-events-none bottom-[-40%] right-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+
+                <Reveal className="text-center mb-10">
+                  <h2 className="text-3xl md:text-4xl font-black">
+                    <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                      {t('testimonials.heading')}
+                    </span>
+                  </h2>
+                </Reveal>
+                <Reveal delay={200}>
+                  <TestimonialMarquee testimonials={testimonials} speed={testimonialSpeed} />
+                </Reveal>
+              </section>
+            );
+          })()
+        )}
+
         {/* Property Showcase - 2x2 boxes (moved to top) */}
         <section className="relative py-20 md:py-28">
             {/* Ambient glow */}
@@ -1836,87 +1917,6 @@ export default function PublicPropertyDetail() {
             </Reveal>
           </div>
         </section>)}
-
-        {/* Social Proof / Testimonials - Always Scrolling Marquee */}
-        {!funnelLoading && (
-          (() => {
-            // Default testimonials - Purple Homes brand stories (used when no custom testimonials exist)
-            const defaultTestimonials: Testimonial[] = [
-              {
-                quote: "I was rejected by three banks. Then Purple Homes helped me get into my dream home. 18 months later, I've built $12,400 in equity instead of throwing away $21,600 in rent.",
-                authorName: "Sarah M.",
-                authorTitle: "Built $12,400 equity in 18 months",
-                rating: 5,
-              },
-              {
-                quote: "After my divorce, my credit dropped to 580. Banks wouldn't touch me. Purple Homes got me into a home at $1,450/month — $350 less than I was paying in rent. Now my score is back to 720.",
-                authorName: "Marcus T.",
-                authorTitle: "Credit improved 580 → 720",
-                rating: 5,
-              },
-              {
-                quote: "As a self-employed contractor, banks called me 'high risk.' Purple Homes approved me in 72 hours. 2 years later, I refinanced into a traditional mortgage at 6.2%.",
-                authorName: "Jennifer L.",
-                authorTitle: "Approved in 72 hours",
-                rating: 5,
-              },
-              {
-                quote: "We went from application to keys in just 3 weeks. Our payment is $1,680/month and $380 of that goes straight to our equity. We're actually building wealth now.",
-                authorName: "David R.",
-                authorTitle: "$380/month building equity",
-                rating: 5,
-              },
-              {
-                quote: "I thought homeownership was impossible as a single mom. My payment is only $200 more than my old apartment, but now my kids have a backyard AND I'm building equity.",
-                authorName: "Maria G.",
-                authorTitle: "Single mom, now homeowner",
-                rating: 5,
-              },
-              {
-                quote: "We calculated it: renting for 3 more years would have cost us $64,800 with nothing to show. Now we're 14 months in with $9,800 in equity. The math just makes sense.",
-                authorName: "Chris P.",
-                authorTitle: "$9,800 equity in 14 months",
-                rating: 5,
-              },
-            ];
-
-            // Priority: 1) Property-specific testimonials, 2) Global testimonials from API, 3) Default brand testimonials
-            let testimonials: Testimonial[] = [];
-
-            if (localizedFunnel?.testimonials?.length) {
-              testimonials = localizedFunnel.testimonials as Testimonial[];
-            } else if (globalTestimonials.length) {
-              testimonials = globalTestimonials;
-            } else {
-              // Use default Purple Homes testimonials
-              testimonials = defaultTestimonials;
-            }
-
-            return (
-              <section className="relative py-16 md:py-20">
-                {/* BOOSTED glows - social proof needs visual weight */}
-                {/* Center spotlight for the testimonial stage */}
-                <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
-                {/* Edge glows boosted from 10-12% to 20% */}
-                <div className="absolute pointer-events-none top-[-40%] left-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-                <div className="absolute pointer-events-none top-[-40%] right-0 w-[500px] h-[600px] bg-violet-500/18 rounded-full blur-[200px]" />
-                <div className="absolute pointer-events-none bottom-[-40%] left-0 w-[500px] h-[600px] bg-violet-600/18 rounded-full blur-[200px]" />
-                <div className="absolute pointer-events-none bottom-[-40%] right-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-
-                <Reveal className="text-center mb-10">
-                  <h2 className="text-3xl md:text-4xl font-black">
-                    <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
-                      {t('testimonials.heading')}
-                    </span>
-                  </h2>
-                </Reveal>
-                <Reveal delay={200}>
-                  <TestimonialMarquee testimonials={testimonials} speed={testimonialSpeed} />
-                </Reveal>
-              </section>
-            );
-          })()
-        )}
 
         {/* Stats Bar - Premium Animated */}
         <AnimatedStatsSection />
