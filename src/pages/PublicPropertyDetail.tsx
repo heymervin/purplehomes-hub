@@ -2027,8 +2027,10 @@ export default function PublicPropertyDetail() {
             <div className="absolute pointer-events-none bottom-[-50%] left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-purple-600/25 rounded-full blur-[220px]" />
 
             <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-                {t('finalCta.heading')}
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+                <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                  {t('finalCta.heading')}
+                </span>
               </h2>
               <p className="text-xl text-gray-400 mb-10">
                 {t('finalCta.subheading')}
