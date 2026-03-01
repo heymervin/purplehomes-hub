@@ -318,10 +318,9 @@ function AnimatedStatsSection() {
       <div className="relative z-10 max-w-6xl mx-auto px-4">
         {/* Section header - Enhanced Typography with Reveal */}
         <Reveal className="text-center mb-20">
-          <h2 className="text-3xl md:text-4xl text-white leading-tight">
-            <span className="font-light">{t('stats.numbersThat')}</span>{' '}
-            <span className="font-bold italic bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent pr-1">
-              {t('stats.speak')}
+          <h2 className="text-3xl md:text-4xl font-black leading-tight">
+            <span className="bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+              {t('stats.numbersThat')} {t('stats.speak')}
             </span>
           </h2>
           <p className="text-gray-500 text-lg mt-4 font-light tracking-wide">{t('stats.forThemselves')}</p>
