@@ -904,6 +904,12 @@ async function handleRunMatching(req: VercelRequest, res: VercelResponse, header
     // Auto-refresh matches cache if we created or updated any matches
     if (matchesCreated > 0 || matchesUpdated > 0) {
       console.log('[Matching] Auto-refreshing matches cache with new data...');
+
+      // Clear in-memory aggregated caches so next request gets fresh data with updated match counts
+      aggregatedBuyersCache.clear();
+      aggregatedPropertiesCache.clear();
+      console.log('[Matching] Cleared in-memory aggregated caches');
+
       try {
         // Fetch all matches from Airtable to refresh the cache
         const allMatchesRes = await fetch(
@@ -1101,6 +1107,11 @@ async function handleRunBuyerMatching(req: VercelRequest, res: VercelResponse, h
 
   // Auto-refresh matches cache if we created or updated any matches
   if (matchesCreated > 0 || matchesUpdated > 0) {
+    // Clear in-memory aggregated caches so next request gets fresh data with updated match counts
+    aggregatedBuyersCache.clear();
+    aggregatedPropertiesCache.clear();
+    console.log('[Matching] Cleared in-memory aggregated caches');
+
     console.log('[Matching] Auto-refreshing matches cache with new data...');
     try {
       const allMatchesRes = await fetch(
@@ -1273,6 +1284,11 @@ async function handleRunPropertyMatching(req: VercelRequest, res: VercelResponse
 
   // Auto-refresh matches cache if we created or updated any matches
   if (matchesCreated > 0 || matchesUpdated > 0) {
+    // Clear in-memory aggregated caches so next request gets fresh data with updated match counts
+    aggregatedBuyersCache.clear();
+    aggregatedPropertiesCache.clear();
+    console.log('[Matching] Cleared in-memory aggregated caches');
+
     console.log('[Matching] Auto-refreshing matches cache with new data...');
     try {
       const allMatchesRes = await fetch(
