@@ -596,35 +596,46 @@ async function handleUpdateRecord(
 
 /**
  * Cascade delete match records for a given property record ID.
- * Finds all matches referencing this property and deletes them in batches of 10.
+ * Fetches all matches, filters in code for ones linked to this property,
+ * then deletes them in batches of 10.
+ *
+ * Note: SEARCH/ARRAYJOIN formulas don't work reliably on linked record fields
+ * in Airtable's filterByFormula, so we filter in code instead.
  */
 async function cascadeDeletePropertyMatches(
   propertyRecordId: string,
   headers: any
 ): Promise<number> {
-  const matchFormula = encodeURIComponent(
-    `SEARCH("${propertyRecordId}", ARRAYJOIN({Property Code}))`
-  );
-
-  let matchIds: string[] = [];
+  // Fetch all match records with the Property Code linked field
+  let allRecords: any[] = [];
   let offset: string | undefined;
 
   do {
     const url = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches`);
-    url.searchParams.set('filterByFormula', `SEARCH("${propertyRecordId}", ARRAYJOIN({Property Code}))`);
     url.searchParams.set('pageSize', '100');
-    url.searchParams.set('fields[]', 'Match Score');
+    url.searchParams.append('fields[]', 'Property Code');
     if (offset) url.searchParams.set('offset', offset);
 
     const response = await fetchWithRetry(url.toString(), { headers });
     if (!response.ok) break;
 
     const data = await response.json();
-    matchIds.push(...(data.records || []).map((r: any) => r.id));
+    allRecords.push(...(data.records || []));
     offset = data.offset;
   } while (offset);
 
-  if (matchIds.length === 0) return 0;
+  // Filter in code: linked record fields return arrays of record IDs in the API
+  const matchIds = allRecords
+    .filter((r: any) => {
+      const linkedIds = r.fields['Property Code'];
+      return Array.isArray(linkedIds) && linkedIds.includes(propertyRecordId);
+    })
+    .map((r: any) => r.id);
+
+  if (matchIds.length === 0) {
+    console.log(`[Airtable] No matches found for property ${propertyRecordId}`);
+    return 0;
+  }
 
   console.log(`[Airtable] Cascade deleting ${matchIds.length} matches for property ${propertyRecordId}`);
 

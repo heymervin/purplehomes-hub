@@ -469,31 +469,46 @@ async function handleUpdate(
 
 /**
  * Cascade delete match records for a given buyer record ID.
- * Finds all matches referencing this buyer and deletes them in batches of 10.
+ * Fetches all matches, filters in code for ones linked to this buyer,
+ * then deletes them in batches of 10.
+ *
+ * Note: SEARCH/ARRAYJOIN formulas don't work reliably on linked record fields
+ * in Airtable's filterByFormula, so we filter in code instead.
  */
 async function cascadeDeleteBuyerMatches(
   buyerRecordId: string,
   headers: Record<string, string>
 ): Promise<number> {
-  let matchIds: string[] = [];
+  // Fetch all match records with the Contact ID linked field
+  let allRecords: any[] = [];
   let offset: string | undefined;
 
   do {
     const url = new URL(`${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Property-Buyer%20Matches`);
-    url.searchParams.set('filterByFormula', `SEARCH("${buyerRecordId}", ARRAYJOIN({Contact ID}))`);
     url.searchParams.set('pageSize', '100');
-    url.searchParams.set('fields[]', 'Match Score');
+    url.searchParams.append('fields[]', 'Contact ID');
     if (offset) url.searchParams.set('offset', offset);
 
     const response = await fetchWithRetry(url.toString(), { headers });
     if (!response.ok) break;
 
     const data = await response.json();
-    matchIds.push(...(data.records || []).map((r: any) => r.id));
+    allRecords.push(...(data.records || []));
     offset = data.offset;
   } while (offset);
 
-  if (matchIds.length === 0) return 0;
+  // Filter in code: linked record fields return arrays of record IDs in the API
+  const matchIds = allRecords
+    .filter((r: any) => {
+      const linkedIds = r.fields['Contact ID'];
+      return Array.isArray(linkedIds) && linkedIds.includes(buyerRecordId);
+    })
+    .map((r: any) => r.id);
+
+  if (matchIds.length === 0) {
+    console.log(`[Buyers API] No matches found for buyer ${buyerRecordId}`);
+    return 0;
+  }
 
   console.log(`[Buyers API] Cascade deleting ${matchIds.length} matches for buyer ${buyerRecordId}`);
 
