@@ -8,6 +8,21 @@ interface FAQItem {
   answer: string;
 }
 
+// Splits answer text into bite-sized 1-2 sentence chunks for easy reading
+function splitAnswerIntoBites(text: string): string[] {
+  const naturalParagraphs = text.split(/\n\n+/).filter(s => s.trim());
+  const result: string[] = [];
+  for (const para of naturalParagraphs) {
+    const trimmed = para.trim().replace(/\n/g, ' ');
+    const sentences = trimmed.match(/[^.!?]+(?:[.!?]+|$)/g)?.map(s => s.trim()).filter(Boolean) || [trimmed];
+    for (let i = 0; i < sentences.length; i += 2) {
+      const chunk = sentences.slice(i, i + 2).join(' ').trim();
+      if (chunk) result.push(chunk);
+    }
+  }
+  return result.length > 0 ? result : [text];
+}
+
 interface FunnelFAQProps {
   title?: string;
   subtitle?: string;
@@ -312,8 +327,10 @@ const FunnelFAQ: React.FC<FunnelFAQProps> = ({
                   )}
                 >
                   <div className="overflow-hidden">
-                    <div className="px-4 md:px-5 pb-4 md:pb-5">
-                      <p className="text-gray-300 text-sm md:text-base leading-relaxed">{item.answer}</p>
+                    <div className="px-4 md:px-5 pb-4 md:pb-5 space-y-2">
+                      {splitAnswerIntoBites(item.answer).map((chunk, i) => (
+                        <p key={i} className="text-gray-300 text-sm md:text-base leading-relaxed">{chunk}</p>
+                      ))}
                     </div>
                   </div>
                 </div>
