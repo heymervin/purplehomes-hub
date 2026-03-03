@@ -275,8 +275,11 @@ const FunnelFAQ: React.FC<FunnelFAQProps> = ({
               <span className="inline-block px-4 md:px-5 py-2 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-5 md:mb-6">
                 {t('faq.eyebrow')}
               </span>
-              <h2 className="text-2xl md:text-4xl font-bold mb-3">
-                <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">{resolvedTitle}</span>
+              <h2 className="text-2xl md:text-4xl font-bold mb-3 text-white">
+                {t('faq.frequentlyAskedPre')}{' '}
+                <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent italic">
+                  {t('faq.frequentlyAskedHighlight')}
+                </span>
               </h2>
               {resolvedSubtitle && <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto px-4">{resolvedSubtitle}</p>}
             </div>

@@ -95,6 +95,8 @@ export const en = {
   propertyHighlights: {
     sectionLabel: 'What to Expect',
     sectionHeading: 'How Buying This Home Works',
+    sectionHeadingPre: 'How Buying This Home',
+    sectionHeadingHighlight: 'Works',
     showcaseText: "Instead of going through a bank, the home is purchased directly from the owner. That means there's no traditional loan involved. Our team guides you step by step, and everything is completed through a licensed title company — just like a normal home sale.",
     step1Title: 'Step 1: Start with a Conversation',
     step1Desc: 'Share a few basic details like your timeline, down payment range, and questions about the home.',
@@ -230,7 +232,9 @@ export const en = {
     eyebrow: 'FAQ',
     title: 'Common Questions',
     subtitle: 'Get clear answers to common questions about buying this home.',
-    frequentlyAsked: 'Frequently Asked Questions',
+    frequentlyAsked: 'Common Questions',
+    frequentlyAskedPre: 'Common',
+    frequentlyAskedHighlight: 'Questions',
     defaultSubtitle: 'Get answers to common questions about our rent-to-own program',
     stillHaveQuestions: 'Still have questions?',
     teamHereToHelp: 'Our team is here to help you every step of the way.',
@@ -264,6 +268,8 @@ export const en = {
   },
   testimonials: {
     heading: 'What Buyers Are Saying',
+    headingPre: 'What Buyers Are',
+    headingHighlight: 'Saying',
     default: 'See what our happy homeowners have to say',
   },
   qualifier: {
@@ -277,6 +283,8 @@ export const en = {
   },
   location: {
     heading: 'Minutes from Everything',
+    headingPre: 'Minutes from',
+    headingHighlight: 'Everything',
   },
   pricing: {
     yourInvestment: 'Your Investment',

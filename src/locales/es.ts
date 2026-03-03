@@ -95,6 +95,8 @@ export const es = {
   propertyHighlights: {
     sectionLabel: 'Qué Esperar',
     sectionHeading: 'Cómo Funciona la Compra de Esta Casa',
+    sectionHeadingPre: 'Cómo Funciona la Compra de',
+    sectionHeadingHighlight: 'Esta Casa',
     showcaseText: 'En lugar de pasar por un banco, la casa se compra directamente del propietario. Eso significa que no hay un préstamo tradicional involucrado. Nuestro equipo te guía paso a paso, y todo se completa a través de una compañía de títulos licenciada — igual que una venta normal de casa.',
     step1Title: 'Paso 1: Comienza con una Conversación',
     step1Desc: 'Comparte algunos detalles básicos como tu plazo, rango de pago inicial y preguntas sobre la casa.',
@@ -230,7 +232,9 @@ export const es = {
     eyebrow: 'PREGUNTAS',
     title: 'Preguntas Frecuentes',
     subtitle: 'Obtenga respuestas claras a preguntas comunes sobre la compra de esta casa.',
-    frequentlyAsked: 'Preguntas Frecuentes',
+    frequentlyAsked: 'Preguntas Comunes',
+    frequentlyAskedPre: 'Preguntas',
+    frequentlyAskedHighlight: 'Comunes',
     defaultSubtitle: 'Obtenga respuestas a preguntas comunes sobre nuestro programa',
     stillHaveQuestions: '¿Todavía tienes preguntas?',
     teamHereToHelp: 'Nuestro equipo está aquí para ayudarte en cada paso.',
@@ -264,6 +268,8 @@ export const es = {
   },
   testimonials: {
     heading: 'Lo Que Dicen Los Compradores',
+    headingPre: 'Lo Que Dicen Los',
+    headingHighlight: 'Compradores',
     default: 'Vea lo que dicen nuestros propietarios felices',
   },
   qualifier: {
@@ -277,6 +283,8 @@ export const es = {
   },
   location: {
     heading: 'A Minutos de Todo',
+    headingPre: 'A Minutos de',
+    headingHighlight: 'Todo',
   },
   pricing: {
     yourInvestment: 'Tu Inversión',

@@ -1006,71 +1006,95 @@ export default function PublicPropertyDetail() {
         {/* Pricing + Trust Section */}
         <section className="relative py-10 md:py-14">
           <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/15 rounded-full blur-[180px]" />
-          <div className="relative max-w-3xl mx-auto px-4 text-center">
-            {/* Monthly payment */}
-            {property.monthlyPayment !== undefined && (
-              <Reveal>
-                <div className="mb-3">
-                  <span className="text-5xl sm:text-6xl font-black text-white leading-none drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]">
-                    ${property.monthlyPayment.toLocaleString()}
-                  </span>
-                  <span className="text-xl sm:text-2xl text-purple-300/80 font-bold ml-2">{t('property.monthlyPayment')}</span>
+          <div className="relative max-w-4xl mx-auto px-4">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12">
+
+              {/* Left: Price + Pills + Status */}
+              <div className="flex-1 text-center md:text-left">
+                {property.monthlyPayment !== undefined && (
+                  <Reveal>
+                    <div className="mb-3">
+                      <span className="text-5xl sm:text-6xl font-black text-white leading-none drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+                        ${property.monthlyPayment.toLocaleString()}
+                      </span>
+                      <span className="text-xl sm:text-2xl text-purple-300/80 font-bold ml-2">{t('property.monthlyPayment')}</span>
+                    </div>
+                  </Reveal>
+                )}
+                {/* Down payment + purchase price + closing costs */}
+                <Reveal delay={100}>
+                  <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
+                    {property.downPayment !== undefined && (
+                      <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-sm font-semibold">
+                        ${property.downPayment.toLocaleString()} {t('property.downPayment')}
+                      </span>
+                    )}
+                    <span className="inline-flex items-center px-3 py-1 bg-white/5 border border-purple-500/20 rounded-full text-purple-300/70 text-sm font-medium">
+                      ${property.price.toLocaleString()} {t('property.purchasePrice')}
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-300 text-sm font-medium">
+                      <Check className="h-3 w-3" />{t('property.includesClosingCosts')}
+                    </span>
+                  </div>
+                </Reveal>
+                {/* Availability status */}
+                <Reveal delay={150}>
+                  {(() => {
+                    const status = funnelContent?.inputs?.availabilityStatus || 'Available';
+                    const statusStyles: Record<string, { dot: string; text: string; label: string }> = {
+                      'Available': { dot: 'bg-green-400', text: 'text-green-400', label: t('property.availableNow') },
+                      'Under Review': { dot: 'bg-yellow-400', text: 'text-yellow-400', label: t('property.underReview') },
+                      'Multiple Offers': { dot: 'bg-amber-400', text: 'text-amber-400', label: t('property.multipleOffers') },
+                      'Pending': { dot: 'bg-red-400', text: 'text-red-400', label: t('property.pending') },
+                    };
+                    const style = statusStyles[status] || statusStyles['Available'];
+                    return (
+                      <div className="flex items-center justify-center md:justify-start gap-2">
+                        <span className={`w-2 h-2 ${style.dot} rounded-full animate-pulse`} />
+                        <span className={`${style.text} text-sm font-medium`}>{style.label}</span>
+                      </div>
+                    );
+                  })()}
+                </Reveal>
+              </div>
+
+              {/* Right: Beds/Baths/Sqft cards + Address */}
+              <Reveal delay={200}>
+                <div className="flex-shrink-0">
+                  <div className="grid grid-cols-3 gap-3 mb-4">
+                    <div className="bg-white/5 border border-purple-500/20 rounded-xl p-3 text-center min-w-[72px]">
+                      <Bed className="h-5 w-5 text-purple-300 mx-auto mb-1" />
+                      <div className="text-white font-bold text-lg leading-none">{property.beds}</div>
+                      <div className="text-gray-400 text-xs mt-1">{t('property.beds')}</div>
+                    </div>
+                    <div className="bg-white/5 border border-purple-500/20 rounded-xl p-3 text-center min-w-[72px]">
+                      <Bath className="h-5 w-5 text-purple-300 mx-auto mb-1" />
+                      <div className="text-white font-bold text-lg leading-none">{property.baths}</div>
+                      <div className="text-gray-400 text-xs mt-1">{t('property.baths')}</div>
+                    </div>
+                    {property.sqft ? (
+                      <div className="bg-white/5 border border-purple-500/20 rounded-xl p-3 text-center min-w-[72px]">
+                        <Maximize2 className="h-5 w-5 text-purple-300 mx-auto mb-1" />
+                        <div className="text-white font-bold text-lg leading-none">{property.sqft.toLocaleString()}</div>
+                        <div className="text-gray-400 text-xs mt-1">{t('property.sqft')}</div>
+                      </div>
+                    ) : (
+                      <div className="bg-white/5 border border-purple-500/20 rounded-xl p-3 text-center min-w-[72px]">
+                        <Home className="h-5 w-5 text-purple-300 mx-auto mb-1" />
+                        <div className="text-white font-bold text-sm leading-none mt-1">{t('property.sqft')}</div>
+                        <div className="text-gray-400 text-xs mt-1">—</div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-center text-gray-400 text-sm">{property.address}, {property.city}</p>
                 </div>
               </Reveal>
-            )}
-            {/* Down payment + purchase price + closing costs */}
-            <Reveal delay={100}>
-              <div className="flex flex-wrap gap-2 justify-center mb-4">
-                {property.downPayment !== undefined && (
-                  <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-sm font-semibold">
-                    ${property.downPayment.toLocaleString()} {t('property.downPayment')}
-                  </span>
-                )}
-                <span className="inline-flex items-center px-3 py-1 bg-white/5 border border-purple-500/20 rounded-full text-purple-300/70 text-sm font-medium">
-                  ${property.price.toLocaleString()} {t('property.purchasePrice')}
-                </span>
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-300 text-sm font-medium">
-                  <Check className="h-3 w-3" />{t('property.includesClosingCosts')}
-                </span>
-              </div>
-            </Reveal>
-            {/* Beds / baths / sqft / address */}
-            <Reveal delay={150}>
-              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-gray-400 mb-2">
-                <span className="text-white font-semibold">{property.beds} {t('property.beds')}</span>
-                <span className="text-purple-500/50">·</span>
-                <span className="text-white font-semibold">{property.baths} {t('property.baths')}</span>
-                {property.sqft && (
-                  <>
-                    <span className="text-purple-500/50">·</span>
-                    <span className="text-white font-semibold">{property.sqft.toLocaleString()} {t('property.sqft')}</span>
-                  </>
-                )}
-                <span className="text-purple-500/50">·</span>
-                <span className="text-gray-400">{property.address}, {property.city}</span>
-              </div>
-            </Reveal>
-            {/* Availability status */}
-            <Reveal delay={180}>
-              {(() => {
-                const status = funnelContent?.inputs?.availabilityStatus || 'Available';
-                const statusStyles: Record<string, { dot: string; text: string; label: string }> = {
-                  'Available': { dot: 'bg-green-400', text: 'text-green-400', label: t('property.availableNow') },
-                  'Under Review': { dot: 'bg-yellow-400', text: 'text-yellow-400', label: t('property.underReview') },
-                  'Multiple Offers': { dot: 'bg-amber-400', text: 'text-amber-400', label: t('property.multipleOffers') },
-                  'Pending': { dot: 'bg-red-400', text: 'text-red-400', label: t('property.pending') },
-                };
-                const style = statusStyles[status] || statusStyles['Available'];
-                return (
-                  <div className="flex items-center justify-center gap-2 mt-1 mb-6">
-                    <span className={`w-2 h-2 ${style.dot} rounded-full animate-pulse`} />
-                    <span className={`${style.text} text-sm font-medium`}>{style.label}</span>
-                  </div>
-                );
-              })()}
-            </Reveal>
+
+            </div>
             {/* Trust Strip */}
-            <PremiumTrustStrip className="mt-2" />
+            <Reveal delay={250}>
+              <PremiumTrustStrip className="mt-8" />
+            </Reveal>
           </div>
         </section>
 
@@ -1087,9 +1111,10 @@ export default function PublicPropertyDetail() {
               <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
                 {t('propertyHighlights.sectionLabel')}
               </span>
-              <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
-                <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
-                  {t('propertyHighlights.sectionHeading')}
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 text-white">
+                {t('propertyHighlights.sectionHeadingPre')}{' '}
+                <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent italic">
+                  {t('propertyHighlights.sectionHeadingHighlight')}
                 </span>
               </h2>
               <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto text-justify">
@@ -1187,9 +1212,10 @@ export default function PublicPropertyDetail() {
             <div className="relative z-10 max-w-4xl mx-auto px-4">
               {/* Section Header */}
               <Reveal className="text-center mb-14 md:mb-16">
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-black">
-                  <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
-                    {t('location.heading')}
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white">
+                  {t('location.headingPre')}{' '}
+                  <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent italic">
+                    {t('location.headingHighlight')}
                   </span>
                 </h2>
               </Reveal>
@@ -1345,9 +1371,10 @@ export default function PublicPropertyDetail() {
                 <div className="absolute pointer-events-none bottom-[-40%] right-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
 
                 <Reveal className="text-center mb-10">
-                  <h2 className="text-3xl md:text-4xl font-black">
-                    <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
-                      {t('testimonials.heading')}
+                  <h2 className="text-3xl md:text-4xl font-black text-white">
+                    {t('testimonials.headingPre')}{' '}
+                    <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent italic">
+                      {t('testimonials.headingHighlight')}
                     </span>
                   </h2>
                 </Reveal>
@@ -1987,7 +2014,6 @@ export default function PublicPropertyDetail() {
 
             <div className="relative z-10 max-w-5xl mx-auto px-4">
               <FunnelFAQ
-                title={t('faq.frequentlyAsked')}
                 subtitle={t('faq.subtitle')}
                 items={undefined}
                 variant="premium"
