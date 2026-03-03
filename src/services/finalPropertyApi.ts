@@ -5,6 +5,7 @@
  * this service handles:
  * 1. Marking the match as "final" in Airtable
  * 2. Syncing the final property details to the buyer's GHL opportunity
+ * 3. Adding a note to the buyer's GHL contact with property details
  */
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -90,6 +91,28 @@ async function updateOpportunityCustomFields(
 }
 
 /**
+ * Add a note to the buyer's GHL contact about the final property selection
+ */
+async function addContactNote(contactId: string, noteBody: string): Promise<void> {
+  console.log('[Final Property API] Adding note to contact:', contactId);
+
+  const response = await fetch(`${GHL_API_BASE}?resource=notes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contactId, body: noteBody }),
+  });
+
+  if (!response.ok) {
+    // Non-critical — log but don't throw so it doesn't block the rest of the flow
+    const error = await response.json().catch(() => ({ error: 'Failed to add note' }));
+    console.warn('[Final Property API] Failed to add contact note:', error);
+    return;
+  }
+
+  console.log('[Final Property API] Contact note added successfully');
+}
+
+/**
  * Update Airtable match record with Is Final Property flag
  */
 async function updateAirtableMatch(matchId: string, isFinalProperty: boolean): Promise<void> {
@@ -121,6 +144,7 @@ async function updateAirtableMatch(matchId: string, isFinalProperty: boolean): P
  * 1. Updates Airtable match: Is Final Property = true
  * 2. Finds buyer opportunity in GHL Buyer Disposition pipeline
  * 3. Updates GHL opportunity with final property custom fields
+ * 4. Adds a note to the buyer's GHL contact with property details
  */
 export function useConfirmFinalProperty() {
   const queryClient = useQueryClient();
@@ -160,6 +184,22 @@ export function useConfirmFinalProperty() {
         final_property_opportunity_id: propertyOpportunityId,
         final_property_price: propertyPrice,
       });
+
+      // Step 4: Add a note to the buyer's contact with property details
+      const formattedPrice = propertyPrice
+        ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(propertyPrice)
+        : 'N/A';
+      const noteBody = [
+        '🏠 Final Property Selected',
+        '',
+        `Address: ${propertyAddress}`,
+        `Price: ${formattedPrice}`,
+        `Property ID: ${propertyOpportunityId || 'N/A'}`,
+        '',
+        `Selected on ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`,
+      ].join('\n');
+
+      await addContactNote(contactId, noteBody);
 
       return { success: true, ghlOpportunityId: opportunity.id };
     },

@@ -175,7 +175,7 @@ export function EnhancedMatchDetailModal({
     await confirmFinalProperty.mutateAsync({
       matchId: match.id,
       contactId: buyer.contactId,
-      propertyAddress: property.address,
+      propertyAddress: [property.address, property.city, property.state, property.zipCode].filter(Boolean).join(', '),
       propertyOpportunityId: property.opportunityId || property.recordId || '',
       propertyPrice: property.price || 0,
     });
