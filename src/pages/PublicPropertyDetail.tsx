@@ -2144,7 +2144,7 @@ export default function PublicPropertyDetail() {
               ) : !showOfferForm ? (
                 <div className="p-8 space-y-5 bg-white">
                   <div className="text-center mb-6">
-                    <p className="text-gray-300">{t('form.interestedInProperty')} {property.address}?</p>
+                    <p className="text-gray-700 text-lg font-semibold">{t('form.interestedInProperty')} {property.address}?</p>
                   </div>
                   <CTAButton size="full" variant="secondary" onClick={() => setShowOfferForm(true)}>
                     {t('cta.yesInterested')}
