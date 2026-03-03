@@ -1615,7 +1615,7 @@ export default function PublicPropertyDetail() {
                       <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none" />
 
                       <blockquote className="relative text-xl md:text-2xl text-white/95 leading-relaxed font-medium italic px-4">
-                        {stripMarkers(extractProblemBody(localizedFunnel.problem) || String(typeof localizedFunnel.problem === 'object' ? localizedFunnel.problem.body || localizedFunnel.problem.headline : localizedFunnel.problem))}
+                        {stripMarkers(extractProblemBody(localizedFunnel.problem))}
                       </blockquote>
 
                       <div className="relative mt-10 pt-8 border-t border-purple-400/20">
