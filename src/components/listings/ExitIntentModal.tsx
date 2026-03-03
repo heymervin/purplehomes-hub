@@ -227,7 +227,7 @@ export function ExitIntentModal({
                 {createContact.isPending ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : isPropertyDetail ? (
-                  t('common.submit')
+                  t('exitIntent.sendMatchingHomes')
                 ) : (
                   t('cta.sendListings')
                 )}
