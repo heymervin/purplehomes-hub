@@ -2146,11 +2146,21 @@ export default function PublicPropertyDetail() {
 
           <div className="relative z-10">
           {/* Form Card */}
-          <div className="max-w-xl mx-auto">
+          <div className="max-w-xl mx-auto px-4 sm:px-6">
             <div className="bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden">
               <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 p-6 text-white text-center relative overflow-hidden">
                 <div className="absolute pointer-events-none top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
                 <div className="absolute pointer-events-none bottom-0 left-0 w-32 h-32 bg-purple-400/20 rounded-full blur-2xl" />
+                {showOfferForm && !hasSubmittedOffer && (
+                  <button
+                    type="button"
+                    onClick={() => setShowOfferForm(false)}
+                    className="absolute top-3 left-3 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white z-10 transition-colors"
+                    aria-label="Go back"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </button>
+                )}
                 <div className="relative z-10">
                   <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 backdrop-blur rounded-2xl mb-3 shadow-lg">
                     <Home className="h-6 w-6 text-white" />
@@ -2298,7 +2308,7 @@ export default function PublicPropertyDetail() {
           />
 
           {/* Modal Content */}
-          <div className="relative w-full max-w-md bg-white rounded-2xl border border-gray-200 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative w-full max-w-md bg-white rounded-2xl border border-gray-200 shadow-2xl animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             {/* Close button */}
             <button
               onClick={() => setIsFormModalOpen(false)}

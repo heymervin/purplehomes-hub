@@ -94,7 +94,7 @@ export function ExitIntentModal({
     >
       <DialogContent
         className={cn(
-          'max-w-md p-0 overflow-hidden gap-0 border-0',
+          'max-w-md w-[calc(100vw-2rem)] p-0 gap-0 border-0 max-h-[90vh] overflow-y-auto',
           isDarkMode ? 'bg-gray-900' : 'bg-white'
         )}
       >
