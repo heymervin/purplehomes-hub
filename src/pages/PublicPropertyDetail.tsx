@@ -943,191 +943,236 @@ export default function PublicPropertyDetail() {
 
       {/* Main Content - One unified gradient canvas top to bottom */}
       <main className="relative" style={{ background: 'linear-gradient(to bottom, #000000 0%, #04000a 8%, #080015 20%, #0c001e 38%, #0e0028 55%, #0c001e 70%, #080015 85%, #04000a 95%, #000000 100%)' }}>
-        {/* Hero Section - Two-column: copy left, image right */}
+        {/* Hero Section - centered, image prominent, CTA after photo */}
         <section className="relative overflow-hidden">
           {/* Ambient lighting */}
           <div className="absolute pointer-events-none top-0 left-1/4 w-[600px] h-[400px] bg-purple-600/20 rounded-full blur-[180px]" />
           <div className="absolute pointer-events-none top-0 right-1/4 w-[400px] h-[300px] bg-violet-700/15 rounded-full blur-[150px]" />
 
-          <div className="relative max-w-5xl mx-auto px-4 py-8 sm:py-10 md:py-12">
-            <div className="flex flex-col md:flex-row md:items-center gap-8 md:gap-12">
+          <div className="relative max-w-3xl mx-auto px-4 pt-8 sm:pt-10 md:pt-12 text-center">
+            {/* Headline */}
+            <HeroEntrance delay={0}>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] mb-3 tracking-tight text-white">
+                {t('hero.headlinePre')}{' '}
+                <span className="inline-block bg-purple-600 px-2 py-0.5 rounded-md italic">
+                  {t('hero.headlineHighlight')}
+                </span>
+              </h1>
+            </HeroEntrance>
 
-              {/* Left: Headline + Subheadline + Price + Specs + CTA */}
-              <div className="flex-1 text-center md:text-left">
-                <HeroEntrance delay={0}>
-                  <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-black leading-[1.15] mb-2 tracking-tight text-white">
-                    {t('hero.headlinePre')}{' '}
-                    <span className="inline-block bg-purple-600 px-2 py-0.5 rounded-md italic">
-                      {t('hero.headlineHighlight')}
-                    </span>
-                  </h1>
-                </HeroEntrance>
+            {/* Subheadline */}
+            <HeroEntrance delay={80}>
+              <p className="text-base sm:text-lg font-medium mb-6 leading-relaxed">
+                <span className="bg-gradient-to-r from-gray-400 via-purple-300 to-gray-400 bg-clip-text text-transparent">
+                  {t('hero.subheadline')}
+                </span>
+              </p>
+            </HeroEntrance>
 
-                <HeroEntrance delay={80}>
-                  <p className="text-base sm:text-lg font-medium mb-4 leading-relaxed">
-                    <span className="bg-gradient-to-r from-gray-400 via-purple-300 to-gray-400 bg-clip-text text-transparent">
-                      {t('hero.subheadline')}
-                    </span>
-                  </p>
-                </HeroEntrance>
-
-                {/* Price + specs block */}
-                <HeroEntrance delay={140}>
-                  <div className="mb-4">
-                    {/* Monthly payment */}
-                    {property.monthlyPayment !== undefined && (
-                      <div className="mb-2">
-                        <span className="text-4xl sm:text-5xl font-black text-white leading-none drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]">
-                          ${property.monthlyPayment.toLocaleString()}
-                        </span>
-                        <span className="text-lg sm:text-xl text-purple-300/80 font-bold ml-1.5">{t('property.monthlyPayment')}</span>
-                      </div>
-                    )}
-
-                    {/* Down payment + purchase price + closing costs */}
-                    <div className="flex flex-wrap gap-2 justify-center md:justify-start mt-2 mb-3">
-                      {property.downPayment !== undefined && (
-                        <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-xs sm:text-sm font-semibold">
-                          ${property.downPayment.toLocaleString()} {t('property.downPayment')}
-                        </span>
-                      )}
-                      <span className="inline-flex items-center px-3 py-1 bg-white/5 border border-purple-500/20 rounded-full text-purple-300/70 text-xs sm:text-sm font-medium">
-                        ${property.price.toLocaleString()} {t('property.purchasePrice')}
-                      </span>
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-300 text-xs sm:text-sm font-medium">
-                        <Check className="h-3 w-3" />{t('property.includesClosingCosts')}
-                      </span>
-                    </div>
-
-                    {/* Beds / baths / sqft / address — compact single row */}
-                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-3 gap-y-1 text-sm text-gray-400 mb-1">
-                      <span className="text-white font-semibold">{property.beds} {t('property.beds')}</span>
-                      <span className="text-purple-500/50">·</span>
-                      <span className="text-white font-semibold">{property.baths} {t('property.baths')}</span>
-                      {property.sqft && (
-                        <>
-                          <span className="text-purple-500/50">·</span>
-                          <span className="text-white font-semibold">{property.sqft.toLocaleString()} {t('property.sqft')}</span>
-                        </>
-                      )}
-                      <span className="text-purple-500/50">·</span>
-                      <span className="text-gray-400">{property.address}, {property.city}</span>
-                    </div>
-
-                    {/* Availability status */}
-                    {(() => {
-                      const status = funnelContent?.inputs?.availabilityStatus || 'Available';
-                      const statusStyles: Record<string, { dot: string; text: string; label: string }> = {
-                        'Available': { dot: 'bg-green-400', text: 'text-green-400', label: t('property.availableNow') },
-                        'Under Review': { dot: 'bg-yellow-400', text: 'text-yellow-400', label: t('property.underReview') },
-                        'Multiple Offers': { dot: 'bg-amber-400', text: 'text-amber-400', label: t('property.multipleOffers') },
-                        'Pending': { dot: 'bg-red-400', text: 'text-red-400', label: t('property.pending') },
-                      };
-                      const style = statusStyles[status] || statusStyles['Available'];
-                      return (
-                        <div className="flex items-center justify-center md:justify-start gap-2 mt-2">
-                          <span className={`w-2 h-2 ${style.dot} rounded-full animate-pulse`} />
-                          <span className={`${style.text} text-sm font-medium`}>{style.label}</span>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </HeroEntrance>
-
-                <HeroEntrance delay={220}>
-                  <div className="flex flex-col items-center md:items-start gap-2">
-                    <button
-                      onClick={scrollToForm}
-                      className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg uppercase tracking-wide px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6)] transition-all duration-300 border-2 border-purple-300/50 hover:scale-105"
-                    >
-                      {t('hero.cta')}
-                      <ArrowRight className="inline-block ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                    <p className="text-xs sm:text-sm text-gray-500">
-                      {t('hero.ctaMicro')}
-                    </p>
-                  </div>
-                </HeroEntrance>
+            {/* Property Image - prominent, centered */}
+            <HeroEntrance delay={150}>
+              <div className="relative group max-w-2xl mx-auto mb-6">
+                <div className="absolute -inset-2 bg-gradient-to-br from-purple-500/40 to-violet-500/30 rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 pointer-events-none" />
+                <div className="relative border-2 border-purple-500/40 rounded-2xl overflow-hidden shadow-2xl">
+                  <PropertyImageGallery
+                    images={property.images || [property.heroImage]}
+                    heroImage={property.heroImage || '/placeholder.svg'}
+                    onHeroChange={() => {}}
+                    onImagesChange={() => {}}
+                    editable={false}
+                  />
+                </div>
               </div>
+            </HeroEntrance>
 
-              {/* Right: Square property image */}
-              <div className="w-full max-w-sm mx-auto md:mx-0 md:w-72 lg:w-80 flex-shrink-0">
-                <HeroEntrance delay={150}>
-                  <div className="relative group">
-                    <div className="absolute -inset-2 bg-gradient-to-br from-purple-500/40 to-violet-500/30 rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 pointer-events-none" />
-                    <div className="relative border-2 border-purple-500/40 rounded-2xl overflow-hidden shadow-2xl [&_.aspect-video]:aspect-square">
-                      <PropertyImageGallery
-                        images={property.images || [property.heroImage]}
-                        heroImage={property.heroImage || '/placeholder.svg'}
-                        onHeroChange={() => {}}
-                        onImagesChange={() => {}}
-                        editable={false}
-                      />
-                    </div>
-                  </div>
-                </HeroEntrance>
+            {/* CTA after photo */}
+            <HeroEntrance delay={220}>
+              <div className="flex flex-col items-center gap-2 py-8 sm:py-10 md:py-12">
+                <button
+                  onClick={scrollToForm}
+                  className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg uppercase tracking-wide px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6)] transition-all duration-300 border-2 border-purple-300/50 hover:scale-105"
+                >
+                  {t('hero.cta')}
+                  <ArrowRight className="inline-block ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+                <p className="text-xs sm:text-sm text-gray-500">
+                  {t('hero.ctaMicro')}
+                </p>
               </div>
-
-            </div>
+            </HeroEntrance>
           </div>
         </section>
 
-        <section className="relative">
-          {/* Premium Trust Strip */}
-          <PremiumTrustStrip className="pb-6" />
-
-          {/* What to Expect circles - HIDDEN (replaced by 2x2 box design moved to top) */}
-
-          {/* Highlighted Solo Testimonial - inside section for seamless flow */}
-          <div className="relative pt-12 pb-8 md:pt-16 md:pb-10">
-            <div className="max-w-5xl mx-auto px-4 sm:px-6">
-              <Reveal delay={0.1}>
-                <FeaturedTestimonial
-                  quote={t('highlightedTestimonial.quote')}
-                  authorName="Eddie"
-                  authorTitle={t('highlightedTestimonial.authorTitle')}
-                  authorImage="/images/testimonials/eddie.jpg"
-                  rating={5}
-                />
-              </Reveal>
-            </div>
-          </div>
-
-          {/* About This Home - inside section for seamless flow */}
-          <div className="relative pt-8 pb-12 md:pt-10 md:pb-16">
-            {/* Purple ambient glow */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[130px]" />
-            </div>
-
-            <div className="relative max-w-4xl mx-auto px-4 sm:px-6">
-              <Reveal delay={0.1}>
-                {/* Eyebrow Label */}
-                <div className="flex justify-center mb-6">
-                  <span className="inline-flex items-center px-4 py-2 rounded-full bg-purple-500/15 border border-purple-400/30 text-purple-300 text-sm font-semibold tracking-wide uppercase">
-                    {t('aboutHome.eyebrow')}
+        {/* Pricing + Trust Section */}
+        <section className="relative py-10 md:py-14">
+          <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/15 rounded-full blur-[180px]" />
+          <div className="relative max-w-3xl mx-auto px-4 text-center">
+            {/* Monthly payment */}
+            {property.monthlyPayment !== undefined && (
+              <Reveal>
+                <div className="mb-3">
+                  <span className="text-5xl sm:text-6xl font-black text-white leading-none drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+                    ${property.monthlyPayment.toLocaleString()}
                   </span>
+                  <span className="text-xl sm:text-2xl text-purple-300/80 font-bold ml-2">{t('property.monthlyPayment')}</span>
                 </div>
               </Reveal>
-
-              <Reveal delay={0.2}>
-                {/* Headline with Dynamic Address */}
-                <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-center leading-tight tracking-tight mb-8">
-                  <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
-                    {t('aboutHome.headline')} {property.address}
+            )}
+            {/* Down payment + purchase price + closing costs */}
+            <Reveal delay={100}>
+              <div className="flex flex-wrap gap-2 justify-center mb-4">
+                {property.downPayment !== undefined && (
+                  <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-sm font-semibold">
+                    ${property.downPayment.toLocaleString()} {t('property.downPayment')}
                   </span>
-                </h2>
-              </Reveal>
-
-              <Reveal delay={0.3}>
-                {/* Description */}
-                <p className="text-lg sm:text-xl text-gray-300 leading-relaxed text-justify max-w-3xl mx-auto">
-                  {t('aboutHome.description')}
-                </p>
-              </Reveal>
-            </div>
+                )}
+                <span className="inline-flex items-center px-3 py-1 bg-white/5 border border-purple-500/20 rounded-full text-purple-300/70 text-sm font-medium">
+                  ${property.price.toLocaleString()} {t('property.purchasePrice')}
+                </span>
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-300 text-sm font-medium">
+                  <Check className="h-3 w-3" />{t('property.includesClosingCosts')}
+                </span>
+              </div>
+            </Reveal>
+            {/* Beds / baths / sqft / address */}
+            <Reveal delay={150}>
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-gray-400 mb-2">
+                <span className="text-white font-semibold">{property.beds} {t('property.beds')}</span>
+                <span className="text-purple-500/50">·</span>
+                <span className="text-white font-semibold">{property.baths} {t('property.baths')}</span>
+                {property.sqft && (
+                  <>
+                    <span className="text-purple-500/50">·</span>
+                    <span className="text-white font-semibold">{property.sqft.toLocaleString()} {t('property.sqft')}</span>
+                  </>
+                )}
+                <span className="text-purple-500/50">·</span>
+                <span className="text-gray-400">{property.address}, {property.city}</span>
+              </div>
+            </Reveal>
+            {/* Availability status */}
+            <Reveal delay={180}>
+              {(() => {
+                const status = funnelContent?.inputs?.availabilityStatus || 'Available';
+                const statusStyles: Record<string, { dot: string; text: string; label: string }> = {
+                  'Available': { dot: 'bg-green-400', text: 'text-green-400', label: t('property.availableNow') },
+                  'Under Review': { dot: 'bg-yellow-400', text: 'text-yellow-400', label: t('property.underReview') },
+                  'Multiple Offers': { dot: 'bg-amber-400', text: 'text-amber-400', label: t('property.multipleOffers') },
+                  'Pending': { dot: 'bg-red-400', text: 'text-red-400', label: t('property.pending') },
+                };
+                const style = statusStyles[status] || statusStyles['Available'];
+                return (
+                  <div className="flex items-center justify-center gap-2 mt-1 mb-6">
+                    <span className={`w-2 h-2 ${style.dot} rounded-full animate-pulse`} />
+                    <span className={`${style.text} text-sm font-medium`}>{style.label}</span>
+                  </div>
+                );
+              })()}
+            </Reveal>
+            {/* Trust Strip */}
+            <PremiumTrustStrip className="mt-2" />
           </div>
         </section>
+
+        {/* How Buying This Home Works - 2x2 Steps */}
+        <section className="relative py-20 md:py-28">
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
+            <div className="absolute pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-violet-500/18 rounded-full blur-[180px]" />
+            <div className="absolute pointer-events-none bottom-[-45%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+            <div className="absolute pointer-events-none bottom-[-30%] left-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[150px]" />
+          </div>
+          <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
+            <Reveal className="text-center mb-12 md:mb-16">
+              <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
+                {t('propertyHighlights.sectionLabel')}
+              </span>
+              <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
+                <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+                  {t('propertyHighlights.sectionHeading')}
+                </span>
+              </h2>
+              <p className="text-lg md:text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto text-justify">
+                {t('propertyHighlights.showcaseText')}
+              </p>
+            </Reveal>
+            <Reveal delay={150}>
+              <div className="grid sm:grid-cols-2 gap-6 md:gap-8 mt-16 mb-12">
+                <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                      <MessageCircle className="h-7 w-7 text-purple-300" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step1Title')}</h3>
+                      <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step1Desc')}</p>
+                      <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step1Note')}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                      <FileText className="h-7 w-7 text-purple-300" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step2Title')}</h3>
+                      <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step2Desc')}</p>
+                      <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step2Note')}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                      <Calendar className="h-7 w-7 text-purple-300" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step3Title')}</h3>
+                      <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step3Desc')}</p>
+                      <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step3Note')}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
+                      <Key className="h-7 w-7 text-purple-300" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step4Title')}</h3>
+                      <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step4Desc')}</p>
+                      <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step4Note')}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+            <Reveal delay={200}>
+              <div className="text-center mb-16">
+                <CTAButton onClick={() => { analytics.trackCtaClick('how_it_works'); setIsFormModalOpen(true); }}>
+                  {t('hero.cta')}
+                </CTAButton>
+                <p className="text-sm text-gray-500 mt-3">{t('hero.ctaMicro')}</p>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* Testimonial - Eddie */}
+        <div className="relative py-12 md:py-16">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6">
+            <Reveal delay={0.1}>
+              <FeaturedTestimonial
+                quote={t('highlightedTestimonial.quote')}
+                authorName="Eddie"
+                authorTitle={t('highlightedTestimonial.authorTitle')}
+                authorImage="/images/testimonials/eddie.jpg"
+                rating={5}
+              />
+            </Reveal>
+          </div>
+        </div>
 
         {/* What's Nearby - Focus on the places */}
         {!funnelLoading && funnelContent?.locationNearby && (
@@ -1183,8 +1228,8 @@ export default function PublicPropertyDetail() {
           </section>
         )}
 
-        {/* Qualifier Section - Dark Theme (Always Show with Fallback) */}
-        {!funnelLoading && (() => {
+        {/* Qualifier Section - HIDDEN */}
+        {false && !funnelLoading && (() => {
           // Default lifestyle-focused content (fallback when no avatars/qualifier set)
           const defaultQualifiers = [
             t('qualifier.default1'),
@@ -1314,8 +1359,8 @@ export default function PublicPropertyDetail() {
           })()
         )}
 
-        {/* Property Showcase - 2x2 boxes (moved to top) */}
-        <section className="relative py-20 md:py-28">
+        {/* Property Showcase - 2x2 boxes - HIDDEN (moved to top) */}
+        {false && (<section className="relative py-20 md:py-28">
             {/* Ambient glow */}
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
@@ -1451,7 +1496,7 @@ export default function PublicPropertyDetail() {
                 </div>
               </Reveal>}
             </div>
-          </section>
+          </section>)}
 
         {/* Full-page loading skeleton while funnel content loads */}
         {funnelLoading && (
@@ -1513,8 +1558,8 @@ export default function PublicPropertyDetail() {
           </div>
         )}
 
-        {/* Problem/Challenge Section - Premium Purple Homes */}
-        {!funnelLoading && funnelContent?.problem && (
+        {/* Problem/Challenge Section - HIDDEN */}
+        {false && !funnelLoading && funnelContent?.problem && (
           <section className="relative py-24 md:py-32">
             {/* Enhanced purple ambient glow - bottom glow bleeds into Solution section */}
             <div className="absolute inset-0 pointer-events-none">
@@ -1919,11 +1964,11 @@ export default function PublicPropertyDetail() {
           </div>
         </section>)}
 
-        {/* Stats Bar - Premium Animated */}
-        <AnimatedStatsSection />
+        {/* Stats Bar - HIDDEN */}
+        {false && <AnimatedStatsSection />}
 
-        {/* Virtual Tour - Premium Dark with Click-to-Play Overlay */}
-        {!funnelLoading && localizedFunnel?.virtualTourUrl && (
+        {/* Virtual Tour - HIDDEN */}
+        {false && !funnelLoading && localizedFunnel?.virtualTourUrl && (
           <VirtualTourSection
             virtualTourUrl={localizedFunnel.virtualTourUrl}
             scrollToForm={scrollToForm}
@@ -1953,8 +1998,8 @@ export default function PublicPropertyDetail() {
             </div>
           </section>
 
-        {/* Urgency / Countdown - Premium Purple */}
-        <section className="relative py-20 md:py-28">
+        {/* Urgency / Countdown - HIDDEN */}
+        {false && (<section className="relative py-20 md:py-28">
           {/* Dramatic urgency lighting - purple glow that bleeds both up and down */}
           <div className="absolute pointer-events-none top-[-50%] left-1/2 -translate-x-1/2 w-[1000px] md:w-[1400px] h-[600px] md:h-[800px] bg-purple-600/20 rounded-full blur-[200px] md:blur-[250px]" />
           <div className="absolute pointer-events-none top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/15 rounded-full blur-[180px]" />
@@ -2015,10 +2060,10 @@ export default function PublicPropertyDetail() {
               <p className="text-gray-500 text-sm mt-4">{t('urgency.priceIncreases')}</p>
             </div>
           </div>
-        </section>
+        </section>)}
 
-        {/* Final CTA Section - connects Urgency to Form */}
-        {!funnelLoading && funnelContent?.callToAction && (
+        {/* Final CTA Section - HIDDEN */}
+        {false && !funnelLoading && funnelContent?.callToAction && (
           <section className="relative py-16 md:py-20">
             {/* Top glows - extend far up to receive Urgency section's bleed */}
             <div className="absolute pointer-events-none top-[-60%] left-1/2 -translate-x-1/2 w-[1200px] md:w-[1600px] h-[800px] bg-purple-600/28 rounded-full blur-[250px]" />
