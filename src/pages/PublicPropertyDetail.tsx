@@ -1007,6 +1007,8 @@ export default function PublicPropertyDetail() {
         <section className="relative py-10 md:py-14">
           <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/15 rounded-full blur-[180px]" />
           <div className="relative max-w-4xl mx-auto px-4">
+            <Reveal>
+              <div className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 shadow-[0_0_40px_rgba(139,92,246,0.1)]">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12">
 
               {/* Left: Price + Pills + Status */}
@@ -1092,8 +1094,8 @@ export default function PublicPropertyDetail() {
 
             </div>
             {/* Trust Strip */}
-            <Reveal delay={250}>
-              <PremiumTrustStrip className="mt-8" />
+            <PremiumTrustStrip className="mt-6" />
+              </div>
             </Reveal>
           </div>
         </section>
