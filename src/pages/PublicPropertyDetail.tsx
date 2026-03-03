@@ -955,9 +955,10 @@ export default function PublicPropertyDetail() {
               {/* Left: Headline + Subheadline + Price + Specs + CTA */}
               <div className="flex-1 text-center md:text-left">
                 <HeroEntrance delay={0}>
-                  <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-black leading-[1.1] mb-2 tracking-tight">
-                    <span className="bg-gradient-to-r from-white via-purple-100 to-white bg-clip-text text-transparent">
-                      {t('hero.headline')}
+                  <h1 className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl font-black leading-[1.15] mb-2 tracking-tight text-white">
+                    {t('hero.headlinePre')}{' '}
+                    <span className="inline-block bg-purple-600 px-2 py-0.5 rounded-md italic">
+                      {t('hero.headlineHighlight')}
                     </span>
                   </h1>
                 </HeroEntrance>
@@ -1412,8 +1413,8 @@ export default function PublicPropertyDetail() {
                 </div>
               </Reveal>
 
-              {/* Property Features Grid */}
-              <Reveal delay={250}>
+              {/* Property Features Grid - HIDDEN */}
+              {false && <Reveal delay={250}>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                   <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
                     <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
@@ -1448,7 +1449,7 @@ export default function PublicPropertyDetail() {
                     </div>
                   )}
                 </div>
-              </Reveal>
+              </Reveal>}
             </div>
           </section>
 
