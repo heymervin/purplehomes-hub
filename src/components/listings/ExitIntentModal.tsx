@@ -48,11 +48,11 @@ export function ExitIntentModal({
         email: form.email || undefined,
         phone: form.phone,
         tags: [
-          'Exit Intent Lead',
-          'Website Lead',
+          'propertypro',
+          source === 'property-detail' ? 'lead-exitintent' : 'lead-map',
           ...(source === 'property-detail' && propertyAddress
             ? [`Property: ${propertyAddress}`]
-            : ['Listings Browser']),
+            : []),
         ],
         customFields: [
           { id: 'wAnKlytGK8s8dmL1vBkV', value: noteValue },
