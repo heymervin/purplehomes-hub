@@ -55,7 +55,7 @@ export function ExitIntentModal({
             : []),
         ],
         customFields: [
-          { id: 'wAnKlytGK8s8dmL1vBkV', value: noteValue },
+          { id: '5EfOYalxVtyl95FKnEXz', value: noteValue },
           ...(propertyAddress
             ? [{ id: 'UcJ0Qoz3kh0OjC9oLVsK', value: propertyAddress }]
             : []),

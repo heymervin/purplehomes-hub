@@ -273,7 +273,7 @@ export default function PublicListings() {
           // Property City
           { id: 'JiQiZk4AwSIuggxs8ryC', value: selectedProperty.city },
           // Notes/Message
-          { id: 'wAnKlytGK8s8dmL1vBkV', value: offerForm.message || `Interested in ${selectedProperty.address} - $${selectedProperty.price.toLocaleString()}` },
+          { id: '5EfOYalxVtyl95FKnEXz', value: offerForm.message || `Interested in ${selectedProperty.address} - $${selectedProperty.price.toLocaleString()}` },
         ],
       });
 

@@ -735,7 +735,7 @@ export default function PublicPropertyDetail() {
           // Property City
           { id: 'JiQiZk4AwSIuggxs8ryC', value: property.city },
           // Notes/Question
-          { id: 'wAnKlytGK8s8dmL1vBkV', value: offerForm.question || `Interested in ${property.address} - $${property.price.toLocaleString()}` },
+          { id: '5EfOYalxVtyl95FKnEXz', value: offerForm.question || `Interested in ${property.address} - $${property.price.toLocaleString()}` },
         ],
       });
 
