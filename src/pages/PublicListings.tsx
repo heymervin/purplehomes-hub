@@ -264,7 +264,7 @@ export default function PublicListings() {
         lastName: offerForm.lastName,
         email: offerForm.email,
         phone: offerForm.phone,
-        tags: ['Listing Lead', 'Interested Buyer', `Property: ${selectedProperty.address}`],
+        tags: ['propertypro', 'lead-funnel'],
         customFields: [
           // Budget/Offer Amount
           { id: 'RsonBtVCorhBi4ehUeAY', value: offerForm.offerAmount || '' },

@@ -728,7 +728,7 @@ export default function PublicPropertyDetail() {
         firstName: offerForm.firstName,
         email: offerForm.email || undefined,
         phone: offerForm.phone,
-        tags: ['propertypro', 'lead-funnel', `Property: ${property.address}`],
+        tags: ['propertypro', 'lead-funnel'],
         customFields: [
           // Property Address interested in
           { id: 'UcJ0Qoz3kh0OjC9oLVsK', value: property.address },

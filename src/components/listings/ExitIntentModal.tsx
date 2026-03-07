@@ -50,9 +50,6 @@ export function ExitIntentModal({
         tags: [
           'propertypro',
           source === 'property-detail' ? 'lead-exitintent' : 'lead-map',
-          ...(source === 'property-detail' && propertyAddress
-            ? [`Property: ${propertyAddress}`]
-            : []),
         ],
         customFields: [
           { id: '5EfOYalxVtyl95FKnEXz', value: noteValue },
