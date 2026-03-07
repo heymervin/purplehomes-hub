@@ -200,7 +200,37 @@ Support international phone numbers with country picker and E.164 format.
 
 ---
 
-### ~~4. Command Center Dashboard 🏠~~ ✅ IMPLEMENTED
+### ~~4. Form Field Standardization 📝~~ ✅ IMPLEMENTED
+**Status**: Implemented
+**Priority**: P1.5
+**Actual Effort**: < 1 hour
+
+**Description**:
+Standardize all form message/question fields to use a single GHL custom field ID across the platform.
+
+**Solution Implemented**:
+- Unified Question/Message field ID: `5EfOYalxVtyl95FKnEXz` (PropertyPro Form)
+- Updated 3 form variants:
+  - Main Offer Form (Property Detail Page)
+  - Listings Offer Form
+  - Exit Intent Modal (both property-detail and listings variants)
+- Tested with curl to verify GHL API acceptance
+- Created `.env` configuration for local development
+
+**Files Modified**:
+- [src/pages/PublicPropertyDetail.tsx](src/pages/PublicPropertyDetail.tsx:738) - Main Offer Form
+- [src/pages/PublicListings.tsx](src/pages/PublicListings.tsx:276) - Listings Offer Form
+- [src/components/listings/ExitIntentModal.tsx](src/components/listings/ExitIntentModal.tsx:58) - Exit Intent Modal
+
+**Success Metrics**:
+- ✅ All forms submit to unified field
+- ✅ GHL accepts field ID with 201 Created response
+- ✅ Contact creation verified with test data
+- ✅ Message data flows cleanly to single GHL field
+
+---
+
+### ~~5. Command Center Dashboard 🏠~~ ✅ IMPLEMENTED
 **Status**: Implemented
 **Priority**: P2 (promoted from backlog)
 **Actual Effort**: 1-2 days
@@ -652,8 +682,10 @@ Side-by-side comparison of up to 3 properties.
 3. ✅ International phone input 📱
 4. ✅ UI/UX improvements & proximity discovery 🎨
 5. ✅ Filter labels UX fix
-6. ✅ Command Center Dashboard 🏠 (real-time KPIs from GHL/Airtable)
-7. ✅ Activity Logs Hybrid View 📋 (Timeline + Table toggle)
+6. ✅ Form field standardization 📝 (unified GHL custom field)
+7. ✅ Command Center Dashboard 🏠 (real-time KPIs from GHL/Airtable)
+8. ✅ Activity Logs Hybrid View 📋 (Timeline + Table toggle)
+8. ✅ Form Field Standardization 📝 (unified GHL custom field for all forms)
 
 ### Currently In Progress 🔄
 1. ⏳ Sidebar navigation restructure (collapsible groups)

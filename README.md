@@ -1,6 +1,14 @@
-# Welcome to your Lovable project
+# Purple Homes Property Matching System
 
-## Project info
+A comprehensive AI-powered property matching system that connects buyers with suitable properties based on their preferences and criteria. Built with React, TypeScript, Vite, and integrated with HighLevel CRM and Airtable.
+
+## 📚 Documentation
+
+- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Complete feature overview and architecture
+- **[IMPLEMENTATION_PRIORITIES.md](IMPLEMENTATION_PRIORITIES.md)** - Priority matrix and roadmap
+- **[IMPLEMENTATION_STORIES.md](IMPLEMENTATION_STORIES.md)** - Development timeline and milestones
+
+## Project Info
 
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
 

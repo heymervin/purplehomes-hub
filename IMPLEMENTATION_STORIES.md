@@ -519,9 +519,40 @@ The Purple Homes Property Matching System was built incrementally over multiple 
 
 ---
 
-## Phase 6: Dashboard Redesign (Current)
-**Duration**: ~1-2 weeks
-**Status**: 🔄 In Progress
+## Phase 6: Form Standardization & Dashboard Redesign (Current)
+**Duration**: ~1-2 weeks (Phase 6), ~2-3 hours (Form Standardization)
+**Status**: 🔄 In Progress (Dashboard), ✅ Complete (Form Standardization)
+
+### Story 6.0: Form Field Standardization
+**Timeframe**: < 1 hour
+**Effort**: XSmall
+**Status**: ✅ Complete
+
+**Problem**: Multiple forms (Main Offer, Listings Offer, Exit Intent Modal) using different or inconsistent custom field IDs for message/question data, making CRM data harder to track.
+
+**Solution Implemented**:
+- Identified unified GHL custom field: `5EfOYalxVtyl95FKnEXz` (Question/Message PropertyPro Form)
+- Updated all 3 form variants to use this single field ID:
+  1. **Main Offer Form** (Property Detail Page) - line 738
+  2. **Listings Offer Form** - line 276
+  3. **Exit Intent Modal** (both variants) - line 58
+- Tested end-to-end with curl to verify GHL API acceptance
+- Created `.env` file with GHL credentials for local development
+- Verified with test contact creation (201 Created response from GHL)
+
+**Files Modified**:
+- [src/pages/PublicPropertyDetail.tsx](src/pages/PublicPropertyDetail.tsx:738) - Updated customFields ID
+- [src/pages/PublicListings.tsx](src/pages/PublicListings.tsx:276) - Updated customFields ID
+- [src/components/listings/ExitIntentModal.tsx](src/components/listings/ExitIntentModal.tsx:58) - Updated customFields ID
+- [.env](.env) - Created with GHL credentials
+
+**Deliverables**:
+- ✅ Unified field ID across all forms
+- ✅ API testing completed and verified
+- ✅ Changes deployed to production
+- ✅ Clean CRM data structure for message tracking
+
+---
 
 ### Story 6.1: Command Center Dashboard
 **Timeframe**: 2-3 days
@@ -627,16 +658,16 @@ Restructure sidebar with collapsible groups for better organization.
 - **Phase 3**: ~2-3 weeks
 - **Phase 4**: ~1 week
 - **Phase 5**: ~2 weeks
-- **Phase 6**: ~1-2 weeks (in progress)
-- **Total**: ~11-15 weeks (2.5-3.5 months)
+- **Phase 6**: ~1-2 weeks + Form Standardization (< 1 hour quick-add)
+- **Total**: ~11-15 weeks (2.5-3.5 months) + incremental improvements
 
 ### Effort Distribution
 - **Large Stories**: 3 (Matching algorithm, Caching system, ZIP code matching)
 - **Medium-Large Stories**: 2 (Spotlight tour, Command Center dashboard)
 - **Medium Stories**: 13 (including Activity hybrid view)
 - **Small Stories**: 6
-- **XSmall Stories**: 2
-- **Total Stories**: 26
+- **XSmall Stories**: 3 (Form field standardization added)
+- **Total Stories**: 27
 
 ### Key Milestones Achieved
 1. ✅ Core matching system functional
@@ -649,6 +680,7 @@ Restructure sidebar with collapsible groups for better organization.
 8. ✅ Purple Homes branding and proximity discovery
 9. ✅ Command Center dashboard with real-time KPIs
 10. ✅ Activity Logs hybrid Timeline/Table view
+11. ✅ Form field standardization (unified GHL custom field across all forms)
 
 ---
 

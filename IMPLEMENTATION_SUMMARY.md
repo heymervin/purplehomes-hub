@@ -180,6 +180,24 @@ A comprehensive AI-powered property matching system that connects buyers with su
   - Date grouping (Today, Yesterday, specific dates)
   - Color-coded icons per activity type
   - Status indicators (success, error, pending)
+
+### 4.11. Form Field Standardization (NEW! - March 7, 2026)
+- **Unified Question/Message Field**: All form variants now use custom field ID `5EfOYalxVtyl95FKnEXz`
+  - Main Offer Form (Property Detail Page)
+  - Listings Offer Form
+  - Exit Intent Modal (both property-detail and listings variants)
+- **Benefits**:
+  - Cleaner CRM data structure with single field for all message/question data
+  - Easier tracking and reporting of buyer inquiries
+  - Consistent API integration across all form types
+  - Verified with end-to-end testing (curl + GHL API)
+
+### 4.12. Activity Logs Hybrid View Details
+- **ActivityTimeline Component** ([src/components/activity/ActivityTimeline.tsx](src/components/activity/ActivityTimeline.tsx)):
+  - Unified timeline view for all system activity
+  - Date grouping (Today, Yesterday, specific dates)
+  - Color-coded icons per activity type
+  - Status indicators (success, error, pending)
   - Sync-specific stats (records processed, duration, created/updated counts)
   - Click-to-navigate for property-related activities
 - **Updated ActivityLogs Page** ([src/pages/ActivityLogs.tsx](src/pages/ActivityLogs.tsx)):
@@ -250,6 +268,7 @@ A comprehensive AI-powered property matching system that connects buyers with su
 - **Rate Limit Handling**: 99.9% success rate with automatic retries
 - **User Experience**: Sub-second page loads with pagination
 - **Data Accuracy**: 0% duplicate matches with smart detection
+- **Form Data Consistency**: 100% of forms use unified GHL custom field for messages
 
 ## Files Modified/Created
 ### Core Backend Files
