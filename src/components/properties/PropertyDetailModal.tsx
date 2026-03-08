@@ -639,6 +639,7 @@ export function PropertyDetailModal({
                           label="Down Payment"
                           value={property.downPayment}
                           onChange={(v) => handleFieldChange('downPayment', v)}
+                          icon={<DollarSign className="h-4 w-4 text-green-600" aria-hidden="true" />}
                         />
 
                         <CurrencyInput
@@ -646,6 +647,7 @@ export function PropertyDetailModal({
                           label="Monthly Payment"
                           value={property.monthlyPayment}
                           onChange={(v) => handleFieldChange('monthlyPayment', v)}
+                          icon={<DollarSign className="h-4 w-4 text-green-600" aria-hidden="true" />}
                         />
                       </div>
                     </div>
