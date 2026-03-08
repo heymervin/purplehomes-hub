@@ -29,7 +29,7 @@ export function FieldSection({
       </div>
 
       {/* Section Content */}
-      <div className="p-4 bg-muted/30 rounded-lg border">
+      <div className="p-4 bg-muted/30 rounded-lg border space-y-4">
         {children}
       </div>
     </div>

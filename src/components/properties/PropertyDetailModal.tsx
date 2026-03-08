@@ -594,44 +594,60 @@ export function PropertyDetailModal({
 
                   {/* Pricing Section */}
                   <FieldSection title="Pricing" icon={DollarSign} iconColor="text-green-600">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <CurrencyInput
-                        id="acquisitionsPrice"
-                        label="Acquisitions Price"
-                        value={property.acquisitionsPrice}
-                        onChange={(v) => handleFieldChange('acquisitionsPrice', v)}
-                        icon={<DollarSign className="h-4 w-4 text-blue-600" aria-hidden="true" />}
-                      />
+                    {/* Acquisition sub-group */}
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-blue-500">
+                        Acquisition
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <CurrencyInput
+                          id="acquisitionsPrice"
+                          label="Purchase Price"
+                          value={property.acquisitionsPrice}
+                          onChange={(v) => handleFieldChange('acquisitionsPrice', v)}
+                          icon={<DollarSign className="h-4 w-4 text-blue-600" aria-hidden="true" />}
+                        />
 
-                      <CurrencyInput
-                        id="acquisitionsDownPayment"
-                        label="Acquisition Down Payment"
-                        value={property.acquisitionsDownPayment}
-                        onChange={(v) => handleFieldChange('acquisitionsDownPayment', v)}
-                        icon={<DollarSign className="h-4 w-4 text-blue-600" aria-hidden="true" />}
-                      />
+                        <CurrencyInput
+                          id="acquisitionsDownPayment"
+                          label="Down Payment"
+                          value={property.acquisitionsDownPayment}
+                          onChange={(v) => handleFieldChange('acquisitionsDownPayment', v)}
+                          icon={<DollarSign className="h-4 w-4 text-blue-600" aria-hidden="true" />}
+                        />
+                      </div>
+                    </div>
 
-                      <CurrencyInput
-                        id="price"
-                        label="Dispositions Price"
-                        value={property.price}
-                        onChange={(v) => handleFieldChange('price', v)}
-                        icon={<DollarSign className="h-4 w-4 text-green-600" aria-hidden="true" />}
-                      />
+                    <div className="border-t border-border/50" />
 
-                      <CurrencyInput
-                        id="downPayment"
-                        label="Down Payment"
-                        value={property.downPayment}
-                        onChange={(v) => handleFieldChange('downPayment', v)}
-                      />
+                    {/* Disposition sub-group */}
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-green-500">
+                        Disposition
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <CurrencyInput
+                          id="price"
+                          label="Sale Price"
+                          value={property.price}
+                          onChange={(v) => handleFieldChange('price', v)}
+                          icon={<DollarSign className="h-4 w-4 text-green-600" aria-hidden="true" />}
+                        />
 
-                      <CurrencyInput
-                        id="monthlyPayment"
-                        label="Monthly Payment"
-                        value={property.monthlyPayment}
-                        onChange={(v) => handleFieldChange('monthlyPayment', v)}
-                      />
+                        <CurrencyInput
+                          id="downPayment"
+                          label="Down Payment"
+                          value={property.downPayment}
+                          onChange={(v) => handleFieldChange('downPayment', v)}
+                        />
+
+                        <CurrencyInput
+                          id="monthlyPayment"
+                          label="Monthly Payment"
+                          value={property.monthlyPayment}
+                          onChange={(v) => handleFieldChange('monthlyPayment', v)}
+                        />
+                      </div>
                     </div>
                   </FieldSection>
                 </TabsContent>
