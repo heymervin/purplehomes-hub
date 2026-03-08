@@ -404,7 +404,8 @@ export const GHL_OPPORTUNITY_FIELDS = {
   asking_price: 'FzXX5DwZoKsDGtL1VPXM', // Asking Price | TEXT
   after_repair_value: 'ObJfXzV1HIenuoOEHTnF', // After Repair Value | TEXT
   repair_costs: 'GHu2gR9AJ9X2Q4fx1cR3', // Repair Costs | MONETORY
-  purchase_price: '8acbcZY3UlF5ruRViguZ', // Acquisition Purchase Price | NUMERICAL
+  purchase_price: 'YDYYyuFqclK8Z0JbePrN', // Acquisition Purchase Price | MONETORY
+  purchase_price_legacy: '8acbcZY3UlF5ruRViguZ', // Purchase Price (old) | NUMERICAL
   acquisition_down_payment: 'FBeiBLLDebvwQxWnc8jN', // Acquisition Down Payment | MONETORY
   target_sales_price: 'MkvThDMXmtMlzwDluPZC', // Target Sales Price | TEXT
   mao_max_allowable_offer: 'GW5FDNZ2H5wL5GXnOTog', // MAO (Max Allowable Offer) | TEXT
