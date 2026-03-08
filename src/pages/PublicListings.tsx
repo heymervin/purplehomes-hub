@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search, Bed, Bath, Maximize2, Phone, MapPin, X, Wrench, Heart, ChevronDown, SlidersHorizontal, ChevronUp, List as ListIcon, DollarSign, Home, Moon, Sun, ArrowLeft, Navigation, Loader2, ZoomIn, Eye, ExternalLink } from 'lucide-react';
+import { Search, Bed, Bath, Maximize2, Phone, MapPin, X, Wrench, Heart, ChevronDown, SlidersHorizontal, ChevronUp, List as ListIcon, DollarSign, Home, Moon, Sun, ArrowLeft, Navigation, Loader2, ZoomIn, Eye, ExternalLink, RefreshCw } from 'lucide-react';
 import type { PropertyCondition, PropertyType, Property } from '@/types';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
@@ -68,7 +68,7 @@ export default function PublicListings() {
   const { t } = useLanguage();
 
   // Fetch properties from Airtable (same source as Properties page and Property Matching)
-  const { data: airtableData, isLoading: isLoadingProperties, isError, error } = useAirtableProperties(200);
+  const { data: airtableData, isLoading: isLoadingProperties, isError, error, refetch, isFetching } = useAirtableProperties(200);
 
   // Transform Airtable properties to Property type for display
   const allProperties: Property[] = useMemo(() => {
@@ -764,6 +764,20 @@ export default function PublicListings() {
               </Select>
             </div>
           </div>
+
+          {/* Refresh */}
+          <Button
+            size="icon"
+            onClick={() => {
+              refetch();
+              toast.success('Refreshing listings...');
+            }}
+            disabled={isFetching}
+            className="flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white"
+            title="Refresh listings"
+          >
+            <RefreshCw className={cn("h-4 w-4", isFetching && "animate-spin")} />
+          </Button>
 
           {/* Theme Toggle */}
           <Button

@@ -1661,7 +1661,10 @@ async function handleAggregatedProperties(
     priorityOnly = 'false',
     matchLimit = '25',
     dateRange = 'all',
+    noCache = 'false',
   } = req.query;
+
+  const skipCache = noCache === 'true';
 
   const filters = {
     matchStatus: matchStatus as string | undefined,
@@ -1675,15 +1678,21 @@ async function handleAggregatedProperties(
   const offsetStr = offset as string;
 
   // Step 1: Fetch properties (paginated) with caching
-  console.log(`[Aggregated] Fetching properties with limit=${limitNum}, offset=${offsetStr}`);
+  console.log(`[Aggregated] Fetching properties with limit=${limitNum}, offset=${offsetStr}, noCache=${skipCache}`);
 
   const propertiesCacheKey = `properties-${limitNum}-${offsetStr}`;
+
+  // Clear cache if noCache requested
+  if (skipCache) {
+    aggregatedPropertiesCache.delete(propertiesCacheKey);
+  }
+
   const cachedProperties = aggregatedPropertiesCache.get(propertiesCacheKey);
 
   let properties: any[];
   let propertiesData: any;
 
-  if (cachedProperties && Date.now() - cachedProperties.timestamp < AGGREGATED_CACHE_TTL) {
+  if (!skipCache && cachedProperties && Date.now() - cachedProperties.timestamp < AGGREGATED_CACHE_TTL) {
     console.log(`[Aggregated] Using cached properties (age: ${Math.floor((Date.now() - cachedProperties.timestamp) / 1000)}s)`);
     properties = cachedProperties.data;
     propertiesData = { records: properties, offset: undefined };

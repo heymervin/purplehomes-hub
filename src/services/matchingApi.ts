@@ -897,6 +897,7 @@ export const useAirtableProperties = (pageSize: number = 100) => {
       const params = new URLSearchParams({
         action: 'aggregated-properties',
         limit: pageSize.toString(),
+        noCache: 'true',
       });
 
       const response = await fetch(`${MATCHING_API_BASE}?${params}`);
