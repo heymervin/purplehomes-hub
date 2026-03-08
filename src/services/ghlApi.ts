@@ -404,7 +404,8 @@ export const GHL_OPPORTUNITY_FIELDS = {
   asking_price: 'FzXX5DwZoKsDGtL1VPXM', // Asking Price | TEXT
   after_repair_value: 'ObJfXzV1HIenuoOEHTnF', // After Repair Value | TEXT
   repair_costs: 'GHu2gR9AJ9X2Q4fx1cR3', // Repair Costs | MONETORY
-  purchase_price: '8acbcZY3UlF5ruRViguZ', // Purchase Price | NUMERICAL
+  purchase_price: '8acbcZY3UlF5ruRViguZ', // Acquisition Purchase Price | NUMERICAL
+  acquisition_down_payment: 'FBeiBLLDebvwQxWnc8jN', // Acquisition Down Payment | MONETORY
   target_sales_price: 'MkvThDMXmtMlzwDluPZC', // Target Sales Price | TEXT
   mao_max_allowable_offer: 'GW5FDNZ2H5wL5GXnOTog', // MAO (Max Allowable Offer) | TEXT
 
@@ -607,9 +608,11 @@ export const transformOpportunityToProperty = (opp: GHLOpportunity): Property =>
   const downPayment = downPaymentStr ? parseFloat(downPaymentStr.replace(/[^0-9.]/g, '')) : undefined;
   const monthlyPayment = monthlyPaymentStr ? parseFloat(monthlyPaymentStr.replace(/[^0-9.]/g, '')) : undefined;
 
-  // Parse acquisitions price (purchase price from GHL)
+  // Parse acquisitions price and down payment from GHL
   const purchasePriceStr = getCustomField(GHL_OPPORTUNITY_FIELDS.purchase_price);
   const acquisitionsPrice = purchasePriceStr ? parseFloat(purchasePriceStr.replace(/[^0-9.]/g, '')) : undefined;
+  const acquisitionsDownPaymentStr = getCustomField(GHL_OPPORTUNITY_FIELDS.acquisition_down_payment);
+  const acquisitionsDownPayment = acquisitionsDownPaymentStr ? parseFloat(acquisitionsDownPaymentStr.replace(/[^0-9.]/g, '')) : undefined;
 
   return {
     id: opp.id,
@@ -635,6 +638,7 @@ export const transformOpportunityToProperty = (opp: GHLOpportunity): Property =>
     downPayment: !isNaN(downPayment as number) ? downPayment : undefined,
     monthlyPayment: !isNaN(monthlyPayment as number) ? monthlyPayment : undefined,
     acquisitionsPrice: !isNaN(acquisitionsPrice as number) ? acquisitionsPrice : undefined,
+    acquisitionsDownPayment: !isNaN(acquisitionsDownPayment as number) ? acquisitionsDownPayment : undefined,
     createdAt: opp.createdAt,
     isDemo: false,
   };

@@ -22,6 +22,7 @@ export interface Property {
   state?: string;
   price: number; // Dispositions Price (Property Total Price from GHL)
   acquisitionsPrice?: number; // Acquisitions Price (Purchase Price from GHL)
+  acquisitionsDownPayment?: number; // Acquisition Down Payment from GHL
   beds: number;
   baths: number;
   sqft?: number;

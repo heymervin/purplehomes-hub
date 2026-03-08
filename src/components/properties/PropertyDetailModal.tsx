@@ -318,6 +318,7 @@ export function PropertyDetailModal({
       if (formData.downPayment !== undefined) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.downPayment] = String(formData.downPayment);
       if (formData.monthlyPayment !== undefined) customFieldsUpdate[PROPERTY_CUSTOM_FIELDS.monthlyPayment] = String(formData.monthlyPayment);
       if (formData.acquisitionsPrice !== undefined) customFieldsUpdate[GHL_OPPORTUNITY_FIELDS.purchase_price] = String(formData.acquisitionsPrice);
+      if (formData.acquisitionsDownPayment !== undefined) customFieldsUpdate[GHL_OPPORTUNITY_FIELDS.acquisition_down_payment] = String(formData.acquisitionsDownPayment);
 
       // Status mapping
       if (formData.status) {
@@ -599,6 +600,14 @@ export function PropertyDetailModal({
                         label="Acquisitions Price"
                         value={property.acquisitionsPrice}
                         onChange={(v) => handleFieldChange('acquisitionsPrice', v)}
+                        icon={<DollarSign className="h-4 w-4 text-blue-600" aria-hidden="true" />}
+                      />
+
+                      <CurrencyInput
+                        id="acquisitionsDownPayment"
+                        label="Acquisition Down Payment"
+                        value={property.acquisitionsDownPayment}
+                        onChange={(v) => handleFieldChange('acquisitionsDownPayment', v)}
                         icon={<DollarSign className="h-4 w-4 text-blue-600" aria-hidden="true" />}
                       />
 
