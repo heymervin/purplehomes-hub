@@ -49,7 +49,7 @@ export function EmailPreview({
       </CollapsibleTrigger>
 
       <CollapsibleContent>
-        <div className="mt-2 rounded-lg border bg-card overflow-hidden">
+        <div className="mt-2 rounded-lg border bg-card max-h-64 overflow-y-auto">
           {/* Email Header */}
           <div className="border-b bg-muted/30 p-3 space-y-2">
             <div className="flex items-start gap-2 text-sm">
