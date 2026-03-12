@@ -692,12 +692,12 @@ export function SendPropertyToBuyersModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl flex flex-col max-h-[90vh] overflow-hidden">
-        <DialogHeader className="shrink-0">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden grid-rows-[auto_1fr_auto]">
+        <DialogHeader>
           <DialogTitle>Send Property to Buyers</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4 overflow-y-auto flex-1 min-h-0 pr-1">
+        <div className="space-y-4 py-4 overflow-y-auto min-h-0 pr-1">
           {/* AI Recommendation Banner - Show when >5 buyers */}
           {showAiRecommendation && (
             <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg p-3">
@@ -906,7 +906,7 @@ export function SendPropertyToBuyersModal({
           </div>
         </div>
 
-        <DialogFooter className="shrink-0 border-t pt-4">
+        <DialogFooter className="border-t pt-4">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
