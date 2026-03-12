@@ -1,62 +1,52 @@
-import { LucideIcon } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'
+import { LucideIcon, TrendingDown, TrendingUp } from 'lucide-react'
 
 interface StatCardProps {
-  title: string;
-  value: number | string;
-  icon: LucideIcon;
-  variant?: 'default' | 'warning' | 'success' | 'info' | 'muted';
-  onClick?: () => void;
-  className?: string;
+  label: string
+  value: string | number
+  trend?: {
+    value: number
+    label: string
+    direction?: 'up' | 'down' | 'neutral'
+  }
+  icon?: LucideIcon
+  className?: string
+  onClick?: () => void
 }
 
-const variantStyles = {
-  default: 'text-foreground',
-  warning: 'text-warning',
-  success: 'text-success',
-  info: 'text-info',
-  muted: 'text-muted-foreground',
-};
+export function StatCard({ label, value, trend, icon: Icon, className, onClick }: StatCardProps) {
+  const isPositive = trend?.direction === 'up' || (trend && !trend.direction && trend.value > 0)
+  const isNegative = trend?.direction === 'down' || (trend && !trend.direction && trend.value < 0)
 
-const iconBgStyles = {
-  default: 'bg-muted',
-  warning: 'bg-warning/10',
-  success: 'bg-success/10',
-  info: 'bg-info/10',
-  muted: 'bg-muted',
-};
-
-export function StatCard({ 
-  title, 
-  value, 
-  icon: Icon, 
-  variant = 'default',
-  onClick,
-  className 
-}: StatCardProps) {
   return (
-    <Card 
+    <div
       className={cn(
-        "transition-all duration-200",
-        onClick && "cursor-pointer hover:border-primary/50 hover:shadow-lg",
+        'p-5 rounded-lg border bg-card',
+        onClick && 'cursor-pointer hover:shadow-md transition-shadow',
         className
       )}
       onClick={onClick}
     >
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">{title}</p>
-            <p className={cn("text-3xl font-bold", variantStyles[variant])}>
-              {value}
-            </p>
-          </div>
-          <div className={cn("rounded-full p-3", iconBgStyles[variant])}>
-            <Icon className={cn("h-6 w-6", variantStyles[variant])} />
-          </div>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-[13px] font-medium text-muted-foreground">{label}</p>
+        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
+      </div>
+      <p className="text-[28px] font-bold tabular-nums text-foreground leading-none">{value}</p>
+      {trend && (
+        <div className="flex items-center gap-1 mt-2">
+          {isPositive && <TrendingUp className="h-3 w-3 text-emerald-600" />}
+          {isNegative && <TrendingDown className="h-3 w-3 text-red-500" />}
+          <span className={cn(
+            'text-xs',
+            isPositive && 'text-emerald-600',
+            isNegative && 'text-red-500',
+            !isPositive && !isNegative && 'text-muted-foreground'
+          )}>
+            {trend.value > 0 ? '+' : ''}{trend.value}
+          </span>
+          <span className="text-xs text-muted-foreground">{trend.label}</span>
         </div>
-      </CardContent>
-    </Card>
-  );
+      )}
+    </div>
+  )
 }

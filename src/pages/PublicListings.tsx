@@ -380,9 +380,9 @@ export default function PublicListings() {
           className={cn(
             "group relative flex rounded-xl overflow-hidden cursor-pointer transition-all duration-300",
             isDarkMode
-              ? "bg-card border border-border/50 hover:border-purple-500/50"
-              : "bg-white border border-gray-200 hover:border-purple-500/50",
-            isHovered && "ring-2 ring-purple-500 shadow-lg shadow-purple-500/20"
+              ? "bg-card border border-border/50 hover:border-indigo-500/50"
+              : "bg-white border border-gray-200 hover:border-indigo-500/50",
+            isHovered && "ring-2 ring-indigo-500 shadow-lg shadow-indigo-500/20"
           )}
           onClick={() => setSelectedProperty(property)}
           onMouseEnter={() => setHoveredPropertyId(property.id)}
@@ -395,7 +395,7 @@ export default function PublicListings() {
             <h3 className={cn("text-sm font-semibold truncate", isDarkMode ? "text-foreground" : "text-gray-900")}>{property.address}</h3>
             <p className={cn("text-xs truncate", isDarkMode ? "text-muted-foreground" : "text-gray-500")}>{property.city}</p>
             <div className="flex items-center justify-between mt-1.5">
-              <p className="text-base font-bold text-purple-600">${property.price.toLocaleString()}</p>
+              <p className="text-base font-bold text-indigo-600">${property.price.toLocaleString()}</p>
               <span className={cn("text-xs", isDarkMode ? "text-muted-foreground" : "text-gray-500")}>
                 {property.beds} bd &bull; {property.baths} ba
               </span>
@@ -407,7 +407,7 @@ export default function PublicListings() {
                 const slug = generatePropertySlug(property.address, property.city);
                 window.open(`/listing/${slug}`, '_blank');
               }}
-              className="w-full mt-2 h-7 gap-1 text-xs bg-purple-600 hover:bg-purple-700 text-white"
+              className="w-full mt-2 h-7 gap-1 text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
             >
               <Eye className="h-3 w-3" /> {t('common.seeMore')}
             </Button>
@@ -423,9 +423,9 @@ export default function PublicListings() {
         className={cn(
           "group relative rounded-xl overflow-hidden cursor-pointer transition-all duration-200",
           isDarkMode
-            ? "bg-card border border-border/50 hover:border-purple-500/50"
-            : "bg-white border border-gray-200 hover:border-purple-400/60 hover:shadow-md",
-          isHovered && "ring-2 ring-purple-500 shadow-lg shadow-purple-500/20"
+            ? "bg-card border border-border/50 hover:border-indigo-500/50"
+            : "bg-white border border-gray-200 hover:border-indigo-400/60 hover:shadow-md",
+          isHovered && "ring-2 ring-indigo-500 shadow-lg shadow-indigo-500/20"
         )}
         onClick={() => setSelectedProperty(property)}
         onMouseEnter={() => setHoveredPropertyId(property.id)}
@@ -444,7 +444,7 @@ export default function PublicListings() {
             className={cn(
               "absolute top-2 right-2 p-1.5 rounded-full transition-all duration-200",
               isSaved
-                ? "bg-purple-500 text-white"
+                ? "bg-indigo-500 text-white"
                 : "bg-black/30 backdrop-blur-sm text-white hover:bg-black/50"
             )}
             data-tour="card-save"
@@ -476,7 +476,7 @@ export default function PublicListings() {
 
           {/* Price + specs line */}
           <div className="flex items-center justify-between mt-2" data-tour="card-pricing">
-            <span className="text-base font-bold text-purple-600">
+            <span className="text-base font-bold text-indigo-600">
               ${property.price.toLocaleString()}
             </span>
             <span className={cn(
@@ -489,7 +489,7 @@ export default function PublicListings() {
 
           {/* Down payment if available */}
           {property.downPayment !== undefined && (
-            <p className="text-xs text-purple-500 mt-1">
+            <p className="text-xs text-indigo-500 mt-1">
               Down: ${property.downPayment.toLocaleString()}
             </p>
           )}
@@ -503,7 +503,7 @@ export default function PublicListings() {
                 onClick={(e) => handleZoomToProperty(property, e)}
                 className={cn(
                   "flex-1 h-7 gap-1 text-xs",
-                  isDarkMode ? "border-border hover:bg-purple-500/10" : "border-gray-300 hover:border-purple-400"
+                  isDarkMode ? "border-border hover:bg-indigo-500/10" : "border-gray-300 hover:border-indigo-400"
                 )}
               >
                 <ZoomIn className="h-3 w-3" /> {t('common.map')}
@@ -516,7 +516,7 @@ export default function PublicListings() {
                 const slug = generatePropertySlug(property.address, property.city);
                 window.open(`/listing/${slug}`, '_blank');
               }}
-              className="flex-1 h-7 gap-1 text-xs bg-purple-600 hover:bg-purple-700 text-white"
+              className="flex-1 h-7 gap-1 text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
             >
               <Eye className="h-3 w-3" /> {t('common.details')}
             </Button>
@@ -575,7 +575,7 @@ export default function PublicListings() {
                 <Search className="h-8 w-8 text-gray-400" />
               </div>
               <p className={cn(isDarkMode ? "text-muted-foreground" : "text-gray-600")}>{t('listings.noMatch')}</p>
-              <Button variant="link" onClick={clearFilters} className="text-purple-500">
+              <Button variant="link" onClick={clearFilters} className="text-indigo-500">
                 {t('listings.clearAllFilters')}
               </Button>
             </div>
@@ -611,7 +611,7 @@ export default function PublicListings() {
               size="sm"
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="text-sm bg-purple-600 hover:bg-purple-700 text-white border-purple-600"
+              className="text-sm bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-600"
             >
               {t('common.next')}
             </Button>
@@ -635,7 +635,7 @@ export default function PublicListings() {
           {/* Back Button */}
           <Button
             onClick={() => navigate(-1)}
-            className="flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white gap-2"
+            className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
             title="Go back"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -644,7 +644,7 @@ export default function PublicListings() {
 
 
           {/* Brand Name */}
-          <span className="hidden sm:block flex-shrink-0 font-bold text-purple-600 text-lg">Purple Homes</span>
+          <span className="hidden sm:block flex-shrink-0 font-bold text-indigo-600 text-lg">Purple Homes</span>
 
           {/* Primary Filters - Always Visible */}
           <div className="flex-1 flex items-center gap-2 max-w-4xl">
@@ -662,7 +662,7 @@ export default function PublicListings() {
                   setUserLocation(null);
                 }}
                 className={cn(
-                  "pl-10 pr-10 shadow-sm hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:border-transparent",
+                  "pl-10 pr-10 shadow-sm hover:shadow-md transition-shadow focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:border-transparent",
                   isDarkMode ? "bg-background text-foreground border-border" : "bg-white text-gray-900 placeholder:text-gray-400 border-gray-300"
                 )}
               />
@@ -674,13 +674,13 @@ export default function PublicListings() {
                 data-tour="locate-button"
                 className={cn(
                   "absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded transition-colors",
-                  userLocation ? "text-purple-600" : isDarkMode ? "text-muted-foreground hover:text-foreground" : "text-gray-400 hover:text-purple-600"
+                  userLocation ? "text-indigo-600" : isDarkMode ? "text-muted-foreground hover:text-foreground" : "text-gray-400 hover:text-indigo-600"
                 )}
               >
                 {isLocating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Navigation className={cn("h-4 w-4", userLocation && "fill-purple-200")} />
+                  <Navigation className={cn("h-4 w-4", userLocation && "fill-indigo-200")} />
                 )}
               </button>
             </div>
@@ -773,7 +773,7 @@ export default function PublicListings() {
               toast.success('Refreshing listings...');
             }}
             disabled={isFetching}
-            className="flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white"
+            className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white"
             title="Refresh listings"
           >
             <RefreshCw className={cn("h-4 w-4", isFetching && "animate-spin")} />
@@ -783,7 +783,7 @@ export default function PublicListings() {
           <Button
             size="icon"
             onClick={() => setIsDarkMode(!isDarkMode)}
-            className="flex-shrink-0 bg-purple-600 hover:bg-purple-700 text-white"
+            className="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 text-white"
             data-tour="theme-toggle"
           >
             {isDarkMode ? (
@@ -796,11 +796,11 @@ export default function PublicListings() {
           {/* More Filters */}
           <Popover open={showFilters} onOpenChange={setShowFilters}>
             <PopoverTrigger asChild>
-              <Button className="gap-2 relative bg-purple-600 hover:bg-purple-700 text-white" data-tour="filters-button">
+              <Button className="gap-2 relative bg-indigo-600 hover:bg-indigo-700 text-white" data-tour="filters-button">
                 <SlidersHorizontal className="h-4 w-4" />
                 <span className="hidden sm:inline">{t('listings.filters')}</span>
                 {activeFilterCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-purple-500 text-white text-xs flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-indigo-500 text-white text-xs flex items-center justify-center">
                     {activeFilterCount}
                   </span>
                 )}
@@ -872,7 +872,7 @@ export default function PublicListings() {
                     />
                     <div className="flex justify-between text-xs text-gray-600 mt-1">
                       <span>$0</span>
-                      <span className="font-medium text-purple-600">
+                      <span className="font-medium text-indigo-600">
                         {downPaymentRange[1] >= 1000000 ? 'Any' : `Up to $${downPaymentRange[1].toLocaleString()}`}
                       </span>
                     </div>
@@ -919,7 +919,7 @@ export default function PublicListings() {
           {/* Contact - always visible */}
           <a
             href="tel:+15044750672"
-            className="flex-shrink-0 flex items-center gap-1.5 text-purple-600 font-medium hover:text-purple-700 transition-colors text-sm"
+            className="flex-shrink-0 flex items-center gap-1.5 text-indigo-600 font-medium hover:text-indigo-700 transition-colors text-sm"
           >
             <Phone className="h-4 w-4" />
             <span className="hidden sm:inline">(504) 475-0672</span>
@@ -929,9 +929,9 @@ export default function PublicListings() {
 
       {/* Active Filters Bar */}
       {activeFilterCount > 0 && (
-        <div className="flex-shrink-0 bg-purple-50 border-b border-purple-100 px-4 py-2.5">
+        <div className="flex-shrink-0 bg-indigo-50 border-b border-indigo-100 px-4 py-2.5">
           <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="text-sm text-purple-700 font-semibold">{t('listings.activeFilters')}</span>
+            <span className="text-sm text-indigo-700 font-semibold">{t('listings.activeFilters')}</span>
 
             {search && (
               <Badge variant="secondary" className="gap-1.5 text-sm px-3 py-1">
@@ -986,7 +986,7 @@ export default function PublicListings() {
               variant="ghost"
               size="sm"
               onClick={clearFilters}
-              className="h-7 text-sm text-purple-600 hover:text-purple-700 hover:bg-purple-100 font-medium"
+              className="h-7 text-sm text-indigo-600 hover:text-indigo-700 hover:bg-indigo-100 font-medium"
             >
               {t('common.clearAll')}
             </Button>
@@ -1000,7 +1000,7 @@ export default function PublicListings() {
         {isLoadingProperties && (
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="text-center space-y-3">
-              <Loader2 className="h-10 w-10 animate-spin text-purple-500 mx-auto" />
+              <Loader2 className="h-10 w-10 animate-spin text-indigo-500 mx-auto" />
               <p className="text-sm font-medium">{t('listings.initializingProperties')}</p>
             </div>
           </div>
@@ -1053,7 +1053,7 @@ export default function PublicListings() {
           <Drawer open={mobileDrawerOpen} onOpenChange={setMobileDrawerOpen}>
             <DrawerTrigger asChild>
               <Button 
-                className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 shadow-xl bg-purple-600 hover:bg-purple-700 text-white gap-2 px-6"
+                className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 shadow-xl bg-indigo-600 hover:bg-indigo-700 text-white gap-2 px-6"
                 size="lg"
               >
                 <ListIcon className="h-5 w-5" />
@@ -1100,40 +1100,40 @@ export default function PublicListings() {
                         distance={getPropertyDistance(selectedProperty)!}
                         variant="detailed"
                         showCommute
-                        className="bg-white/95 backdrop-blur-sm shadow-lg fade-in-purple"
+                        className="bg-white/95 backdrop-blur-sm shadow-lg"
                       />
                     </div>
                   )}
                   <button
                     onClick={() => setSelectedProperty(null)}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 transition-colors scale-hover z-20"
+                    className="absolute top-4 right-4 p-2 rounded-full bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 transition-colors hover:scale-105 z-20"
                   >
                     <X className="h-5 w-5" />
                   </button>
                   <button
                     onClick={(e) => toggleSaved(selectedProperty.id, e)}
                     className={cn(
-                      "absolute top-4 right-14 p-2 rounded-full transition-all scale-hover z-20",
+                      "absolute top-4 right-14 p-2 rounded-full transition-all hover:scale-105 z-20",
                       savedProperties.has(selectedProperty.id)
-                        ? "bg-purple-500 text-white shadow-purple-md"
+                        ? "bg-indigo-500 text-white"
                         : "bg-black/30 backdrop-blur-sm text-white hover:bg-black/50"
                     )}
                   >
                     <Heart className={cn("h-5 w-5", savedProperties.has(selectedProperty.id) && "fill-current")} />
                   </button>
-                  <div className="absolute bottom-0 left-0 right-0 p-6 slide-up-purple z-20 pointer-events-none">
+                  <div className="absolute bottom-0 left-0 right-0 p-6 z-20 pointer-events-none">
                     <div className="flex items-baseline gap-3 mb-2">
                       <p className="text-3xl sm:text-4xl font-bold text-white drop-shadow-lg">
                         ${selectedProperty.price.toLocaleString()}
                       </p>
                       {selectedProperty.monthlyPayment !== undefined && (
-                        <p className="text-lg sm:text-xl font-semibold text-purple-200">
+                        <p className="text-lg sm:text-xl font-semibold text-indigo-200">
                           ${selectedProperty.monthlyPayment.toLocaleString()}/mo
                         </p>
                       )}
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-semibold text-white purple-underline inline-block">{selectedProperty.address}</h2>
-                    <p className="text-purple-200 flex items-center gap-1 mt-2">
+                    <h2 className="text-xl sm:text-2xl font-semibold text-white inline-block">{selectedProperty.address}</h2>
+                    <p className="text-indigo-200 flex items-center gap-1 mt-2">
                       <MapPin className="h-4 w-4" />
                       {selectedProperty.city}
                     </p>
@@ -1144,8 +1144,8 @@ export default function PublicListings() {
               <div className="p-6 space-y-6">
                 <div className="flex flex-wrap gap-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                      <Bed className="h-6 w-6 text-purple-500" />
+                    <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center">
+                      <Bed className="h-6 w-6 text-indigo-500" />
                     </div>
                     <div>
                       <p className="text-2xl font-bold">{selectedProperty.beds}</p>
@@ -1153,8 +1153,8 @@ export default function PublicListings() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                      <Bath className="h-6 w-6 text-purple-500" />
+                    <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center">
+                      <Bath className="h-6 w-6 text-indigo-500" />
                     </div>
                     <div>
                       <p className="text-2xl font-bold">{selectedProperty.baths}</p>
@@ -1163,8 +1163,8 @@ export default function PublicListings() {
                   </div>
                   {selectedProperty.sqft && (
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                        <Maximize2 className="h-6 w-6 text-purple-500" />
+                      <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center">
+                        <Maximize2 className="h-6 w-6 text-indigo-500" />
                       </div>
                       <div>
                         <p className="text-2xl font-bold">{selectedProperty.sqft.toLocaleString()}</p>
@@ -1174,8 +1174,8 @@ export default function PublicListings() {
                   )}
                   {selectedProperty.condition && (
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                        <Wrench className="h-6 w-6 text-purple-500" />
+                      <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center">
+                        <Wrench className="h-6 w-6 text-indigo-500" />
                       </div>
                       <div>
                         <p className="text-lg font-bold">{selectedProperty.condition}</p>
@@ -1185,8 +1185,8 @@ export default function PublicListings() {
                   )}
                   {selectedProperty.propertyType && (
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                        <Home className="h-6 w-6 text-purple-500" />
+                      <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center">
+                        <Home className="h-6 w-6 text-indigo-500" />
                       </div>
                       <div>
                         <p className="text-lg font-bold">{selectedProperty.propertyType}</p>
@@ -1196,8 +1196,8 @@ export default function PublicListings() {
                   )}
                   {selectedProperty.downPayment !== undefined && (
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                        <DollarSign className="h-6 w-6 text-purple-500" />
+                      <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center">
+                        <DollarSign className="h-6 w-6 text-indigo-500" />
                       </div>
                       <div>
                         <p className="text-lg font-bold">${selectedProperty.downPayment.toLocaleString()}</p>
@@ -1207,8 +1207,8 @@ export default function PublicListings() {
                   )}
                   {selectedProperty.monthlyPayment !== undefined && (
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                        <DollarSign className="h-6 w-6 text-purple-500" />
+                      <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center">
+                        <DollarSign className="h-6 w-6 text-indigo-500" />
                       </div>
                       <div>
                         <p className="text-lg font-bold">${selectedProperty.monthlyPayment.toLocaleString()}/mo</p>
@@ -1227,13 +1227,13 @@ export default function PublicListings() {
 
                 {!showOfferForm ? (
                   <div className="flex flex-col sm:flex-row gap-3">
-                    <Button size="lg" className="flex-1 btn-purple-gradient pulse-purple" asChild>
+                    <Button size="lg" className="flex-1" asChild>
                       <a href="tel:+15044750672">
                         <Phone className="h-4 w-4 mr-2" />
                         {t('cta.textUsPhone')}
                       </a>
                     </Button>
-                    <Button variant="outline" size="lg" className="flex-1 scale-hover" asChild>
+                    <Button variant="outline" size="lg" className="flex-1 hover:scale-105 transition-transform" asChild>
                       <Link to={`/listing/${generatePropertySlug(selectedProperty.address, selectedProperty.city)}`}>
                         <ExternalLink className="h-4 w-4 mr-2" />
                         {t('common.details')}
@@ -1309,10 +1309,10 @@ export default function PublicListings() {
                       />
                     </div>
                     <div className="flex gap-3">
-                      <Button type="submit" className="flex-1 btn-purple-gradient">
+                      <Button type="submit" className="flex-1">
                         {t('cta.submitOffer')}
                       </Button>
-                      <Button type="button" variant="outline" onClick={() => setShowOfferForm(false)} className="scale-hover">
+                      <Button type="button" variant="outline" onClick={() => setShowOfferForm(false)} className="hover:scale-105 transition-transform">
                         {t('common.cancel')}
                       </Button>
                     </div>

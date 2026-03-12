@@ -9,43 +9,43 @@ const ctaButtonVariants = cva(
   {
     variants: {
       variant: {
-        // Primary - Purple Homes branded gradient
+        // Primary - branded gradient
         primary: [
-          "bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800",
+          "bg-gradient-to-r from-indigo-600 via-indigo-700 to-indigo-800",
           "text-white uppercase tracking-wider",
-          "shadow-[0_8px_30px_rgb(147,51,234,0.4)]",
-          "hover:shadow-[0_12px_40px_rgb(147,51,234,0.5)]",
+          "shadow-[0_8px_30px_rgb(79,70,229,0.4)]",
+          "hover:shadow-[0_12px_40px_rgb(79,70,229,0.5)]",
           "hover:-translate-y-1",
           "active:translate-y-0",
-          "border border-purple-400/30",
+          "border border-indigo-400/30",
           // Shimmer effect via pseudo-element
           "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
         ].join(" "),
-        // Secondary - Rich Purple with depth
+        // Secondary - Rich indigo with depth
         secondary: [
-          "bg-gradient-to-br from-purple-500 via-purple-600 to-purple-800",
+          "bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-800",
           "text-white",
-          "shadow-[0_8px_30px_rgb(147,51,234,0.35)]",
-          "hover:shadow-[0_12px_40px_rgb(147,51,234,0.45)]",
+          "shadow-[0_8px_30px_rgb(79,70,229,0.35)]",
+          "hover:shadow-[0_12px_40px_rgb(79,70,229,0.45)]",
           "hover:-translate-y-1",
-          "border border-purple-400/20",
+          "border border-indigo-400/20",
           "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
         ].join(" "),
-        // Premium - Black with purple accents
+        // Premium - Black with indigo accents
         premium: [
           "bg-gradient-to-br from-gray-900 via-gray-800 to-black",
           "text-white uppercase tracking-widest",
           "shadow-[0_8px_30px_rgb(0,0,0,0.4)]",
           "hover:shadow-[0_12px_40px_rgb(0,0,0,0.5)]",
           "hover:-translate-y-1",
-          "border border-purple-500/40",
-          "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-purple-400/20 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
+          "border border-indigo-500/40",
+          "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-indigo-400/20 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
         ].join(" "),
         // Outline - Elegant border
         outline: [
-          "border-2 border-purple-500/70",
-          "text-purple-700 bg-white/80 backdrop-blur-sm",
-          "hover:bg-purple-50 hover:border-purple-600",
+          "border-2 border-indigo-500/70",
+          "text-indigo-700 bg-white/80 backdrop-blur-sm",
+          "hover:bg-indigo-50 hover:border-indigo-600",
           "hover:-translate-y-0.5",
           "shadow-sm hover:shadow-md",
         ].join(" "),
@@ -57,23 +57,23 @@ const ctaButtonVariants = cva(
           "hover:-translate-y-1",
           "border border-white/50",
         ].join(" "),
-        // Contrast - HIGH VISIBILITY on dark backgrounds (like green CTAs in reference funnels)
+        // Contrast - HIGH VISIBILITY on dark backgrounds
         contrast: [
-          "bg-gradient-to-r from-white via-purple-50 to-white",
-          "text-purple-900 uppercase tracking-wider font-extrabold",
+          "bg-gradient-to-r from-white via-indigo-50 to-white",
+          "text-indigo-900 uppercase tracking-wider font-extrabold",
           "shadow-[0_8px_40px_rgb(255,255,255,0.5)]",
           "hover:shadow-[0_16px_60px_rgb(255,255,255,0.6)]",
           "hover:-translate-y-2",
           "active:translate-y-0",
           "border-2 border-white",
-          "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-purple-200/50 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
+          "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-indigo-200/50 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
         ].join(" "),
         // Ghost - Refined minimal
         ghost: [
-          "text-purple-600 bg-transparent",
-          "hover:text-purple-800 hover:bg-purple-50/50",
-          "underline underline-offset-4 decoration-purple-300",
-          "hover:decoration-purple-500",
+          "text-indigo-600 bg-transparent",
+          "hover:text-indigo-800 hover:bg-indigo-50/50",
+          "underline underline-offset-4 decoration-indigo-300",
+          "hover:decoration-indigo-500",
         ].join(" "),
         // Urgency - Pulsing red
         urgency: [
@@ -85,14 +85,14 @@ const ctaButtonVariants = cva(
           "animate-pulse",
           "border border-red-400/30",
         ].join(" "),
-        // Gold - Light Purple luxury accent
+        // Gold - Light indigo luxury accent
         gold: [
-          "bg-gradient-to-r from-purple-300 via-purple-400 to-purple-300",
-          "text-purple-900 uppercase tracking-wider font-extrabold",
-          "shadow-[0_8px_30px_rgb(168,85,247,0.4)]",
-          "hover:shadow-[0_12px_40px_rgb(168,85,247,0.5)]",
+          "bg-gradient-to-r from-indigo-300 via-indigo-400 to-indigo-300",
+          "text-indigo-900 uppercase tracking-wider font-extrabold",
+          "shadow-[0_8px_30px_rgb(99,102,241,0.4)]",
+          "hover:shadow-[0_12px_40px_rgb(99,102,241,0.5)]",
           "hover:-translate-y-1",
-          "border border-purple-200/50",
+          "border border-indigo-200/50",
           "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/30 before:to-transparent before:-translate-x-full hover:before:translate-x-full before:transition-transform before:duration-700",
         ].join(" "),
       },

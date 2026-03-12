@@ -55,11 +55,11 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Ready to Send */}
         <Card className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-purple-600/5" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-primary/5" />
           <div className="relative p-6">
             <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-purple-100">
-                <Target className="h-6 w-6 text-purple-600" />
+              <div className="p-3 rounded-lg bg-primary/10">
+                <Target className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Ready to Send</p>
@@ -138,10 +138,10 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Users className="h-5 w-5 text-purple-500" />
+                <Users className="h-5 w-5 text-primary" />
                 Top Buyers by Matches
               </h3>
-              <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+              <Badge variant="secondary" className="bg-primary/10 text-primary">
                 Top 5
               </Badge>
             </div>
@@ -168,7 +168,7 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
                       className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group"
                     >
                       {/* Rank */}
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-sm font-semibold text-purple-700">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
                         {index + 1}
                       </div>
 
@@ -189,7 +189,7 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
                           {buyer.totalMatches} {buyer.totalMatches === 1 ? 'match' : 'matches'}
                         </Badge>
                         {unsentCount > 0 && (
-                          <Badge variant="outline" className="text-purple-600 border-purple-300">
+                          <Badge variant="outline" className="text-primary border-primary/30">
                             {unsentCount} unsent
                           </Badge>
                         )}
@@ -278,7 +278,7 @@ export function MatchingSummary({ onSelectBuyer, onViewProperty }: MatchingSumma
                           {buyer.totalMatches} {buyer.totalMatches === 1 ? 'match' : 'matches'}
                         </Badge>
                         {unsentCount > 0 && (
-                          <Badge variant="outline" className="text-purple-600 border-purple-300">
+                          <Badge variant="outline" className="text-primary border-primary/30">
                             {unsentCount} unsent
                           </Badge>
                         )}

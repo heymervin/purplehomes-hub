@@ -110,8 +110,8 @@ export function ExitIntentModal({
           </div>
         ) : (
           <>
-            {/* Purple Gradient Header */}
-            <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-900 p-8 text-center text-white">
+            {/* Indigo Gradient Header */}
+            <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-900 p-8 text-center text-white">
               <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4">
                 <Home className="h-7 w-7" />
               </div>
@@ -120,7 +120,7 @@ export function ExitIntentModal({
                   ? t('exitIntent.headingProperty')
                   : t('exitIntent.headingListings')}
               </h2>
-              <p className="text-purple-100 text-sm leading-relaxed">
+              <p className="text-indigo-100 text-sm leading-relaxed">
                 {isPropertyDetail ? (
                   <>
                     {t('exitIntent.subtitleProperty')}
@@ -132,7 +132,7 @@ export function ExitIntentModal({
                 )}
               </p>
               {!isPropertyDetail && propertyCount && propertyCount > 0 && (
-                <p className="text-purple-200/80 text-xs mt-3">
+                <p className="text-indigo-200/80 text-xs mt-3">
                   {propertyCount.toLocaleString()} {t('exitIntent.propertiesAvailable')}
                 </p>
               )}

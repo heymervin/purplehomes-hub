@@ -127,7 +127,7 @@ export default function PropertyDetail() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 p-6">
       {/* Back Button */}
       <Button variant="ghost" onClick={() => navigate(fromPage)}>
         <ArrowLeft className="h-4 w-4 mr-2" />
@@ -183,7 +183,7 @@ export default function PropertyDetail() {
                   )}
                 </div>
                 {property.source && (
-                  <span className="inline-flex items-center rounded-md bg-purple-100 text-purple-700 border border-purple-200 px-2 py-0.5 text-xs font-medium">
+                  <span className="inline-flex items-center rounded-md bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 text-xs font-medium">
                     {property.source}
                   </span>
                 )}
@@ -337,8 +337,8 @@ export default function PropertyDetail() {
 
           {/* Action Buttons */}
           <div className="sticky bottom-6 space-y-3">
-            <Button 
-              className="w-full gradient-primary text-primary-foreground"
+            <Button
+              className="w-full"
               size="lg"
               onClick={handlePost}
               disabled={property.status !== 'pending' || property.isDemo || isPosting}

@@ -30,7 +30,7 @@ const COLUMN_COLORS: Record<string, string> = {
   'Sent to Buyer': 'border-t-blue-500',
   'Buyer Responded': 'border-t-cyan-500',
   'Showing Scheduled': 'border-t-amber-500',
-  'Property Viewed': 'border-t-purple-500',
+  'Property Viewed': 'border-t-indigo-500',
   'Underwriting': 'border-t-orange-500',
   'Contracts': 'border-t-indigo-500',
   'Qualified': 'border-t-teal-500',

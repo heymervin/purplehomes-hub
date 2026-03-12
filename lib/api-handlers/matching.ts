@@ -993,14 +993,15 @@ async function handleRunMatching(req: VercelRequest, res: VercelResponse, header
  * Run matching for a single buyer
  */
 async function handleRunBuyerMatching(req: VercelRequest, res: VercelResponse, headers: any) {
-  const { contactId } = req.query;
+  const { contactId, buyerId } = req.query;
+  const resolvedId = contactId || buyerId;
   const { minScore = 30 } = req.body || {};
 
-  if (!contactId) {
+  if (!resolvedId) {
     return res.status(400).json({ error: 'contactId is required' });
   }
 
-  console.log('[Matching] Running matching for buyer:', contactId);
+  console.log('[Matching] Running matching for buyer:', resolvedId);
 
   // Try to fetch buyers from cache first
   console.log('[Matching] Attempting to fetch buyers from cache...');
@@ -1010,7 +1011,7 @@ async function handleRunBuyerMatching(req: VercelRequest, res: VercelResponse, h
   // Fallback to direct Airtable query if cache unavailable
   if (!buyersData || allBuyers.length === 0) {
     console.log('[Matching] Cache miss - fetching buyer from Airtable...');
-    const buyerFormula = encodeURIComponent(`{Contact ID} = "${contactId}"`);
+    const buyerFormula = encodeURIComponent(`{Contact ID} = "${resolvedId}"`);
     const buyerRes = await fetch(
       `${AIRTABLE_API_URL}/${AIRTABLE_BASE_ID}/Buyers?filterByFormula=${buyerFormula}`,
       { headers }
@@ -1020,14 +1021,14 @@ async function handleRunBuyerMatching(req: VercelRequest, res: VercelResponse, h
     allBuyers = buyerData.records || [];
   }
 
-  // Find the specific buyer by contactId
-  let buyer = allBuyers.find((b: any) => b.id === contactId || b.fields['Contact ID'] === contactId);
+  // Find the specific buyer by resolvedId (supports both Airtable record ID and GHL contact ID)
+  let buyer = allBuyers.find((b: any) => b.id === resolvedId || b.fields['Contact ID'] === resolvedId);
 
   // If buyer not found in cache, auto-sync the buyers cache and try again
   if (!buyer) {
     console.log('[Matching] Buyer not found in cache - syncing buyers cache...');
     allBuyers = await syncBuyersCache(headers);
-    buyer = allBuyers.find((b: any) => b.id === contactId || b.fields['Contact ID'] === contactId);
+    buyer = allBuyers.find((b: any) => b.id === resolvedId || b.fields['Contact ID'] === resolvedId);
 
     if (!buyer) {
       return res.status(404).json({

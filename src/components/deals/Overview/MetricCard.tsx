@@ -29,19 +29,18 @@ export function MetricCard({
   trendUp,
   subtext,
   className,
-  iconColor = 'text-purple-600',
-  iconBg = 'bg-purple-100',
+  iconColor = 'text-primary',
+  iconBg = 'bg-primary/10',
 }: MetricCardProps) {
   return (
     <Card className={cn('relative overflow-hidden', className)}>
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-purple-600/10" />
       <div className="relative p-6">
         <div className="flex items-center justify-between">
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-muted-foreground truncate">
               {label}
             </p>
-            <p className="text-3xl font-bold mt-1 truncate">{value}</p>
+            <p className="text-[22px] font-semibold tracking-tight mt-1 truncate">{value}</p>
             {trend && (
               <p
                 className={cn(

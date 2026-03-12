@@ -135,11 +135,11 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
             'circle-color': [
               'step',
               ['get', 'point_count'],
-              '#9333ea', // purple-600
+              '#4f46e5', // indigo-600
               5,
-              '#7c3aed', // violet-600
+              '#4338ca', // indigo-700
               15,
-              '#6d28d9'  // violet-700
+              '#3730a3'  // indigo-800
             ],
             'circle-radius': [
               'step',
@@ -178,7 +178,7 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
           source: 'properties',
           filter: ['!', ['has', 'point_count']],
           paint: {
-            'circle-color': '#9333ea',
+            'circle-color': '#4f46e5',
             'circle-radius': 10,
             'circle-stroke-width': 2,
             'circle-stroke-color': 'rgba(255, 255, 255, 0.5)'
@@ -200,7 +200,7 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
           },
           paint: {
             'text-color': '#ffffff',
-            'text-halo-color': '#9333ea',
+            'text-halo-color': '#4f46e5',
             'text-halo-width': 2
           }
         });
@@ -428,7 +428,7 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
         'case',
         ['==', ['get', 'id'], hoveredId],
         '#f59e0b',   // amber highlight
-        '#9333ea',   // default purple
+        '#4f46e5',   // default indigo
       ]);
 
       map.current.setPaintProperty('unclustered-point', 'circle-radius', [
@@ -492,11 +492,11 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
           'circle-color': [
             'step',
             ['get', 'point_count'],
-            '#9333ea',
+            '#4f46e5',
             5,
-            '#7c3aed',
+            '#4338ca',
             15,
-            '#6d28d9'
+            '#3730a3'
           ],
           'circle-radius': [
             'step',
@@ -535,7 +535,7 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
         source: 'properties',
         filter: ['!', ['has', 'point_count']],
         paint: {
-          'circle-color': '#9333ea',
+          'circle-color': '#4f46e5',
           'circle-radius': 10,
           'circle-stroke-width': 2,
           'circle-stroke-color': 'rgba(255, 255, 255, 0.5)'
@@ -557,7 +557,7 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
         },
         paint: {
           'text-color': '#ffffff',
-          'text-halo-color': '#9333ea',
+          'text-halo-color': '#4f46e5',
           'text-halo-width': 2
         }
       });
@@ -566,11 +566,11 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
 
   if (error) {
     return (
-      <div className="h-full flex items-center justify-center bg-gradient-to-br from-purple-950/30 to-background">
-        <Card className="max-w-sm mx-4 bg-card/90 backdrop-blur border-purple-500/20">
+      <div className="h-full flex items-center justify-center bg-gradient-to-br from-zinc-950/30 to-background">
+        <Card className="max-w-sm mx-4 bg-card/90 backdrop-blur border-border/20">
           <CardContent className="pt-6 text-center">
-            <div className="w-14 h-14 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertCircle className="h-7 w-7 text-purple-400" />
+            <div className="w-14 h-14 bg-indigo-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="h-7 w-7 text-indigo-400" />
             </div>
             <h3 className="text-base font-semibold mb-2">Map Configuration Required</h3>
             <p className="text-muted-foreground text-sm mb-4">
@@ -578,7 +578,7 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
             </p>
             <div className="text-left bg-muted/50 p-3 rounded-lg">
               <p className="text-xs font-mono text-muted-foreground">
-                <span className="text-purple-400">VITE_MAPBOX_TOKEN</span>=pk.your_token
+                <span className="text-indigo-400">VITE_MAPBOX_TOKEN</span>=pk.your_token
               </p>
             </div>
           </CardContent>
@@ -592,7 +592,7 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
       {isLoading && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-purple-500 mx-auto mb-2" />
+            <Loader2 className="h-8 w-8 animate-spin text-indigo-500 mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">Loading map...</p>
           </div>
         </div>
@@ -604,7 +604,7 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
       {hoveredProperty && (
         <div className="absolute bottom-4 left-4 z-20 animate-fade-in hidden md:block">
           <Card
-            className="w-72 bg-card/95 backdrop-blur border-purple-500/30 cursor-pointer hover:border-purple-500 transition-all shadow-xl"
+            className="w-72 bg-card/95 backdrop-blur border-border/50 cursor-pointer hover:border-indigo-500/50 transition-all shadow-xl"
             onClick={() => onPropertySelect(hoveredProperty)}
           >
             <CardContent className="p-0">
@@ -615,7 +615,7 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
                   className="w-24 h-24 object-cover rounded-l-lg flex-shrink-0"
                 />
                 <div className="p-3 flex-1 min-w-0">
-                  <p className="text-lg font-bold text-purple-400 mb-0.5">
+                  <p className="text-lg font-bold text-indigo-400 mb-0.5">
                     ${hoveredProperty.price.toLocaleString()}
                   </p>
                   <p className="text-sm font-medium truncate">{hoveredProperty.address}</p>

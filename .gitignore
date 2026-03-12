@@ -46,3 +46,4 @@ docs/caption-stress-test-results.md
 *.tmp
 *.temp
 src/backups/
+.worktrees/

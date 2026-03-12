@@ -3,6 +3,7 @@ import { Search, Filter, User, Mail, Phone, DollarSign, Building2, Calendar, Arr
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { PageContainer, PageHeader } from '@/components/ui/page-container';
 import {
   Dialog,
   DialogContent,
@@ -38,7 +39,7 @@ const stageIdMap: Record<string, SellerAcquisitionStage> = {
 const stages: { id: SellerAcquisitionStage; label: string; color: string; ghlId: string }[] = [
   { id: 'new', label: 'New', color: 'bg-blue-500', ghlId: 'ae1ddba7-19d2-4ea9-9a33-58fc37b1c5b2' },
   { id: 'active', label: 'Active', color: 'bg-cyan-500', ghlId: '54bd52e5-5ae1-4391-bf8b-044a9cc936b6' },
-  { id: 'engaged', label: 'Engaged', color: 'bg-purple-500', ghlId: '280a212b-5f9f-45ac-b7bb-17aee00ddbd0' },
+  { id: 'engaged', label: 'Engaged', color: 'bg-indigo-500', ghlId: '280a212b-5f9f-45ac-b7bb-17aee00ddbd0' },
   { id: 'contract', label: 'Contract', color: 'bg-amber-500', ghlId: '4ce5e7e4-9ad2-4aad-a0c2-9cf29f4a0aa6' },
   { id: 'sold', label: 'Sold', color: 'bg-green-500', ghlId: '8d7057d2-c941-4187-bdf2-7925a8cafd0a' },
   { id: 'off-market', label: 'Off Market', color: 'bg-gray-500', ghlId: '1e404ae6-2d40-42d1-b006-0cfa89870ae0' },
@@ -235,41 +236,38 @@ export default function SellerAcquisitions() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Property Pipeline</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
-            {isLoading ? 'Loading...' : `${activeCount} active · ${filteredAcquisitions.length} total opportunities`}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => refetch()}
-            disabled={isLoading}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button
-            variant={viewMode === 'kanban' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('kanban')}
-          >
-            <LayoutGrid className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('list')}
-          >
-            <List className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Seller Pipeline"
+        description={isLoading ? 'Loading...' : `${activeCount} active · ${filteredAcquisitions.length} total opportunities`}
+        actions={
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+              disabled={isLoading}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+            <Button
+              variant={viewMode === 'kanban' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('kanban')}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </>
+        }
+      />
 
       {/* Search */}
       <div className="flex items-center gap-3">
@@ -490,6 +488,6 @@ export default function SellerAcquisitions() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </PageContainer>
   );
 }

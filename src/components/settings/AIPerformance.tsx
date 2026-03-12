@@ -22,7 +22,7 @@ const SEGMENT_LABELS: Record<BuyerSegment, { label: string; emoji: string; color
   'first-time-buyer': { label: 'First-Time Buyers', emoji: '🏠', color: 'bg-blue-500' },
   'credit-challenged': { label: 'Credit-Challenged', emoji: '📈', color: 'bg-amber-500' },
   'investor': { label: 'Investors', emoji: '💰', color: 'bg-emerald-500' },
-  'move-up-buyer': { label: 'Move-Up Buyers', emoji: '🏡', color: 'bg-purple-500' },
+  'move-up-buyer': { label: 'Move-Up Buyers', emoji: '🏡', color: 'bg-primary' },
   'self-employed': { label: 'Self-Employed', emoji: '💼', color: 'bg-indigo-500' },
   'hispanic-seller-finance': { label: 'Hispanic/Latino', emoji: '👨‍👩‍👧‍👦', color: 'bg-rose-500' },
   'general': { label: 'General', emoji: '👥', color: 'bg-gray-500' },
@@ -121,7 +121,7 @@ export function AIPerformance() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Brain className="h-5 w-5 text-purple-600" />
+            <Brain className="h-5 w-5 text-primary" />
             AI Learning Performance
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
@@ -148,8 +148,8 @@ export function AIPerformance() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                <BarChart3 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <BarChart3 className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Total Researches</p>
@@ -233,11 +233,11 @@ export function AIPerformance() {
 
       {/* Top Performer Highlight */}
       {topSegment && topSegment.history?.insights && (
-        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border-purple-200 dark:border-purple-800">
+        <Card className="bg-primary/5 border-border">
           <CardContent className="p-4">
             <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-white dark:bg-gray-800 shadow-sm">
-                <Sparkles className="h-6 w-6 text-purple-600" />
+              <div className="p-3 rounded-full bg-primary/10 shadow-sm">
+                <Sparkles className="h-6 w-6 text-primary" />
               </div>
               <div className="flex-1">
                 <p className="text-sm text-muted-foreground">Top Performing Segment</p>
@@ -246,7 +246,7 @@ export function AIPerformance() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-2xl font-bold text-purple-600">
+                <p className="text-2xl font-bold text-primary">
                   {topSegment.history.insights.avgEffectiveness.toFixed(1)}/10
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -442,7 +442,7 @@ function InsightsDisplay({ insights }: { insights: SegmentInsights }) {
             title="Top Suspicions"
             emoji="🤔"
             items={insights.topSuspicions}
-            color="text-purple-600"
+            color="text-primary"
           />
         )}
         {insights.topObjections.length > 0 && (
@@ -459,12 +459,12 @@ function InsightsDisplay({ insights }: { insights: SegmentInsights }) {
       {insights.mostEffectiveHooks.length > 0 && (
         <div>
           <p className="text-sm font-medium mb-2 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-purple-600" />
+            <Sparkles className="h-4 w-4 text-primary" />
             Most Effective Hooks
           </p>
           <div className="space-y-2">
             {insights.mostEffectiveHooks.slice(0, 3).map((hook, i) => (
-              <div key={i} className="p-2 bg-purple-50 dark:bg-purple-950/30 rounded text-sm italic">
+              <div key={i} className="p-2 bg-primary/10 rounded text-sm italic">
                 "{hook}"
               </div>
             ))}

@@ -167,9 +167,9 @@ export default function BatchHashtagsStep({
 
       {/* Selected Hashtags */}
       {allHashtags.length > 0 && (
-        <div className="p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
+        <div className="p-4 bg-primary/10 rounded-lg">
           <div className="flex items-center gap-2 mb-3">
-            <Hash className="h-4 w-4 text-purple-600" />
+            <Hash className="h-4 w-4 text-primary" />
             <span className="font-medium text-sm">{allHashtags.length} hashtags selected</span>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -187,7 +187,7 @@ export default function BatchHashtagsStep({
             {state.customHashtags.map((tag) => (
               <Badge
                 key={tag}
-                className="bg-purple-600 cursor-pointer hover:bg-purple-700"
+                className="bg-primary cursor-pointer hover:bg-primary/90"
                 onClick={() => removeCustomHashtag(tag)}
               >
                 {tag}
@@ -209,7 +209,7 @@ export default function BatchHashtagsStep({
               className={cn(
                 'px-3 py-1.5 rounded-full text-sm transition-all',
                 state.selectedHashtags.includes(tag)
-                  ? 'bg-purple-600 text-white'
+                  ? 'bg-primary text-primary-foreground'
                   : 'bg-muted hover:bg-muted/80'
               )}
             >

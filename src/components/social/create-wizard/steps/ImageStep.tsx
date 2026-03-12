@@ -149,7 +149,7 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
       <TooltipProvider>
         {isExtractingFields ? (
           <div className="flex flex-col items-center justify-center py-12 space-y-4">
-            <Sparkles className="h-12 w-12 text-purple-500 animate-pulse" />
+            <Sparkles className="h-12 w-12 text-primary animate-pulse" />
             <p className="text-lg font-medium">Extracting fields from your caption...</p>
             <p className="text-sm text-muted-foreground">Using AI to pre-fill template fields</p>
           </div>
@@ -199,9 +199,9 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
 
         {/* Agent Selector - shown for property posts */}
         {isPropertyPost && (
-          <div className="p-4 rounded-lg border border-purple-200 bg-purple-50/30 dark:bg-purple-950/10">
+          <div className="p-4 rounded-lg border border-primary/30 bg-primary/5">
             <div className="flex items-center gap-2 mb-3">
-              <User className="h-5 w-5 text-purple-600" />
+              <User className="h-5 w-5 text-primary" />
               <Label className="font-medium text-base mb-0">Posting As</Label>
             </div>
             <Select
@@ -231,11 +231,11 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
         {/* Property Post: Show Template Selector */}
         {isPropertyPost && (
           <>
-            <div className="p-4 rounded-lg border-2 border-purple-200 bg-purple-50/30 dark:bg-purple-950/10">
+            <div className="p-4 rounded-lg border-2 border-primary/30 bg-primary/5">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-xl">✨</span>
                 <h3 className="font-medium">AI-Powered Templates</h3>
-                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-purple-600 text-white">Recommended</span>
+                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-primary text-primary-foreground">Recommended</span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
                 Professional branded images auto-generated with your property data and caption details
@@ -264,7 +264,7 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
         {/* Upload Custom Image */}
         <div className={cn(
           "p-4 rounded-lg border-2",
-          isPropertyPost ? "border-gray-200 bg-gray-50/30 dark:bg-gray-900/10" : "border-purple-200 bg-purple-50/30 dark:bg-purple-950/10"
+          isPropertyPost ? "border-gray-200 bg-gray-50/30 dark:bg-gray-900/10" : "border-primary/30 bg-primary/5"
         )}>
           <div className="flex items-center gap-2 mb-3">
             <Upload className="h-5 w-5" />
@@ -297,7 +297,7 @@ export default function ImageStep({ state, updateState }: ImageStepProps) {
           ) : (
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-purple-400 hover:bg-muted/50 transition-colors"
+              className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-primary/40 hover:bg-muted/50 transition-colors"
             >
               <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">

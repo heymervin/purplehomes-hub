@@ -223,10 +223,10 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
       {!isPersonalOrProfessional && (
         <div className="space-y-4">
           {/* AI Context Helper for Property Posts */}
-          <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border border-purple-200 dark:border-purple-800">
+          <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="h-4 w-4 text-purple-600" />
-              <Label className="text-sm font-medium text-purple-700 dark:text-purple-300">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-medium text-primary">
                 Context for AI
               </Label>
             </div>
@@ -255,7 +255,7 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
                     }
                   }}
                   disabled={!rawContext.trim()}
-                  className="gap-2 bg-purple-600 hover:bg-purple-700"
+                  className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Sparkles className="h-4 w-4" />
                   Use This
@@ -313,8 +313,8 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
                   className={cn(
                     "flex flex-col items-center gap-1 px-4 py-3 rounded-lg border-2 transition-all text-center",
                     state.captionLength === length.id
-                      ? "border-purple-600 bg-purple-50 dark:bg-purple-950/20"
-                      : "border-muted hover:border-purple-300"
+                      ? "border-primary bg-primary/10"
+                      : "border-muted hover:border-primary/30"
                   )}
                 >
                   <span className="text-xl">{length.icon}</span>
@@ -348,8 +348,8 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
                   className={cn(
                     "flex items-center gap-3 px-4 py-3 rounded-lg border-2 transition-all",
                     state.selectedAgentId === agent.id
-                      ? "border-purple-600 bg-purple-50 dark:bg-purple-950/20"
-                      : "border-muted hover:border-purple-300"
+                      ? "border-primary bg-primary/10"
+                      : "border-muted hover:border-primary/30"
                   )}
                 >
                   <img
@@ -380,8 +380,8 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
                   className={cn(
                     "flex flex-col items-center gap-1 px-4 py-3 rounded-lg border-2 transition-all text-center",
                     state.captionLength === length.id
-                      ? "border-purple-600 bg-purple-50 dark:bg-purple-950/20"
-                      : "border-muted hover:border-purple-300"
+                      ? "border-primary bg-primary/10"
+                      : "border-muted hover:border-primary/30"
                   )}
                 >
                   <span className="text-xl">{length.icon}</span>
@@ -396,10 +396,10 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
           </div>
 
           {/* AI Autofill Section */}
-          <div className="p-4 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border border-purple-200 dark:border-purple-800">
+          <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="h-4 w-4 text-purple-600" />
-              <Label className="text-sm font-medium text-purple-700 dark:text-purple-300">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <Label className="text-sm font-medium text-primary">
                 AI Context Helper
               </Label>
             </div>
@@ -424,7 +424,7 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
                 <Button
                   onClick={handleGenerateFields}
                   disabled={!rawContext.trim() || isGeneratingFields}
-                  className="gap-2 bg-purple-600 hover:bg-purple-700"
+                  className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   {isGeneratingFields ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -486,9 +486,9 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
               key={intent.id}
               onClick={() => handleSelect(intent.id)}
               className={cn(
-                "cursor-pointer transition-all hover:border-purple-400",
-                hasTemplate && !isSelected && "bg-purple-50/50 dark:bg-purple-950/10 border-purple-200/50",
-                isSelected && "border-purple-600 ring-2 ring-purple-200 bg-purple-50 dark:bg-purple-950/20"
+                "cursor-pointer transition-all hover:border-primary/40",
+                hasTemplate && !isSelected && "bg-primary/5 border-primary/20",
+                isSelected && "border-primary ring-2 ring-primary/20 bg-primary/10"
               )}
             >
               <CardContent className="p-4">
@@ -521,7 +521,7 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
           </div>
           <p className="text-xs text-muted-foreground mt-2">
             Keywords that will be included:{' '}
-            <span className="text-purple-600">
+            <span className="text-primary">
               {POST_INTENTS.find(i => i.id === state.postIntent)?.keywords.slice(0, 3).join(', ')}
             </span>
           </p>
@@ -533,7 +533,7 @@ export default function PostIntentSubstep({ state, updateState, onNext }: PostIn
         <Button
           onClick={onNext}
           disabled={!state.postIntent || !hasRequiredFields}
-          className="gap-2 bg-purple-600 hover:bg-purple-700"
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           Next: Choose Tone
           <ChevronRight className="h-4 w-4" />

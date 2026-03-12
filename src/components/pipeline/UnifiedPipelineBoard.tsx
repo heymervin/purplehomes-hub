@@ -25,8 +25,8 @@ export const COLUMN_COLORS: Record<string, string> = {
   // Warm colors
   amber: 'border-t-amber-500',
   orange: 'border-t-orange-500',
-  // Purples/Pinks
-  purple: 'border-t-purple-500',
+  // Indigo/Pinks
+  purple: 'border-t-indigo-500',
   pink: 'border-t-pink-500',
   rose: 'border-t-rose-500',
   // Greens

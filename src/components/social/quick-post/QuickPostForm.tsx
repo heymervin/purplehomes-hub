@@ -575,7 +575,7 @@ export function QuickPostForm() {
     if (!selectedTemplate || userInputFields.length === 0) return null;
 
     return (
-      <div className="mt-4 p-4 rounded-lg bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800">
+      <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
         <div className="flex items-center gap-2 mb-3">
           <span className="text-lg">{selectedTemplate.icon}</span>
           <span className="font-medium text-sm">{selectedTemplate.name} Fields</span>
@@ -641,7 +641,7 @@ export function QuickPostForm() {
           </Button>
           <div>
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Eye className="h-5 w-5 text-purple-500" />
+              <Eye className="h-5 w-5 text-primary" />
               Preview Your Post
             </h2>
             <p className="text-sm text-muted-foreground">Review and publish</p>
@@ -713,14 +713,14 @@ export function QuickPostForm() {
                         className={cn(
                           "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
                           state.selectedAccounts.includes(account.id)
-                            ? "border-purple-600 bg-purple-50 dark:bg-purple-950/20"
+                            ? "border-primary bg-primary/10"
                             : "hover:bg-muted/50"
                         )}
                       >
                         <div className={cn(
                           "w-5 h-5 rounded border-2 flex items-center justify-center",
                           state.selectedAccounts.includes(account.id)
-                            ? "border-purple-600 bg-purple-600"
+                            ? "border-primary bg-primary"
                             : "border-muted-foreground/30"
                         )}>
                           {state.selectedAccounts.includes(account.id) && (
@@ -772,7 +772,7 @@ export function QuickPostForm() {
             {/* Publish Button */}
             <Button
               size="lg"
-              className="w-full gap-2 bg-purple-600 hover:bg-purple-700"
+              className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
               disabled={state.selectedAccounts.length === 0 || isPublishing}
               onClick={handlePublish}
             >
@@ -881,7 +881,7 @@ export function QuickPostForm() {
               onClick={() => handlePostTypeChange(type.id)}
               className={cn(
                 "gap-2 transition-all",
-                isSelected && "bg-purple-600 hover:bg-purple-700"
+                isSelected && "bg-primary hover:bg-primary/90"
               )}
             >
               <Icon className="h-4 w-4" />
@@ -897,7 +897,7 @@ export function QuickPostForm() {
       </p>
 
       {/* Main Sentence Form */}
-      <Card className="border-2 border-purple-200 dark:border-purple-800">
+      <Card className="border-2 border-primary/30">
         <CardContent className="p-6">
           <div className="space-y-4">
             {/* Dynamic Row 1 based on post type */}
@@ -915,13 +915,13 @@ export function QuickPostForm() {
                         className={cn(
                           "justify-between min-w-[200px] h-auto py-1.5 px-3",
                           state.selectedProperty
-                            ? "border-purple-400 bg-purple-50 dark:bg-purple-950/30"
+                            ? "border-primary/40 bg-primary/10"
                             : "border-dashed"
                         )}
                       >
                         {state.selectedProperty ? (
                           <span className="flex items-center gap-2">
-                            <Building2 className="h-4 w-4 text-purple-600" />
+                            <Building2 className="h-4 w-4 text-primary" />
                             <span className="truncate max-w-[180px]">
                               {state.selectedProperty.address}, {state.selectedProperty.city}
                             </span>
@@ -1016,7 +1016,7 @@ export function QuickPostForm() {
                           e.preventDefault(); // Prevent input blur
                           handleDateSelect(suggestion);
                         }}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors border-b last:border-b-0 border-gray-100 dark:border-gray-800"
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors border-b last:border-b-0 border-gray-100 dark:border-gray-800"
                       >
                         {suggestion.label}
                       </button>
@@ -1052,7 +1052,7 @@ export function QuickPostForm() {
                           e.preventDefault(); // Prevent input blur
                           handleTimeSelect(suggestion);
                         }}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors border-b last:border-b-0 border-gray-100 dark:border-gray-800"
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors border-b last:border-b-0 border-gray-100 dark:border-gray-800"
                       >
                         {suggestion.label}
                       </button>
@@ -1064,14 +1064,14 @@ export function QuickPostForm() {
 
             {/* Schedule Preview Badge */}
             {state.scheduleDate && state.scheduleTime && (
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800">
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/10 border border-primary/30">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                  <span className="text-sm font-medium text-purple-900 dark:text-purple-100">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">
                     Scheduled for:
                   </span>
                 </div>
-                <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold">
+                <Badge variant="secondary" className="bg-primary/10 text-primary font-semibold">
                   {formatScheduleDateTime(combineDateAndTime(state.scheduleDate, state.scheduleTime))}
                 </Badge>
                 <Button
@@ -1086,7 +1086,7 @@ export function QuickPostForm() {
                       timeInput: '',
                     }));
                   }}
-                  className="h-6 w-6 p-0 hover:bg-purple-200 dark:hover:bg-purple-900"
+                  className="h-6 w-6 p-0 hover:bg-muted"
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -1147,10 +1147,10 @@ export function QuickPostForm() {
             </div>
 
             {/* Image Template Section */}
-            <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-200 dark:border-purple-800">
+            <div className="mt-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
               <div className="flex items-center gap-2 mb-2">
-                <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                <span className="font-semibold text-sm text-purple-900 dark:text-purple-100">Image Template</span>
+                <ImageIcon className="h-4 w-4 text-primary" />
+                <span className="font-semibold text-sm text-foreground">Image Template</span>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-base leading-relaxed">
                 <span className="text-muted-foreground">Generate image using</span>
@@ -1206,7 +1206,7 @@ export function QuickPostForm() {
                     </Button>
                   </div>
                 ) : (
-                  <label className="flex items-center justify-center h-24 border-2 border-dashed rounded-lg cursor-pointer hover:border-purple-400 transition-colors">
+                  <label className="flex items-center justify-center h-24 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary/40 transition-colors">
                     <div className="text-center">
                       <ImageIcon className="h-6 w-6 mx-auto mb-1 text-muted-foreground" />
                       <span className="text-sm text-muted-foreground">Click to upload</span>
@@ -1260,10 +1260,10 @@ export function QuickPostForm() {
               if (supportingImagesOnly.length === 0) return null;
 
               return (
-              <div className="mt-4 p-4 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800">
+              <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                    <ImageIcon className="h-4 w-4 text-primary" />
                     <span className="font-medium text-sm">Supporting Images</span>
                     <span className="text-xs text-muted-foreground">
                       {state.selectedSupportingImages.length}/2 selected from {supportingImagesOnly.length} available
@@ -1283,15 +1283,15 @@ export function QuickPostForm() {
 
                 {/* Selected Images Preview */}
                 {state.selectedSupportingImages.length > 0 && (
-                  <div className="mb-3 p-2 bg-white dark:bg-gray-900 rounded-lg border border-purple-300 dark:border-purple-700">
-                    <div className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-2">Selected for template:</div>
+                  <div className="mb-3 p-2 bg-white dark:bg-gray-900 rounded-lg border border-primary/30">
+                    <div className="text-xs font-medium text-primary mb-2">Selected for template:</div>
                     <div className="flex gap-2">
                       {state.selectedSupportingImages.map((imageUrl, idx) => (
                         <div key={idx} className="relative">
                           <img
                             src={imageUrl}
                             alt={`Selected ${idx + 1}`}
-                            className="h-20 w-20 object-cover rounded-lg border-2 border-purple-500"
+                            className="h-20 w-20 object-cover rounded-lg border-2 border-primary"
                           />
                           <Button
                             variant="destructive"
@@ -1306,7 +1306,7 @@ export function QuickPostForm() {
                           >
                             <X className="h-3 w-3" />
                           </Button>
-                          <div className="absolute bottom-0 left-0 right-0 bg-purple-600 text-white text-xs text-center py-0.5 rounded-b-lg">
+                          <div className="absolute bottom-0 left-0 right-0 bg-primary text-primary-foreground text-xs text-center py-0.5 rounded-b-lg">
                             #{idx + 1}
                           </div>
                         </div>
@@ -1346,8 +1346,8 @@ export function QuickPostForm() {
                             className={cn(
                               "relative flex-shrink-0 w-24 h-24 rounded-lg border-2 transition-all",
                               isSelected
-                                ? "border-purple-500 ring-2 ring-purple-300 dark:ring-purple-700"
-                                : "border-purple-200 dark:border-purple-700 hover:border-purple-400"
+                                ? "border-primary ring-2 ring-primary/30"
+                                : "border-border hover:border-primary/40"
                             )}
                           >
                             <img
@@ -1356,8 +1356,8 @@ export function QuickPostForm() {
                               className="w-full h-full object-cover rounded-lg"
                             />
                             {isSelected && (
-                              <div className="absolute inset-0 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                                <div className="bg-purple-600 text-white text-sm font-bold rounded-full h-8 w-8 flex items-center justify-center">
+                              <div className="absolute inset-0 bg-primary/20 rounded-lg flex items-center justify-center">
+                                <div className="bg-primary text-primary-foreground text-sm font-bold rounded-full h-8 w-8 flex items-center justify-center">
                                   #{selectedIndex + 1}
                                 </div>
                               </div>
@@ -1429,7 +1429,7 @@ export function QuickPostForm() {
       <Card>
         <CardContent className="p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="h-4 w-4 text-purple-500" />
+            <Sparkles className="h-4 w-4 text-primary" />
             <label className="font-medium text-sm">
               {contextConfig.label}
               <span className="text-red-500 ml-1">*</span>
@@ -1650,7 +1650,7 @@ export function QuickPostForm() {
             size="lg"
             disabled={!isValid || isGenerating || connectedAccounts.length === 0}
             onClick={handleGenerate}
-            className="gap-2 bg-purple-600 hover:bg-purple-700"
+            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isGenerating ? (
               <>

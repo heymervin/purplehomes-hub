@@ -9,6 +9,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { PageContainer, PageHeader } from '@/components/ui/page-container';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   LayoutDashboard,
@@ -184,16 +185,11 @@ export default function DealPipeline() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Deal Pipeline</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your buyer-property deals through the sales funnel
-          </p>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Deal Pipeline"
+        description="Manage your buyer-property deals through the sales funnel"
+      />
 
       {/* Filter Bar - visible on deals and pipeline tabs */}
       {mainView !== 'overview' && (
@@ -318,6 +314,6 @@ export default function DealPipeline() {
         open={detailModalOpen}
         onOpenChange={handleCloseModal}
       />
-    </div>
+    </PageContainer>
   );
 }

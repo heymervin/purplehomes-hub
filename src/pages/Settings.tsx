@@ -36,6 +36,7 @@ import { useCalculatorDefaults, useUpdateCalculatorDefaults } from '@/services/c
 import { useMatchingPreferences, useUpdateMatchingPreferences } from '@/services/matchingApi';
 import { TeamManagement } from '@/components/settings/team';
 import { AIPerformance } from '@/components/settings/AIPerformance';
+import { PageContainer, PageHeader } from '@/components/ui/page-container';
 import type { CalculatorDefaults } from '@/types/calculator';
 import {
   DEFAULT_AFFORDABILITY_SETTINGS,
@@ -456,14 +457,11 @@ export default function Settings() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your preferences and integrations
-        </p>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Settings"
+        description="Manage your preferences and integrations"
+      />
 
       <Tabs defaultValue="settings" className="space-y-6">
         <TabsList>
@@ -1093,7 +1091,7 @@ export default function Settings() {
               </div>
 
               {/* Live Preview */}
-              <div className="bg-purple-50 dark:bg-purple-950/30 rounded-lg p-3 space-y-2">
+              <div className="bg-primary/10 rounded-lg p-3 space-y-2">
                 <div className="flex items-center gap-2">
                   <Label className="text-sm">Test with:</Label>
                   <Input
@@ -1105,7 +1103,7 @@ export default function Settings() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Max Affordable:</span>
-                  <span className="font-bold text-purple-700 dark:text-purple-300">
+                  <span className="font-bold text-primary">
                     ${livePreview.maxPrice.toLocaleString()}
                   </span>
                 </div>
@@ -1542,7 +1540,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    <Link2 className="h-5 w-5 text-purple-600" />
+                    <Link2 className="h-5 w-5 text-primary" />
                     Company Contact Info
                   </CardTitle>
                   <CardDescription>
@@ -1605,7 +1603,7 @@ export default function Settings() {
                           How fast testimonials scroll on funnel pages (10 = slow, 50 = fast)
                         </p>
                       </div>
-                      <span className="text-sm font-medium text-purple-600 min-w-[3rem] text-right">
+                      <span className="text-sm font-medium text-primary min-w-[3rem] text-right">
                         {testimonialSpeed}
                       </span>
                     </div>
@@ -1618,7 +1616,7 @@ export default function Settings() {
                         setTestimonialSpeed(Number(e.target.value));
                         setHasCompanyInfoChanges(true);
                       }}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                     />
                     <div className="flex justify-between text-xs text-muted-foreground">
                       <span>Slower</span>
@@ -1649,7 +1647,7 @@ export default function Settings() {
                     </div>
 
                     {countdownMode === 'per-visitor' ? (
-                      <div className="flex items-center justify-between pl-4 border-l-2 border-purple-500/30">
+                      <div className="flex items-center justify-between pl-4 border-l-2 border-border">
                         <div>
                           <Label>Timer Duration</Label>
                           <p className="text-xs text-muted-foreground">
@@ -1671,7 +1669,7 @@ export default function Settings() {
                         </select>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between pl-4 border-l-2 border-purple-500/30">
+                      <div className="flex items-center justify-between pl-4 border-l-2 border-border">
                         <div>
                           <Label>Deadline Date & Time</Label>
                           <p className="text-xs text-muted-foreground">
@@ -1701,7 +1699,7 @@ export default function Settings() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    <MessageSquareQuote className="h-5 w-5 text-purple-600" />
+                    <MessageSquareQuote className="h-5 w-5 text-primary" />
                     Customer Testimonials
                   </CardTitle>
                   <CardDescription>
@@ -1816,7 +1814,7 @@ export default function Settings() {
                   ))}
 
                   {/* Info */}
-                  <div className="p-3 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-lg text-sm text-purple-700 dark:text-purple-300">
+                  <div className="p-3 bg-primary/10 border border-border rounded-lg text-sm text-foreground">
                     These testimonials will be displayed in a scrolling carousel on all property funnel pages.
                     If no testimonials are added here, AI-generated testimonials will be used as fallback.
                   </div>
@@ -1833,6 +1831,6 @@ export default function Settings() {
           </TabsContent>
         )}
       </Tabs>
-    </div>
+    </PageContainer>
   );
 }

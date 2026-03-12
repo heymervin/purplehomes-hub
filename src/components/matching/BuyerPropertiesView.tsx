@@ -114,8 +114,8 @@ function PropertyCard({
         canSelect && "cursor-pointer",
         isInPipeline && "border-l-4 border-l-green-500 bg-green-50/30",
         isSelected
-          ? "border-2 border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/20"
-          : !isInPipeline && "border hover:bg-muted/30 hover:border-purple-300"
+          ? "border-2 border-primary bg-primary/10 shadow-lg shadow-primary/20"
+          : !isInPipeline && "border hover:bg-muted/30 hover:border-primary/30"
       )}
       onClick={(e) => {
         // Only toggle if not clicking on View button, toggle is enabled, and not in pipeline
@@ -138,8 +138,8 @@ function PropertyCard({
             className={cn(
               "h-5 w-5 border-2 transition-all",
               isSelected
-                ? "border-purple-500 bg-purple-500"
-                : "border-gray-400 bg-white hover:border-purple-400"
+                ? "border-primary bg-primary"
+                : "border-gray-400 bg-white hover:border-primary/60"
             )}
             aria-label={`Select ${property.address}`}
           />
@@ -148,7 +148,7 @@ function PropertyCard({
 
       {/* Selected Indicator - Top Right */}
       {isSelected && !isInPipeline && (
-        <div className="absolute top-3 right-3 z-10 bg-purple-500 rounded-full p-1">
+        <div className="absolute top-3 right-3 z-10 bg-primary rounded-full p-1">
           <Check className="h-4 w-4 text-white" />
         </div>
       )}
@@ -170,7 +170,7 @@ function PropertyCard({
 
       <div className="flex gap-4">
         {/* Property Image */}
-        <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center">
+        <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
           {property.heroImage ? (
             <img
               src={property.heroImage}
@@ -178,7 +178,7 @@ function PropertyCard({
               className="w-full h-full object-cover"
             />
           ) : (
-            <Home className="h-8 w-8 text-purple-300" />
+            <Home className="h-8 w-8 text-muted-foreground/40" />
           )}
         </div>
 
@@ -233,7 +233,7 @@ function PropertyCard({
                 variant={score.isPriority ? 'default' : 'secondary'}
                 className={`text-xs ${
                   score.isPriority
-                    ? 'bg-purple-500 hover:bg-purple-600'
+                    ? 'bg-primary hover:bg-primary/90'
                     : 'bg-gray-100 text-gray-600'
                 }`}
               >
@@ -248,7 +248,7 @@ function PropertyCard({
 
             {/* Priority match indicator */}
             {score.isPriority && !score.distanceMiles && (
-              <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
+              <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
                 <Target className="h-3 w-3 mr-1" />
                 In Preferred ZIP
               </Badge>
@@ -290,7 +290,7 @@ function PropertyCard({
           <Button
             variant="outline"
             size="sm"
-            className="h-7 text-xs bg-white hover:bg-purple-50 hover:border-purple-500"
+            className="h-7 text-xs bg-white hover:bg-muted hover:border-primary/50"
             onClick={(e) => {
               e.stopPropagation();
               onViewDetails();
@@ -588,7 +588,7 @@ export function BuyerPropertiesView({
       <div className="bg-card border rounded-lg p-4">
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-sm font-medium">
-            <Users className="h-4 w-4 text-purple-500" />
+            <Users className="h-4 w-4 text-primary" />
             <span>Select a buyer to view their property matches:</span>
           </div>
           <Select
@@ -621,7 +621,7 @@ export function BuyerPropertiesView({
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {buyer.totalMatches > 0 && (
-                          <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
+                          <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
                             {buyer.totalMatches}
                           </Badge>
                         )}
@@ -677,7 +677,7 @@ export function BuyerPropertiesView({
                         e.stopPropagation();
                         setSentPropertiesModalOpen(true);
                       }}
-                      className="text-purple-600 hover:text-purple-700 hover:underline font-medium transition-colors inline-flex items-center gap-1"
+                      className="text-primary hover:text-primary/80 hover:underline font-medium transition-colors inline-flex items-center gap-1"
                     >
                       <Send className="h-3 w-3" />
                       {sentPropertiesCount} sent
@@ -784,8 +784,8 @@ export function BuyerPropertiesView({
               className={cn(
                 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
                 sameCity
-                  ? 'bg-purple-500 text-white'
-                  : 'bg-white border border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-border hover:bg-muted'
               )}
             >
               📍 Same City
@@ -796,8 +796,8 @@ export function BuyerPropertiesView({
               className={cn(
                 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
                 withinBudget
-                  ? 'bg-purple-500 text-white'
-                  : 'bg-white border border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-border hover:bg-muted'
               )}
             >
               💰 Within Budget
@@ -807,7 +807,7 @@ export function BuyerPropertiesView({
             <Select value={bedsFilter} onValueChange={setBedsFilter}>
               <SelectTrigger className={cn(
                 "h-8 w-[110px]",
-                bedsFilter !== 'all' && "border-purple-500 bg-purple-50"
+                bedsFilter !== 'all' && "border-primary bg-primary/10"
               )}>
                 <SelectValue placeholder="Beds" />
               </SelectTrigger>
@@ -825,7 +825,7 @@ export function BuyerPropertiesView({
             <Select value={bathsFilter} onValueChange={setBathsFilter}>
               <SelectTrigger className={cn(
                 "h-8 w-[110px]",
-                bathsFilter !== 'all' && "border-purple-500 bg-purple-50"
+                bathsFilter !== 'all' && "border-primary bg-primary/10"
               )}>
                 <SelectValue placeholder="Baths" />
               </SelectTrigger>
@@ -855,7 +855,7 @@ export function BuyerPropertiesView({
       {/* Loading State */}
       {loadingProperties && buyerId && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-2 text-muted-foreground">Loading properties...</span>
         </div>
       )}
@@ -897,11 +897,11 @@ export function BuyerPropertiesView({
           {/* Unified "In Your System" Section */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Target className="h-5 w-5 text-purple-500" />
+              <Target className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-semibold">
                 In Your System
               </h2>
-              <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+              <Badge variant="secondary" className="bg-primary/10 text-primary">
                 {filteredProperties?.length ?? 0}
                 {filteredProperties && filteredProperties.length !== buyerProperties.totalCount && (
                   <span className="ml-1 text-muted-foreground">/ {buyerProperties.totalCount}</span>

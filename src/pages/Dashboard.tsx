@@ -17,7 +17,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { StatWidget } from '@/components/dashboard/StatWidget';
+import { StatCard } from '@/components/ui/stat-card';
+import { PageContainer, PageHeader } from '@/components/ui/page-container';
 import { useDashboardData, useDashboardActivity } from '@/hooks/useDashboardData';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
@@ -28,28 +29,24 @@ export default function Dashboard() {
   const { data: activityData, isLoading: activityLoading } = useDashboardActivity(5);
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <PageContainer>
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
-            Command Center
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Real-time overview of your property management operations.
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => refetch()}
-          disabled={isLoading}
-          className="gap-2"
-        >
-          <RefreshCcw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
-          Refresh
-        </Button>
-      </div>
+      <PageHeader
+        title="Command Center"
+        description="Real-time overview of your property management operations."
+        actions={
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isLoading}
+            className="gap-2"
+          >
+            <RefreshCcw className={cn('h-4 w-4', isLoading && 'animate-spin')} />
+            Refresh
+          </Button>
+        }
+      />
 
       {/* Error State */}
       {isError && (
@@ -76,41 +73,33 @@ export default function Dashboard() {
 
       {/* Primary Stats Grid */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <StatWidget
-          title="Total Properties"
-          value={stats.totalProperties}
+        <StatCard
+          label="Total Properties"
+          value={isLoading ? '—' : stats.totalProperties}
           icon={Building2}
-          variant="purple"
-          href="/properties"
-          description={`${stats.newPropertiesThisWeek} new this week`}
-          isLoading={isLoading}
+          trend={{ value: stats.newPropertiesThisWeek, label: 'new this week' }}
+          onClick={() => navigate('/properties')}
         />
-        <StatWidget
-          title="Active Buyers"
-          value={stats.totalBuyers}
+        <StatCard
+          label="Active Buyers"
+          value={isLoading ? '—' : stats.totalBuyers}
           icon={Users}
-          variant="info"
-          href="/buyers"
-          description={`${stats.newBuyersThisWeek} new this week`}
-          isLoading={isLoading}
+          trend={{ value: stats.newBuyersThisWeek, label: 'new this week' }}
+          onClick={() => navigate('/buyers')}
         />
-        <StatWidget
-          title="Property Matches"
-          value={stats.totalMatches}
+        <StatCard
+          label="Property Matches"
+          value={isLoading ? '—' : stats.totalMatches}
           icon={Target}
-          variant="success"
-          href="/matching"
-          description={`${stats.highScoreMatches} high score`}
-          isLoading={isLoading}
+          trend={{ value: stats.highScoreMatches, label: 'high score' }}
+          onClick={() => navigate('/matching')}
         />
-        <StatWidget
-          title="Open Pipeline"
-          value={stats.openOpportunities}
+        <StatCard
+          label="Open Pipeline"
+          value={isLoading ? '—' : stats.openOpportunities}
           icon={TrendingUp}
-          variant="warning"
-          href="/acquisitions"
-          description="Active opportunities"
-          isLoading={isLoading}
+          trend={{ value: 0, label: 'active opportunities' }}
+          onClick={() => navigate('/acquisitions')}
         />
       </div>
 
@@ -141,7 +130,7 @@ export default function Dashboard() {
                     onClick={() => navigate(action.href)}
                     className={cn(
                       'flex items-center gap-4 p-4 rounded-lg border transition-all duration-200',
-                      'hover:border-purple-500/50 hover:bg-purple-50/50 dark:hover:bg-purple-950/20',
+                      'hover:bg-muted',
                       'text-left group'
                     )}
                   >
@@ -150,7 +139,7 @@ export default function Dashboard() {
                         'p-2.5 rounded-lg',
                         action.variant === 'warning' && 'bg-amber-100 dark:bg-amber-900/30',
                         action.variant === 'success' && 'bg-emerald-100 dark:bg-emerald-900/30',
-                        action.variant === 'primary' && 'bg-purple-100 dark:bg-purple-900/30',
+                        action.variant === 'primary' && 'bg-primary/10',
                         action.variant === 'default' && 'bg-muted'
                       )}
                     >
@@ -159,7 +148,7 @@ export default function Dashboard() {
                           'h-5 w-5',
                           action.variant === 'warning' && 'text-amber-600 dark:text-amber-400',
                           action.variant === 'success' && 'text-emerald-600 dark:text-emerald-400',
-                          action.variant === 'primary' && 'text-purple-600 dark:text-purple-400',
+                          action.variant === 'primary' && 'text-primary',
                           action.variant === 'default' && 'text-muted-foreground'
                         )}
                       />
@@ -174,7 +163,7 @@ export default function Dashboard() {
                               'text-xs',
                               action.variant === 'warning' && 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
                               action.variant === 'success' && 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-                              action.variant === 'primary' && 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+                              action.variant === 'primary' && 'bg-primary/10 text-primary'
                             )}
                           >
                             {action.count}
@@ -183,7 +172,7 @@ export default function Dashboard() {
                       </div>
                       <p className="text-xs text-muted-foreground truncate">{action.description}</p>
                     </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-purple-500 transition-colors" />
+                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                   </button>
                 );
               })}
@@ -333,89 +322,6 @@ export default function Dashboard() {
           )}
         </CardContent>
       </Card>
-
-      {/* Navigation Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <NavigationCard
-          title="Properties"
-          description="Manage listings and inventory"
-          icon={Building2}
-          href="/properties"
-          stats={[
-            { label: 'Total', value: stats.totalProperties },
-            { label: 'Active', value: stats.activeProperties },
-          ]}
-        />
-        <NavigationCard
-          title="Buyers"
-          description="Track buyer pipeline"
-          icon={Users}
-          href="/buyers"
-          stats={[
-            { label: 'Total', value: stats.totalBuyers },
-            { label: 'New', value: stats.newBuyersThisWeek },
-          ]}
-        />
-        <NavigationCard
-          title="Matching"
-          description="AI property matching"
-          icon={Target}
-          href="/matching"
-          stats={[
-            { label: 'Matches', value: stats.totalMatches },
-            { label: 'High Score', value: stats.highScoreMatches },
-          ]}
-        />
-        <NavigationCard
-          title="Social Hub"
-          description="Content & scheduling"
-          icon={Calendar}
-          href="/social"
-          stats={[
-            { label: 'Scheduled', value: stats.scheduledPosts },
-            { label: 'Drafts', value: stats.draftPosts },
-          ]}
-        />
-      </div>
-    </div>
-  );
-}
-
-// Navigation Card Component
-interface NavigationCardProps {
-  title: string;
-  description: string;
-  icon: typeof Building2;
-  href: string;
-  stats: Array<{ label: string; value: number }>;
-}
-
-function NavigationCard({ title, description, icon: Icon, href, stats }: NavigationCardProps) {
-  const navigate = useNavigate();
-
-  return (
-    <Card
-      className="cursor-pointer transition-all duration-200 hover:border-purple-500/50 hover:shadow-md group"
-      onClick={() => navigate(href)}
-    >
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between mb-4">
-          <div className="p-2.5 rounded-lg bg-purple-100 dark:bg-purple-900/30">
-            <Icon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-          </div>
-          <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-purple-500 transition-colors" />
-        </div>
-        <h3 className="font-semibold mb-1">{title}</h3>
-        <p className="text-xs text-muted-foreground mb-4">{description}</p>
-        <div className="flex items-center gap-4">
-          {stats.map((stat, idx) => (
-            <div key={idx}>
-              <p className="text-lg font-bold text-purple-600 dark:text-purple-400">{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    </PageContainer>
   );
 }

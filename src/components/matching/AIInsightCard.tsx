@@ -112,7 +112,7 @@ function InsightContent({
           <span>{confidenceConfig.label}</span>
         </div>
         {insight.source === 'ai' && (
-          <span className="text-purple-600">Powered by AI</span>
+          <span className="text-primary">Powered by AI</span>
         )}
         {insight.source === 'rules' && (
           <span className="text-muted-foreground">Rule-based insight</span>
@@ -160,10 +160,10 @@ export function AIInsightCard({
 
   return (
     <Card className={cn('overflow-hidden', className)}>
-      <CardHeader className="pb-2 bg-gradient-to-r from-purple-50 to-indigo-50">
+      <CardHeader className="pb-2 bg-gradient-to-r from-primary/5 to-indigo-50">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-purple-100">
-            <Sparkles className="h-4 w-4 text-purple-600" />
+          <div className="p-1.5 rounded-lg bg-primary/10">
+            <Sparkles className="h-4 w-4 text-primary" />
           </div>
           AI Match Insight
         </CardTitle>
@@ -201,7 +201,7 @@ export function AIInsightInline({
   if (isLoading) {
     return (
       <div className={cn('flex items-center gap-2', className)}>
-        <Loader2 className="h-4 w-4 animate-spin text-purple-500" />
+        <Loader2 className="h-4 w-4 animate-spin text-primary" />
         <span className="text-sm text-muted-foreground">Generating insight...</span>
       </div>
     );
@@ -216,7 +216,7 @@ export function AIInsightInline({
   return (
     <div className={cn('space-y-2', className)}>
       <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-purple-500" />
+        <Sparkles className="h-4 w-4 text-primary" />
         <span className="text-sm font-medium">AI Insight</span>
         <span
           className={cn('w-2 h-2 rounded-full', confidenceConfig.dotClass)}

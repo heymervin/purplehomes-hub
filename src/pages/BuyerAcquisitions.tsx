@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Search, Filter, User, Mail, Phone, DollarSign, Building2, Calendar, ArrowRight, LayoutGrid, List, RefreshCw, Loader2, Eye, EyeOff, Bed, Bath, Maximize2, Tag, X, Plus, Check } from 'lucide-react';
+import { PageContainer, PageHeader } from '@/components/ui/page-container';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -67,7 +68,7 @@ const getBadgeBgClass = (colorKey: string): string => {
     indigo: 'bg-indigo-500',
     amber: 'bg-amber-500',
     orange: 'bg-orange-500',
-    purple: 'bg-purple-500',
+    purple: 'bg-indigo-500',
     teal: 'bg-teal-500',
     green: 'bg-green-500',
     gray: 'bg-gray-400',
@@ -493,7 +494,7 @@ export default function BuyerAcquisitions() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 animate-fade-in">
+      <PageContainer>
         <div className="flex items-center justify-between">
           <div>
             <Skeleton className="h-8 w-64 mb-2" />
@@ -509,13 +510,13 @@ export default function BuyerAcquisitions() {
             </div>
           ))}
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
   if (isError) {
     return (
-      <div className="space-y-6 animate-fade-in">
+      <PageContainer>
         <EmptyState
           icon={User}
           title="Failed to load acquisitions"
@@ -527,40 +528,37 @@ export default function BuyerAcquisitions() {
             </Button>
           }
         />
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Buyer Home Acquisitions</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
-            {activeCount} active · {filteredAcquisitions.length} total opportunities
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewMode === 'kanban' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('kanban')}
-          >
-            <LayoutGrid className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('list')}
-          >
-            <List className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Buyer Dispositions"
+        description={`${activeCount} active · ${filteredAcquisitions.length} total opportunities`}
+        actions={
+          <>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'kanban' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('kanban')}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </>
+        }
+      />
 
       {/* Search */}
       <div className="flex items-center gap-3">
@@ -929,6 +927,6 @@ export default function BuyerAcquisitions() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </PageContainer>
   );
 }

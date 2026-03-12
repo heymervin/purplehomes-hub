@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Users, RefreshCw, AlertCircle, Loader2, Filter, X, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { PageContainer, PageHeader } from '@/components/ui/page-container';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -186,23 +187,17 @@ export default function BuyerManagement() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Users className="h-8 w-8 text-purple-500" />
-            Buyer Management
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            View and edit buyer preferences with sync to GHL
-          </p>
-        </div>
-        <Button variant="outline" onClick={() => refetch()} disabled={isLoading}>
-          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Buyers"
+        description="View and edit buyer preferences with sync to GHL"
+        actions={
+          <Button variant="outline" onClick={() => refetch()} disabled={isLoading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        }
+      />
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
@@ -399,6 +394,6 @@ export default function BuyerManagement() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </PageContainer>
   );
 }

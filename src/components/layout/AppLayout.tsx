@@ -15,9 +15,7 @@ export function AppLayout() {
           sidebarCollapsed ? "ml-16" : "ml-64"
         )}
       >
-        <div className="min-h-screen p-6">
-          <Outlet />
-        </div>
+        <Outlet />
       </main>
     </div>
   );

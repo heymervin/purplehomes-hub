@@ -44,6 +44,7 @@ import { useActivityStore, type AppActivityEntry } from '@/store/useActivityStor
 import { Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { PageContainer, PageHeader } from '@/components/ui/page-container';
 import type { ActivityType } from '@/types';
 
 type ViewMode = 'timeline' | 'table';
@@ -276,16 +277,12 @@ export default function ActivityLogs() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Activity Logs</h1>
-          <p className="text-muted-foreground mt-1">
-            Track all system activity, syncs, and changes in one place
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+    <PageContainer>
+      <PageHeader
+        title="Activity Logs"
+        description="Track all system activity, syncs, and changes in one place"
+        actions={
+          <div className="flex items-center gap-2">
           {/* View Mode Toggle */}
           <Tabs
             value={viewMode}
@@ -320,7 +317,8 @@ export default function ActivityLogs() {
             Export
           </Button>
         </div>
-      </div>
+        }
+      />
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
@@ -529,6 +527,6 @@ export default function ActivityLogs() {
           No activity logs found matching your filters.
         </div>
       )}
-    </div>
+    </PageContainer>
   );
 }

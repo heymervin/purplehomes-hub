@@ -53,8 +53,8 @@ export function PipelineOverview({
               : undefined
           }
           trendUp={true}
-          iconColor="text-purple-600"
-          iconBg="bg-purple-100"
+          iconColor="text-primary"
+          iconBg="bg-primary/10"
         />
         <MetricCard
           icon={DollarSign}

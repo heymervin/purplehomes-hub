@@ -312,11 +312,11 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
     <div className="space-y-6">
       {/* Property Info Header with Agent Selector (if property post) */}
       {item.tab === 'property' && property && (
-        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border-purple-200 dark:border-purple-800">
+        <Card className="bg-primary/5 border-primary/30">
           <CardContent className="p-4 space-y-4">
             {/* Property Info */}
             <div className="flex items-center gap-4">
-              <Building2 className="h-8 w-8 text-purple-600" />
+              <Building2 className="h-8 w-8 text-primary" />
               <div>
                 <h3 className="font-semibold">{property.address}</h3>
                 <p className="text-sm text-muted-foreground">
@@ -327,14 +327,14 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
             </div>
 
             {/* Agent Selector - Natural Language Style */}
-            <div className="pt-3 border-t border-purple-200 dark:border-purple-700">
+            <div className="pt-3 border-t border-primary/20">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-sm text-muted-foreground">Share this listing as</span>
                 <Select
                   value={item.selectedAgentId || 'krista'}
                   onValueChange={(value) => onChange({ selectedAgentId: value })}
                 >
-                  <SelectTrigger className="w-auto h-8 px-3 bg-white dark:bg-gray-900 border-purple-300">
+                  <SelectTrigger className="w-auto h-8 px-3 bg-white dark:bg-gray-900 border-primary/30">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -376,16 +376,16 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
 
       {/* Agent Selection for Non-Property Posts (when template has agent fields) */}
       {item.tab !== 'property' && selectedTemplateProfile && (
-        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border-purple-200 dark:border-purple-800">
+        <Card className="bg-primary/5 border-primary/30">
           <CardContent className="p-4 space-y-4">
             <div className="flex items-center gap-2 flex-wrap">
-              <User className="h-5 w-5 text-purple-600" />
+              <User className="h-5 w-5 text-primary" />
               <span className="text-sm font-medium">Post as</span>
               <Select
                 value={item.selectedAgentId || 'krista'}
                 onValueChange={(value) => onChange({ selectedAgentId: value })}
               >
-                <SelectTrigger className="w-auto h-8 px-3 bg-white dark:bg-gray-900 border-purple-300">
+                <SelectTrigger className="w-auto h-8 px-3 bg-white dark:bg-gray-900 border-primary/30">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -549,7 +549,7 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
                         variant="outline"
                         size="sm"
                         disabled={isGeneratingContent}
-                        className="gap-1.5 text-purple-600 border-purple-200 hover:bg-purple-50 hover:border-purple-300 h-7 text-xs"
+                        className="gap-1.5 text-primary border-primary/30 hover:bg-primary/10 hover:border-primary/30 h-7 text-xs"
                       >
                         {isGeneratingContent ? (
                           <>
@@ -694,10 +694,10 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
       </Card>
 
       {/* Image Template Section (Purple) */}
-      <Card className="border-purple-200 dark:border-purple-800">
-        <CardHeader className="pb-3 bg-purple-50 dark:bg-purple-950/30 rounded-t-lg">
+      <Card className="border-primary/30">
+        <CardHeader className="pb-3 bg-primary/5 rounded-t-lg">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <ImageIcon className="h-4 w-4 text-purple-500" />
+            <ImageIcon className="h-4 w-4 text-primary" />
             Image Template
           </CardTitle>
         </CardHeader>
@@ -729,9 +729,9 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
 
           {/* Template-Specific Input Fields (e.g., Value Tips fields) */}
           {userInputFields.length > 0 && (
-            <div className="mt-4 p-4 rounded-lg bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800">
+            <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
               <div className="flex items-center gap-2 mb-3">
-                <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                <ImageIcon className="h-4 w-4 text-primary" />
                 <span className="font-medium text-sm">{selectedTemplateProfile?.name} Fields</span>
                 <Badge variant="secondary" className="text-xs">
                   {userInputFields.length} field{userInputFields.length > 1 ? 's' : ''}
@@ -781,7 +781,7 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
           {item.tab === 'property' && property && (property.heroImage || (property.images && property.images.length > 0)) && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <ImageIcon className="h-4 w-4 text-purple-500" />
+                <ImageIcon className="h-4 w-4 text-primary" />
                 <Label className="text-sm font-medium">Hero Image</Label>
               </div>
               <p className="text-xs text-muted-foreground">
@@ -804,7 +804,7 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
                         className={cn(
                           "relative aspect-square rounded-lg overflow-hidden border-2 transition-all",
                           isSelected
-                            ? "border-purple-500 ring-2 ring-purple-500/20"
+                            ? "border-primary ring-2 ring-primary/20"
                             : "border-transparent hover:border-muted-foreground/50"
                         )}
                       >
@@ -814,7 +814,7 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
                           className="w-full h-full object-cover"
                         />
                         {isSelected && (
-                          <div className="absolute top-1 right-1 bg-purple-600 text-white rounded-full p-0.5">
+                          <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
                             <Check className="h-3 w-3" />
                           </div>
                         )}
@@ -847,17 +847,17 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
 
       {/* Generated Image Preview (when ready) */}
       {item.status === 'ready' && item.imageUrl && (
-        <Card className="border-purple-200 dark:border-purple-800">
+        <Card className="border-primary/30">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <ImageIcon className="h-4 w-4 text-purple-500" />
+                <ImageIcon className="h-4 w-4 text-primary" />
                 Generated Image
               </span>
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 gap-1.5 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                className="h-8 gap-1.5 text-primary hover:text-primary hover:bg-primary/10"
                 onClick={() => setImageExpanded(true)}
               >
                 <Expand className="h-4 w-4" />
@@ -885,7 +885,7 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
           <DialogHeader className="p-4 pb-2 border-b">
             <DialogTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <ImageIcon className="h-5 w-5 text-purple-500" />
+                <ImageIcon className="h-5 w-5 text-primary" />
                 Image Preview
               </span>
             </DialogTitle>
@@ -978,7 +978,7 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-purple-600" />
+              <FileText className="h-5 w-5 text-primary" />
               Enter Your Topic
             </DialogTitle>
             <DialogDescription>
@@ -1017,7 +1017,7 @@ export function BatchPostEditor({ item, property, onChange }: BatchPostEditorPro
                 }
               }}
               disabled={!customTopicInput.trim()}
-              className="gap-2 bg-purple-600 hover:bg-purple-700"
+              className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Search className="h-4 w-4" />
               Research & Generate

@@ -270,7 +270,7 @@ export function EnhancedMatchDetailModal({
             <ScrollArea className="h-[calc(95vh-180px)] border-r">
               <div className="p-6 space-y-6">
                 {/* Hero Image */}
-                <div className="relative aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50">
+                <div className="relative aspect-video rounded-xl overflow-hidden bg-muted">
                   {property?.heroImage ? (
                     <img
                       src={property.heroImage}
@@ -279,11 +279,11 @@ export function EnhancedMatchDetailModal({
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Home className="h-16 w-16 text-purple-300" />
+                      <Home className="h-16 w-16 text-muted-foreground/30" />
                     </div>
                   )}
                   {match.isPriority && (
-                    <Badge className="absolute top-3 left-3 bg-purple-600">
+                    <Badge className="absolute top-3 left-3 bg-primary">
                       <Target className="h-3 w-3 mr-1" />
                       Priority Match
                     </Badge>
@@ -304,7 +304,7 @@ export function EnhancedMatchDetailModal({
                 {(match.reasoning || match.highlights?.length || match.concerns?.length) && (
                   <div className="bg-muted/30 rounded-xl p-5 space-y-4">
                     <h3 className="text-base font-semibold flex items-center gap-2">
-                      <Target className="h-4 w-4 text-purple-600" />
+                      <Target className="h-4 w-4 text-primary" />
                       Why This Property Matches
                     </h3>
 
@@ -364,9 +364,9 @@ export function EnhancedMatchDetailModal({
               <div className="p-6 space-y-6">
                 {/* Buyer Info */}
                 {buyer && (
-                  <div className="bg-purple-50 rounded-xl p-4 space-y-3">
+                  <div className="bg-muted/50 rounded-xl p-4 space-y-3">
                     <h3 className="text-base font-semibold flex items-center gap-2">
-                      <User className="h-4 w-4 text-purple-600" />
+                      <User className="h-4 w-4 text-primary" />
                       Buyer Information
                     </h3>
                     <div className="space-y-2">
@@ -400,7 +400,7 @@ export function EnhancedMatchDetailModal({
                       )}
                     </div>
                     {/* Buyer Preferences */}
-                    <div className="flex flex-wrap gap-2 pt-2 border-t border-purple-200">
+                    <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
                       {buyer.desiredBeds && (
                         <Badge variant="secondary" className="text-xs">
                           <Bed className="h-3 w-3 mr-1" />
@@ -438,7 +438,7 @@ export function EnhancedMatchDetailModal({
                 {/* Deal Progress */}
                 <div className="space-y-4">
                   <h3 className="text-base font-semibold flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-purple-600" />
+                    <Clock className="h-4 w-4 text-primary" />
                     Deal Progress
                   </h3>
                   <DealProgressKanban
@@ -532,7 +532,7 @@ export function EnhancedMatchDetailModal({
               <ScrollArea className="flex-1 h-[calc(95vh-260px)]">
                 <TabsContent value="property" className="p-6 space-y-6 mt-0">
                   {/* Hero Image */}
-                  <div className="relative aspect-video rounded-xl overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50">
+                  <div className="relative aspect-video rounded-xl overflow-hidden bg-muted">
                     {property?.heroImage ? (
                       <img
                         src={property.heroImage}
@@ -541,7 +541,7 @@ export function EnhancedMatchDetailModal({
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <Home className="h-16 w-16 text-purple-300" />
+                        <Home className="h-16 w-16 text-muted-foreground/30" />
                       </div>
                     )}
                   </div>
@@ -550,25 +550,25 @@ export function EnhancedMatchDetailModal({
                   {property && (
                     <div className="grid grid-cols-4 gap-2">
                       <div className="flex flex-col items-center p-3 bg-muted/50 rounded-lg">
-                        <Bed className="h-4 w-4 text-purple-600 mb-1" />
+                        <Bed className="h-4 w-4 text-primary mb-1" />
                         <span className="text-lg font-bold">{property.beds}</span>
                         <span className="text-xs text-muted-foreground">Beds</span>
                       </div>
                       <div className="flex flex-col items-center p-3 bg-muted/50 rounded-lg">
-                        <Bath className="h-4 w-4 text-purple-600 mb-1" />
+                        <Bath className="h-4 w-4 text-primary mb-1" />
                         <span className="text-lg font-bold">{property.baths}</span>
                         <span className="text-xs text-muted-foreground">Baths</span>
                       </div>
                       {property.sqft && (
                         <div className="flex flex-col items-center p-3 bg-muted/50 rounded-lg">
-                          <Square className="h-4 w-4 text-purple-600 mb-1" />
+                          <Square className="h-4 w-4 text-primary mb-1" />
                           <span className="text-lg font-bold">{(property.sqft / 1000).toFixed(1)}k</span>
                           <span className="text-xs text-muted-foreground">Sqft</span>
                         </div>
                       )}
                       {match.distance && (
                         <div className="flex flex-col items-center p-3 bg-muted/50 rounded-lg">
-                          <MapPin className="h-4 w-4 text-purple-600 mb-1" />
+                          <MapPin className="h-4 w-4 text-primary mb-1" />
                           <span className="text-lg font-bold">{match.distance.toFixed(1)}</span>
                           <span className="text-xs text-muted-foreground">Miles</span>
                         </div>
@@ -588,7 +588,7 @@ export function EnhancedMatchDetailModal({
                 <TabsContent value="progress" className="p-6 space-y-6 mt-0">
                   {/* Buyer Info */}
                   {buyer && (
-                    <div className="bg-purple-50 rounded-xl p-4 space-y-2">
+                    <div className="bg-muted/50 rounded-xl p-4 space-y-2">
                       <h3 className="text-sm font-semibold">Buyer</h3>
                       <div className="flex items-center gap-2">
                         <p className="font-medium">
@@ -691,7 +691,7 @@ export function EnhancedMatchDetailModal({
               variant="default"
               size="sm"
               onClick={() => setCalculatorOpen(true)}
-              className="gap-1 bg-purple-600 hover:bg-purple-700"
+              className="gap-1"
             >
               <Calculator className="h-4 w-4" />
               Deal Calculator

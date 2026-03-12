@@ -117,7 +117,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                     {price}
                   </div>
                   {monthlyPayment && (
-                    <div className="text-purple-600 font-semibold">
+                    <div className="text-indigo-600 font-semibold">
                       {monthlyPayment}/month
                     </div>
                   )}
@@ -130,7 +130,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                   onClick={() => setShowVideo(true)}
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-white/90 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform"
                 >
-                  <Play className="h-10 w-10 text-purple-600 ml-1" fill="currentColor" />
+                  <Play className="h-10 w-10 text-indigo-600 ml-1" fill="currentColor" />
                 </button>
               )}
             </div>
@@ -187,7 +187,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
                   <div className="w-px h-10 bg-gray-300" />
                   <div className="text-left">
                     <div className="text-sm text-gray-500">As low as</div>
-                    <div className="text-xl font-bold text-purple-600">
+                    <div className="text-xl font-bold text-indigo-600">
                       {monthlyPayment}/mo
                     </div>
                   </div>
@@ -224,7 +224,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       <section className={cn("bg-white py-16 md:py-24", className)}>
         <div className="container mx-auto px-4 text-center">
           {overline && (
-            <span className="text-purple-600 font-bold uppercase tracking-wider text-sm mb-4 block">
+            <span className="text-indigo-600 font-bold uppercase tracking-wider text-sm mb-4 block">
               {overline}
             </span>
           )}
@@ -317,7 +317,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               {price}
             </div>
             {monthlyPayment && (
-              <div className="text-purple-600 font-semibold text-sm md:text-base">
+              <div className="text-indigo-600 font-semibold text-sm md:text-base">
                 {monthlyPayment}/month
               </div>
             )}
@@ -384,7 +384,7 @@ const GalleryHero: React.FC<GalleryHeroProps> = ({
                 {price}
               </div>
               {monthlyPayment && (
-                <div className="text-purple-600 font-semibold">
+                <div className="text-indigo-600 font-semibold">
                   {monthlyPayment}/month
                 </div>
               )}
@@ -411,7 +411,7 @@ const GalleryHero: React.FC<GalleryHeroProps> = ({
               className={cn(
                 "flex-shrink-0 w-20 h-16 md:w-24 md:h-18 rounded-lg overflow-hidden border-2 transition-all",
                 index === activeIndex
-                  ? "border-purple-500 ring-2 ring-purple-500/30"
+                  ? "border-indigo-500 ring-2 ring-indigo-500/30"
                   : "border-transparent opacity-60 hover:opacity-100"
               )}
             >

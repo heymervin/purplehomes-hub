@@ -280,14 +280,14 @@ export function MapCoachMarks({
               "flex items-center gap-2 bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-full px-3 py-2 shadow-lg border transition-all duration-300",
               "hover:shadow-xl hover:scale-105",
               !tourDismissed && showFirstTimeTooltip
-                ? "border-purple-400 ring-2 ring-purple-400/50 animate-pulse"
-                : "border-gray-200 dark:border-gray-700 hover:border-purple-400"
+                ? "border-indigo-400 ring-2 ring-indigo-400/50 animate-pulse"
+                : "border-gray-200 dark:border-gray-700 hover:border-indigo-400"
             )}
             aria-label="Take a tour of this page"
           >
             <HelpCircle className={cn(
               "h-4 w-4 transition-colors",
-              !tourDismissed && showFirstTimeTooltip ? "text-purple-500" : "text-purple-600"
+              !tourDismissed && showFirstTimeTooltip ? "text-indigo-500" : "text-indigo-600"
             )} />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
               {tourDismissed ? "Page tour" : "How this works"}
@@ -297,11 +297,11 @@ export function MapCoachMarks({
           {/* First-time Tooltip */}
           {!tourDismissed && showFirstTimeTooltip && (
             <div className="absolute top-full left-0 mt-2 z-50 animate-fade-in">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-purple-300 dark:border-purple-600 p-4 w-72">
-                <div className="absolute -top-2 left-6 w-4 h-4 bg-white dark:bg-gray-800 border-l border-t border-purple-300 dark:border-purple-600 transform rotate-45" />
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-indigo-300 dark:border-indigo-600 p-4 w-72">
+                <div className="absolute -top-2 left-6 w-4 h-4 bg-white dark:bg-gray-800 border-l border-t border-indigo-300 dark:border-indigo-600 transform rotate-45" />
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center flex-shrink-0">
-                    <HelpCircle className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center flex-shrink-0">
+                    <HelpCircle className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-gray-900 dark:text-white text-sm mb-1">
@@ -313,7 +313,7 @@ export function MapCoachMarks({
                     <div className="flex gap-2">
                       <Button
                         size="sm"
-                        className="bg-purple-600 hover:bg-purple-700 text-white text-xs h-7"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-7"
                         onClick={startTour}
                       >
                         Start Tour
@@ -379,7 +379,7 @@ export function MapCoachMarks({
               left: highlightRect.left,
               width: highlightRect.width,
               height: highlightRect.height,
-              boxShadow: '0 0 0 3px rgba(147, 51, 234, 0.7), 0 0 20px rgba(147, 51, 234, 0.5)',
+              boxShadow: '0 0 0 3px rgba(79, 70, 229, 0.7), 0 0 20px rgba(79, 70, 229, 0.5)',
               transition: 'all 0.3s ease-out',
             }}
           />
@@ -395,11 +395,11 @@ export function MapCoachMarks({
                 maxWidth: '320px',
               }}
             >
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border-2 border-purple-500 p-4">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl border-2 border-indigo-500 p-4">
                 {/* Step indicator */}
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    <span className="w-6 h-6 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
                       {currentStep}
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -431,7 +431,7 @@ export function MapCoachMarks({
                         key={idx}
                         className={cn(
                           "w-1.5 h-1.5 rounded-full transition-colors",
-                          currentStep > idx ? "bg-purple-600" : "bg-gray-300 dark:bg-gray-600"
+                          currentStep > idx ? "bg-indigo-600" : "bg-gray-300 dark:bg-gray-600"
                         )}
                       />
                     ))}
@@ -457,7 +457,7 @@ export function MapCoachMarks({
                     </Button>
                     <Button
                       size="sm"
-                      className="bg-purple-600 hover:bg-purple-700 text-white text-xs h-7"
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-7"
                       onClick={nextStep}
                     >
                       {currentStep >= TOUR_STEPS.length ? 'Done' : 'Next'}

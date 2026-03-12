@@ -1003,7 +1003,7 @@ export function QuickPostFormV2() {
                   variant="outline"
                   size="sm"
                   disabled={isGeneratingContent}
-                  className="gap-1.5 text-purple-600 border-purple-200 hover:bg-purple-50 hover:border-purple-300"
+                  className="gap-1.5 text-primary border-primary/30 hover:bg-primary/10 hover:border-primary/30"
                 >
                   {isGeneratingContent ? (
                     <>
@@ -1085,11 +1085,11 @@ export function QuickPostFormV2() {
 
         {/* Image Prompt Section - shown after content generation */}
         {generatedImagePrompt && state.tab === 'professional' && (
-          <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/30 dark:to-blue-950/30 border border-purple-200 dark:border-purple-700">
+          <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Wand2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                <span className="font-medium text-sm text-purple-700 dark:text-purple-300">
+                <Wand2 className="h-4 w-4 text-primary" />
+                <span className="font-medium text-sm text-primary">
                   {typeof generatedImagePrompt === 'string' ? 'Image Prompt for AI' : 'Image Prompts for AI'}
                 </span>
               </div>
@@ -1098,7 +1098,7 @@ export function QuickPostFormV2() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleCopyImagePrompt()}
-                  className="h-7 px-2 text-purple-600 hover:text-purple-700 hover:bg-purple-100"
+                  className="h-7 px-2 text-primary hover:text-primary hover:bg-primary/10"
                 >
                   <Copy className="h-3.5 w-3.5 mr-1" />
                   Copy
@@ -1115,14 +1115,14 @@ export function QuickPostFormV2() {
                 {Object.entries(generatedImagePrompt).map(([key, prompt]) => (
                   <div key={key} className="p-2 rounded bg-white/50 dark:bg-slate-800/50">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium text-purple-600 dark:text-purple-400 uppercase">
+                      <span className="text-xs font-medium text-primary uppercase">
                         {key === 'tip1' ? 'Tip 1 Image' : key === 'tip2' ? 'Tip 2 Image' : 'Tip 3 Image'}
                       </span>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleCopyImagePrompt(key)}
-                        className="h-6 px-2 text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-100"
+                        className="h-6 px-2 text-xs text-primary hover:text-primary hover:bg-primary/10"
                       >
                         <Copy className="h-3 w-3 mr-1" />
                         Copy
@@ -1149,9 +1149,9 @@ export function QuickPostFormV2() {
     if (!selectedTemplate || userInputFields.length === 0) return null;
 
     return (
-      <div className="mt-4 p-4 rounded-lg bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800">
+      <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
         <div className="flex items-center gap-2 mb-3">
-          <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+          <ImageIcon className="h-4 w-4 text-primary" />
           <span className="font-medium text-sm">{selectedTemplate.name} Fields</span>
           <Badge variant="secondary" className="text-xs">
             {userInputFields.length} field{userInputFields.length > 1 ? 's' : ''}
@@ -1211,7 +1211,7 @@ export function QuickPostFormV2() {
         </Button>
 
         {/* Preview Card */}
-        <Card className="border-2 border-purple-200 dark:border-purple-800">
+        <Card className="border-2 border-primary/30">
           <CardContent className="p-6 space-y-6">
             {/* Generated Image */}
             {(state.generatedImageUrl || state.customImagePreview) && (
@@ -1258,7 +1258,7 @@ export function QuickPostFormV2() {
                     onClick={() => toggleAccount(account.id)}
                     className={cn(
                       'gap-2',
-                      state.selectedAccounts.includes(account.id) && 'bg-purple-600 hover:bg-purple-700'
+                      state.selectedAccounts.includes(account.id) && 'bg-primary hover:bg-primary/90'
                     )}
                   >
                     {state.selectedAccounts.includes(account.id) && <Check className="h-3 w-3" />}
@@ -1281,7 +1281,7 @@ export function QuickPostFormV2() {
               </Button>
               <Button
                 onClick={handlePublish}
-                className="flex-1 gap-2 bg-purple-600 hover:bg-purple-700"
+                className="flex-1 gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={isPublishing || state.selectedAccounts.length === 0}
               >
                 {isPublishing ? (
@@ -1340,7 +1340,7 @@ export function QuickPostFormV2() {
               onClick={() => handleTabChange(tab.id)}
               className={cn(
                 'gap-2 transition-all',
-                isSelected && 'bg-purple-600 hover:bg-purple-700'
+                isSelected && 'bg-primary hover:bg-primary/90'
               )}
             >
               {TAB_ICONS[tab.id]}
@@ -1356,7 +1356,7 @@ export function QuickPostFormV2() {
       </p>
 
       {/* Main Form Card */}
-      <Card className="border-2 border-purple-200 dark:border-purple-800">
+      <Card className="border-2 border-primary/30">
         <CardContent className="p-6">
           <div className="space-y-4">
             {/* Row 1: What are you sharing? */}
@@ -1392,13 +1392,13 @@ export function QuickPostFormV2() {
                         className={cn(
                           'justify-between min-w-[200px] h-auto py-1.5 px-3',
                           state.selectedProperty
-                            ? 'border-purple-400 bg-purple-50 dark:bg-purple-950/30'
+                            ? 'border-primary/40 bg-primary/10'
                             : 'border-dashed'
                         )}
                       >
                         {state.selectedProperty ? (
                           <span className="flex items-center gap-2">
-                            <Building2 className="h-4 w-4 text-purple-600" />
+                            <Building2 className="h-4 w-4 text-primary" />
                             <span className="truncate max-w-[180px]">
                               {state.selectedProperty.address}, {state.selectedProperty.city}
                             </span>
@@ -1447,7 +1447,7 @@ export function QuickPostFormV2() {
                     value={state.selectedAgentId}
                     onValueChange={(value) => setState(prev => ({ ...prev, selectedAgentId: value }))}
                   >
-                    <SelectTrigger className="w-auto h-auto py-1.5 px-3 border-purple-300 bg-purple-50 dark:bg-purple-950/30">
+                    <SelectTrigger className="w-auto h-auto py-1.5 px-3 border-primary/30 bg-primary/10">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -1507,7 +1507,7 @@ export function QuickPostFormV2() {
                           e.preventDefault();
                           handleDateSelect(suggestion);
                         }}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors border-b last:border-b-0 border-gray-100 dark:border-gray-800"
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors border-b last:border-b-0 border-gray-100 dark:border-gray-800"
                       >
                         {suggestion.label}
                       </button>
@@ -1543,7 +1543,7 @@ export function QuickPostFormV2() {
                           e.preventDefault();
                           handleTimeSelect(suggestion);
                         }}
-                        className="w-full text-left px-3 py-2 text-sm hover:bg-purple-50 dark:hover:bg-purple-950/30 transition-colors border-b last:border-b-0 border-gray-100 dark:border-gray-800"
+                        className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors border-b last:border-b-0 border-gray-100 dark:border-gray-800"
                       >
                         {suggestion.label}
                       </button>
@@ -1555,14 +1555,14 @@ export function QuickPostFormV2() {
 
             {/* Schedule Preview Badge */}
             {state.scheduleDate && state.scheduleTime && (
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800">
-                <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                <span className="text-sm font-medium text-purple-900 dark:text-purple-100">
+              <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/10 border border-primary/30">
+                <Calendar className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-foreground">
                   Scheduled for:
                 </span>
                 <Badge
                   variant="secondary"
-                  className="bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold"
+                  className="bg-primary/10 text-primary font-semibold"
                 >
                   {formatScheduleDateTime(combineDateAndTime(state.scheduleDate, state.scheduleTime))}
                 </Badge>
@@ -1578,7 +1578,7 @@ export function QuickPostFormV2() {
                       timeInput: '',
                     }));
                   }}
-                  className="h-6 w-6 p-0 hover:bg-purple-200 dark:hover:bg-purple-900"
+                  className="h-6 w-6 p-0 hover:bg-muted"
                 >
                   <X className="h-3 w-3" />
                 </Button>
@@ -1619,10 +1619,10 @@ export function QuickPostFormV2() {
 
             {/* Context for AI - Property Tab Only */}
             {state.tab === 'property' && (
-              <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 border border-purple-200 dark:border-purple-800">
+              <div className="mt-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
                 <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                  <span className="font-semibold text-sm text-purple-900 dark:text-purple-100">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <span className="font-semibold text-sm text-foreground">
                     Context for AI
                   </span>
                 </div>
@@ -1687,10 +1687,10 @@ export function QuickPostFormV2() {
             )}
 
             {/* Image Template Section */}
-            <div className="mt-3 p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border border-purple-200 dark:border-purple-800">
+            <div className="mt-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
               <div className="flex items-center gap-2 mb-2">
-                <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                <span className="font-semibold text-sm text-purple-900 dark:text-purple-100">
+                <ImageIcon className="h-4 w-4 text-primary" />
+                <span className="font-semibold text-sm text-foreground">
                   Image Template
                 </span>
               </div>
@@ -1825,9 +1825,9 @@ export function QuickPostFormV2() {
                 if (supportingImagesOnly.length === 0) return null;
 
                 return (
-                  <div className="mt-4 p-4 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800">
+                  <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
                     <div className="flex items-center gap-2 mb-3">
-                      <ImageIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                      <ImageIcon className="h-4 w-4 text-primary" />
                       <span className="font-medium text-sm">Supporting Images</span>
                       <Badge variant="secondary" className="text-xs">
                         Select up to {maxImages}
@@ -1839,8 +1839,8 @@ export function QuickPostFormV2() {
 
                     {/* Selected preview */}
                     {state.selectedSupportingImages.length > 0 && (
-                      <div className="mb-3 p-2 bg-white dark:bg-gray-900 rounded-lg border border-purple-300 dark:border-purple-700">
-                        <div className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-2">
+                      <div className="mb-3 p-2 bg-white dark:bg-gray-900 rounded-lg border border-primary/30">
+                        <div className="text-xs font-medium text-primary mb-2">
                           Selected for template:
                         </div>
                         <div className="flex gap-2">
@@ -1849,9 +1849,9 @@ export function QuickPostFormV2() {
                               <img
                                 src={imageUrl}
                                 alt={`Selected ${idx + 1}`}
-                                className="h-20 w-20 object-cover rounded-lg border-2 border-purple-500"
+                                className="h-20 w-20 object-cover rounded-lg border-2 border-primary"
                               />
-                              <div className="absolute bottom-0 left-0 right-0 bg-purple-600 text-white text-xs text-center py-0.5 rounded-b-lg">
+                              <div className="absolute bottom-0 left-0 right-0 bg-primary text-primary-foreground text-xs text-center py-0.5 rounded-b-lg">
                                 #{idx + 1}
                               </div>
                             </div>
@@ -1889,8 +1889,8 @@ export function QuickPostFormV2() {
                             className={cn(
                               'relative aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all',
                               isSelected
-                                ? 'border-purple-500 ring-2 ring-purple-300 dark:ring-purple-700'
-                                : 'border-purple-200 dark:border-purple-700 hover:border-purple-400'
+                                ? 'border-primary ring-2 ring-primary/30'
+                                : 'border-border hover:border-primary/40'
                             )}
                           >
                             <img
@@ -1899,8 +1899,8 @@ export function QuickPostFormV2() {
                               className="w-full h-full object-cover"
                             />
                             {isSelected && (
-                              <div className="absolute inset-0 bg-purple-500/20 flex items-center justify-center">
-                                <div className="bg-purple-600 text-white text-sm font-bold rounded-full h-8 w-8 flex items-center justify-center">
+                              <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                                <div className="bg-primary text-primary-foreground text-sm font-bold rounded-full h-8 w-8 flex items-center justify-center">
                                   #{selectedIndex + 1}
                                 </div>
                               </div>
@@ -2036,7 +2036,7 @@ export function QuickPostFormV2() {
               <Button
                 onClick={handleGenerate}
                 disabled={!isValid || isGenerating}
-                className="w-full gap-2 bg-purple-600 hover:bg-purple-700"
+                className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                 size="lg"
               >
                 {isGenerating ? (
@@ -2102,7 +2102,7 @@ export function QuickPostFormV2() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-purple-600" />
+              <FileText className="h-5 w-5 text-primary" />
               Enter Your Topic
             </DialogTitle>
             <DialogDescription>
@@ -2141,7 +2141,7 @@ export function QuickPostFormV2() {
                 }
               }}
               disabled={!customTopicInput.trim()}
-              className="gap-2 bg-purple-600 hover:bg-purple-700"
+              className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Search className="h-4 w-4" />
               Research & Generate

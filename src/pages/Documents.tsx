@@ -56,6 +56,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { EmptyState } from '@/components/ui/empty-state';
+import { PageContainer, PageHeader } from '@/components/ui/page-container';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { useCustomFields, useDocumentTemplates, useDocuments, useSendTemplate, useCreateDocument, getApiConfig } from '@/services/ghlApi';
@@ -302,25 +303,12 @@ export default function Documents() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Connection Banner */}
-      {!isGhlConnected && !isLoadingTemplates && (
-        <div className="flex items-center gap-3 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-          <AlertCircle className="h-5 w-5 text-yellow-500" />
-          <div className="flex-1">
-            <p className="text-sm font-medium">Demo Mode</p>
-            <p className="text-xs text-muted-foreground">
-              Configure GHL API in Settings to create documents via HighLevel
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            Documents & Contracts
+    <PageContainer>
+      <PageHeader
+        title="Documents & Contracts"
+        description="View and track documents generated via HighLevel workflows"
+        actions={
+          <>
             {isGhlConnected ? (
               <Badge className="bg-success flex items-center gap-1">
                 <Wifi className="h-3 w-3" />
@@ -332,22 +320,17 @@ export default function Documents() {
                 Demo Mode
               </Badge>
             )}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            View and track documents generated via HighLevel workflows
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => refetchDocuments()}
-            disabled={isLoadingDocuments || isLoadingTemplates}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingDocuments || isLoadingTemplates ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-        </div>
-      </div>
+            <Button
+              variant="outline"
+              onClick={() => refetchDocuments()}
+              disabled={isLoadingDocuments || isLoadingTemplates}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingDocuments || isLoadingTemplates ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
@@ -667,6 +650,6 @@ export default function Documents() {
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </PageContainer>
   );
 }

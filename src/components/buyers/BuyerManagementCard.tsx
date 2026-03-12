@@ -90,19 +90,19 @@ export function BuyerManagementCard({ buyer, onEdit, onViewMatches }: BuyerManag
           {/* Criteria Row */}
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <span className="flex items-center gap-1">
-              <Bed className="h-4 w-4 text-purple-500" />
+              <Bed className="h-4 w-4 text-muted-foreground" />
               {buyer.desiredBeds ? `${buyer.desiredBeds} beds` : '--'}
             </span>
             <span className="flex items-center gap-1">
-              <Bath className="h-4 w-4 text-purple-500" />
+              <Bath className="h-4 w-4 text-muted-foreground" />
               {buyer.desiredBaths ? `${buyer.desiredBaths} baths` : '--'}
             </span>
             <span className="flex items-center gap-1">
-              <MapPin className="h-4 w-4 text-purple-500" />
+              <MapPin className="h-4 w-4 text-muted-foreground" />
               {buyer.preferredLocation || buyer.city || '--'}
             </span>
             <span className="flex items-center gap-1">
-              <DollarSign className="h-4 w-4 text-purple-500" />
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
               {buyer.downPayment ? `$${buyer.downPayment.toLocaleString()} down` : '--'}
             </span>
           </div>
@@ -123,8 +123,8 @@ export function BuyerManagementCard({ buyer, onEdit, onViewMatches }: BuyerManag
             className={cn(
               "text-sm",
               buyer.matchCount && buyer.matchCount > 0
-                ? "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
-                : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                ? "bg-primary/10 text-primary"
+                : "bg-muted text-muted-foreground"
             )}
           >
             {buyer.matchCount || 0} matches

@@ -89,7 +89,7 @@ function getMetricColor(metric: string, value: number): string {
     case 'timeOnPage':
       return value >= 90 ? 'text-emerald-500' : value >= 45 ? 'text-amber-500' : 'text-red-500';
     default:
-      return 'text-purple-500';
+      return 'text-primary';
   }
 }
 
@@ -127,7 +127,7 @@ function getCvrBarColor(cvr: number): string {
 const segmentChartConfig: ChartConfig = {
   cvr: {
     label: 'Conversion Rate (%)',
-    color: '#8b5cf6',
+    color: '#4f46e5',
   },
 };
 
@@ -219,7 +219,7 @@ export function FunnelAnalyticsDashboard() {
       label: 'Sessions',
       value: metrics.totalSessions,
       pct: 100,
-      color: 'bg-purple-500',
+      color: 'bg-primary',
     },
     {
       label: 'Engaged (>25% scroll)',
@@ -262,7 +262,7 @@ export function FunnelAnalyticsDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-base flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-purple-500" />
+              <BarChart3 className="w-4 h-4 text-primary" />
               Funnel Behavioral Analytics
             </CardTitle>
             <CardDescription>
@@ -306,7 +306,7 @@ export function FunnelAnalyticsDashboard() {
             {/* ===== Stats Grid with Deltas + Semantic Colors ===== */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div className="text-center p-3 rounded-lg bg-muted/50">
-                <p className="text-2xl font-bold text-purple-500">{metrics.totalSessions}</p>
+                <p className="text-2xl font-bold text-primary">{metrics.totalSessions}</p>
                 <p className="text-xs text-muted-foreground">Total Sessions</p>
                 {previousMetrics && (
                   <DeltaBadge current={metrics.totalSessions} previous={previousMetrics.totalSessions} minSample={10} />
@@ -331,7 +331,7 @@ export function FunnelAnalyticsDashboard() {
                 )}
               </div>
               <div className="text-center p-3 rounded-lg bg-muted/50">
-                <p className="text-2xl font-bold text-purple-500">{metrics.avgCTAClicks}</p>
+                <p className="text-2xl font-bold text-primary">{metrics.avgCTAClicks}</p>
                 <p className="text-xs text-muted-foreground">Avg CTA Clicks</p>
                 {previousMetrics && (
                   <DeltaBadge current={metrics.avgCTAClicks} previous={previousMetrics.avgCTAClicks} minSample={10} />
@@ -347,7 +347,7 @@ export function FunnelAnalyticsDashboard() {
                 )}
               </div>
               <div className="text-center p-3 rounded-lg bg-muted/50">
-                <p className="text-2xl font-bold text-purple-500">{metrics.videoPlayRate}%</p>
+                <p className="text-2xl font-bold text-primary">{metrics.videoPlayRate}%</p>
                 <p className="text-xs text-muted-foreground">Video Play Rate</p>
                 {previousMetrics && (
                   <DeltaBadge current={metrics.videoPlayRate} previous={previousMetrics.videoPlayRate} minSample={10} />
@@ -565,7 +565,7 @@ export function FunnelAnalyticsDashboard() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1">
-                    <Eye className="w-3 h-3 text-purple-500" />
+                    <Eye className="w-3 h-3 text-primary" />
                     Scroll
                   </span>
                   <Badge variant="secondary" className="text-[10px]">20%</Badge>

@@ -2,20 +2,17 @@ import {
   LayoutDashboard,
   Building2,
   Users,
-  UserPlus,
-  Home,
-  UsersRound,
   FileText,
-  Share2,
   Settings,
   Activity,
   ChevronLeft,
   ChevronRight,
-  Globe,
   LogOut,
-  Target,
   Kanban,
-  UserCog,
+  TrendingUp,
+  Megaphone,
+  Contact,
+  GitCompareArrows,
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -30,23 +27,56 @@ interface NavItem {
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  permission?: string; // Required permission to see this item (admins can see everything)
+  permission?: string;
 }
 
-const navigation: NavItem[] = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard, permission: 'dashboard' },
-  { name: 'Property Matching', href: '/matching', icon: Target, permission: 'properties' },
-  { name: 'Properties', href: '/properties', icon: Building2, permission: 'properties' },
-  { name: 'Buyers', href: '/buyer-management', icon: UserCog, permission: 'buyers' },
-  { name: 'Property Pipeline', href: '/seller-acquisitions', icon: Home, permission: 'property-pipeline' },
-  { name: 'Buyer Dispositions', href: '/acquisitions', icon: UserPlus, permission: 'buyer-dispositions' },
-  { name: 'Deal Pipeline', href: '/deals', icon: Kanban, permission: 'deal-pipeline' },
-  { name: 'Public Listings', href: '/listings', icon: Globe, permission: 'public-listings' },
-  { name: 'Contacts', href: '/contacts', icon: UsersRound, permission: 'contacts' },
-  { name: 'Documents', href: '/documents', icon: FileText, permission: 'documents' },
-  { name: 'Social Hub', href: '/social', icon: Share2, permission: 'social-hub' },
-  { name: 'Settings', href: '/settings', icon: Settings, permission: 'settings' },
-  { name: 'Activity Logs', href: '/activity', icon: Activity, permission: 'activity-logs' },
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const navigationGroups: NavGroup[] = [
+  {
+    label: 'Overview',
+    items: [
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard, permission: 'dashboard' },
+    ],
+  },
+  {
+    label: 'Properties',
+    items: [
+      { name: 'Properties', href: '/properties', icon: Building2, permission: 'properties' },
+      { name: 'Matching', href: '/matching', icon: GitCompareArrows, permission: 'properties' },
+    ],
+  },
+  {
+    label: 'People',
+    items: [
+      { name: 'Buyers', href: '/buyer-management', icon: Users, permission: 'buyers' },
+      { name: 'Contacts', href: '/contacts', icon: Contact, permission: 'contacts' },
+    ],
+  },
+  {
+    label: 'Pipeline',
+    items: [
+      { name: 'Seller Pipeline', href: '/seller-acquisitions', icon: TrendingUp, permission: 'property-pipeline' },
+      { name: 'Deal Pipeline', href: '/deals', icon: Kanban, permission: 'deal-pipeline' },
+    ],
+  },
+  {
+    label: 'Marketing',
+    items: [
+      { name: 'Social Hub', href: '/social', icon: Megaphone, permission: 'social-hub' },
+    ],
+  },
+  {
+    label: 'System',
+    items: [
+      { name: 'Documents', href: '/documents', icon: FileText, permission: 'documents' },
+      { name: 'Activity Logs', href: '/activity', icon: Activity, permission: 'activity-logs' },
+      { name: 'Settings', href: '/settings', icon: Settings, permission: 'settings' },
+    ],
+  },
 ];
 
 // Helper to check if user has permission
@@ -68,8 +98,13 @@ export function AppSidebar() {
   const { user, logout } = useAuthStore();
   const { isConnected, lastChecked, manualReconnect } = useGhlConnection({ autoConnect: true });
 
-  // Filter navigation based on user permissions
-  const filteredNavigation = navigation.filter(item => hasPermission(user, item.permission));
+  // Filter groups and items based on user permissions
+  const filteredGroups = navigationGroups
+    .map(group => ({
+      ...group,
+      items: group.items.filter(item => hasPermission(user, item.permission)),
+    }))
+    .filter(group => group.items.length > 0);
 
   const handleLogout = () => {
     logout();
@@ -77,7 +112,7 @@ export function AppSidebar() {
   };
 
   return (
-    <aside 
+    <aside
       className={cn(
         "fixed left-0 top-0 z-40 h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300",
         sidebarCollapsed ? "w-16" : "w-64"
@@ -85,57 +120,83 @@ export function AppSidebar() {
     >
       <div className="flex h-full flex-col">
         {/* Logo */}
-        <div className="flex h-16 items-center justify-between px-4 border-b border-sidebar-border">
+        <div className="flex items-center gap-2 px-4 py-4 border-b border-border">
+          <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-xs font-bold">PH</span>
+          </div>
           {!sidebarCollapsed && (
-            <h1 className="text-xl font-bold gradient-text">PropertyPro</h1>
+            <span className="text-sm font-semibold tracking-tight text-foreground">Purple Homes</span>
           )}
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-1.5 rounded-md hover:bg-sidebar-accent transition-colors"
-          >
-            {sidebarCollapsed ? (
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            ) : (
+          {!sidebarCollapsed && (
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="ml-auto p-1.5 rounded-md hover:bg-sidebar-accent transition-colors"
+            >
               <ChevronLeft className="h-5 w-5 text-muted-foreground" />
-            )}
-          </button>
+            </button>
+          )}
         </div>
 
+        {/* Collapse toggle when sidebar is collapsed */}
+        {sidebarCollapsed && (
+          <div className="flex justify-center px-2 pt-3 pb-1">
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="p-1.5 rounded-md hover:bg-sidebar-accent transition-colors"
+            >
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </button>
+          </div>
+        )}
+
         {/* Navigation */}
-        <nav className="flex-1 space-y-1 px-2 py-4 overflow-y-auto">
-          {filteredNavigation.map((item) => {
-            const isActive = location.pathname === item.href || 
-              (item.href !== '/' && location.pathname.startsWith(item.href));
-            
-            return (
-              <NavLink
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
-                )}
-                title={sidebarCollapsed ? item.name : undefined}
-              >
-                <item.icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-primary")} />
-                {!sidebarCollapsed && <span>{item.name}</span>}
-              </NavLink>
-            );
-          })}
+        <nav className="flex-1 px-2 py-2 overflow-y-auto">
+          {filteredGroups.map((group) => (
+            <div key={group.label}>
+              {!sidebarCollapsed && (
+                <p className="px-3 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                  {group.label}
+                </p>
+              )}
+              {sidebarCollapsed && <div className="pt-3" />}
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  const isActive =
+                    location.pathname === item.href ||
+                    (item.href !== '/' && location.pathname.startsWith(item.href));
+
+                  return (
+                    <NavLink
+                      key={item.name}
+                      to={item.href}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200",
+                        isActive
+                          ? "bg-primary/10 text-primary font-medium border-l-2 border-primary pl-[6px]"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                      title={sidebarCollapsed ? item.name : undefined}
+                    >
+                      <item.icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-primary")} />
+                      {!sidebarCollapsed && <span>{item.name}</span>}
+                    </NavLink>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* Theme Toggle & User Info */}
         <div className="border-t border-sidebar-border p-3 space-y-2">
           <ThemeToggle collapsed={sidebarCollapsed} />
-          
+
           {user && !sidebarCollapsed && (
             <div className="px-2 py-1.5 text-xs text-muted-foreground truncate">
               {user.email}
             </div>
           )}
-          
+
           <Button
             variant="ghost"
             size={sidebarCollapsed ? 'icon' : 'sm'}
@@ -153,8 +214,8 @@ export function AppSidebar() {
 
         {/* Connection Status */}
         <div className="border-t border-sidebar-border p-4">
-          <ConnectionIndicator 
-            connected={isConnected} 
+          <ConnectionIndicator
+            connected={isConnected}
             collapsed={sidebarCollapsed}
             lastChecked={lastChecked}
             onReconnect={manualReconnect}

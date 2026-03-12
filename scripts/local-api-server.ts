@@ -15,7 +15,7 @@ type Response = express.Response;
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 const app = (express as any).default();
-const PORT = 3001;
+const PORT = 5555;
 
 app.use((cors as any).default());
 app.use((express as any).default.json());

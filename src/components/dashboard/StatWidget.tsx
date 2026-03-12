@@ -51,9 +51,9 @@ const variantStyles = {
     border: 'hover:border-muted-foreground/30',
   },
   purple: {
-    text: 'text-purple-600 dark:text-purple-400',
-    icon: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
-    border: 'hover:border-purple-500/50',
+    text: 'text-primary',
+    icon: 'bg-primary/10 text-primary',
+    border: 'hover:border-primary/50',
   },
 };
 

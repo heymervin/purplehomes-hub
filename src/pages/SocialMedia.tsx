@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { PageContainer, PageHeader } from '@/components/ui/page-container';
 import { useScheduledPosts } from '@/services/ghlApi';
 import { SocialAnalytics } from '@/components/social/SocialAnalytics';
 import { QuickPostFormV2 } from '@/components/social/quick-post';
@@ -112,20 +113,15 @@ export default function SocialMedia() {
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header with Tab Navigation */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Social Hub</h1>
-          <p className="text-muted-foreground mt-1">
-            Create posts, batch operations & schedule
-          </p>
-        </div>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Social Hub"
+        description="Create, schedule, and track your posts"
+      />
 
       {/* Main Tabs */}
       <Tabs value={mainTab} onValueChange={(v) => setMainTab(v as MainTab)}>
-        <TabsList className="grid w-full grid-cols-4 max-w-lg">
+        <TabsList className="flex w-auto">
           <TabsTrigger value="create" className="gap-2">
             <Send className="h-4 w-4" />
             <span className="hidden sm:inline">Create</span>
@@ -235,9 +231,9 @@ export default function SocialMedia() {
                           "min-h-[100px] p-2 rounded-lg border transition-all cursor-pointer",
                           isCurrentMonth ? "bg-background" : "bg-muted/20",
                           isToday(day) && "ring-2 ring-primary ring-offset-2",
-                          isSelected && "bg-purple-50 dark:bg-purple-950/30 border-purple-500",
-                          !isSelected && !isToday(day) && "border-border hover:border-purple-300",
-                          hasPosts && !isSelected && "bg-purple-50/50 dark:bg-purple-950/10"
+                          isSelected && "bg-primary/10 border-primary",
+                          !isSelected && !isToday(day) && "border-border hover:border-primary/30",
+                          hasPosts && !isSelected && "bg-primary/5"
                         )}
                       >
                         {/* Day Number */}
@@ -359,6 +355,6 @@ export default function SocialMedia() {
           <SocialAnalytics />
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContainer>
   );
 }

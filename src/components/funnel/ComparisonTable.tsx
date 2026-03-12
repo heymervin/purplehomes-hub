@@ -71,7 +71,7 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
           <div className="p-4 bg-gray-100">
             <span className="font-semibold text-gray-600">{optionALabel}</span>
           </div>
-          <div className="p-4 bg-purple-600 text-white">
+          <div className="p-4 bg-indigo-600 text-white">
             <span className="font-bold">{optionBLabel}</span>
           </div>
         </div>
@@ -85,7 +85,7 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
           >
             <div className="p-3 text-left text-sm text-gray-700">{row.feature}</div>
             <div className="p-3">{renderValue(row.optionA, optionAHighlight)}</div>
-            <div className="p-3 bg-purple-50">{renderValue(row.optionB, optionBHighlight)}</div>
+            <div className="p-3 bg-indigo-50">{renderValue(row.optionB, optionBHighlight)}</div>
           </div>
         ))}
       </div>
@@ -108,7 +108,7 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
               {isLuxury ? (
                 <>
                   <span className="font-light">Renting vs. </span>
-                  <span className="font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
+                  <span className="font-bold bg-gradient-to-r from-indigo-600 to-indigo-800 bg-clip-text text-transparent">
                     Owning
                   </span>
                 </>
@@ -164,15 +164,15 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
           <div className={cn(
             "rounded-2xl p-8 relative transition-all duration-300",
             isLuxury
-              ? "bg-white shadow-[0_8px_40px_rgba(30,27,75,0.16)] border border-purple-100"
-              : "bg-white shadow-2xl border-2 border-purple-200"
+              ? "bg-white shadow-[0_8px_40px_rgba(30,27,75,0.16)] border border-indigo-100"
+              : "bg-white shadow-2xl border-2 border-indigo-200"
           )}>
             {/* Recommended Badge */}
             <div className={cn(
               "absolute -top-3 left-6 text-white text-xs font-semibold uppercase tracking-wider px-4 py-1.5 rounded-full",
               isLuxury
-                ? "bg-gradient-to-r from-purple-600 to-purple-800"
-                : "bg-purple-600"
+                ? "bg-gradient-to-r from-indigo-600 to-indigo-800"
+                : "bg-indigo-600"
             )}>
               Recommended
             </div>
@@ -180,14 +180,14 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
             <div className={cn(
               "text-sm uppercase tracking-wider font-semibold mb-6",
               isLuxury
-                ? "text-purple-600"
-                : "text-purple-700"
+                ? "text-indigo-600"
+                : "text-indigo-700"
             )}>
               {optionBLabel}
             </div>
             <div className="space-y-5">
               {rows.map((row, index) => (
-                <div key={index} className="flex items-center justify-between py-3 border-b border-purple-100/50 last:border-0">
+                <div key={index} className="flex items-center justify-between py-3 border-b border-indigo-100/50 last:border-0">
                   <span className="text-gray-700 text-sm font-medium">{row.feature}</span>
                   <span className="text-sm font-semibold">
                     {typeof row.optionB === "boolean" ? (
@@ -209,12 +209,12 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
             </div>
 
             {/* Card Footer CTA */}
-            <div className="mt-8 pt-6 border-t border-purple-100">
+            <div className="mt-8 pt-6 border-t border-indigo-100">
               <button className={cn(
                 "w-full py-4 rounded-xl font-semibold text-white transition-all duration-300 flex items-center justify-center gap-2",
                 isLuxury
-                  ? "bg-gradient-to-r from-purple-600 to-purple-800 hover:shadow-lg hover:shadow-purple-500/25 hover:-translate-y-0.5"
-                  : "bg-purple-600 hover:bg-purple-700"
+                  ? "bg-gradient-to-r from-indigo-600 to-indigo-800 hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-0.5"
+                  : "bg-indigo-600 hover:bg-indigo-700"
               )}>
                 Get Started Today
                 <ArrowRight className="h-4 w-4" />
@@ -250,7 +250,7 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
           <div
             className={cn(
               "p-6 text-center border-r border-gray-200",
-              optionAHighlight ? "bg-purple-600 text-white" : "bg-gray-100"
+              optionAHighlight ? "bg-indigo-600 text-white" : "bg-gray-100"
             )}
           >
             <span className="font-bold text-lg">{optionALabel}</span>
@@ -258,12 +258,12 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
           <div
             className={cn(
               "p-6 text-center",
-              optionBHighlight ? "bg-purple-600 text-white" : "bg-gray-100"
+              optionBHighlight ? "bg-indigo-600 text-white" : "bg-gray-100"
             )}
           >
             <span className="font-bold text-lg">{optionBLabel}</span>
             {optionBHighlight && (
-              <div className="text-purple-200 text-xs mt-1">Recommended</div>
+              <div className="text-indigo-200 text-xs mt-1">Recommended</div>
             )}
           </div>
         </div>
@@ -283,7 +283,7 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
             <div
               className={cn(
                 "p-5 text-center border-r border-gray-100 flex items-center justify-center",
-                optionAHighlight && "bg-purple-50"
+                optionAHighlight && "bg-indigo-50"
               )}
             >
               {renderValue(row.optionA, optionAHighlight)}
@@ -291,7 +291,7 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
             <div
               className={cn(
                 "p-5 text-center flex items-center justify-center",
-                optionBHighlight && "bg-purple-50"
+                optionBHighlight && "bg-indigo-50"
               )}
             >
               {renderValue(row.optionB, optionBHighlight)}
@@ -300,11 +300,11 @@ const ComparisonTable: React.FC<ComparisonTableProps> = ({
         ))}
 
         {/* Footer CTA */}
-        <div className="p-6 bg-gradient-to-r from-purple-600 to-purple-700 text-white text-center">
-          <p className="text-purple-100 mb-2">
+        <div className="p-6 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white text-center">
+          <p className="text-indigo-100 mb-2">
             Ready to stop renting and start owning?
           </p>
-          <button className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-700 rounded-lg font-bold hover:bg-purple-50 transition-colors">
+          <button className="inline-flex items-center gap-2 px-6 py-3 bg-white text-indigo-700 rounded-lg font-bold hover:bg-indigo-50 transition-colors">
             Get Started Today
             <ArrowRight className="h-4 w-4" />
           </button>

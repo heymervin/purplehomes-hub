@@ -181,10 +181,10 @@ export function QuickSearchInput({
                 <button
                   key={buyer.recordId || buyer.contactId}
                   onClick={() => handleSelectBuyer(buyer.recordId || buyer.contactId, `${buyer.firstName} ${buyer.lastName}`)}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-purple-50 transition-colors text-left group"
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-left group"
                 >
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
-                    <User className="h-4 w-4 text-purple-600" />
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                    <User className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
@@ -194,7 +194,7 @@ export function QuickSearchInput({
                   </div>
                   {buyer.totalMatches > 0 && (
                     <div className="flex-shrink-0">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                         {buyer.totalMatches} {buyer.totalMatches === 1 ? 'match' : 'matches'}
                       </span>
                     </div>
@@ -215,10 +215,10 @@ export function QuickSearchInput({
                 <button
                   key={property.recordId}
                   onClick={() => handleSelectProperty(property.recordId, property.address)}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-purple-50 transition-colors text-left group"
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-left group"
                 >
-                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
-                    <Home className="h-4 w-4 text-purple-600" />
+                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                    <Home className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{property.address}</p>
@@ -228,7 +228,7 @@ export function QuickSearchInput({
                   </div>
                   {property.totalMatches > 0 && (
                     <div className="flex-shrink-0">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                         {property.totalMatches} {property.totalMatches === 1 ? 'match' : 'matches'}
                       </span>
                     </div>

@@ -61,37 +61,39 @@ const activityIcons: Record<ActivityType | SyncType | string, typeof Send> = {
 };
 
 // Color mapping for activity types
+// Background fills are normalized to bg-muted for consistency.
+// Text colors are kept semantic per activity type.
 const activityColors: Record<ActivityType | SyncType | string, string> = {
   // Social
-  posted: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
-  scheduled: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
-  'caption-generated': 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
+  posted: 'bg-muted text-emerald-600 dark:text-emerald-400',
+  scheduled: 'bg-muted text-blue-600 dark:text-blue-400',
+  'caption-generated': 'bg-muted text-primary',
   // Properties
-  'property-added': 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
-  'status-changed': 'bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400',
+  'property-added': 'bg-muted text-amber-600 dark:text-amber-400',
+  'status-changed': 'bg-muted text-muted-foreground',
   // Contacts
-  'contact-added': 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400',
-  'buyer-added': 'bg-teal-100 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400',
-  'inventory-sent': 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400',
+  'contact-added': 'bg-muted text-cyan-600 dark:text-cyan-400',
+  'buyer-added': 'bg-muted text-teal-600 dark:text-teal-400',
+  'inventory-sent': 'bg-muted text-indigo-600 dark:text-indigo-400',
   // Deals
-  'deal-created': 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
-  'deal-updated': 'bg-lime-100 dark:bg-lime-900/30 text-lime-600 dark:text-lime-400',
+  'deal-created': 'bg-muted text-emerald-600 dark:text-emerald-400',
+  'deal-updated': 'bg-muted text-emerald-600 dark:text-emerald-400',
   // Sync types
-  contacts: 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400',
-  properties: 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400',
-  opportunities: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
-  'social-accounts': 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400',
-  documents: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400',
+  contacts: 'bg-muted text-cyan-600 dark:text-cyan-400',
+  properties: 'bg-muted text-amber-600 dark:text-amber-400',
+  opportunities: 'bg-muted text-primary',
+  'social-accounts': 'bg-muted text-muted-foreground',
+  documents: 'bg-muted text-indigo-600 dark:text-indigo-400',
   // App activity types
-  'image-generated': 'bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400',
-  'media-uploaded': 'bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400',
-  'batch-created': 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
-  'batch-published': 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
-  'ai-content-generated': 'bg-fuchsia-100 dark:bg-fuchsia-900/30 text-fuchsia-600 dark:text-fuchsia-400',
-  'property-matched': 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400',
-  'email-sent': 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
-  'sms-sent': 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400',
-  error: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
+  'image-generated': 'bg-muted text-primary',
+  'media-uploaded': 'bg-muted text-blue-600 dark:text-blue-400',
+  'batch-created': 'bg-muted text-amber-600 dark:text-amber-400',
+  'batch-published': 'bg-muted text-emerald-600 dark:text-emerald-400',
+  'ai-content-generated': 'bg-muted text-primary',
+  'property-matched': 'bg-muted text-muted-foreground',
+  'email-sent': 'bg-muted text-blue-600 dark:text-blue-400',
+  'sms-sent': 'bg-muted text-emerald-600 dark:text-emerald-400',
+  error: 'bg-muted text-red-600 dark:text-red-400',
 };
 
 // Status icons

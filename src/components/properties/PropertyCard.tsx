@@ -76,10 +76,10 @@ export function PropertyCard({
   return (
     <Card
       className={cn(
-        "overflow-hidden transition-all duration-300 cursor-pointer group bg-white",
-        "hover:shadow-xl hover:shadow-purple-500/20 hover:-translate-y-1",
-        "border border-gray-200 hover:border-purple-300",
-        selected && "ring-2 ring-primary border-primary shadow-lg shadow-purple-500/30",
+        "overflow-hidden transition-all duration-300 cursor-pointer group",
+        "hover:shadow-md hover:-translate-y-1",
+        "border border-border",
+        selected && "ring-2 ring-primary border-primary shadow-lg",
         property.status === 'deleted' && "opacity-60"
       )}
       onClick={handleCardClick}
@@ -177,27 +177,27 @@ export function PropertyCard({
 
       <CardContent className="p-4">
         {/* Address */}
-        <h3 className="font-semibold text-gray-900 mb-0.5 truncate">
+        <h3 className="font-semibold text-foreground mb-0.5 truncate">
           {property.address}
         </h3>
-        <p className="text-sm text-gray-600 mb-3">{property.city}</p>
+        <p className="text-sm text-muted-foreground mb-3">{property.city}</p>
 
         {/* Price */}
         <div className="mb-3">
           {property.downPayment !== undefined && (
-            <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
+            <p className="text-2xl font-bold text-primary">
               {formatPrice(property.downPayment)} down
             </p>
           )}
           {property.monthlyPayment !== undefined && (
-            <p className="text-sm font-semibold text-gray-600 mt-1">
+            <p className="text-sm font-semibold text-muted-foreground mt-1">
               {formatPrice(property.monthlyPayment)}/mo
             </p>
           )}
         </div>
 
         {/* Property details row */}
-        <div className="flex items-center gap-4 text-sm text-gray-600">
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Bed className="h-4 w-4" />
             {property.beds}

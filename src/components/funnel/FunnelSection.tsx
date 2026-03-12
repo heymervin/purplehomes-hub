@@ -49,14 +49,14 @@ const FunnelSection: React.FC<FunnelSectionProps> = ({
     white: "bg-white text-gray-900",
     gray: "bg-gray-100 text-gray-900",
     dark: "bg-gradient-to-br from-gray-900 to-gray-800 text-white",
-    purple: "bg-gradient-to-br from-purple-600 to-purple-800 text-white",
-    "purple-light": "bg-purple-50 text-gray-900",
-    gradient: "bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 text-white",
+    purple: "bg-gradient-to-br from-indigo-600 to-indigo-800 text-white",
+    "purple-light": "bg-indigo-50 text-gray-900",
+    gradient: "bg-gradient-to-r from-indigo-600 via-indigo-700 to-indigo-800 text-white",
     image: "relative text-white",
     // Premium/Luxury variants
     "luxury-cream": "bg-[#faf8f5] text-gray-900",
     "luxury-dark": "bg-gradient-to-b from-[#0f172a] to-[#1e1b4b] text-white",
-    "premium-dark": "bg-gradient-to-b from-gray-900 via-purple-950 to-gray-900 text-white",
+    "premium-dark": "bg-gradient-to-b from-gray-900 via-zinc-900 to-gray-900 text-white",
   };
 
   // Increased padding for more premium spacing
@@ -161,7 +161,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
         <span
           className={cn(
             "inline-block text-xs font-semibold uppercase tracking-[0.15em] mb-4",
-            dark ? "text-purple-400/90" : "text-purple-600",
+            dark ? "text-indigo-400/90" : "text-indigo-600",
             luxury && !dark && "text-[#c9a962]"
           )}
         >
@@ -183,8 +183,8 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
             <span className={cn(
               "font-bold",
               dark
-                ? "text-purple-400"
-                : "bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent"
+                ? "text-indigo-400"
+                : "bg-gradient-to-r from-indigo-600 to-indigo-800 bg-clip-text text-transparent"
             )}>
               {titleHighlight}
             </span>
@@ -223,7 +223,7 @@ const SectionDivider: React.FC<SectionDividerProps> = ({
   if (variant === "gradient") {
     return (
       <div className={cn("py-8", className)}>
-        <div className="h-1 bg-gradient-to-r from-transparent via-purple-500 to-transparent" />
+        <div className="h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
       </div>
     );
   }
@@ -231,9 +231,9 @@ const SectionDivider: React.FC<SectionDividerProps> = ({
   if (variant === "dots") {
     return (
       <div className={cn("flex items-center justify-center gap-2 py-8", className)}>
-        <span className="w-2 h-2 bg-purple-400 rounded-full" />
-        <span className="w-2 h-2 bg-purple-500 rounded-full" />
-        <span className="w-2 h-2 bg-purple-400 rounded-full" />
+        <span className="w-2 h-2 bg-indigo-400 rounded-full" />
+        <span className="w-2 h-2 bg-indigo-500 rounded-full" />
+        <span className="w-2 h-2 bg-indigo-400 rounded-full" />
       </div>
     );
   }
@@ -288,11 +288,11 @@ const ContentCard: React.FC<ContentCardProps> = ({
 }) => {
   const variants = {
     default: "bg-white rounded-2xl p-8 shadow-sm border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
-    bordered: "bg-white rounded-2xl p-8 border-2 border-purple-200 transition-all duration-300 hover:border-purple-400",
+    bordered: "bg-white rounded-2xl p-8 border-2 border-indigo-200 transition-all duration-300 hover:border-indigo-400",
     elevated: "bg-white rounded-2xl p-8 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl",
     minimal: "p-6",
     luxury: "bg-white rounded-2xl p-8 shadow-[0_4px_20px_rgba(30,27,75,0.12)] border border-gray-100/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_16px_60px_rgba(30,27,75,0.20)]",
-    "luxury-dark": "bg-white/5 backdrop-blur border border-purple-500/20 rounded-2xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-purple-500/40",
+    "luxury-dark": "bg-white/5 backdrop-blur border border-indigo-500/20 rounded-2xl p-8 transition-all duration-500 hover:-translate-y-2 hover:border-indigo-500/40",
   };
 
   const isLuxuryDark = variant === "luxury-dark";
@@ -303,8 +303,8 @@ const ContentCard: React.FC<ContentCardProps> = ({
         <div className={cn(
           "w-14 h-14 rounded-xl flex items-center justify-center mb-5",
           isLuxuryDark
-            ? "bg-gradient-to-br from-purple-500 to-purple-700 text-white shadow-lg shadow-purple-500/30"
-            : "bg-gradient-to-br from-purple-50 to-purple-100 text-purple-600"
+            ? "bg-gradient-to-br from-indigo-500 to-indigo-700 text-white shadow-lg shadow-indigo-500/30"
+            : "bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600"
         )}>
           {icon}
         </div>
@@ -337,7 +337,7 @@ const IconFeature: React.FC<IconFeatureProps> = ({
 }) => {
   return (
     <div className={cn("flex items-start gap-4", className)}>
-      <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0 text-purple-600">
+      <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0 text-indigo-600">
         {icon}
       </div>
       <div>

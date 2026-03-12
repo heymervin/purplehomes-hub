@@ -83,7 +83,10 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
 
         <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; margin: 25px 0;">
           <h3 style="color: #1F2937; margin-top: 0; font-size: 16px;">Resumen Rápido de Propiedades:</h3>
-          ${properties.slice(0, 3).map((p, i) => `
+          ${properties.slice(0, 3).map((p, i) => {
+            const slug = generatePropertySlug(p.address, p.city || '');
+            const listingUrl = `${SITE_URL}/listing/${slug}`;
+            return `
             <div style="margin: 15px 0; padding: 12px; background: white; border-radius: 6px; border: 1px solid #E5E7EB;">
               <div style="font-weight: bold; color: #9333EA; font-size: 14px;">${i + 1}. ${p.address}</div>
               <div style="color: #374151; margin: 5px 0;">${p.city}${p.state ? `, ${p.state}` : ''}</div>
@@ -97,8 +100,11 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
                   ${p.monthlyPayment ? ` • Mensual: $${p.monthlyPayment.toLocaleString()}` : ''}
                 </div>
               ` : ''}
+              <div style="margin-top: 8px;">
+                <a href="${listingUrl}" style="color: #9333EA; font-size: 12px; font-weight: 600; text-decoration: none;">Ver Propiedad &rarr;</a>
+              </div>
             </div>
-          `).join('')}
+          `}).join('')}
           ${properties.length > 3 ? `
             <div style="color: #6B7280; font-style: italic; margin-top: 10px; font-size: 13px;">
               + ${properties.length - 3} propiedad${properties.length - 3 === 1 ? '' : 'es'} más
@@ -153,7 +159,10 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
 
         <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; margin: 25px 0;">
           <h3 style="color: #1F2937; margin-top: 0; font-size: 16px;">Quick Property Summary:</h3>
-          ${properties.slice(0, 3).map((p, i) => `
+          ${properties.slice(0, 3).map((p, i) => {
+            const slug = generatePropertySlug(p.address, p.city || '');
+            const listingUrl = `${SITE_URL}/listing/${slug}`;
+            return `
             <div style="margin: 15px 0; padding: 12px; background: white; border-radius: 6px; border: 1px solid #E5E7EB;">
               <div style="font-weight: bold; color: #9333EA; font-size: 14px;">${i + 1}. ${p.address}</div>
               <div style="color: #374151; margin: 5px 0;">${p.city}${p.state ? `, ${p.state}` : ''}</div>
@@ -167,8 +176,11 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
                   ${p.monthlyPayment ? ` • Monthly: $${p.monthlyPayment.toLocaleString()}` : ''}
                 </div>
               ` : ''}
+              <div style="margin-top: 8px;">
+                <a href="${listingUrl}" style="color: #9333EA; font-size: 12px; font-weight: 600; text-decoration: none;">View Property &rarr;</a>
+              </div>
             </div>
-          `).join('')}
+          `}).join('')}
           ${properties.length > 3 ? `
             <div style="color: #6B7280; font-style: italic; margin-top: 10px; font-size: 13px;">
               + ${properties.length - 3} more ${properties.length - 3 === 1 ? 'property' : 'properties'}
@@ -399,11 +411,10 @@ export function generatePropertySMS(
       message += `   ${details.join(' • ')}\n`;
     }
 
-    // Add funnel page link (clean URL without https://)
+    // Add funnel page link
     const slug = generatePropertySlug(property.address, property.city || '');
-    const cleanDomain = SITE_URL.replace(/^https?:\/\//, '');
     const viewLabel = isSpanish ? 'Ver' : 'View';
-    message += `   🔗 ${viewLabel}: ${cleanDomain}/listing/${slug}\n`;
+    message += `   🔗 ${viewLabel}: ${SITE_URL}/listing/${slug}\n`;
 
     message += '\n';
   });

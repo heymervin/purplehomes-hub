@@ -109,14 +109,14 @@ export default function ContentSourceStep({ state, updateState }: ContentSourceS
                 selectedProperty: type.id !== 'property' ? null : state.selectedProperty,
               })}
               className={cn(
-                "cursor-pointer transition-all hover:border-purple-400",
-                state.postType === type.id && "border-purple-600 ring-2 ring-purple-200 bg-purple-50 dark:bg-purple-950/20"
+                "cursor-pointer transition-all hover:border-primary/40",
+                state.postType === type.id && "border-primary ring-2 ring-primary/20 bg-primary/10"
               )}
             >
               <CardContent className="p-6 text-center">
                 <div className={cn(
                   "mx-auto mb-3 text-muted-foreground",
-                  state.postType === type.id && "text-purple-600"
+                  state.postType === type.id && "text-primary"
                 )}>
                   {type.icon}
                 </div>
@@ -162,18 +162,18 @@ export default function ContentSourceStep({ state, updateState }: ContentSourceS
                       })}
                       className={cn(
                         "p-3 cursor-pointer hover:bg-muted/50 flex items-center gap-3",
-                        state.selectedProperty?.id === property.id && "bg-purple-50 dark:bg-purple-950/20"
+                        state.selectedProperty?.id === property.id && "bg-primary/10"
                       )}
                     >
                       {/* Radio indicator */}
                       <div className={cn(
                         "w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0",
                         state.selectedProperty?.id === property.id
-                          ? "border-purple-600"
+                          ? "border-primary"
                           : "border-muted-foreground/30"
                       )}>
                         {state.selectedProperty?.id === property.id && (
-                          <div className="w-2 h-2 rounded-full bg-purple-600" />
+                          <div className="w-2 h-2 rounded-full bg-primary" />
                         )}
                       </div>
 
@@ -198,7 +198,7 @@ export default function ContentSourceStep({ state, updateState }: ContentSourceS
 
                       {/* Price */}
                       {property.price > 0 && (
-                        <span className="text-sm font-medium text-purple-600 flex-shrink-0">
+                        <span className="text-sm font-medium text-primary flex-shrink-0">
                           ${property.price.toLocaleString()}
                         </span>
                       )}
@@ -210,8 +210,8 @@ export default function ContentSourceStep({ state, updateState }: ContentSourceS
 
             {/* Selected property indicator */}
             {state.selectedProperty && (
-              <div className="p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200">
-                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">
+              <div className="p-3 bg-primary/10 rounded-lg border border-primary/30">
+                <p className="text-sm font-medium text-primary">
                   Selected: {state.selectedProperty.propertyCode} - {state.selectedProperty.address}
                 </p>
               </div>

@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import colors from "tailwindcss/colors";
 
 export default {
   darkMode: ["class"],
@@ -77,6 +78,8 @@ export default {
         warning: "hsl(var(--warning))",
         error: "hsl(var(--error))",
         info: "hsl(var(--info))",
+        zinc: colors.zinc,
+        indigo: colors.indigo,
       },
       borderRadius: {
         lg: "var(--radius)",

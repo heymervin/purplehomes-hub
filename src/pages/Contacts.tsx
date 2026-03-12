@@ -1,22 +1,19 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { 
-  Search, 
-  Filter, 
-  Plus, 
-  Mail, 
-  MessageSquare, 
-  Tag, 
-  Download, 
-  X, 
+import {
+  Search,
+  Filter,
+  Plus,
+  Mail,
+  MessageSquare,
+  Tag,
+  Download,
+  X,
   ChevronDown,
   ChevronUp,
   Star,
   Phone,
   MapPin,
-  RefreshCw,
-  Wifi,
-  WifiOff,
   Loader2,
   CloudDownload,
   AlertCircle
@@ -58,6 +55,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { EmptyState } from '@/components/ui/empty-state';
+import { PageContainer, PageHeader } from '@/components/ui/page-container';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Progress } from '@/components/ui/progress';
 import { ContactDetailModal } from '@/components/contacts/ContactDetailModal';
@@ -465,7 +463,7 @@ export default function Contacts() {
     switch (type) {
       case 'seller': return 'bg-orange-500/10 text-orange-500 border-orange-500/20';
       case 'buyer': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
-      case 'agent': return 'bg-purple-500/10 text-purple-500 border-purple-500/20';
+      case 'agent': return 'bg-primary/10 text-primary border-primary/20';
       case 'wholesaler': return 'bg-green-500/10 text-green-500 border-green-500/20';
       default: return 'bg-muted text-muted-foreground';
     }
@@ -490,7 +488,7 @@ export default function Contacts() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <PageContainer>
       {!isLoadingContacts && !isGhlConnected && (
         <div className="flex items-center gap-3 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
           <AlertCircle className="h-5 w-5 text-yellow-500" />
@@ -516,56 +514,34 @@ export default function Contacts() {
         </div>
       )}
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            Contacts
-            {!isLoadingContacts && (
-              isGhlConnected ? (
-                <Badge className="bg-success flex items-center gap-1">
-                  <Wifi className="h-3 w-3" />
-                  GHL Connected
-                </Badge>
+      <PageHeader
+        title="Contacts"
+        description={
+          isLoadingContacts
+            ? 'Loading...'
+            : `${filteredContacts.length} contacts${smartList !== 'all' ? ` in ${SMART_LISTS.find(s => s.value === smartList)?.label}` : ''}`
+        }
+        actions={
+          <>
+            <Button
+              variant="outline"
+              onClick={handleSyncContacts}
+              disabled={isSyncing || !isGhlConnected}
+            >
+              {isSyncing ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <WifiOff className="h-3 w-3" />
-                  Demo Mode
-                </Badge>
-              )
-            )}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {isLoadingContacts ? 'Loading...' : `${filteredContacts.length} contacts`}
-            {smartList !== 'all' && ` in ${SMART_LISTS.find(s => s.value === smartList)?.label}`}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={handleSyncContacts}
-            disabled={isSyncing || !isGhlConnected}
-          >
-            {isSyncing ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <CloudDownload className="h-4 w-4 mr-2" />
-            )}
-            Sync from GHL
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => refetchContacts()}
-            disabled={isLoadingContacts}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingContacts ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button onClick={() => setShowAddModal(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Contact
-          </Button>
-        </div>
-      </div>
+                <CloudDownload className="h-4 w-4 mr-2" />
+              )}
+              Sync
+            </Button>
+            <Button onClick={() => setShowAddModal(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Contact
+            </Button>
+          </>
+        }
+      />
 
       <div className="flex flex-wrap gap-2 border-b border-border pb-4">
         {SMART_LISTS.map((list) => (
@@ -1020,6 +996,6 @@ export default function Contacts() {
         open={!!selectedContact}
         onOpenChange={(open) => !open && setSelectedContact(null)}
       />
-    </div>
+    </PageContainer>
   );
 }

@@ -412,7 +412,7 @@ export function PropertyDetailModal({
                 {property.propertyCode || 'Property Details'}
               </DialogTitle>
               {property.source && (
-                <span className="inline-flex items-center rounded-md bg-purple-100 text-purple-700 border border-purple-200 px-2 py-0.5 text-xs font-medium">
+                <span className="inline-flex items-center rounded-md bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 text-xs font-medium">
                   {property.source}
                 </span>
               )}
@@ -459,24 +459,24 @@ export function PropertyDetailModal({
               />
 
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-3 bg-purple-50/50 dark:bg-purple-950/30 p-1 rounded-lg">
+                <TabsList className="grid w-full grid-cols-3 bg-muted/50 p-1 rounded-lg">
                   <TabsTrigger
                     value="details"
-                    className="text-gray-600 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300 data-[state=active]:shadow-sm rounded-md transition-all"
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-md transition-all"
                   >
                     <Home className="h-4 w-4 mr-2" aria-hidden="true" />
                     Details
                   </TabsTrigger>
                   <TabsTrigger
                     value="social"
-                    className="text-gray-600 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300 data-[state=active]:shadow-sm rounded-md transition-all"
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-md transition-all"
                   >
                     <Share2 className="h-4 w-4 mr-2" aria-hidden="true" />
                     Social
                   </TabsTrigger>
                   <TabsTrigger
                     value="funnel"
-                    className="text-gray-600 dark:text-gray-300 data-[state=active]:bg-white dark:data-[state=active]:bg-gray-800 data-[state=active]:text-purple-700 dark:data-[state=active]:text-purple-300 data-[state=active]:shadow-sm rounded-md transition-all"
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-md transition-all"
                   >
                     <FileText className="h-4 w-4 mr-2" aria-hidden="true" />
                     Funnel
@@ -660,19 +660,19 @@ export function PropertyDetailModal({
                 {/* Social Media Tab */}
                 <TabsContent value="social" className="space-y-6 mt-4">
                   {/* Status Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-purple-50/50 dark:bg-purple-950/30 rounded-lg border border-purple-100 dark:border-purple-800/50">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-muted/30 rounded-lg border">
                     <div className="flex items-center gap-3">
-                      <Share2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      <Share2 className="h-5 w-5 text-primary" />
                       <div>
-                        <h4 className="font-semibold text-purple-700 dark:text-purple-300">Social Media Status</h4>
-                        <p className="text-sm text-muted-foreground dark:text-purple-300/70">Manage social media posting for this property</p>
+                        <h4 className="font-semibold text-foreground">Social Media Status</h4>
+                        <p className="text-sm text-muted-foreground">Manage social media posting for this property</p>
                       </div>
                     </div>
                     <SocialStatusBadge status={property.status || 'pending'} />
                   </div>
 
                   {/* Status Selection */}
-                  <FieldSection title="Posting Status" icon={Tag} iconColor="text-purple-600">
+                  <FieldSection title="Posting Status" icon={Tag} iconColor="text-primary">
                     <div className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="socialStatus">Current Status</Label>
@@ -828,7 +828,7 @@ export function PropertyDetailModal({
               variant="outline"
               size="sm"
               onClick={() => setCalculatorOpen(true)}
-              className="border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950"
+              className="border-primary/30 text-primary hover:bg-muted"
             >
               <Calculator className="h-4 w-4 mr-2" />
               Calculator
@@ -883,7 +883,6 @@ export function PropertyDetailModal({
                 size="sm"
                 onClick={() => funnelSaveHandler?.()}
                 disabled={funnelIsSaving || !funnelHasChanges}
-                className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"
               >
                 {funnelIsSaving ? (
                   <>
@@ -903,7 +902,6 @@ export function PropertyDetailModal({
                 size="sm"
                 onClick={handleSave}
                 disabled={updateProperty.isPending || updateAirtableProperty.isPending || !hasChanges}
-                className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700"
               >
                 {(updateProperty.isPending || updateAirtableProperty.isPending) ? (
                   <>

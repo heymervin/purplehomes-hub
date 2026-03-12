@@ -88,8 +88,8 @@ function BuyerCard({ scoredBuyer, property, onViewDetails, isSelected, onToggleS
       className={cn(
         "p-4 transition-colors relative group",
         isInPipeline ? "border-l-4 border-l-green-500 bg-green-50/30" : "hover:bg-muted/30",
-        canSelect && "cursor-pointer hover:border-purple-300",
-        isSelected && "ring-2 ring-purple-500 bg-purple-50/50"
+        canSelect && "cursor-pointer hover:border-primary/30",
+        isSelected && "ring-2 ring-primary bg-primary/10"
       )}
       onClick={canSelect ? onToggleSelect : undefined}
     >
@@ -101,8 +101,8 @@ function BuyerCard({ scoredBuyer, property, onViewDetails, isSelected, onToggleS
             className={cn(
               "h-5 w-5 border-2",
               isSelected
-                ? "bg-purple-600 border-purple-600 text-white"
-                : "bg-white border-gray-300 hover:border-purple-400"
+                ? "bg-primary border-primary text-white"
+                : "bg-white border-gray-300 hover:border-primary/60"
             )}
           />
         </div>
@@ -110,8 +110,8 @@ function BuyerCard({ scoredBuyer, property, onViewDetails, isSelected, onToggleS
 
       <div className={cn("flex gap-4", canSelect && "ml-6")}>
         {/* Buyer Avatar */}
-        <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center">
-          <User className="h-8 w-8 text-purple-400" />
+        <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+          <User className="h-8 w-8 text-muted-foreground/50" />
         </div>
 
         {/* Buyer Details */}
@@ -172,7 +172,7 @@ function BuyerCard({ scoredBuyer, property, onViewDetails, isSelected, onToggleS
                 variant={score.isPriority ? 'default' : 'secondary'}
                 className={`text-xs ${
                   score.isPriority
-                    ? 'bg-purple-500 hover:bg-purple-600'
+                    ? 'bg-primary hover:bg-primary/90'
                     : 'bg-gray-100 text-gray-600'
                 }`}
               >
@@ -187,7 +187,7 @@ function BuyerCard({ scoredBuyer, property, onViewDetails, isSelected, onToggleS
 
             {/* Priority match indicator */}
             {score.isPriority && !score.distanceMiles && (
-              <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
+              <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
                 <Target className="h-3 w-3 mr-1" />
                 In Preferred ZIP
               </Badge>
@@ -243,7 +243,7 @@ function BuyerCard({ scoredBuyer, property, onViewDetails, isSelected, onToggleS
           <Button
             variant="outline"
             size="sm"
-            className="h-7 text-xs bg-white hover:bg-purple-600 hover:text-white hover:border-purple-600 border-gray-200 text-gray-600 transition-all shadow-sm"
+            className="h-7 text-xs bg-white hover:bg-primary hover:text-primary-foreground hover:border-primary border-gray-200 text-gray-600 transition-all shadow-sm"
             onClick={(e) => {
               e.stopPropagation();
               onViewDetails();
@@ -494,7 +494,7 @@ export function PropertyBuyersView({
       <div className="bg-card border rounded-lg p-4">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-sm font-medium">
-            <Home className="h-4 w-4 text-purple-500" />
+            <Home className="h-4 w-4 text-primary" />
             <span>Select Property:</span>
           </div>
           <Select
@@ -528,7 +528,7 @@ export function PropertyBuyersView({
           <div className="mt-4 pt-4 border-t">
             <div className="flex items-start gap-4">
               {/* Property Image */}
-              <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center">
+              <div className="flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
                 {propertyBuyersData.property.heroImage ? (
                   <img
                     src={propertyBuyersData.property.heroImage}
@@ -536,7 +536,7 @@ export function PropertyBuyersView({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <Home className="h-8 w-8 text-purple-300" />
+                  <Home className="h-8 w-8 text-muted-foreground/40" />
                 )}
               </div>
 
@@ -589,8 +589,8 @@ export function PropertyBuyersView({
               className={cn(
                 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
                 sameCity
-                  ? 'bg-purple-500 text-white'
-                  : 'bg-white border border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-border hover:bg-muted'
               )}
             >
               📍 Same City
@@ -601,8 +601,8 @@ export function PropertyBuyersView({
               className={cn(
                 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
                 withinBudget
-                  ? 'bg-purple-500 text-white'
-                  : 'bg-white border border-gray-200 text-gray-700 hover:border-purple-300 hover:bg-purple-50'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-white border border-gray-200 text-gray-700 hover:border-border hover:bg-muted'
               )}
             >
               💰 Within Budget
@@ -612,7 +612,7 @@ export function PropertyBuyersView({
             <Select value={bedsFilter} onValueChange={setBedsFilter}>
               <SelectTrigger className={cn(
                 "h-8 w-[110px]",
-                bedsFilter !== 'all' && "border-purple-500 bg-purple-50"
+                bedsFilter !== 'all' && "border-primary bg-primary/10"
               )}>
                 <SelectValue placeholder="Beds" />
               </SelectTrigger>
@@ -630,7 +630,7 @@ export function PropertyBuyersView({
             <Select value={bathsFilter} onValueChange={setBathsFilter}>
               <SelectTrigger className={cn(
                 "h-8 w-[110px]",
-                bathsFilter !== 'all' && "border-purple-500 bg-purple-50"
+                bathsFilter !== 'all' && "border-primary bg-primary/10"
               )}>
                 <SelectValue placeholder="Baths" />
               </SelectTrigger>
@@ -666,7 +666,7 @@ export function PropertyBuyersView({
       {loadingBuyers && propertyCode && (
         <div className="flex items-center justify-center py-12">
           <div className="flex flex-col items-center gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <p className="text-sm text-muted-foreground">Scoring buyers for this property...</p>
           </div>
         </div>
@@ -698,8 +698,8 @@ export function PropertyBuyersView({
       {/* Empty State */}
       {!propertyCode && !loadingBuyers && (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="rounded-full bg-purple-100 p-4 mb-4">
-            <Home className="h-8 w-8 text-purple-500" />
+          <div className="rounded-full bg-muted p-4 mb-4">
+            <Home className="h-8 w-8 text-muted-foreground/50" />
           </div>
           <h3 className="font-semibold text-lg mb-1">Select a Property</h3>
           <p className="text-sm text-muted-foreground max-w-md">
@@ -717,10 +717,10 @@ export function PropertyBuyersView({
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
-                    <Target className="h-5 w-5 text-purple-500" />
+                    <Target className="h-5 w-5 text-primary" />
                     Best Matches
                   </h3>
-                  <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                  <Badge variant="secondary" className="bg-primary/10 text-primary">
                     {interestedBuyers.length} {interestedBuyers.length === 1 ? 'buyer' : 'buyers'}
                   </Badge>
                 </div>

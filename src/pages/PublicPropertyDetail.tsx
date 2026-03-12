@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import type { PropertyCondition, PropertyType, Property } from '@/types';
 import type { FunnelContent } from '@/types/funnel';
+import { DEFAULT_FUNNEL_INPUTS } from '@/types/funnel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PhoneInput } from '@/components/ui/phone-input';
@@ -146,7 +147,7 @@ function HeroEntrance({
 
 function GradientNumber({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <span className={`bg-gradient-to-b from-white via-purple-200 to-purple-400/50 bg-clip-text text-transparent ${className}`}>
+    <span className={`bg-gradient-to-b from-white via-indigo-200 to-indigo-400/50 bg-clip-text text-transparent ${className}`}>
       {children}
     </span>
   );
@@ -232,8 +233,8 @@ function UrgencyCountdown({
         <div key={index} className="text-center">
           <div className="relative">
             {/* Glow behind */}
-            <div className="absolute pointer-events-none inset-0 bg-gradient-to-b from-purple-500/30 to-violet-500/30 rounded-2xl blur-xl scale-110" />
-            <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl px-4 md:px-6 py-4 md:py-6 border border-purple-500/30 shadow-[0_0_30px_rgba(139,92,246,0.2)]">
+            <div className="absolute pointer-events-none inset-0 bg-gradient-to-b from-indigo-500/30 to-violet-500/30 rounded-2xl blur-xl scale-110" />
+            <div className="relative bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl px-4 md:px-6 py-4 md:py-6 border border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
               <div className="text-4xl md:text-6xl font-black text-white tabular-nums">
                 {String(unit.value).padStart(2, '0')}
               </div>
@@ -307,11 +308,11 @@ function AnimatedStatsSection() {
   return (
     <section ref={sectionRef} className="relative py-20 md:py-28">
       {/* Ambient lighting - top glow receives bleed from testimonials */}
-      <div className="absolute pointer-events-none top-[-25%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
-      <div className="absolute pointer-events-none top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+      <div className="absolute pointer-events-none top-[-25%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-indigo-600/20 rounded-full blur-[200px]" />
+      <div className="absolute pointer-events-none top-1/2 left-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[200px]" />
       <div className="absolute pointer-events-none top-1/2 right-1/4 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[200px]" />
       {/* Bottom glows bleed strongly into Neighborhood section */}
-      <div className="absolute pointer-events-none bottom-[-40%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-purple-600/22 rounded-full blur-[220px]" />
+      <div className="absolute pointer-events-none bottom-[-40%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-indigo-600/22 rounded-full blur-[220px]" />
       <div className="absolute pointer-events-none bottom-[-25%] right-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
 
 
@@ -320,7 +321,7 @@ function AnimatedStatsSection() {
         <Reveal className="text-center mb-20">
           <h2 className="text-3xl md:text-4xl text-white leading-tight">
             <span className="font-light">{t('stats.numbersThat')}</span>{' '}
-            <span className="font-bold italic bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent pr-1">
+            <span className="font-bold italic bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent pr-1">
               {t('stats.speak')}
             </span>
           </h2>
@@ -340,26 +341,26 @@ function AnimatedStatsSection() {
               >
                 {/* Divider between items (desktop) */}
                 {index < statsConfig.length - 1 && (
-                  <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 h-32 w-px bg-gradient-to-b from-transparent via-purple-500/40 to-transparent" />
+                  <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 h-32 w-px bg-gradient-to-b from-transparent via-indigo-500/40 to-transparent" />
                 )}
 
                 {/* Icon with glow */}
                 <div className="relative inline-block mb-6">
-                  <div className="absolute pointer-events-none inset-0 bg-purple-500/30 rounded-2xl blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 group-hover:scale-110 group-hover:border-purple-400/50 transition-all duration-300">
-                    <Icon className="h-8 w-8 text-purple-400" />
+                  <div className="absolute pointer-events-none inset-0 bg-indigo-500/30 rounded-2xl blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-indigo-600/10 border border-indigo-500/30 group-hover:scale-110 group-hover:border-indigo-400/50 transition-all duration-300">
+                    <Icon className="h-8 w-8 text-indigo-400" />
                   </div>
                 </div>
 
                 {/* Animated number - Dramatic Typography */}
                 <div className="relative mb-4">
                   {/* Number glow */}
-                  <div className="absolute pointer-events-none inset-0 bg-gradient-to-b from-purple-400/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute pointer-events-none inset-0 bg-gradient-to-b from-indigo-400/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                   <div className="relative flex items-baseline justify-center">
                     {/* Prefix */}
                     {stat.prefix && (
-                      <span className="text-3xl md:text-4xl font-light text-purple-400/70 mr-1">
+                      <span className="text-3xl md:text-4xl font-light text-indigo-400/70 mr-1">
                         {stat.prefix}
                       </span>
                     )}
@@ -371,7 +372,7 @@ function AnimatedStatsSection() {
 
                     {/* Suffix - smaller, superscript style */}
                     {stat.suffix && (
-                      <span className="text-2xl md:text-3xl font-bold text-purple-400 ml-1 -translate-y-4">
+                      <span className="text-2xl md:text-3xl font-bold text-indigo-400 ml-1 -translate-y-4">
                         {stat.suffix}
                       </span>
                     )}
@@ -383,7 +384,7 @@ function AnimatedStatsSection() {
                   <div className="text-sm md:text-base font-bold uppercase tracking-[0.15em] text-white/90">
                     {stat.labelTop}
                   </div>
-                  <div className="text-xs md:text-sm font-light italic tracking-wide text-purple-400/80">
+                  <div className="text-xs md:text-sm font-light italic tracking-wide text-indigo-400/80">
                     {stat.labelBottom}
                   </div>
                 </div>
@@ -442,17 +443,17 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
   return (
     <section className="relative py-16 md:py-20">
       {/* Ambient glows - receives bleed from above, bleeds to next section */}
-      <div className="absolute pointer-events-none top-[-25%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/20 rounded-full blur-[200px]" />
+      <div className="absolute pointer-events-none top-[-25%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-indigo-600/20 rounded-full blur-[200px]" />
       <div className="absolute pointer-events-none top-[30%] left-0 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
-      <div className="absolute pointer-events-none top-[40%] right-0 w-[450px] h-[350px] bg-purple-400/12 rounded-full blur-[150px]" />
-      <div className="absolute pointer-events-none bottom-[-30%] left-1/3 w-[700px] h-[500px] bg-purple-500/18 rounded-full blur-[200px]" />
+      <div className="absolute pointer-events-none top-[40%] right-0 w-[450px] h-[350px] bg-indigo-400/12 rounded-full blur-[150px]" />
+      <div className="absolute pointer-events-none bottom-[-30%] left-1/3 w-[700px] h-[500px] bg-indigo-500/18 rounded-full blur-[200px]" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4">
         {/* Header */}
         <Reveal className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl text-white mb-3">
             <span className="font-light">{t('virtualTour.headline')}</span>{' '}
-            <span className="font-bold bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">{t('virtualTour.headlineHighlight')}</span>
+            <span className="font-bold bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent">{t('virtualTour.headlineHighlight')}</span>
           </h2>
           <p className="text-gray-400 max-w-xl mx-auto">
             {t('virtualTour.description')}
@@ -463,10 +464,10 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
         <Reveal delay={150}>
           <div className="relative group">
             {/* Outer glow */}
-            <div className="absolute pointer-events-none -inset-2 bg-gradient-to-r from-purple-600/30 via-violet-500/30 to-purple-600/30 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+            <div className="absolute pointer-events-none -inset-2 bg-gradient-to-r from-indigo-600/30 via-violet-500/30 to-indigo-600/30 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
 
             {/* Video container */}
-            <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-purple-500/30 shadow-2xl">
+            <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-indigo-500/30 shadow-2xl">
               {!isPlaying ? (
                 /* Thumbnail with play button overlay */
                 <div
@@ -493,11 +494,11 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="relative">
                       {/* Pulsing ring behind play button */}
-                      <div className="absolute pointer-events-none inset-0 w-24 h-24 md:w-32 md:h-32 bg-purple-500/30 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
-                      <div className="absolute pointer-events-none inset-0 w-24 h-24 md:w-32 md:h-32 bg-purple-500/20 rounded-full animate-pulse" />
+                      <div className="absolute pointer-events-none inset-0 w-24 h-24 md:w-32 md:h-32 bg-indigo-500/30 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
+                      <div className="absolute pointer-events-none inset-0 w-24 h-24 md:w-32 md:h-32 bg-indigo-500/20 rounded-full animate-pulse" />
 
                       {/* Play button */}
-                      <div className="relative w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-purple-500 to-violet-600 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(139,92,246,0.5)] group-hover/play:shadow-[0_0_80px_rgba(139,92,246,0.7)] group-hover/play:scale-110 transition-all duration-300">
+                      <div className="relative w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(99,102,241,0.5)] group-hover/play:shadow-[0_0_80px_rgba(99,102,241,0.7)] group-hover/play:scale-110 transition-all duration-300">
                         <svg className="w-10 h-10 md:w-14 md:h-14 text-white ml-2" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M8 5v14l11-7z" />
                         </svg>
@@ -508,7 +509,7 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
                   {/* Click to watch text */}
                   <div className="absolute bottom-6 left-1/2 -translate-x-1/2">
                     <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-5 py-2">
-                      <svg className="w-4 h-4 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.414a5 5 0 001.414 1.414m2.828-9.9a9 9 0 0112.728 0" />
                       </svg>
                       <span className="text-white text-sm font-medium">{t('virtualTour.clickToWatch')}</span>
@@ -531,10 +532,10 @@ function VirtualTourSection({ virtualTourUrl, scrollToForm, onVideoPlay }: { vir
 
         {/* CTA below video */}
         <Reveal delay={200} className="text-center mt-8">
-          <p className="text-purple-300/70 text-sm mb-4">{t('virtualTour.likeWhatYouSee')}</p>
+          <p className="text-indigo-300/70 text-sm mb-4">{t('virtualTour.likeWhatYouSee')}</p>
           <button
             onClick={scrollToForm}
-            className="inline-flex items-center gap-2 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-white font-semibold px-6 py-3 rounded-xl transition-all"
+            className="inline-flex items-center gap-2 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-white font-semibold px-6 py-3 rounded-xl transition-all"
           >
             {t('cta.scheduleInPersonTour')}
             <span>&rarr;</span>
@@ -647,6 +648,7 @@ export default function PublicPropertyDetail() {
   });
 
   // Fetch funnel content when property is available (need recordId for Airtable lookup)
+  // Auto-generates on the fly if no content exists yet
   useEffect(() => {
     if (!slug || !property?.id) return;
 
@@ -659,10 +661,48 @@ export default function PublicPropertyDetail() {
           const data = await response.json();
           if (data.success && data.content) {
             setFunnelContent(data.content);
+            return;
+          }
+        }
+
+        // No funnel content found — auto-generate it
+        // Parse city into components (city field contains "City, ST ZIP")
+        const cityParts = property.city.split(',').map((s: string) => s.trim());
+        const city = cityParts[0] || '';
+        const stateZip = cityParts[1]?.split(' ') || [];
+        const state = stateZip[0] || '';
+        const zipCode = stateZip[1] || '';
+
+        const generateResponse = await fetch('/api/funnel?action=generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: property.address,
+            city,
+            state,
+            zipCode,
+            price: property.price,
+            downPayment: property.downPayment,
+            monthlyPayment: property.monthlyPayment,
+            beds: property.beds,
+            baths: property.baths,
+            sqft: property.sqft,
+            propertyType: property.propertyType,
+            condition: property.condition,
+            description: property.description,
+            inputs: DEFAULT_FUNNEL_INPUTS,
+            recordId: property.id,
+          }),
+        });
+
+        if (generateResponse.ok) {
+          const genData = await generateResponse.json();
+          if (genData.success && genData.content) {
+            setFunnelContent(genData.content);
           }
         }
       } catch (error) {
-        console.error('Error fetching funnel content:', error);
+        console.error('Error fetching/generating funnel content:', error);
       } finally {
         setFunnelLoading(false);
       }
@@ -860,7 +900,7 @@ export default function PublicPropertyDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center space-y-3">
-          <Loader2 className="h-10 w-10 animate-spin text-purple-500 mx-auto" />
+          <Loader2 className="h-10 w-10 animate-spin text-indigo-500 mx-auto" />
           <p className="text-sm font-medium text-gray-600">{t('common.loadingProperty')}</p>
         </div>
       </div>
@@ -911,7 +951,7 @@ export default function PublicPropertyDetail() {
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <Link to="/listings" className="text-lg font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
+            <Link to="/listings" className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-indigo-400 bg-clip-text text-transparent">
               Purple Homes
             </Link>
           </div>
@@ -920,7 +960,7 @@ export default function PublicPropertyDetail() {
             {/* Language Toggle - inline in nav */}
             <button
               onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}
-              className="px-3 py-1.5 text-sm font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-full transition-colors"
+              className="px-3 py-1.5 text-sm font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-full transition-colors"
               aria-label={language === 'en' ? 'Cambiar a Español' : 'Switch to English'}
             >
               {language === 'en' ? 'Español' : 'English'}
@@ -946,7 +986,7 @@ export default function PublicPropertyDetail() {
         {/* Hero Section - centered, image prominent, CTA after photo */}
         <section className="relative overflow-hidden">
           {/* Ambient lighting */}
-          <div className="absolute pointer-events-none top-0 left-1/4 w-[600px] h-[400px] bg-purple-600/20 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none top-0 left-1/4 w-[600px] h-[400px] bg-indigo-600/20 rounded-full blur-[180px]" />
           <div className="absolute pointer-events-none top-0 right-1/4 w-[400px] h-[300px] bg-violet-700/15 rounded-full blur-[150px]" />
 
           <div className="relative max-w-3xl mx-auto px-4 pt-8 sm:pt-10 md:pt-12 text-center">
@@ -954,7 +994,7 @@ export default function PublicPropertyDetail() {
             <HeroEntrance delay={0}>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] mb-3 tracking-tight text-white">
                 {t('hero.headlinePre')}{' '}
-                <span className="inline-block bg-purple-600 px-2 py-0.5 rounded-md italic">
+                <span className="inline-block bg-indigo-600 px-2 py-0.5 rounded-md italic">
                   {t('hero.headlineHighlight')}
                 </span>
               </h1>
@@ -963,7 +1003,7 @@ export default function PublicPropertyDetail() {
             {/* Subheadline */}
             <HeroEntrance delay={80}>
               <p className="text-base sm:text-lg font-medium mb-6 leading-relaxed">
-                <span className="bg-gradient-to-r from-gray-400 via-purple-300 to-gray-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-gray-400 via-indigo-300 to-gray-400 bg-clip-text text-transparent">
                   {t('hero.subheadline')}
                 </span>
               </p>
@@ -972,8 +1012,8 @@ export default function PublicPropertyDetail() {
             {/* Property Image - prominent, centered */}
             <HeroEntrance delay={150}>
               <div className="relative group max-w-2xl mx-auto mb-6">
-                <div className="absolute -inset-2 bg-gradient-to-br from-purple-500/40 to-violet-500/30 rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 pointer-events-none" />
-                <div className="relative border-2 border-purple-500/40 rounded-2xl overflow-hidden shadow-2xl">
+                <div className="absolute -inset-2 bg-gradient-to-br from-indigo-500/40 to-violet-500/30 rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500 pointer-events-none" />
+                <div className="relative border-2 border-indigo-500/40 rounded-2xl overflow-hidden shadow-2xl">
                   <PropertyImageGallery
                     images={property.images || [property.heroImage]}
                     heroImage={property.heroImage || '/placeholder.svg'}
@@ -990,7 +1030,7 @@ export default function PublicPropertyDetail() {
               <div className="flex flex-col items-center gap-2 py-8 sm:py-10 md:py-12">
                 <button
                   onClick={scrollToForm}
-                  className="group relative w-full sm:w-auto bg-white hover:bg-purple-50 text-purple-900 font-black text-base sm:text-lg uppercase tracking-wide px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl shadow-[0_0_60px_rgba(168,85,247,0.5)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6)] transition-all duration-300 border-2 border-purple-300/50 hover:scale-105"
+                  className="group relative w-full sm:w-auto bg-white hover:bg-indigo-50 text-indigo-900 font-black text-base sm:text-lg uppercase tracking-wide px-8 sm:px-10 py-3.5 sm:py-4 rounded-xl shadow-[0_0_60px_rgba(99,102,241,0.5)] hover:shadow-[0_0_80px_rgba(99,102,241,0.6)] transition-all duration-300 border-2 border-indigo-300/50 hover:scale-105"
                 >
                   {t('hero.cta')}
                   <ArrowRight className="inline-block ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
@@ -1005,10 +1045,10 @@ export default function PublicPropertyDetail() {
 
         {/* Pricing + Trust Section */}
         <section className="relative py-10 md:py-14">
-          <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-600/15 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-600/15 rounded-full blur-[180px]" />
           <div className="relative max-w-4xl mx-auto px-4">
             <Reveal>
-              <div className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 shadow-[0_0_40px_rgba(139,92,246,0.1)]">
+              <div className="bg-white/[0.04] backdrop-blur-md border border-white/10 rounded-2xl p-6 md:p-8 shadow-[0_0_40px_rgba(99,102,241,0.1)]">
             <div className="flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-12">
 
               {/* Left: Price + Pills + Status */}
@@ -1016,10 +1056,10 @@ export default function PublicPropertyDetail() {
                 {property.monthlyPayment !== undefined && (
                   <Reveal>
                     <div className="mb-3">
-                      <span className="text-5xl sm:text-6xl font-black text-white leading-none drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]">
+                      <span className="text-5xl sm:text-6xl font-black text-white leading-none drop-shadow-[0_0_20px_rgba(99,102,241,0.4)]">
                         ${property.monthlyPayment.toLocaleString()}
                       </span>
-                      <span className="text-xl sm:text-2xl text-purple-300/80 font-bold ml-2">{t('property.monthlyPayment')}</span>
+                      <span className="text-xl sm:text-2xl text-indigo-300/80 font-bold ml-2">{t('property.monthlyPayment')}</span>
                     </div>
                   </Reveal>
                 )}
@@ -1027,11 +1067,11 @@ export default function PublicPropertyDetail() {
                 <Reveal delay={100}>
                   <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
                     {property.downPayment !== undefined && (
-                      <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-purple-500/30 rounded-full text-purple-300 text-sm font-semibold">
+                      <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-indigo-500/30 rounded-full text-indigo-300 text-sm font-semibold">
                         ${property.downPayment.toLocaleString()} {t('property.downPayment')}
                       </span>
                     )}
-                    <span className="inline-flex items-center px-3 py-1 bg-white/5 border border-purple-500/20 rounded-full text-purple-300/70 text-sm font-medium">
+                    <span className="inline-flex items-center px-3 py-1 bg-white/5 border border-indigo-500/20 rounded-full text-indigo-300/70 text-sm font-medium">
                       ${property.price.toLocaleString()} {t('property.purchasePrice')}
                     </span>
                     <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full text-emerald-300 text-sm font-medium">
@@ -1064,25 +1104,25 @@ export default function PublicPropertyDetail() {
               <Reveal delay={200}>
                 <div className="flex-shrink-0">
                   <div className="grid grid-cols-3 gap-3 mb-4">
-                    <div className="bg-white/5 border border-purple-500/20 rounded-xl p-3 text-center min-w-[72px]">
-                      <Bed className="h-5 w-5 text-purple-300 mx-auto mb-1" />
+                    <div className="bg-white/5 border border-indigo-500/20 rounded-xl p-3 text-center min-w-[72px]">
+                      <Bed className="h-5 w-5 text-indigo-300 mx-auto mb-1" />
                       <div className="text-white font-bold text-lg leading-none">{property.beds}</div>
                       <div className="text-gray-400 text-xs mt-1">{t('property.beds')}</div>
                     </div>
-                    <div className="bg-white/5 border border-purple-500/20 rounded-xl p-3 text-center min-w-[72px]">
-                      <Bath className="h-5 w-5 text-purple-300 mx-auto mb-1" />
+                    <div className="bg-white/5 border border-indigo-500/20 rounded-xl p-3 text-center min-w-[72px]">
+                      <Bath className="h-5 w-5 text-indigo-300 mx-auto mb-1" />
                       <div className="text-white font-bold text-lg leading-none">{property.baths}</div>
                       <div className="text-gray-400 text-xs mt-1">{t('property.baths')}</div>
                     </div>
                     {property.sqft ? (
-                      <div className="bg-white/5 border border-purple-500/20 rounded-xl p-3 text-center min-w-[72px]">
-                        <Maximize2 className="h-5 w-5 text-purple-300 mx-auto mb-1" />
+                      <div className="bg-white/5 border border-indigo-500/20 rounded-xl p-3 text-center min-w-[72px]">
+                        <Maximize2 className="h-5 w-5 text-indigo-300 mx-auto mb-1" />
                         <div className="text-white font-bold text-lg leading-none">{property.sqft.toLocaleString()}</div>
                         <div className="text-gray-400 text-xs mt-1">{t('property.sqft')}</div>
                       </div>
                     ) : (
-                      <div className="bg-white/5 border border-purple-500/20 rounded-xl p-3 text-center min-w-[72px]">
-                        <Home className="h-5 w-5 text-purple-300 mx-auto mb-1" />
+                      <div className="bg-white/5 border border-indigo-500/20 rounded-xl p-3 text-center min-w-[72px]">
+                        <Home className="h-5 w-5 text-indigo-300 mx-auto mb-1" />
                         <div className="text-white font-bold text-sm leading-none mt-1">{t('property.sqft')}</div>
                         <div className="text-gray-400 text-xs mt-1">—</div>
                       </div>
@@ -1103,19 +1143,19 @@ export default function PublicPropertyDetail() {
         {/* How Buying This Home Works - 2x2 Steps */}
         <section className="relative py-20 md:py-28">
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
+            <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-indigo-600/22 rounded-full blur-[200px]" />
             <div className="absolute pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-violet-500/18 rounded-full blur-[180px]" />
-            <div className="absolute pointer-events-none bottom-[-45%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+            <div className="absolute pointer-events-none bottom-[-45%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-indigo-600/20 rounded-full blur-[200px]" />
             <div className="absolute pointer-events-none bottom-[-30%] left-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[150px]" />
           </div>
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
             <Reveal className="text-center mb-12 md:mb-16">
-              <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
+              <span className="inline-block px-4 py-1.5 bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
                 {t('propertyHighlights.sectionLabel')}
               </span>
               <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6 text-white">
                 {t('propertyHighlights.sectionHeadingPre')}{' '}
-                <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent italic">
+                <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent italic">
                   {t('propertyHighlights.sectionHeadingHighlight')}
                 </span>
               </h2>
@@ -1125,51 +1165,51 @@ export default function PublicPropertyDetail() {
             </Reveal>
             <Reveal delay={150}>
               <div className="grid sm:grid-cols-2 gap-6 md:gap-8 mt-16 mb-12">
-                <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-8 hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300">
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                      <MessageCircle className="h-7 w-7 text-purple-300" />
+                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 rounded-xl flex items-center justify-center border border-indigo-400/30 group-hover:scale-110 transition-transform">
+                      <MessageCircle className="h-7 w-7 text-indigo-300" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step1Title')}</h3>
                       <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step1Desc')}</p>
-                      <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step1Note')}</p>
+                      <p className="text-sm text-indigo-300/80 italic">{t('propertyHighlights.step1Note')}</p>
                     </div>
                   </div>
                 </div>
-                <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-8 hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300">
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                      <FileText className="h-7 w-7 text-purple-300" />
+                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 rounded-xl flex items-center justify-center border border-indigo-400/30 group-hover:scale-110 transition-transform">
+                      <FileText className="h-7 w-7 text-indigo-300" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step2Title')}</h3>
                       <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step2Desc')}</p>
-                      <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step2Note')}</p>
+                      <p className="text-sm text-indigo-300/80 italic">{t('propertyHighlights.step2Note')}</p>
                     </div>
                   </div>
                 </div>
-                <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-8 hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300">
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                      <Calendar className="h-7 w-7 text-purple-300" />
+                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 rounded-xl flex items-center justify-center border border-indigo-400/30 group-hover:scale-110 transition-transform">
+                      <Calendar className="h-7 w-7 text-indigo-300" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step3Title')}</h3>
                       <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step3Desc')}</p>
-                      <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step3Note')}</p>
+                      <p className="text-sm text-indigo-300/80 italic">{t('propertyHighlights.step3Note')}</p>
                     </div>
                   </div>
                 </div>
-                <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-8 hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300">
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                      <Key className="h-7 w-7 text-purple-300" />
+                    <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 rounded-xl flex items-center justify-center border border-indigo-400/30 group-hover:scale-110 transition-transform">
+                      <Key className="h-7 w-7 text-indigo-300" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step4Title')}</h3>
                       <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step4Desc')}</p>
-                      <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step4Note')}</p>
+                      <p className="text-sm text-indigo-300/80 italic">{t('propertyHighlights.step4Note')}</p>
                     </div>
                   </div>
                 </div>
@@ -1205,18 +1245,18 @@ export default function PublicPropertyDetail() {
         {!funnelLoading && funnelContent?.locationNearby && (
           <section className="relative py-20 md:py-24">
             {/* Ambient glows - BOOSTED for visibility */}
-            <div className="absolute pointer-events-none top-[-40%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[220px]" />
+            <div className="absolute pointer-events-none top-[-40%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-indigo-600/25 rounded-full blur-[220px]" />
             <div className="absolute pointer-events-none top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
             <div className="absolute pointer-events-none top-[30%] right-0 w-[600px] h-[500px] bg-violet-500/20 rounded-full blur-[180px]" />
             {/* Bottom bleeds to Qualifier */}
-            <div className="absolute pointer-events-none bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-purple-500/22 rounded-full blur-[200px]" />
+            <div className="absolute pointer-events-none bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[700px] bg-indigo-500/22 rounded-full blur-[200px]" />
 
             <div className="relative z-10 max-w-4xl mx-auto px-4">
               {/* Section Header */}
               <Reveal className="text-center mb-14 md:mb-16">
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white">
                   {t('location.headingPre')}{' '}
-                  <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent italic">
+                  <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent italic">
                     {t('location.headingHighlight')}
                   </span>
                 </h2>
@@ -1235,14 +1275,14 @@ export default function PublicPropertyDetail() {
                     return (
                       <div key={idx} className="group relative">
                         {/* Glow on hover */}
-                        <div className="absolute pointer-events-none -inset-1 bg-gradient-to-r from-purple-600/20 to-violet-600/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute pointer-events-none -inset-1 bg-gradient-to-r from-indigo-600/20 to-violet-600/20 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                        <div className="relative bg-purple-500/10 border border-purple-500/20 rounded-xl px-5 py-6 text-center h-full group-hover:border-purple-400/40 group-hover:bg-purple-500/15 transition-all flex flex-col justify-center">
+                        <div className="relative bg-indigo-500/10 border border-indigo-500/20 rounded-xl px-5 py-6 text-center h-full group-hover:border-indigo-400/40 group-hover:bg-indigo-500/15 transition-all flex flex-col justify-center">
                           <p className="text-white font-medium text-base md:text-lg leading-tight">
                             {place}
                           </p>
                           {time && (
-                            <p className="text-purple-300/70 text-sm mt-1">
+                            <p className="text-indigo-300/70 text-sm mt-1">
                               {time}
                             </p>
                           )}
@@ -1276,16 +1316,16 @@ export default function PublicPropertyDetail() {
           return (
             <section className="relative py-16 md:py-20">
               {/* Ambient glows - BOOSTED + extended bottom bleed to FAQ */}
-              <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-500/22 rounded-full blur-[200px]" />
+              <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-indigo-500/22 rounded-full blur-[200px]" />
               <div className="absolute pointer-events-none top-[20%] left-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
-              <div className="absolute pointer-events-none top-[40%] right-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
+              <div className="absolute pointer-events-none top-[40%] right-0 w-[550px] h-[450px] bg-indigo-400/18 rounded-full blur-[160px]" />
               {/* Extended bottom bleed to reach FAQ section */}
-              <div className="absolute pointer-events-none bottom-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
+              <div className="absolute pointer-events-none bottom-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-indigo-600/25 rounded-full blur-[250px]" />
 
               <div className="relative z-10 max-w-3xl mx-auto px-4">
                 <Reveal className="text-center mb-10">
                   <h2 className="text-3xl md:text-4xl font-black">
-                    <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+                    <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent">
                       {t('qualifier.heading')}
                     </span>
                   </h2>
@@ -1294,8 +1334,8 @@ export default function PublicPropertyDetail() {
                 <Reveal delay={150}>
                   <div className="space-y-3">
                     {qualifierItems.map((item, idx) => (
-                      <div key={idx} className="flex items-start gap-3 bg-purple-500/10 border border-purple-500/20 rounded-xl px-5 py-4 hover:bg-purple-500/15 transition-colors">
-                        <CheckCircle className="h-5 w-5 text-purple-400 flex-shrink-0 mt-0.5" />
+                      <div key={idx} className="flex items-start gap-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl px-5 py-4 hover:bg-indigo-500/15 transition-colors">
+                        <CheckCircle className="h-5 w-5 text-indigo-400 flex-shrink-0 mt-0.5" />
                         <p className="text-white/90 leading-relaxed text-justify">{item}</p>
                       </div>
                     ))}
@@ -1365,17 +1405,17 @@ export default function PublicPropertyDetail() {
               <section className="relative py-16 md:py-20">
                 {/* BOOSTED glows - social proof needs visual weight */}
                 {/* Center spotlight for the testimonial stage */}
-                <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
+                <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-indigo-600/22 rounded-full blur-[200px]" />
                 {/* Edge glows boosted from 10-12% to 20% */}
-                <div className="absolute pointer-events-none top-[-40%] left-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+                <div className="absolute pointer-events-none top-[-40%] left-0 w-[500px] h-[600px] bg-indigo-600/20 rounded-full blur-[200px]" />
                 <div className="absolute pointer-events-none top-[-40%] right-0 w-[500px] h-[600px] bg-violet-500/18 rounded-full blur-[200px]" />
                 <div className="absolute pointer-events-none bottom-[-40%] left-0 w-[500px] h-[600px] bg-violet-600/18 rounded-full blur-[200px]" />
-                <div className="absolute pointer-events-none bottom-[-40%] right-0 w-[500px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+                <div className="absolute pointer-events-none bottom-[-40%] right-0 w-[500px] h-[600px] bg-indigo-600/20 rounded-full blur-[200px]" />
 
                 <Reveal className="text-center mb-10">
                   <h2 className="text-3xl md:text-4xl font-black text-white">
                     {t('testimonials.headingPre')}{' '}
-                    <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent italic">
+                    <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent italic">
                       {t('testimonials.headingHighlight')}
                     </span>
                   </h2>
@@ -1392,20 +1432,20 @@ export default function PublicPropertyDetail() {
         {false && (<section className="relative py-20 md:py-28">
             {/* Ambient glow */}
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/22 rounded-full blur-[200px]" />
+              <div className="absolute pointer-events-none top-[-20%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-indigo-600/22 rounded-full blur-[200px]" />
               <div className="absolute pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[500px] bg-violet-500/18 rounded-full blur-[180px]" />
-              <div className="absolute pointer-events-none bottom-[-45%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+              <div className="absolute pointer-events-none bottom-[-45%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-indigo-600/20 rounded-full blur-[200px]" />
               <div className="absolute pointer-events-none bottom-[-30%] left-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[150px]" />
             </div>
 
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
               {/* Section Header */}
               <Reveal className="text-center mb-12 md:mb-16">
-                <span className="inline-block px-4 py-1.5 bg-purple-500/20 border border-purple-400/30 text-purple-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
+                <span className="inline-block px-4 py-1.5 bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider mb-4">
                   {t('propertyHighlights.sectionLabel')}
                 </span>
                 <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
-                  <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent">
                     {t('propertyHighlights.sectionHeading')}
                   </span>
                 </h2>
@@ -1418,54 +1458,54 @@ export default function PublicPropertyDetail() {
               <Reveal delay={150}>
                 <div className="grid sm:grid-cols-2 gap-6 md:gap-8 mt-16 mb-12">
                   {/* Step 1 */}
-                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-8 hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300">
                     <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                        <MessageCircle className="h-7 w-7 text-purple-300" />
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 rounded-xl flex items-center justify-center border border-indigo-400/30 group-hover:scale-110 transition-transform">
+                        <MessageCircle className="h-7 w-7 text-indigo-300" />
                       </div>
                       <div className="flex-1">
                         <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step1Title')}</h3>
                         <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step1Desc')}</p>
-                        <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step1Note')}</p>
+                        <p className="text-sm text-indigo-300/80 italic">{t('propertyHighlights.step1Note')}</p>
                       </div>
                     </div>
                   </div>
                   {/* Step 2 */}
-                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-8 hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300">
                     <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                        <FileText className="h-7 w-7 text-purple-300" />
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 rounded-xl flex items-center justify-center border border-indigo-400/30 group-hover:scale-110 transition-transform">
+                        <FileText className="h-7 w-7 text-indigo-300" />
                       </div>
                       <div className="flex-1">
                         <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step2Title')}</h3>
                         <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step2Desc')}</p>
-                        <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step2Note')}</p>
+                        <p className="text-sm text-indigo-300/80 italic">{t('propertyHighlights.step2Note')}</p>
                       </div>
                     </div>
                   </div>
                   {/* Step 3 */}
-                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-8 hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300">
                     <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                        <Calendar className="h-7 w-7 text-purple-300" />
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 rounded-xl flex items-center justify-center border border-indigo-400/30 group-hover:scale-110 transition-transform">
+                        <Calendar className="h-7 w-7 text-indigo-300" />
                       </div>
                       <div className="flex-1">
                         <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step3Title')}</h3>
                         <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step3Desc')}</p>
-                        <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step3Note')}</p>
+                        <p className="text-sm text-indigo-300/80 italic">{t('propertyHighlights.step3Note')}</p>
                       </div>
                     </div>
                   </div>
                   {/* Step 4 */}
-                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-8 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-8 hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300">
                     <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center border border-purple-400/30 group-hover:scale-110 transition-transform">
-                        <Key className="h-7 w-7 text-purple-300" />
+                      <div className="flex-shrink-0 w-14 h-14 bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 rounded-xl flex items-center justify-center border border-indigo-400/30 group-hover:scale-110 transition-transform">
+                        <Key className="h-7 w-7 text-indigo-300" />
                       </div>
                       <div className="flex-1">
                         <h3 className="text-xl font-bold text-white mb-3">{t('propertyHighlights.step4Title')}</h3>
                         <p className="text-gray-400 leading-relaxed mb-2 text-justify">{t('propertyHighlights.step4Desc')}</p>
-                        <p className="text-sm text-purple-300/80 italic">{t('propertyHighlights.step4Note')}</p>
+                        <p className="text-sm text-indigo-300/80 italic">{t('propertyHighlights.step4Note')}</p>
                       </div>
                     </div>
                   </div>
@@ -1490,33 +1530,33 @@ export default function PublicPropertyDetail() {
               {/* Property Features Grid - HIDDEN */}
               {false && <Reveal delay={250}>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
-                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
-                      <Bed className="h-7 w-7 text-purple-300" />
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-6 text-center hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="w-14 h-14 bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-indigo-400/30 group-hover:scale-110 transition-transform">
+                      <Bed className="h-7 w-7 text-indigo-300" />
                     </div>
                     <div className="text-4xl font-black mb-1"><GradientNumber>{property.beds}</GradientNumber></div>
                     <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.bedrooms')}</div>
                   </div>
-                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
-                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
-                      <Bath className="h-7 w-7 text-purple-300" />
+                  <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-6 text-center hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                    <div className="w-14 h-14 bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-indigo-400/30 group-hover:scale-110 transition-transform">
+                      <Bath className="h-7 w-7 text-indigo-300" />
                     </div>
                     <div className="text-4xl font-black mb-1"><GradientNumber>{property.baths}</GradientNumber></div>
                     <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.bathrooms')}</div>
                   </div>
                   {property.sqft && (
-                    <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
-                      <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
-                        <Maximize2 className="h-7 w-7 text-purple-300" />
+                    <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-6 text-center hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                      <div className="w-14 h-14 bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-indigo-400/30 group-hover:scale-110 transition-transform">
+                        <Maximize2 className="h-7 w-7 text-indigo-300" />
                       </div>
                       <div className="text-4xl font-black mb-1"><GradientNumber>{property.sqft.toLocaleString()}</GradientNumber></div>
                       <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.squareFeet')}</div>
                     </div>
                   )}
                   {property.condition && (
-                    <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 text-center hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300">
-                      <div className="w-14 h-14 bg-gradient-to-br from-purple-500/30 to-purple-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-400/30 group-hover:scale-110 transition-transform">
-                        <Wrench className="h-7 w-7 text-purple-300" />
+                    <div className="group bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-6 text-center hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300">
+                      <div className="w-14 h-14 bg-gradient-to-br from-indigo-500/30 to-indigo-600/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-indigo-400/30 group-hover:scale-110 transition-transform">
+                        <Wrench className="h-7 w-7 text-indigo-300" />
                       </div>
                       <div className="text-2xl font-black text-white mb-1">{property.condition}</div>
                       <div className="text-sm text-gray-500 uppercase tracking-wider font-medium">{t('property.condition')}</div>
@@ -1572,7 +1612,7 @@ export default function PublicPropertyDetail() {
               </div>
               <div className="grid grid-cols-4 gap-4 mt-8">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="bg-purple-50 rounded-xl p-5 h-24" />
+                  <div key={i} className="bg-indigo-50 rounded-xl p-5 h-24" />
                 ))}
               </div>
             </div>
@@ -1581,7 +1621,7 @@ export default function PublicPropertyDetail() {
             <div className="bg-gray-100 py-16">
               <div className="max-w-2xl mx-auto px-4 text-center">
                 <div className="h-8 w-2/3 bg-gray-200 rounded mx-auto mb-6" />
-                <div className="h-12 w-48 bg-purple-200 rounded-xl mx-auto" />
+                <div className="h-12 w-48 bg-indigo-200 rounded-xl mx-auto" />
               </div>
             </div>
           </div>
@@ -1592,21 +1632,21 @@ export default function PublicPropertyDetail() {
           <section className="relative py-24 md:py-32">
             {/* Enhanced purple ambient glow - bottom glow bleeds into Solution section */}
             <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-purple-600/15 rounded-full blur-[150px]" />
+              <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-indigo-600/15 rounded-full blur-[150px]" />
               <div className="absolute pointer-events-none bottom-[-20%] right-1/4 w-[700px] h-[600px] bg-violet-500/15 rounded-full blur-[150px]" />
-              <div className="absolute pointer-events-none top-1/2 left-0 w-[300px] h-[300px] bg-purple-400/8 rounded-full blur-[100px]" />
+              <div className="absolute pointer-events-none top-1/2 left-0 w-[300px] h-[300px] bg-indigo-400/8 rounded-full blur-[100px]" />
             </div>
 
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
               {/* Section Header with Animation */}
               <Reveal className="text-center mb-16 md:mb-20">
                 <h2 className="text-5xl sm:text-6xl md:text-7xl font-black leading-[1.0] tracking-[-0.02em] max-w-4xl mx-auto mb-6">
-                  <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent">
                     {stripMarkers(extractProblemHeadline(localizedFunnel.problem))}
                   </span>
                 </h2>
                 <p className="text-lg md:text-xl text-gray-400 font-light max-w-2xl mx-auto text-justify">
-                  {t('problem.notAlone')} <span className="text-purple-300 font-medium">{t('problem.thousands')}</span> {t('problem.thousandsFace')}
+                  {t('problem.notAlone')} <span className="text-indigo-300 font-medium">{t('problem.thousands')}</span> {t('problem.thousandsFace')}
                 </p>
               </Reveal>
 
@@ -1616,13 +1656,13 @@ export default function PublicPropertyDetail() {
                 <div className="flex flex-col justify-center space-y-5">
                   {getPainPoints(localizedFunnel.inputs?.buyerSegment).map((pain, i) => (
                     <Reveal key={i} delay={i * 150}>
-                      <div className="group relative flex items-center gap-5 bg-gradient-to-r from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 hover:border-purple-400/50 hover:bg-white/[0.08] hover:translate-x-2 transition-all duration-300 cursor-default shadow-lg shadow-purple-900/20 hover:shadow-purple-500/20">
+                      <div className="group relative flex items-center gap-5 bg-gradient-to-r from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-6 hover:border-indigo-400/50 hover:bg-white/[0.08] hover:translate-x-2 transition-all duration-300 cursor-default shadow-lg shadow-indigo-900/20 hover:shadow-indigo-500/20">
                         {/* Glow effect on hover */}
-                        <div className="absolute pointer-events-none inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:to-transparent transition-all duration-300" />
-                        <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/40 to-purple-600/30 flex items-center justify-center flex-shrink-0 border border-purple-400/40 group-hover:border-purple-300/60 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-purple-500/30 transition-all duration-300">
-                          <span className="text-purple-200 text-2xl font-black">{pain.icon}</span>
+                        <div className="absolute pointer-events-none inset-0 rounded-2xl bg-gradient-to-r from-indigo-500/0 to-indigo-500/0 group-hover:from-indigo-500/5 group-hover:to-transparent transition-all duration-300" />
+                        <div className="relative w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/40 to-indigo-600/30 flex items-center justify-center flex-shrink-0 border border-indigo-400/40 group-hover:border-indigo-300/60 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-indigo-500/30 transition-all duration-300">
+                          <span className="text-indigo-200 text-2xl font-black">{pain.icon}</span>
                         </div>
-                        <span className="relative text-white text-xl font-semibold group-hover:text-purple-100 transition-colors leading-snug">{pain.text}</span>
+                        <span className="relative text-white text-xl font-semibold group-hover:text-indigo-100 transition-colors leading-snug">{pain.text}</span>
                       </div>
                     </Reveal>
                   ))}
@@ -1632,26 +1672,26 @@ export default function PublicPropertyDetail() {
                 <Reveal delay={300}>
                   <div className="relative h-full flex items-center">
                     {/* Multi-layer animated glow behind card */}
-                    <div className="absolute pointer-events-none -inset-6 bg-gradient-to-br from-purple-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-                    <div className="absolute pointer-events-none -inset-3 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
+                    <div className="absolute pointer-events-none -inset-6 bg-gradient-to-br from-indigo-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+                    <div className="absolute pointer-events-none -inset-3 bg-gradient-to-tr from-indigo-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
 
-                    <div className="relative w-full bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-purple-400/25 rounded-3xl px-10 py-14 md:px-12 md:py-16 text-center shadow-2xl shadow-purple-900/40 hover:border-purple-300/40 hover:shadow-purple-800/50 transition-all duration-500">
+                    <div className="relative w-full bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-indigo-400/25 rounded-3xl px-10 py-14 md:px-12 md:py-16 text-center shadow-2xl shadow-indigo-900/40 hover:border-indigo-300/40 hover:shadow-indigo-800/50 transition-all duration-500">
                       {/* Decorative quote marks */}
-                      <div className="absolute top-6 left-6 text-6xl text-purple-500/20 font-serif leading-none">"</div>
-                      <div className="absolute bottom-6 right-6 text-6xl text-purple-500/20 font-serif leading-none rotate-180">"</div>
+                      <div className="absolute top-6 left-6 text-6xl text-indigo-500/20 font-serif leading-none">"</div>
+                      <div className="absolute bottom-6 right-6 text-6xl text-indigo-500/20 font-serif leading-none rotate-180">"</div>
 
                       {/* Subtle inner glow */}
-                      <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none" />
+                      <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none" />
 
                       <blockquote className="relative text-xl md:text-2xl text-white/95 leading-relaxed font-medium italic px-4">
                         {stripMarkers(extractProblemBody(localizedFunnel.problem))}
                       </blockquote>
 
-                      <div className="relative mt-10 pt-8 border-t border-purple-400/20">
+                      <div className="relative mt-10 pt-8 border-t border-indigo-400/20">
                         <div className="inline-flex items-center gap-3">
-                          <span className="w-8 h-[2px] bg-gradient-to-r from-transparent to-purple-400/60" />
-                          <p className="text-purple-300 text-sm font-bold tracking-[0.2em] uppercase">{t('problem.soundFamiliar')}</p>
-                          <span className="w-8 h-[2px] bg-gradient-to-l from-transparent to-purple-400/60" />
+                          <span className="w-8 h-[2px] bg-gradient-to-r from-transparent to-indigo-400/60" />
+                          <p className="text-indigo-300 text-sm font-bold tracking-[0.2em] uppercase">{t('problem.soundFamiliar')}</p>
+                          <span className="w-8 h-[2px] bg-gradient-to-l from-transparent to-indigo-400/60" />
                         </div>
                       </div>
                     </div>
@@ -1669,8 +1709,8 @@ export default function PublicPropertyDetail() {
             {/* Ambient glow - top glow bleeds from Problem section, bottom bleeds to next */}
             <div className="absolute inset-0 pointer-events-none">
               <div className="absolute pointer-events-none top-[-15%] left-1/4 w-[800px] h-[600px] bg-violet-500/15 rounded-full blur-[180px]" />
-              <div className="absolute pointer-events-none top-1/3 right-1/4 w-[600px] h-[500px] bg-purple-400/12 rounded-full blur-[150px]" />
-              <div className="absolute pointer-events-none bottom-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-purple-600/15 rounded-full blur-[180px]" />
+              <div className="absolute pointer-events-none top-1/3 right-1/4 w-[600px] h-[500px] bg-indigo-400/12 rounded-full blur-[150px]" />
+              <div className="absolute pointer-events-none bottom-[-15%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-indigo-600/15 rounded-full blur-[180px]" />
             </div>
 
             <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
@@ -1678,7 +1718,7 @@ export default function PublicPropertyDetail() {
               <Reveal className="text-center mb-16 md:mb-20">
                 {/* Extract first 2 sentences for headline */}
                 <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-[-0.02em] max-w-4xl mx-auto mb-4">
-                  <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent">
                     {stripMarkers((() => {
                       const sentences = localizedFunnel.solution.match(/[^.!?]+[.!?]+/g) || [localizedFunnel.solution];
                       return sentences.slice(0, 2).join(' ').trim();
@@ -1702,13 +1742,13 @@ export default function PublicPropertyDetail() {
                     { icon: '✓', highlight: t('solution.noMoreWaiting'), text: t('solution.noMoreWaitingDesc') },
                   ].map((benefit, i) => (
                     <Reveal key={i} delay={i * 150}>
-                      <div className="group relative flex items-start gap-5 bg-gradient-to-r from-white/[0.06] to-white/[0.02] border border-purple-400/20 rounded-2xl p-6 hover:border-purple-400/50 hover:bg-white/[0.08] transition-all duration-300 shadow-lg shadow-purple-900/20 hover:shadow-purple-500/20">
-                        <div className="absolute pointer-events-none inset-0 rounded-2xl bg-gradient-to-r from-purple-500/0 to-purple-500/0 group-hover:from-purple-500/5 group-hover:to-transparent transition-all duration-300" />
-                        <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/40 to-purple-600/30 flex items-center justify-center flex-shrink-0 border border-purple-400/40 group-hover:border-purple-300/60 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-purple-500/30 transition-all duration-300">
-                          <span className="text-purple-200 text-xl font-bold">{benefit.icon}</span>
+                      <div className="group relative flex items-start gap-5 bg-gradient-to-r from-white/[0.06] to-white/[0.02] border border-indigo-400/20 rounded-2xl p-6 hover:border-indigo-400/50 hover:bg-white/[0.08] transition-all duration-300 shadow-lg shadow-indigo-900/20 hover:shadow-indigo-500/20">
+                        <div className="absolute pointer-events-none inset-0 rounded-2xl bg-gradient-to-r from-indigo-500/0 to-indigo-500/0 group-hover:from-indigo-500/5 group-hover:to-transparent transition-all duration-300" />
+                        <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/40 to-indigo-600/30 flex items-center justify-center flex-shrink-0 border border-indigo-400/40 group-hover:border-indigo-300/60 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-indigo-500/30 transition-all duration-300">
+                          <span className="text-indigo-200 text-xl font-bold">{benefit.icon}</span>
                         </div>
                         <div className="relative">
-                          <h3 className="text-xl md:text-2xl font-black text-white mb-2 group-hover:text-purple-100 transition-colors">{benefit.highlight}</h3>
+                          <h3 className="text-xl md:text-2xl font-black text-white mb-2 group-hover:text-indigo-100 transition-colors">{benefit.highlight}</h3>
                           <p className="text-gray-400 text-base leading-relaxed group-hover:text-gray-300 transition-colors text-justify">{benefit.text}</p>
                         </div>
                       </div>
@@ -1720,12 +1760,12 @@ export default function PublicPropertyDetail() {
                 <Reveal delay={300}>
                   <div className="relative h-full flex items-center">
                     {/* Multi-layer glow */}
-                    <div className="absolute pointer-events-none -inset-6 bg-gradient-to-br from-purple-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-                    <div className="absolute pointer-events-none -inset-3 bg-gradient-to-tr from-purple-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
+                    <div className="absolute pointer-events-none -inset-6 bg-gradient-to-br from-indigo-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+                    <div className="absolute pointer-events-none -inset-3 bg-gradient-to-tr from-indigo-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
 
-                    <div className="relative w-full bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-purple-400/25 rounded-3xl px-8 py-14 md:px-12 md:py-20 text-center shadow-2xl shadow-purple-900/40 hover:border-purple-300/40 hover:shadow-purple-800/50 transition-all duration-500">
+                    <div className="relative w-full bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-indigo-400/25 rounded-3xl px-8 py-14 md:px-12 md:py-20 text-center shadow-2xl shadow-indigo-900/40 hover:border-indigo-300/40 hover:shadow-indigo-800/50 transition-all duration-500">
                       {/* Subtle inner glow */}
-                      <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none" />
+                      <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none" />
 
                       {/* Big number - ⚠️ BRAND CONSTANT: Update if credit score policy changes */}
                       <div className="relative mb-6 inline-block">
@@ -1768,11 +1808,11 @@ export default function PublicPropertyDetail() {
                       </p>
 
                       {/* Bottom accent */}
-                      <div className="relative mt-10 pt-8 border-t border-purple-400/20">
+                      <div className="relative mt-10 pt-8 border-t border-indigo-400/20">
                         <div className="inline-flex items-center gap-3">
-                          <span className="w-8 h-[2px] bg-gradient-to-r from-transparent to-purple-400/60" />
-                          <p className="text-purple-300 text-sm font-bold tracking-[0.2em] uppercase">{t('solution.believeInYou')}</p>
-                          <span className="w-8 h-[2px] bg-gradient-to-l from-transparent to-purple-400/60" />
+                          <span className="w-8 h-[2px] bg-gradient-to-r from-transparent to-indigo-400/60" />
+                          <p className="text-indigo-300 text-sm font-bold tracking-[0.2em] uppercase">{t('solution.believeInYou')}</p>
+                          <span className="w-8 h-[2px] bg-gradient-to-l from-transparent to-indigo-400/60" />
                         </div>
                       </div>
                     </div>
@@ -1804,11 +1844,11 @@ export default function PublicPropertyDetail() {
         {/* TEMPORARILY HIDDEN - restore by removing the {false && (...)} wrapper */}
         {false && (<section className="relative py-16 md:py-24">
           {/* Ambient lighting - glows extend to adjacent sections */}
-          <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+          <div className="absolute pointer-events-none top-[-30%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] bg-indigo-600/20 rounded-full blur-[200px]" />
           <div className="absolute pointer-events-none top-[20%] left-0 w-[500px] h-[500px] bg-slate-700/15 rounded-full blur-[180px]" />
-          <div className="absolute pointer-events-none top-[30%] right-0 w-[500px] h-[500px] bg-purple-600/18 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none top-[30%] right-0 w-[500px] h-[500px] bg-indigo-600/18 rounded-full blur-[180px]" />
           {/* Bottom glows bleed into Process Steps */}
-          <div className="absolute pointer-events-none bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/22 rounded-full blur-[220px]" />
+          <div className="absolute pointer-events-none bottom-[-30%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-indigo-600/22 rounded-full blur-[220px]" />
           <div className="absolute pointer-events-none bottom-[-15%] right-1/3 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
 
 
@@ -1899,37 +1939,37 @@ export default function PublicPropertyDetail() {
               <div className="relative">
                 {/* Header - The New Way */}
                 <div className="text-center mb-6 md:mb-8">
-                  <div className="inline-block bg-gray-900/80 backdrop-blur border border-purple-500/40 rounded-xl md:rounded-2xl px-8 md:px-10 py-4 md:py-5 shadow-xl shadow-purple-500/10">
+                  <div className="inline-block bg-gray-900/80 backdrop-blur border border-indigo-500/40 rounded-xl md:rounded-2xl px-8 md:px-10 py-4 md:py-5 shadow-xl shadow-indigo-500/10">
                     <h3 className="text-xl md:text-3xl font-black text-white">
-                      {t('journey.theWord')} <span className="underline decoration-purple-400 decoration-4 md:decoration-[6px] underline-offset-4">{t('journey.new')}</span> {t('journey.way')}
+                      {t('journey.theWord')} <span className="underline decoration-indigo-400 decoration-4 md:decoration-[6px] underline-offset-4">{t('journey.new')}</span> {t('journey.way')}
                     </h3>
                   </div>
                 </div>
 
                 {/* Glow effect behind the column */}
-                <div className="absolute pointer-events-none inset-0 bg-purple-500/10 rounded-3xl blur-3xl scale-110 hidden md:block" />
+                <div className="absolute pointer-events-none inset-0 bg-indigo-500/10 rounded-3xl blur-3xl scale-110 hidden md:block" />
 
                 {/* Vertical connecting line with glow - fades before pill */}
-                <div className="absolute pointer-events-none left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[70px] w-1 bg-gradient-to-b from-purple-400/40 via-purple-400/60 to-transparent shadow-[0_0_15px_rgba(168,85,247,0.4)] hidden md:block" />
+                <div className="absolute pointer-events-none left-[calc(50%-1px)] md:left-[calc(50%+20px)] top-[120px] bottom-[70px] w-1 bg-gradient-to-b from-indigo-400/40 via-indigo-400/60 to-transparent shadow-[0_0_15px_rgba(99,102,241,0.4)] hidden md:block" />
 
                 <div className="relative space-y-3 md:space-y-4">
                   {/* First item - intro */}
                   <div className="relative z-10">
                     <div className="flex items-center gap-2 md:gap-4">
-                      <div className="hidden md:flex w-12 h-12 rounded-full bg-purple-500/20 border-2 border-purple-400/60 items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
-                        <span className="text-purple-300 text-2xl font-bold">✓</span>
+                      <div className="hidden md:flex w-12 h-12 rounded-full bg-indigo-500/20 border-2 border-indigo-400/60 items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/30">
+                        <span className="text-indigo-300 text-2xl font-bold">✓</span>
                       </div>
-                      <div className="flex-1 bg-gradient-to-r from-purple-500 to-violet-500 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg shadow-purple-500/30 border border-purple-400/30">
+                      <div className="flex-1 bg-gradient-to-r from-indigo-500 to-violet-500 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg shadow-indigo-500/30 border border-indigo-400/30">
                         <div className="font-bold text-base md:text-lg flex items-center gap-2">
-                          <span className="md:hidden text-purple-200">✓</span>
+                          <span className="md:hidden text-indigo-200">✓</span>
                           {t('journey.rentToOwn')}
                         </div>
-                        <div className="text-purple-100 text-xs md:text-sm ml-5 md:ml-0">{t('journey.rentToOwnDesc')}</div>
+                        <div className="text-indigo-100 text-xs md:text-sm ml-5 md:ml-0">{t('journey.rentToOwnDesc')}</div>
                       </div>
                     </div>
                     {/* Arrow down */}
                     <div className="hidden md:flex justify-center mt-2">
-                      <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-purple-400" />
+                      <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-indigo-400" />
                     </div>
                   </div>
 
@@ -1943,16 +1983,16 @@ export default function PublicPropertyDetail() {
                   ].map((solution, i) => (
                     <div key={i} className="relative z-10">
                       <div className="flex items-center gap-2 md:gap-4">
-                        <div className="hidden md:flex w-12 h-12 rounded-full bg-purple-500/20 border-2 border-purple-400/60 items-center justify-center flex-shrink-0 shadow-lg shadow-purple-500/30">
-                          <span className="text-purple-300 text-2xl font-bold">✓</span>
+                        <div className="hidden md:flex w-12 h-12 rounded-full bg-indigo-500/20 border-2 border-indigo-400/60 items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/30">
+                          <span className="text-indigo-300 text-2xl font-bold">✓</span>
                         </div>
                         <div className="flex-1 relative">
                           {/* Badge - desktop only */}
-                          <span className="hidden md:inline-block absolute -top-2 right-4 bg-purple-900 text-purple-200 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded z-10 border border-purple-600">
+                          <span className="hidden md:inline-block absolute -top-2 right-4 bg-indigo-900 text-indigo-200 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded z-10 border border-indigo-600">
                             {t('journey.solutionBadge')}
                           </span>
-                          <div className="bg-gradient-to-r from-purple-500 to-violet-500 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 text-white font-semibold md:font-bold text-sm md:text-lg shadow-lg shadow-purple-500/30 border border-purple-400/30 flex items-center gap-2">
-                            <span className="md:hidden text-purple-200">✓</span>
+                          <div className="bg-gradient-to-r from-indigo-500 to-violet-500 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 text-white font-semibold md:font-bold text-sm md:text-lg shadow-lg shadow-indigo-500/30 border border-indigo-400/30 flex items-center gap-2">
+                            <span className="md:hidden text-indigo-200">✓</span>
                             {solution}
                           </div>
                         </div>
@@ -1960,7 +2000,7 @@ export default function PublicPropertyDetail() {
                       {/* Arrow down - desktop only */}
                       {i < 5 && (
                         <div className="hidden md:flex justify-center mt-2">
-                          <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-purple-400" />
+                          <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-indigo-400" />
                         </div>
                       )}
                     </div>
@@ -1968,7 +2008,7 @@ export default function PublicPropertyDetail() {
 
                   {/* Success indicator */}
                   <div className="hidden md:block text-center pt-2 relative z-10">
-                    <span className="inline-block bg-gradient-to-r from-purple-500 to-violet-500 text-white font-bold text-sm px-4 py-2 rounded-full shadow-lg shadow-purple-500/40 border border-purple-300/30">
+                    <span className="inline-block bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-bold text-sm px-4 py-2 rounded-full shadow-lg shadow-indigo-500/40 border border-indigo-300/30">
                       🏠 {t('journey.youreHomeowner')}
                     </span>
                   </div>
@@ -1982,7 +2022,7 @@ export default function PublicPropertyDetail() {
               <div className="text-center mt-12 md:mt-16">
                 <button
                   onClick={scrollToForm}
-                  className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+                  className="group relative bg-white hover:bg-indigo-50 text-indigo-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-indigo-300/50"
                 >
                   {t('journey.chooseNewWay')}
                   <span className="ml-3 inline-block group-hover:translate-x-2 transition-transform text-2xl">&rarr;</span>
@@ -2009,10 +2049,10 @@ export default function PublicPropertyDetail() {
         <section className="relative py-16 md:py-20">
             {/* Ambient glows - BOOSTED + extended top to catch Qualifier bleed */}
             {/* Extended top glow to receive Qualifier section's bleed */}
-            <div className="absolute pointer-events-none top-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
+            <div className="absolute pointer-events-none top-[-55%] left-1/2 -translate-x-1/2 w-[1100px] h-[800px] bg-indigo-600/25 rounded-full blur-[250px]" />
             <div className="absolute pointer-events-none top-[20%] right-0 w-[600px] h-[500px] bg-violet-600/20 rounded-full blur-[180px]" />
-            <div className="absolute pointer-events-none top-[50%] left-0 w-[550px] h-[450px] bg-purple-400/18 rounded-full blur-[160px]" />
-            <div className="absolute pointer-events-none bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/25 rounded-full blur-[220px]" />
+            <div className="absolute pointer-events-none top-[50%] left-0 w-[550px] h-[450px] bg-indigo-400/18 rounded-full blur-[160px]" />
+            <div className="absolute pointer-events-none bottom-[-35%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-indigo-600/25 rounded-full blur-[220px]" />
 
             <div className="relative z-10 max-w-5xl mx-auto px-4">
               <FunnelFAQ
@@ -2029,23 +2069,23 @@ export default function PublicPropertyDetail() {
         {/* Urgency / Countdown - HIDDEN */}
         {false && (<section className="relative py-20 md:py-28">
           {/* Dramatic urgency lighting - purple glow that bleeds both up and down */}
-          <div className="absolute pointer-events-none top-[-50%] left-1/2 -translate-x-1/2 w-[1000px] md:w-[1400px] h-[600px] md:h-[800px] bg-purple-600/20 rounded-full blur-[200px] md:blur-[250px]" />
+          <div className="absolute pointer-events-none top-[-50%] left-1/2 -translate-x-1/2 w-[1000px] md:w-[1400px] h-[600px] md:h-[800px] bg-indigo-600/20 rounded-full blur-[200px] md:blur-[250px]" />
           <div className="absolute pointer-events-none top-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/15 rounded-full blur-[180px]" />
           {/* Bottom glows bleed into Final CTA section - stronger connection */}
-          <div className="absolute pointer-events-none bottom-[-50%] left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-purple-600/25 rounded-full blur-[250px]" />
+          <div className="absolute pointer-events-none bottom-[-50%] left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-indigo-600/25 rounded-full blur-[250px]" />
           <div className="absolute pointer-events-none bottom-[-20%] left-1/4 w-[600px] h-[500px] bg-violet-500/18 rounded-full blur-[200px]" />
-          <div className="absolute pointer-events-none bottom-[-20%] right-1/4 w-[600px] h-[500px] bg-purple-500/18 rounded-full blur-[200px]" />
+          <div className="absolute pointer-events-none bottom-[-20%] right-1/4 w-[600px] h-[500px] bg-indigo-500/18 rounded-full blur-[200px]" />
 
           {/* Animated pulse ring - extends toward next section */}
-          <div className="absolute pointer-events-none top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-purple-500/15 animate-ping" style={{ animationDuration: '3s' }} />
+          <div className="absolute pointer-events-none top-[60%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-indigo-500/15 animate-ping" style={{ animationDuration: '3s' }} />
 
           <div className="relative z-10 max-w-3xl mx-auto px-4 text-center">
             {/* Urgency badge with Reveal */}
             <Reveal>
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-purple-500/20 border border-purple-500/40 backdrop-blur-sm mb-8 animate-pulse">
-                <div className="w-2 h-2 rounded-full bg-purple-400" />
-                <span className="text-purple-300 text-sm font-bold tracking-wider uppercase">{t('urgency.limitedTimeOffer')}</span>
-                <div className="w-2 h-2 rounded-full bg-purple-400" />
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-indigo-500/20 border border-indigo-500/40 backdrop-blur-sm mb-8 animate-pulse">
+                <div className="w-2 h-2 rounded-full bg-indigo-400" />
+                <span className="text-indigo-300 text-sm font-bold tracking-wider uppercase">{t('urgency.limitedTimeOffer')}</span>
+                <div className="w-2 h-2 rounded-full bg-indigo-400" />
               </div>
             </Reveal>
 
@@ -2053,7 +2093,7 @@ export default function PublicPropertyDetail() {
             <Reveal delay={100}>
               <h2 className="text-4xl md:text-5xl lg:text-6xl text-white mb-4">
                 <span className="font-light">{t('urgency.thisPrice')}</span>{' '}
-                <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400">
+                <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400">
                   {t('urgency.wontLast')}
                 </span>
               </h2>
@@ -2069,9 +2109,9 @@ export default function PublicPropertyDetail() {
 
             {/* Scarcity indicator with Reveal - uses funnel urgencyMessage if set */}
             <Reveal delay={300}>
-              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-purple-500/10 border border-purple-500/30 mb-10">
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-indigo-500/10 border border-indigo-500/30 mb-10">
                 <span className="text-2xl">⚡</span>
-                <span className="text-purple-300 font-bold">{funnelContent?.inputs?.urgencyMessage || t('urgency.defaultScarcity')}</span>
+                <span className="text-indigo-300 font-bold">{funnelContent?.inputs?.urgencyMessage || t('urgency.defaultScarcity')}</span>
                 <span className="text-2xl">⚡</span>
               </div>
             </Reveal>
@@ -2080,7 +2120,7 @@ export default function PublicPropertyDetail() {
             <div>
               <button
                 onClick={scrollToForm}
-                className="group relative bg-white hover:bg-purple-50 text-purple-900 font-black text-lg md:text-xl uppercase tracking-wide px-12 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(168,85,247,0.4),0_0_100px_rgba(139,92,246,0.2)] hover:shadow-[0_0_80px_rgba(168,85,247,0.5),0_0_120px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-purple-300/50"
+                className="group relative bg-white hover:bg-indigo-50 text-indigo-900 font-black text-lg md:text-xl uppercase tracking-wide px-12 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(99,102,241,0.4),0_0_100px_rgba(139,92,246,0.2)] hover:shadow-[0_0_80px_rgba(168,85,247,0.5),0_0_120px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-indigo-300/50"
               >
                 {t('urgency.lockInPrice')}
                 <span className="ml-3 inline-block group-hover:translate-x-2 transition-transform text-2xl">&rarr;</span>
@@ -2094,15 +2134,15 @@ export default function PublicPropertyDetail() {
         {false && !funnelLoading && funnelContent?.callToAction && (
           <section className="relative py-16 md:py-20">
             {/* Top glows - extend far up to receive Urgency section's bleed */}
-            <div className="absolute pointer-events-none top-[-60%] left-1/2 -translate-x-1/2 w-[1200px] md:w-[1600px] h-[800px] bg-purple-600/28 rounded-full blur-[250px]" />
+            <div className="absolute pointer-events-none top-[-60%] left-1/2 -translate-x-1/2 w-[1200px] md:w-[1600px] h-[800px] bg-indigo-600/28 rounded-full blur-[250px]" />
             <div className="absolute pointer-events-none top-[-40%] left-1/4 w-[700px] h-[600px] bg-violet-500/22 rounded-full blur-[200px]" />
-            <div className="absolute pointer-events-none top-[-40%] right-1/4 w-[700px] h-[600px] bg-purple-500/20 rounded-full blur-[200px]" />
+            <div className="absolute pointer-events-none top-[-40%] right-1/4 w-[700px] h-[600px] bg-indigo-500/20 rounded-full blur-[200px]" />
             {/* Bottom glow - bleeds into Form section */}
-            <div className="absolute pointer-events-none bottom-[-50%] left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-purple-600/25 rounded-full blur-[220px]" />
+            <div className="absolute pointer-events-none bottom-[-50%] left-1/2 -translate-x-1/2 w-[1200px] h-[700px] bg-indigo-600/25 rounded-full blur-[220px]" />
 
             <div className="relative z-10 text-center max-w-3xl mx-auto px-4">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-                <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-indigo-400 bg-clip-text text-transparent">
                   {t('finalCta.heading')}
                 </span>
               </h2>
@@ -2112,7 +2152,7 @@ export default function PublicPropertyDetail() {
               <div className="flex flex-col items-center gap-3">
                 <button
                   onClick={scrollToForm}
-                  className="group relative bg-white/90 hover:bg-white text-purple-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_30px_rgba(168,85,247,0.25),0_0_50px_rgba(139,92,246,0.15)] hover:shadow-[0_0_40px_rgba(168,85,247,0.35),0_0_60px_rgba(139,92,246,0.2)] transition-all duration-300 hover:-translate-y-0.5 border-2 border-purple-300/40"
+                  className="group relative bg-white/90 hover:bg-white text-indigo-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_30px_rgba(168,85,247,0.25),0_0_50px_rgba(139,92,246,0.15)] hover:shadow-[0_0_40px_rgba(168,85,247,0.35),0_0_60px_rgba(139,92,246,0.2)] transition-all duration-300 hover:-translate-y-0.5 border-2 border-indigo-300/40"
                 >
                   {t('finalCta.cta')}
                   <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>
@@ -2136,21 +2176,21 @@ export default function PublicPropertyDetail() {
         {/* Contact Form + Footer Section - Combined into one seamless section */}
         <section id="contact-form" className="relative pt-20 md:pt-28 pb-12">
           {/* Ambient glows for the entire form + footer area */}
-          <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[500px] md:h-[700px] bg-purple-600/28 rounded-full blur-[150px] md:blur-[200px]" />
+          <div className="absolute pointer-events-none top-0 left-1/2 -translate-x-1/2 w-[800px] md:w-[1200px] h-[500px] md:h-[700px] bg-indigo-600/28 rounded-full blur-[150px] md:blur-[200px]" />
           <div className="absolute pointer-events-none top-[15%] left-0 w-[600px] h-[500px] bg-violet-500/22 rounded-full blur-[130px]" />
-          <div className="absolute pointer-events-none top-[15%] right-0 w-[600px] h-[500px] bg-purple-500/22 rounded-full blur-[130px]" />
+          <div className="absolute pointer-events-none top-[15%] right-0 w-[600px] h-[500px] bg-indigo-500/22 rounded-full blur-[130px]" />
           {/* Center/bottom glows for footer area */}
-          <div className="absolute pointer-events-none bottom-[10%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-purple-600/20 rounded-full blur-[200px]" />
+          <div className="absolute pointer-events-none bottom-[10%] left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-indigo-600/20 rounded-full blur-[200px]" />
           <div className="absolute pointer-events-none bottom-0 left-1/4 w-[500px] h-[400px] bg-violet-500/15 rounded-full blur-[180px]" />
-          <div className="absolute pointer-events-none bottom-0 right-1/4 w-[500px] h-[400px] bg-purple-500/15 rounded-full blur-[180px]" />
+          <div className="absolute pointer-events-none bottom-0 right-1/4 w-[500px] h-[400px] bg-indigo-500/15 rounded-full blur-[180px]" />
 
           <div className="relative z-10">
           {/* Form Card */}
           <div className="max-w-xl mx-auto px-4 sm:px-6">
             <div className="bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden">
-              <div className="bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 p-6 text-white text-center relative overflow-hidden">
+              <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-800 p-6 text-white text-center relative overflow-hidden">
                 <div className="absolute pointer-events-none top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
-                <div className="absolute pointer-events-none bottom-0 left-0 w-32 h-32 bg-purple-400/20 rounded-full blur-2xl" />
+                <div className="absolute pointer-events-none bottom-0 left-0 w-32 h-32 bg-indigo-400/20 rounded-full blur-2xl" />
                 {showOfferForm && !hasSubmittedOffer && (
                   <button
                     type="button"
@@ -2166,7 +2206,7 @@ export default function PublicPropertyDetail() {
                     <Home className="h-6 w-6 text-white" />
                   </div>
                   <h2 className="text-xl font-bold">{t('form.header')}</h2>
-                  <p className="text-purple-100 mt-2 text-sm max-w-md mx-auto">{t('form.subtitle')}</p>
+                  <p className="text-indigo-100 mt-2 text-sm max-w-md mx-auto">{t('form.subtitle')}</p>
                 </div>
               </div>
 
@@ -2188,13 +2228,13 @@ export default function PublicPropertyDetail() {
                     {t('cta.yesInterested')}
                   </CTAButton>
                   <div className="grid grid-cols-2 gap-3">
-                    <Button variant="outline" size="lg" className="w-full border-purple-400/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 hover:text-white" asChild>
+                    <Button variant="outline" size="lg" className="w-full border-indigo-400/50 text-indigo-300 hover:bg-indigo-500/20 hover:border-indigo-400 hover:text-white" asChild>
                       <a href={`tel:+1${companyPhone.replace(/\D/g, '')}`}>
                         <Phone className="h-4 w-4 mr-2" />
                         {t('cta.callUs')}
                       </a>
                     </Button>
-                    <Button variant="outline" size="lg" className="w-full border-purple-400/50 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 hover:text-white" asChild>
+                    <Button variant="outline" size="lg" className="w-full border-indigo-400/50 text-indigo-300 hover:bg-indigo-500/20 hover:border-indigo-400 hover:text-white" asChild>
                       <a href={`sms:+1${companyPhone.replace(/\D/g, '')}`}>
                         <Phone className="h-4 w-4 mr-2" />
                         {t('cta.textUs')}
@@ -2212,7 +2252,7 @@ export default function PublicPropertyDetail() {
                       onChange={(e) => setOfferForm(prev => ({ ...prev, firstName: e.target.value }))}
                       required
                       placeholder={t('form.placeholderFirstName')}
-                      className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                      className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
                     />
                   </div>
                   <div>
@@ -2233,7 +2273,7 @@ export default function PublicPropertyDetail() {
                       value={offerForm.email}
                       onChange={(e) => setOfferForm(prev => ({ ...prev, email: e.target.value }))}
                       placeholder={t('form.placeholderEmail')}
-                      className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                      className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
                     />
                   </div>
                   <div>
@@ -2242,7 +2282,7 @@ export default function PublicPropertyDetail() {
                       value={offerForm.question}
                       onChange={(e) => setOfferForm(prev => ({ ...prev, question: e.target.value }))}
                       placeholder={t('form.questionPlaceholder')}
-                      className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                      className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
                       rows={3}
                     />
                   </div>
@@ -2276,17 +2316,17 @@ export default function PublicPropertyDetail() {
 
           {/* Footer content - floating within the same section */}
           <div className="max-w-6xl mx-auto px-4 text-center mt-20 text-white">
-            <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl flex items-center justify-center mx-auto mb-4">
               <span className="text-white font-bold text-2xl">P</span>
             </div>
             <h3 className="text-xl font-bold mb-2">{t('footer.companyName')}</h3>
             <p className="text-gray-400 mb-4">{t('footer.tagline')}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a href={`tel:+1${companyPhone.replace(/\D/g, '')}`} className="text-purple-400 hover:text-purple-300 font-semibold">
+              <a href={`tel:+1${companyPhone.replace(/\D/g, '')}`} className="text-indigo-400 hover:text-indigo-300 font-semibold">
                 {companyPhone}
               </a>
               <span className="hidden sm:inline text-gray-600">•</span>
-              <a href="mailto:info@purplehomessolutions.com" className="text-purple-400 hover:text-purple-300">
+              <a href="mailto:info@purplehomessolutions.com" className="text-indigo-400 hover:text-indigo-300">
                 info@purplehomessolutions.com
               </a>
             </div>
@@ -2318,12 +2358,12 @@ export default function PublicPropertyDetail() {
             </button>
 
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-violet-600 px-6 py-5 text-center text-white rounded-t-2xl">
+            <div className="bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-5 text-center text-white rounded-t-2xl">
               <div className="inline-flex items-center justify-center w-12 h-12 bg-white/20 backdrop-blur rounded-xl mb-3">
                 <Home className="h-6 w-6 text-white" />
               </div>
               <h2 className="text-xl font-bold">{t('form.header')}</h2>
-              <p className="text-purple-100 text-sm mt-2">{t('form.subtitle')}</p>
+              <p className="text-indigo-100 text-sm mt-2">{t('form.subtitle')}</p>
             </div>
 
             {/* Form */}
@@ -2335,7 +2375,7 @@ export default function PublicPropertyDetail() {
                   onChange={(e) => setOfferForm(prev => ({ ...prev, firstName: e.target.value }))}
                   required
                   placeholder={t('form.placeholderFirstName')}
-                  className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                  className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
                 />
               </div>
               <div>
@@ -2356,7 +2396,7 @@ export default function PublicPropertyDetail() {
                   value={offerForm.email}
                   onChange={(e) => setOfferForm(prev => ({ ...prev, email: e.target.value }))}
                   placeholder={t('form.placeholderEmail')}
-                  className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                  className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
                 />
               </div>
               <div>
@@ -2365,7 +2405,7 @@ export default function PublicPropertyDetail() {
                   value={offerForm.question}
                   onChange={(e) => setOfferForm(prev => ({ ...prev, question: e.target.value }))}
                   placeholder={t('form.questionPlaceholder')}
-                  className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-purple-500 focus:ring-purple-500"
+                  className="mt-1 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:ring-indigo-500"
                   rows={3}
                 />
               </div>

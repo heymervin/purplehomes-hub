@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search, X, Send, Calendar, SkipForward, Home, RefreshCw,
-  Database, AlertCircle, Loader2, Building2, Trash2,
+  AlertCircle, Loader2, Building2, Trash2,
   SlidersHorizontal, BedDouble,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { FilterBar } from '@/components/filters/FilterBar';
 import { FilterSelect, type FilterOption } from '@/components/filters/FilterSelect';
+import { PageContainer, PageHeader } from '@/components/ui/page-container';
 import { toast } from 'sonner';
 import type { PropertyStatus, PropertyType, PropertyCondition, Property } from '@/types';
 import { PROPERTY_SOURCES } from '@/types';
@@ -271,12 +272,8 @@ export default function Properties() {
     }
   };
 
-  // Check if we have Airtable data
-  const hasAirtableData = airtableProperties.length > 0;
-  const airtableCount = airtableProperties.length;
-
   return (
-    <div className="space-y-6 animate-fade-in">
+    <PageContainer>
       {/* Error Banner */}
       {isError && (
         <div className="flex items-center gap-3 p-4 rounded-lg bg-destructive/10 border border-destructive/20">
@@ -294,41 +291,20 @@ export default function Properties() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            Properties
-            {hasAirtableData ? (
-              <Badge className="bg-success flex items-center gap-1">
-                <Database className="h-3 w-3" />
-                {airtableCount} from Airtable
-              </Badge>
-            ) : isLoading ? (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                Loading...
-              </Badge>
-            ) : (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <Database className="h-3 w-3" />
-                Demo Mode
-              </Badge>
-            )}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {isLoading ? 'Loading properties...' : `${filteredProperties.length} properties found`}
-            {demoCount > 0 && ` (${demoCount} demo)`}
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          onClick={() => refetch()}
-          disabled={isLoading}
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-          Refresh
-        </Button>
-      </div>
+      <PageHeader
+        title="Properties"
+        description={isLoading ? 'Loading properties...' : `${filteredProperties.length} properties found`}
+        actions={
+          <Button
+            variant="outline"
+            onClick={() => refetch()}
+            disabled={isLoading}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        }
+      />
 
       {/* Filters — Primary Row */}
       <FilterBar hasActiveFilters={hasActiveFilters} onClearAll={clearAllFilters}>
@@ -552,6 +528,6 @@ export default function Properties() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </PageContainer>
   );
 }

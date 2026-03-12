@@ -923,9 +923,9 @@ export function QuickBatchForm() {
   if (step === 'generating') {
     return (
       <div className="space-y-6">
-        <Card className="border-2 border-purple-200 dark:border-purple-800">
+        <Card className="border-2 border-primary/30">
           <CardContent className="p-8 text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-purple-500 mx-auto mb-4" />
+            <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">Generating Content</h2>
             <p className="text-muted-foreground mb-4">
               Creating captions and images for {state.items.length} posts...
@@ -950,7 +950,7 @@ export function QuickBatchForm() {
           </Button>
           <div>
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Eye className="h-5 w-5 text-purple-500" />
+              <Eye className="h-5 w-5 text-primary" />
               Review Batch ({state.items.length} posts)
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -971,7 +971,7 @@ export function QuickBatchForm() {
                   <Card
                     key={item.id}
                     className={cn(
-                      'cursor-pointer transition-all hover:border-purple-300 hover:shadow-sm',
+                      'cursor-pointer transition-all hover:border-primary/30 hover:shadow-sm',
                       item.status === 'failed' && 'border-red-300 bg-red-50/50 dark:bg-red-950/20'
                     )}
                     onClick={() => setExpandedPostId(item.id)}
@@ -1011,7 +1011,7 @@ export function QuickBatchForm() {
                             {item.caption?.substring(0, 100)}...
                           </p>
                           {scheduledAt && (
-                            <div className="flex items-center gap-1 mt-2 text-xs text-purple-600">
+                            <div className="flex items-center gap-1 mt-2 text-xs text-primary">
                               <Clock className="h-3 w-3" />
                               {scheduledAt.toLocaleString()}
                             </div>
@@ -1050,7 +1050,7 @@ export function QuickBatchForm() {
                         className={cn(
                           'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
                           state.selectedAccounts.includes(account.id)
-                            ? 'border-purple-600 bg-purple-50 dark:bg-purple-950/20'
+                            ? 'border-primary bg-primary/10'
                             : 'hover:bg-muted/50'
                         )}
                       >
@@ -1058,7 +1058,7 @@ export function QuickBatchForm() {
                           className={cn(
                             'w-5 h-5 rounded border-2 flex items-center justify-center',
                             state.selectedAccounts.includes(account.id)
-                              ? 'border-purple-600 bg-purple-600'
+                              ? 'border-primary bg-primary'
                               : 'border-muted-foreground/30'
                           )}
                         >
@@ -1149,7 +1149,7 @@ export function QuickBatchForm() {
             ) : (
               <Button
                 size="lg"
-                className="w-full gap-2 bg-purple-600 hover:bg-purple-700"
+                className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
                 disabled={!allItemsReady || state.selectedAccounts.length === 0}
                 onClick={handlePublish}
               >
@@ -1236,7 +1236,7 @@ export function QuickBatchForm() {
                           <Hash className="h-4 w-4" />
                           Hashtags
                         </div>
-                        <div className="p-3 rounded-lg bg-muted/50 border text-sm text-purple-600 dark:text-purple-400">
+                        <div className="p-3 rounded-lg bg-muted/50 border text-sm text-primary">
                           {item.hashtags}
                         </div>
                       </div>
@@ -1249,7 +1249,7 @@ export function QuickBatchForm() {
                           <Calendar className="h-4 w-4" />
                           Scheduled For
                         </div>
-                        <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 text-sm">
+                        <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-sm">
                           {scheduledAt.toLocaleString('en-US', {
                             weekday: 'long',
                             year: 'numeric',
@@ -1287,11 +1287,11 @@ export function QuickBatchForm() {
   return (
     <div className="space-y-6">
       {/* Defaults Card - Compact */}
-      <Card className="border-purple-200 dark:border-purple-800">
+      <Card className="border-primary/30">
         <CardContent className="p-4">
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-purple-500" />
+              <Clock className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">Start</span>
               <div className="relative">
                 <Input
@@ -1322,7 +1322,7 @@ export function QuickBatchForm() {
               </Select>
             </div>
             {state.defaults.startTime && getDatePreview(state.defaults.startTime) && (
-              <span className="text-xs text-purple-600 dark:text-purple-400">
+              <span className="text-xs text-primary">
                 {getDatePreview(state.defaults.startTime)}
               </span>
             )}
@@ -1376,7 +1376,7 @@ export function QuickBatchForm() {
                               className={cn(
                                 'w-4 h-4 mr-2 rounded border flex items-center justify-center',
                                 isSelected
-                                  ? 'bg-purple-600 border-purple-600'
+                                  ? 'bg-primary border-primary'
                                   : 'border-muted-foreground/30'
                               )}
                             >
@@ -1466,7 +1466,7 @@ export function QuickBatchForm() {
                       className={cn(
                         'flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm whitespace-nowrap transition-all',
                         isActive
-                          ? 'border-purple-600 bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 ring-2 ring-purple-200 dark:ring-purple-800'
+                          ? 'border-primary bg-primary/10 text-primary ring-2 ring-primary/20'
                           : cn('hover:bg-muted/50 text-muted-foreground hover:text-foreground', statusStyles[displayStatus])
                       )}
                     >
@@ -1530,7 +1530,7 @@ export function QuickBatchForm() {
 
         {/* Active Item Editor - Single Create Experience */}
         {activeItem && (
-          <Card className="border-2 border-purple-200 dark:border-purple-800">
+          <Card className="border-2 border-primary/30">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
@@ -1607,7 +1607,7 @@ export function QuickBatchForm() {
             size="lg"
             disabled={!isValid}
             onClick={handleGenerate}
-            className="gap-2 bg-purple-600 hover:bg-purple-700 ml-auto"
+            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 ml-auto"
           >
             <Sparkles className="h-4 w-4" />
             {isValid ? `Generate ${state.items.length} Posts` : 'Fill Required Fields'}
