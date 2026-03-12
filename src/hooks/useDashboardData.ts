@@ -189,7 +189,7 @@ export function useDashboardData(): DashboardData {
       id: 'new-buyers',
       label: 'New Buyers',
       description: 'Buyers added this week',
-      href: '/buyers',
+      href: '/buyer-management?filter=new',
       icon: 'UserPlus',
       count: stats.newBuyersThisWeek,
       variant: stats.newBuyersThisWeek > 0 ? 'success' : 'default',

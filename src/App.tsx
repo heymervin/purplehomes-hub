@@ -9,7 +9,6 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Dashboard from "@/pages/Dashboard";
 import Properties from "@/pages/Properties";
 import PropertyDetail from "@/pages/PropertyDetail";
-import Buyers from "@/pages/Buyers";
 import BuyerAcquisitions from "@/pages/BuyerAcquisitions";
 import SellerAcquisitions from "@/pages/SellerAcquisitions";
 import Contacts from "@/pages/Contacts";
@@ -48,7 +47,6 @@ const App = () => (
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/properties" element={<Properties />} />
                 <Route path="/properties/:id" element={<PropertyDetail />} />
-                <Route path="/buyers" element={<Buyers />} />
                 <Route path="/buyer-management" element={<BuyerManagement />} />
                 <Route path="/acquisitions" element={<BuyerAcquisitions />} />
                 <Route path="/seller-acquisitions" element={<SellerAcquisitions />} />
