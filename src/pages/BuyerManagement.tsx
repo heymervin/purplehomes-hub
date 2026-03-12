@@ -4,7 +4,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, Users, RefreshCw, AlertCircle, Loader2, Filter, X, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -41,6 +41,9 @@ const BUYERS_PER_PAGE = 20;
 
 export default function BuyerManagement() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filterParam = searchParams.get('filter');
+  const showNewOnly = filterParam === 'new';
 
   // Filters
   const [filters, setFilters] = useState<BuyerListFilters>({
@@ -86,6 +89,12 @@ export default function BuyerManagement() {
       missingCriteria: buyers.filter(b => !hasBuyerCriteria(b)).length,
     };
 
+    // Apply "new this week" filter from URL param
+    if (showNewOnly) {
+      const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      buyers = buyers.filter(b => b.dateAdded && new Date(b.dateAdded) >= oneWeekAgo);
+    }
+
     // Apply search filter
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
@@ -113,7 +122,7 @@ export default function BuyerManagement() {
     }
 
     return { filteredBuyers: buyers, stats };
-  }, [buyersData, filters]);
+  }, [buyersData, filters, showNewOnly]);
 
   // Paginate
   const totalPages = Math.ceil(filteredBuyers.length / BUYERS_PER_PAGE);
@@ -198,6 +207,19 @@ export default function BuyerManagement() {
           </Button>
         }
       />
+
+      {/* New buyers banner */}
+      {showNewOnly && (
+        <div className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/30 px-4 py-2.5">
+          <div className="flex items-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+            <Users className="h-4 w-4" />
+            Showing {filteredBuyers.length} new buyer{filteredBuyers.length !== 1 ? 's' : ''} added in the last 7 days
+          </div>
+          <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => setSearchParams({})}>
+            <X className="h-3 w-3 mr-1" /> Clear
+          </Button>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">

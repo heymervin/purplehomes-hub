@@ -86,6 +86,7 @@ export default function Dashboard() {
           icon={Users}
           trend={{ value: stats.newBuyersThisWeek, label: 'new this week' }}
           onClick={() => navigate('/buyers')}
+          onTrendClick={() => navigate('/buyers?filter=new')}
         />
         <StatCard
           label="Property Matches"

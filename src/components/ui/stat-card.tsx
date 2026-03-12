@@ -12,9 +12,10 @@ interface StatCardProps {
   icon?: LucideIcon
   className?: string
   onClick?: () => void
+  onTrendClick?: () => void
 }
 
-export function StatCard({ label, value, trend, icon: Icon, className, onClick }: StatCardProps) {
+export function StatCard({ label, value, trend, icon: Icon, className, onClick, onTrendClick }: StatCardProps) {
   const isPositive = trend?.direction === 'up' || (trend && !trend.direction && trend.value > 0)
   const isNegative = trend?.direction === 'down' || (trend && !trend.direction && trend.value < 0)
 
@@ -33,7 +34,10 @@ export function StatCard({ label, value, trend, icon: Icon, className, onClick }
       </div>
       <p className="text-[28px] font-bold tabular-nums text-foreground leading-none">{value}</p>
       {trend && (
-        <div className="flex items-center gap-1 mt-2">
+        <div
+          className={cn('flex items-center gap-1 mt-2', onTrendClick && 'cursor-pointer hover:opacity-70 transition-opacity w-fit')}
+          onClick={onTrendClick ? (e) => { e.stopPropagation(); onTrendClick(); } : undefined}
+        >
           {isPositive && <TrendingUp className="h-3 w-3 text-emerald-600" />}
           {isNegative && <TrendingDown className="h-3 w-3 text-red-500" />}
           <span className={cn(
@@ -44,7 +48,7 @@ export function StatCard({ label, value, trend, icon: Icon, className, onClick }
           )}>
             {trend.value > 0 ? '+' : ''}{trend.value}
           </span>
-          <span className="text-xs text-muted-foreground">{trend.label}</span>
+          <span className={cn('text-xs text-muted-foreground', onTrendClick && 'underline underline-offset-2')}>{trend.label}</span>
         </div>
       )}
     </div>
