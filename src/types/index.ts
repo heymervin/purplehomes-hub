@@ -2,17 +2,25 @@ export type PropertyStatus = 'pending' | 'posted' | 'scheduled' | 'skipped' | 'd
 
 export type PropertyCondition = 'Excellent' | 'Great' | 'Good' | 'Fair' | 'Poor' | 'Terrible' | 'Needs some Repair';
 
-export type PropertyType = 
-  | 'Single Family' 
-  | 'Duplex' 
-  | 'Multi Family' 
-  | 'Condo' 
-  | 'Lot' 
-  | 'Mobile Home' 
-  | 'Town House' 
-  | 'Commercial' 
-  | 'Triplex' 
+export type PropertyType =
+  | 'Single Family'
+  | 'Duplex'
+  | 'Multi Family'
+  | 'Condo'
+  | 'Lot'
+  | 'Mobile Home'
+  | 'Town House'
+  | 'Commercial'
+  | 'Triplex'
   | '4-plex';
+
+export const PROPERTY_SOURCES = [
+  { value: 'all', label: 'All Sources' },
+  { value: 'Inventory', label: 'Inventory' },
+  { value: 'Zillow', label: 'Zillow' },
+  { value: 'Acquisitions', label: 'Acquisitions' },
+  { value: 'Partnered', label: 'Partnered' },
+] as const;
 
 export interface Property {
   id: string;

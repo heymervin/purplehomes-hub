@@ -1,16 +1,14 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, X, Send, Calendar, SkipForward, MapPin, Home, RefreshCw, Database, AlertCircle, Loader2, Building2, Trash2 } from 'lucide-react';
+import {
+  Search, X, Send, Calendar, SkipForward, Home, RefreshCw,
+  Database, AlertCircle, Loader2, Building2, Trash2,
+  SlidersHorizontal, BedDouble,
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PropertyCard } from '@/components/properties/PropertyCard';
 import { PropertyDetailModal } from '@/components/properties/PropertyDetailModal';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -24,38 +22,86 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { FilterBar } from '@/components/filters/FilterBar';
+import { FilterSelect, type FilterOption } from '@/components/filters/FilterSelect';
 import { toast } from 'sonner';
-// Removed demo data import - using only Airtable data
 import type { PropertyStatus, PropertyType, PropertyCondition, Property } from '@/types';
+import { PROPERTY_SOURCES } from '@/types';
 import { useAirtableProperties, useDeleteProperties } from '@/services/matchingApi';
-
-// Property source types for filtering
-const sourceOptions: { value: string; label: string }[] = [
-  { value: 'all', label: 'All Sources' },
-  { value: 'Inventory', label: 'Inventory' },
-  { value: 'Zillow', label: 'Zillow' },
-  { value: 'Acquisitions', label: 'Acquisitions' },
-];
 
 const PROPERTY_TYPES: PropertyType[] = [
   'Single Family', 'Duplex', 'Multi Family', 'Condo', 'Lot',
   'Mobile Home', 'Town House', 'Commercial', 'Triplex', '4-plex'
 ];
 
+const STATUS_OPTIONS: FilterOption[] = [
+  { value: 'all', label: 'All Status' },
+  { value: 'pending', label: 'Pending' },
+  { value: 'posted', label: 'Posted' },
+  { value: 'scheduled', label: 'Scheduled' },
+  { value: 'deleted', label: 'Deleted' },
+];
+
+const BED_OPTIONS: FilterOption[] = [
+  { value: 'any', label: 'Any' },
+  { value: '1', label: '1+ Beds' },
+  { value: '2', label: '2+ Beds' },
+  { value: '3', label: '3+ Beds' },
+  { value: '4', label: '4+ Beds' },
+];
+
+const BATH_OPTIONS: FilterOption[] = [
+  { value: 'any', label: 'Any' },
+  { value: '1', label: '1+ Baths' },
+  { value: '2', label: '2+ Baths' },
+  { value: '3', label: '3+ Baths' },
+];
+
+const PRICE_OPTIONS: FilterOption[] = [
+  { value: 'all', label: 'Any Price' },
+  { value: '0-10000', label: 'Under $10k' },
+  { value: '10000-25000', label: '$10k – $25k' },
+  { value: '25000-50000', label: '$25k – $50k' },
+  { value: '50000-100000', label: '$50k – $100k' },
+  { value: '100000+', label: '$100k+' },
+];
+
+function parsePriceRange(range: string): [number | null, number | null] {
+  switch (range) {
+    case '0-10000':      return [0, 10000];
+    case '10000-25000':  return [10000, 25000];
+    case '25000-50000':  return [25000, 50000];
+    case '50000-100000': return [50000, 100000];
+    case '100000+':      return [100000, null];
+    default:             return [null, null];
+  }
+}
+
 const PROPERTIES_PER_PAGE = 12;
 
 export default function Properties() {
   const navigate = useNavigate();
 
-  const [search, setSearch] = useState('');
-  const [zipCode, setZipCode] = useState('');
-  const [propertyType, setPropertyType] = useState('all');
-  const [sourceFilter, setSourceFilter] = useState('all');
+  const [filters, setFilters] = useState({
+    search: '',
+    source: 'all',
+    propertyType: 'all',
+    status: 'all',
+    minBeds: 'any',
+    minBaths: 'any',
+    priceRange: 'all',
+  });
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+
+  const setFilter = (key: keyof typeof filters, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
+  };
 
   // Fetch properties from Airtable (same source as Property Matching)
   const {
@@ -88,7 +134,7 @@ export default function Properties() {
         condition: p.condition as PropertyCondition | undefined,
         heroImage: p.heroImage || '/placeholder.svg',
         images: p.images && p.images.length > 0 ? p.images : (p.heroImage ? [p.heroImage] : ['/placeholder.svg']),
-        status: 'pending' as PropertyStatus, // Map from Airtable stage
+        status: 'pending' as PropertyStatus, // TODO: map from Airtable Stage field
         description: p.notes,
         monthlyPayment: p.monthlyPayment,
         downPayment: p.downPayment,
@@ -121,41 +167,66 @@ export default function Properties() {
     return airtableProperties;
   }, [airtableProperties]);
 
+  const hasActiveFilters = useMemo(() =>
+    filters.search !== '' ||
+    filters.source !== 'all' ||
+    filters.propertyType !== 'all' ||
+    filters.status !== 'all' ||
+    filters.minBeds !== 'any' ||
+    filters.minBaths !== 'any' ||
+    filters.priceRange !== 'all'
+  , [filters]);
+
+  const secondaryFilterCount = [
+    filters.minBeds !== 'any',
+    filters.minBaths !== 'any',
+    filters.priceRange !== 'all',
+  ].filter(Boolean).length;
+
+  const clearAllFilters = () => {
+    setFilters({ search: '', source: 'all', propertyType: 'all', status: 'all', minBeds: 'any', minBaths: 'any', priceRange: 'all' });
+    setCurrentPage(1);
+  };
+
   // Filter properties
   const filteredProperties = useMemo(() => {
-    return allProperties.filter((property) => {
-      // Source filter (Inventory, Lead, Zillow)
-      if (sourceFilter !== 'all') {
-        if (property.source !== sourceFilter) return false;
+    return allProperties.filter((p) => {
+      // Source
+      if (filters.source !== 'all' && p.source !== filters.source) return false;
+      // Property type
+      if (filters.propertyType !== 'all' && p.propertyType !== filters.propertyType) return false;
+      // Status
+      if (filters.status !== 'all' && p.status !== filters.status) return false;
+      // Min beds
+      if (filters.minBeds !== 'any' && p.beds < parseInt(filters.minBeds)) return false;
+      // Min baths
+      if (filters.minBaths !== 'any' && p.baths < parseInt(filters.minBaths)) return false;
+      // Price range (based on downPayment)
+      if (filters.priceRange !== 'all') {
+        const [min, max] = parsePriceRange(filters.priceRange);
+        const price = p.downPayment ?? p.price ?? 0;
+        if (min !== null && price < min) return false;
+        if (max !== null && price > max) return false;
       }
-
-      // Property type filter
-      if (propertyType !== 'all' && property.propertyType !== propertyType) {
-        return false;
-      }
-
-      // Zip code filter
-      if (zipCode) {
-        const zip = property.city.match(/\d{5}/)?.[0] || '';
-        if (!zip.includes(zipCode)) {
-          return false;
+      // Search — matches address, property code, city (which contains zip)
+      if (filters.search) {
+        const q = filters.search.toLowerCase();
+        const isZip = /^\d{5}$/.test(filters.search);
+        if (isZip) {
+          const zip = p.city.match(/\d{5}/)?.[0] || '';
+          if (zip !== filters.search) return false;
+        } else {
+          const code = p.propertyCode || '';
+          if (
+            !code.toLowerCase().includes(q) &&
+            !p.address.toLowerCase().includes(q) &&
+            !p.city.toLowerCase().includes(q)
+          ) return false;
         }
       }
-
-      // Search filter
-      if (search) {
-        const searchLower = search.toLowerCase();
-        const propertyCode = property.propertyCode || '';
-        return (
-          propertyCode.toLowerCase().includes(searchLower) ||
-          property.address.toLowerCase().includes(searchLower) ||
-          property.city.toLowerCase().includes(searchLower)
-        );
-      }
-
       return true;
     });
-  }, [allProperties, sourceFilter, propertyType, search, zipCode]);
+  }, [allProperties, filters]);
 
   // Pagination
   const totalPages = Math.ceil(filteredProperties.length / PROPERTIES_PER_PAGE);
@@ -166,16 +237,6 @@ export default function Properties() {
 
   // No demo properties anymore
   const demoCount = 0;
-
-  const handleSourceChange = (value: string) => {
-    setSourceFilter(value);
-    setCurrentPage(1);
-  };
-
-  const handlePropertyTypeChange = (value: string) => {
-    setPropertyType(value);
-    setCurrentPage(1);
-  };
 
   const handleSelect = (id: string) => {
     const newSelected = new Set(selectedIds);
@@ -269,61 +330,104 @@ export default function Properties() {
         </Button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
+      {/* Filters — Primary Row */}
+      <FilterBar hasActiveFilters={hasActiveFilters} onClearAll={clearAllFilters}>
+        {/* Search — covers address, code, and zip */}
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by property code or address..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="pl-10"
+            placeholder="Search address, code, or zip..."
+            value={filters.search}
+            onChange={(e) => setFilter('search', e.target.value)}
+            className="pl-10 h-9"
           />
         </div>
-        <div className="relative w-full sm:w-[140px]">
-          <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Zip code"
-            value={zipCode}
-            onChange={(e) => {
-              setZipCode(e.target.value.replace(/\D/g, '').slice(0, 5));
-              setCurrentPage(1);
-            }}
-            className="pl-10"
-            maxLength={5}
+
+        {/* Source */}
+        <FilterSelect
+          value={filters.source}
+          options={PROPERTY_SOURCES as unknown as FilterOption[]}
+          onChange={(v) => setFilter('source', v)}
+          placeholder="All Sources"
+        />
+
+        {/* Property Type */}
+        <FilterSelect
+          value={filters.propertyType}
+          options={[{ value: 'all', label: 'All Types' }, ...PROPERTY_TYPES.map(t => ({ value: t, label: t }))]}
+          onChange={(v) => setFilter('propertyType', v)}
+          placeholder="All Types"
+        />
+
+        {/* Status */}
+        <FilterSelect
+          value={filters.status}
+          options={STATUS_OPTIONS}
+          onChange={(v) => setFilter('status', v)}
+          placeholder="All Status"
+        />
+
+        {/* More Filters toggle */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9"
+          onClick={() => setShowMoreFilters(prev => !prev)}
+        >
+          <SlidersHorizontal className="h-4 w-4 mr-1.5" />
+          More Filters
+          {secondaryFilterCount > 0 && (
+            <Badge className="ml-1.5 h-5 w-5 rounded-full p-0 text-[10px] flex items-center justify-center">
+              {secondaryFilterCount}
+            </Badge>
+          )}
+        </Button>
+      </FilterBar>
+
+      {/* Filters — Secondary Row */}
+      {showMoreFilters && (
+        <div className="flex flex-wrap items-center gap-2 px-4 py-2.5 bg-muted/20 rounded-lg border border-dashed">
+          <span className="text-xs text-muted-foreground uppercase tracking-wide mr-1">More:</span>
+
+          {/* Beds/Baths combined popover */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-9">
+                <BedDouble className="h-4 w-4 mr-1.5" />
+                {filters.minBeds === 'any' && filters.minBaths === 'any'
+                  ? 'Beds / Baths'
+                  : [
+                      filters.minBeds !== 'any' ? `${filters.minBeds}+ Beds` : '',
+                      filters.minBaths !== 'any' ? `${filters.minBaths}+ Baths` : '',
+                    ].filter(Boolean).join(' / ')
+                }
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-44 p-3 space-y-3">
+              <FilterSelect
+                label="Min Beds"
+                value={filters.minBeds}
+                options={BED_OPTIONS}
+                onChange={(v) => setFilter('minBeds', v)}
+              />
+              <FilterSelect
+                label="Min Baths"
+                value={filters.minBaths}
+                options={BATH_OPTIONS}
+                onChange={(v) => setFilter('minBaths', v)}
+              />
+            </PopoverContent>
+          </Popover>
+
+          {/* Price Range */}
+          <FilterSelect
+            value={filters.priceRange}
+            options={PRICE_OPTIONS}
+            onChange={(v) => setFilter('priceRange', v)}
+            placeholder="Any Price"
           />
         </div>
-        <Select value={sourceFilter} onValueChange={handleSourceChange}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <Database className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Filter by source" />
-          </SelectTrigger>
-          <SelectContent>
-            {sourceOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={propertyType} onValueChange={handlePropertyTypeChange}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <Home className="h-4 w-4 mr-2" />
-            <SelectValue placeholder="Property type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            {PROPERTY_TYPES.map((type) => (
-              <SelectItem key={type} value={type}>
-                {type}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      )}
 
       {/* Bulk Selection Toolbar */}
       {selectedIds.size > 0 && (
