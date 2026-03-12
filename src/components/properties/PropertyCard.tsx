@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Bed, Bath, Clock, Square, Share2, Check } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { StatusBadge } from '@/components/ui/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -147,15 +146,25 @@ export function PropertyCard({
         {/* Bottom info on image */}
         <div className="absolute bottom-3 left-3 right-3">
           <div className="flex items-end justify-between">
-            <div>
-              <StatusBadge status={property.status} />
+            <div className="flex items-center gap-2">
+              {property.source && (
+                <span className={cn(
+                  "inline-flex items-center rounded-md px-2 py-1 text-xs font-semibold backdrop-blur-sm",
+                  property.source === 'Zillow' && "bg-blue-500/80 text-white",
+                  property.source === 'Inventory' && "bg-purple-600/80 text-white",
+                  property.source === 'Lead' && "bg-amber-500/80 text-white",
+                  !['Zillow', 'Inventory', 'Lead'].includes(property.source) && "bg-black/60 text-white",
+                )}>
+                  {property.source}
+                </span>
+              )}
               {showPostedDate && (
-                <span className="ml-2 text-xs text-white/80">
+                <span className="text-xs text-white/80">
                   {format(new Date(property.postedDate!), 'MMM d')}
                 </span>
               )}
               {showScheduledDate && (
-                <span className="ml-2 text-xs text-white/80 flex items-center gap-1 inline-flex">
+                <span className="text-xs text-white/80 flex items-center gap-1 inline-flex">
                   <Clock className="h-3 w-3" />
                   {format(new Date(property.scheduledDate!), 'MMM d')}
                 </span>
