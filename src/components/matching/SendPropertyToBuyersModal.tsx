@@ -549,8 +549,8 @@ export function SendPropertyToBuyersModal({
               contactEmail: sb.buyer.email,
               properties: [convertedProperty],
               subject: isSpanish
-                ? `Propiedad Encontrada de Purple Homes`
-                : `Property Match from Purple Homes`,
+                ? `🏡 Casas que encontramos para ti`
+                : `🏡 Homes we found for you`,
               customMessage: customMessage || undefined,
               language: sb.buyer.language || 'English',
             });
@@ -692,12 +692,12 @@ export function SendPropertyToBuyersModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
+      <DialogContent className="max-w-md flex flex-col max-h-[90vh] overflow-hidden">
+        <DialogHeader className="shrink-0">
           <DialogTitle>Send Property to Buyers</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 overflow-y-auto flex-1 min-h-0 pr-1">
           {/* AI Recommendation Banner - Show when >5 buyers */}
           {showAiRecommendation && (
             <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg p-3">
@@ -830,7 +830,7 @@ export function SendPropertyToBuyersModal({
                       <Textarea
                         value={smsMessage}
                         onChange={(e) => setSmsMessage(e.target.value)}
-                        rows={8}
+                        rows={6}
                         className="text-sm font-mono bg-white"
                         placeholder="SMS message..."
                       />
@@ -906,7 +906,7 @@ export function SendPropertyToBuyersModal({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="shrink-0 border-t pt-4">
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}

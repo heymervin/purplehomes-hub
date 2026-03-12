@@ -5,6 +5,11 @@ import { generatePropertySlug } from '@/lib/utils/slug';
 const API_BASE = '/api/ghl';
 const SITE_URL = typeof window !== 'undefined' ? window.location.origin : 'https://purplehomes-hub.vercel.app';
 
+/** Build city string the same way PublicPropertyDetail does, so slugs match */
+function buildCityForSlug(p: { city?: string; state?: string; zipCode?: string }): string {
+  return `${p.city || ''}${p.state ? `, ${p.state}` : ''}${p.zipCode ? ` ${p.zipCode}` : ''}`;
+}
+
 export interface SendPropertyEmailOptions {
   contactId: string;
   contactName: string;
@@ -43,7 +48,7 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
     contactEmail,
     properties,
     customMessage = '',
-    agentName = 'Purple Homes',
+    agentName = 'Krista',
     agentPhone = '(555) 123-4567',
     agentEmail = 'info@purplehomes.com',
     language = 'English',
@@ -53,160 +58,125 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
 
   // Use provided subject or default based on language
   const subject = options.subject || (isSpanish
-    ? `Tus Propiedades Encontradas de Purple Homes`
-    : `Your Matched Properties from Purple Homes`);
+    ? `🏡 Casas que encontramos para ti`
+    : `🏡 Homes we found for you`);
+
+  // firstName from contactName (first word)
+  const firstName = contactName.split(' ')[0];
 
   // Prepare email body based on language
   const emailBody = isSpanish ? `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <div style="background: linear-gradient(135deg, #9333EA 0%, #7C3AED 100%); padding: 30px; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 28px;">Purple Homes</h1>
-        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Oportunidades de Inversión Inmobiliaria</p>
-      </div>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1F2937;">
+      <div style="padding: 30px 30px 0 30px;">
+        <p style="font-size: 16px; line-height: 1.7; margin: 0 0 16px 0;">Hola ${firstName},</p>
 
-      <div style="padding: 30px; background: #ffffff;">
-        <h2 style="color: #1F2937; margin-top: 0;">¡Hola ${contactName}!</h2>
-
-        <p style="color: #4B5563; line-height: 1.6;">
-          Hemos encontrado <strong style="color: #9333EA;">${properties.length} propiedad${properties.length > 1 ? 'es' : ''}</strong> que coinciden con tus criterios de inversión.
+        <p style="font-size: 16px; line-height: 1.7; margin: 0 0 16px 0;">
+          Encontramos algunas casas que podrían ser una buena opción basándonos en lo que nos dijiste. Échales un vistazo rápido y dinos si alguna te llama la atención.
         </p>
 
         ${customMessage ? `
-          <div style="background: #F3F4F6; padding: 15px; border-left: 4px solid #9333EA; margin: 20px 0;">
-            <p style="color: #374151; margin: 0; line-height: 1.6;">${customMessage}</p>
-          </div>
+          <p style="font-size: 16px; line-height: 1.7; margin: 0 0 16px 0; font-style: italic; border-left: 3px solid #9333EA; padding-left: 12px; color: #374151;">
+            ${customMessage}
+          </p>
         ` : ''}
 
-        <p style="color: #4B5563; line-height: 1.6;">
-          A continuación encontrarás toda la información detallada de las propiedades:
+        <p style="font-size: 16px; line-height: 1.7; margin: 0 0 16px 0;">
+          Si una te interesa, avísame y coordinamos un momento para que la puedas ver en persona.
         </p>
 
-        <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; margin: 25px 0;">
-          <h3 style="color: #1F2937; margin-top: 0; font-size: 16px;">Resumen Rápido de Propiedades:</h3>
-          ${properties.slice(0, 3).map((p, i) => {
-            const slug = generatePropertySlug(p.address, p.city || '');
-            const listingUrl = `${SITE_URL}/listing/${slug}`;
-            return `
-            <div style="margin: 15px 0; padding: 12px; background: white; border-radius: 6px; border: 1px solid #E5E7EB;">
-              <div style="font-weight: bold; color: #9333EA; font-size: 14px;">${i + 1}. ${p.address}</div>
-              <div style="color: #374151; margin: 5px 0;">${p.city}${p.state ? `, ${p.state}` : ''}</div>
-              <div style="color: #6B7280; font-size: 13px;">
-                <strong>$${p.price.toLocaleString()}</strong> • ${p.beds} hab • ${p.baths} baño${p.baths > 1 ? 's' : ''}
-                ${p.sqft ? ` • ${p.sqft.toLocaleString()} pies²` : ''}
-              </div>
-              ${p.downPayment ? `
-                <div style="color: #9333EA; font-size: 12px; margin-top: 5px;">
-                  Enganche: $${p.downPayment.toLocaleString()}
-                  ${p.monthlyPayment ? ` • Mensual: $${p.monthlyPayment.toLocaleString()}` : ''}
-                </div>
-              ` : ''}
-              <div style="margin-top: 8px;">
-                <a href="${listingUrl}" style="color: #9333EA; font-size: 12px; font-weight: 600; text-decoration: none;">Ver Propiedad &rarr;</a>
-              </div>
-            </div>
-          `}).join('')}
-          ${properties.length > 3 ? `
-            <div style="color: #6B7280; font-style: italic; margin-top: 10px; font-size: 13px;">
-              + ${properties.length - 3} propiedad${properties.length - 3 === 1 ? '' : 'es'} más
-            </div>
-          ` : ''}
-        </div>
-
-        <p style="color: #4B5563; line-height: 1.6;">
-          ¡Estas propiedades se están moviendo rápido! Contáctanos hoy para programar visitas u obtener más información.
+        <p style="font-size: 16px; line-height: 1.7; margin: 0 0 24px 0;">
+          Si ninguna se siente bien, está bien. Solo dinos y ajustamos las opciones para enviarte algo mejor.
         </p>
-
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="mailto:${agentEmail}" style="background: #9333EA; color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600;">
-            Contáctanos Ahora
-          </a>
-        </div>
       </div>
 
-      <div style="background: #F9FAFB; padding: 25px; text-align: center; border-top: 1px solid #E5E7EB;">
-        <p style="margin: 0; color: #6B7280; font-size: 14px;">
-          <strong>${agentName}</strong><br/>
-          ${agentPhone} • ${agentEmail}
-        </p>
-        <p style="margin: 15px 0 0 0; color: #9CA3AF; font-size: 12px;">
-          Purple Homes - Tu Socio de Inversión Inmobiliaria
-        </p>
+      <div style="padding: 0 30px;">
+        ${properties.map((p, i) => {
+          const slug = generatePropertySlug(p.address, buildCityForSlug(p));
+          const listingUrl = `${SITE_URL}/listing/${slug}`;
+          return `
+          <div style="margin: 12px 0; padding: 16px; background: #F9FAFB; border-radius: 8px; border: 1px solid #E5E7EB;">
+            <div style="font-weight: bold; color: #9333EA; font-size: 15px; margin-bottom: 4px;">${properties.length > 1 ? `${i + 1}. ` : ''}${p.address}</div>
+            <div style="color: #6B7280; font-size: 13px; margin-bottom: 6px;">${p.city || ''}${p.state ? `, ${p.state}` : ''}</div>
+            <div style="color: #374151; font-size: 13px;">
+              ${p.beds ? `${p.beds} hab` : ''}${p.baths ? ` • ${p.baths} baño${p.baths > 1 ? 's' : ''}` : ''}
+              ${p.sqft ? ` • ${p.sqft.toLocaleString()} pies²` : ''}
+            </div>
+            ${(p.downPayment || p.monthlyPayment) ? `
+              <div style="color: #9333EA; font-size: 13px; margin-top: 4px;">
+                ${p.downPayment ? `Enganche: $${p.downPayment.toLocaleString()}` : ''}
+                ${p.monthlyPayment ? ` • $${p.monthlyPayment.toLocaleString()}/mes` : ''}
+              </div>
+            ` : ''}
+            <div style="margin-top: 10px;">
+              <a href="${listingUrl}" style="background: #9333EA; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; font-size: 13px; font-weight: 600; display: inline-block;">
+                Ver Propiedad &rarr;
+              </a>
+            </div>
+          </div>
+        `}).join('')}
+      </div>
+
+      <div style="padding: 24px 30px 30px 30px;">
+        <p style="font-size: 16px; line-height: 1.7; margin: 0 0 4px 0;">Hasta pronto,</p>
+        <p style="font-size: 16px; font-weight: bold; margin: 0 0 16px 0;">${agentName}</p>
+        <p style="font-size: 13px; color: #6B7280; margin: 0;">${agentPhone} &nbsp;•&nbsp; ${agentEmail}</p>
       </div>
     </div>
   ` : `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <div style="background: linear-gradient(135deg, #9333EA 0%, #7C3AED 100%); padding: 30px; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 28px;">Purple Homes</h1>
-        <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">Investment Property Opportunities</p>
-      </div>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #1F2937;">
+      <div style="padding: 30px 30px 0 30px;">
+        <p style="font-size: 16px; line-height: 1.7; margin: 0 0 16px 0;">Hello ${firstName},</p>
 
-      <div style="padding: 30px; background: #ffffff;">
-        <h2 style="color: #1F2937; margin-top: 0;">Hello ${contactName}!</h2>
-
-        <p style="color: #4B5563; line-height: 1.6;">
-          We've found <strong style="color: #9333EA;">${properties.length} property match${properties.length > 1 ? 'es' : ''}</strong> that align with your investment criteria.
+        <p style="font-size: 16px; line-height: 1.7; margin: 0 0 16px 0;">
+          We found some homes that could be a great fit based on what you told us. Take a quick look below and see if any stand out to you.
         </p>
 
         ${customMessage ? `
-          <div style="background: #F3F4F6; padding: 15px; border-left: 4px solid #9333EA; margin: 20px 0;">
-            <p style="color: #374151; margin: 0; line-height: 1.6;">${customMessage}</p>
-          </div>
+          <p style="font-size: 16px; line-height: 1.7; margin: 0 0 16px 0; font-style: italic; border-left: 3px solid #9333EA; padding-left: 12px; color: #374151;">
+            ${customMessage}
+          </p>
         ` : ''}
 
-        <p style="color: #4B5563; line-height: 1.6;">
-          Below you'll find all the detailed property information:
+        <p style="font-size: 16px; line-height: 1.7; margin: 0 0 16px 0;">
+          If one catches your eye, let me know and we can schedule a time for you to see it in person.
         </p>
 
-        <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; margin: 25px 0;">
-          <h3 style="color: #1F2937; margin-top: 0; font-size: 16px;">Quick Property Summary:</h3>
-          ${properties.slice(0, 3).map((p, i) => {
-            const slug = generatePropertySlug(p.address, p.city || '');
-            const listingUrl = `${SITE_URL}/listing/${slug}`;
-            return `
-            <div style="margin: 15px 0; padding: 12px; background: white; border-radius: 6px; border: 1px solid #E5E7EB;">
-              <div style="font-weight: bold; color: #9333EA; font-size: 14px;">${i + 1}. ${p.address}</div>
-              <div style="color: #374151; margin: 5px 0;">${p.city}${p.state ? `, ${p.state}` : ''}</div>
-              <div style="color: #6B7280; font-size: 13px;">
-                <strong>$${p.price.toLocaleString()}</strong> • ${p.beds} bed • ${p.baths} bath
-                ${p.sqft ? ` • ${p.sqft.toLocaleString()} sqft` : ''}
-              </div>
-              ${p.downPayment ? `
-                <div style="color: #9333EA; font-size: 12px; margin-top: 5px;">
-                  Down Payment: $${p.downPayment.toLocaleString()}
-                  ${p.monthlyPayment ? ` • Monthly: $${p.monthlyPayment.toLocaleString()}` : ''}
-                </div>
-              ` : ''}
-              <div style="margin-top: 8px;">
-                <a href="${listingUrl}" style="color: #9333EA; font-size: 12px; font-weight: 600; text-decoration: none;">View Property &rarr;</a>
-              </div>
-            </div>
-          `}).join('')}
-          ${properties.length > 3 ? `
-            <div style="color: #6B7280; font-style: italic; margin-top: 10px; font-size: 13px;">
-              + ${properties.length - 3} more ${properties.length - 3 === 1 ? 'property' : 'properties'}
-            </div>
-          ` : ''}
-        </div>
-
-        <p style="color: #4B5563; line-height: 1.6;">
-          These properties are moving fast! Contact us today to schedule viewings or get more information.
+        <p style="font-size: 16px; line-height: 1.7; margin: 0 0 24px 0;">
+          If none of these feel right, that is completely fine. Just let us know and we will adjust things and send you better options.
         </p>
-
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="mailto:${agentEmail}" style="background: #9333EA; color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 600;">
-            Contact Us Now
-          </a>
-        </div>
       </div>
 
-      <div style="background: #F9FAFB; padding: 25px; text-align: center; border-top: 1px solid #E5E7EB;">
-        <p style="margin: 0; color: #6B7280; font-size: 14px;">
-          <strong>${agentName}</strong><br/>
-          ${agentPhone} • ${agentEmail}
-        </p>
-        <p style="margin: 15px 0 0 0; color: #9CA3AF; font-size: 12px;">
-          Purple Homes - Your Real Estate Investment Partner
-        </p>
+      <div style="padding: 0 30px;">
+        ${properties.map((p, i) => {
+          const slug = generatePropertySlug(p.address, buildCityForSlug(p));
+          const listingUrl = `${SITE_URL}/listing/${slug}`;
+          return `
+          <div style="margin: 12px 0; padding: 16px; background: #F9FAFB; border-radius: 8px; border: 1px solid #E5E7EB;">
+            <div style="font-weight: bold; color: #9333EA; font-size: 15px; margin-bottom: 4px;">${properties.length > 1 ? `${i + 1}. ` : ''}${p.address}</div>
+            <div style="color: #6B7280; font-size: 13px; margin-bottom: 6px;">${p.city || ''}${p.state ? `, ${p.state}` : ''}</div>
+            <div style="color: #374151; font-size: 13px;">
+              ${p.beds ? `${p.beds} bd` : ''}${p.baths ? ` • ${p.baths} ba` : ''}
+              ${p.sqft ? ` • ${p.sqft.toLocaleString()} sqft` : ''}
+            </div>
+            ${(p.downPayment || p.monthlyPayment) ? `
+              <div style="color: #9333EA; font-size: 13px; margin-top: 4px;">
+                ${p.downPayment ? `$${p.downPayment.toLocaleString()} down` : ''}
+                ${p.monthlyPayment ? ` • $${p.monthlyPayment.toLocaleString()}/mo` : ''}
+              </div>
+            ` : ''}
+            <div style="margin-top: 10px;">
+              <a href="${listingUrl}" style="background: #9333EA; color: white; padding: 8px 16px; text-decoration: none; border-radius: 5px; font-size: 13px; font-weight: 600; display: inline-block;">
+                View Home &rarr;
+              </a>
+            </div>
+          </div>
+        `}).join('')}
+      </div>
+
+      <div style="padding: 24px 30px 30px 30px;">
+        <p style="font-size: 16px; line-height: 1.7; margin: 0 0 4px 0;">Talk soon,</p>
+        <p style="font-size: 16px; font-weight: bold; margin: 0 0 16px 0;">${agentName}</p>
+        <p style="font-size: 13px; color: #6B7280; margin: 0;">${agentPhone} &nbsp;•&nbsp; ${agentEmail}</p>
       </div>
     </div>
   `;
@@ -220,11 +190,9 @@ export async function sendPropertyEmail(options: SendPropertyEmailOptions): Prom
     body: JSON.stringify({
       type: 'Email',
       contactId,
-      to: contactEmail,
+      emailTo: contactEmail,
       subject,
       html: emailBody,
-      // Use dedicated email header if configured
-      useDedicatedHeader: true,
     }),
   });
 
@@ -412,7 +380,7 @@ export function generatePropertySMS(
     }
 
     // Add funnel page link
-    const slug = generatePropertySlug(property.address, property.city || '');
+    const slug = generatePropertySlug(property.address, buildCityForSlug(property));
     const viewLabel = isSpanish ? 'Ver' : 'View';
     message += `   🔗 ${viewLabel}: ${SITE_URL}/listing/${slug}\n`;
 
@@ -420,8 +388,8 @@ export function generatePropertySMS(
   });
 
   message += isSpanish
-    ? `Responde SI si te interesa para programar una visita! 📱`
-    : `Reply YES if interested to schedule a showing! 📱`;
+    ? `¡Responde SÍ si te interesa para programar una visita! 📱`
+    : `Reply YES if you're interested to schedule a showing! 📱`;
 
   return message;
 }

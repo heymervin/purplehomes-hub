@@ -5,7 +5,7 @@
  */
 
 import { useState } from 'react';
-import { ChevronDown, Mail, Paperclip, Home } from 'lucide-react';
+import { ChevronDown, Mail, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Collapsible,
@@ -29,7 +29,7 @@ export function EmailPreview({
 }: EmailPreviewProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const subject = `Your ${properties.length} Matched Properties from Purple Homes`;
+  const subject = `🏡 Homes we found for you`;
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className={className}>
@@ -62,30 +62,25 @@ export function EmailPreview({
               <span className="font-medium text-muted-foreground w-12">Subject:</span>
               <span className="font-medium">{subject}</span>
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Paperclip className="h-3 w-3" />
-              <span>Property-Details.pdf ({properties.length} properties)</span>
-            </div>
           </div>
 
           {/* Email Body Preview */}
-          <div className="p-4 space-y-4 text-sm">
+          <div className="p-4 space-y-3 text-sm">
             <p>Hello {buyer.firstName},</p>
 
-            {customMessage ? (
+            <p className="text-muted-foreground leading-relaxed">
+              We found some homes that could be a great fit based on what you told us. Take a quick look below and see if any stand out to you.
+            </p>
+
+            {customMessage && (
               <p className="italic text-muted-foreground border-l-2 border-purple-300 pl-3">
                 {customMessage}
-              </p>
-            ) : (
-              <p>
-                We've found some properties that match your criteria! Please find the
-                details below and in the attached PDF.
               </p>
             )}
 
             {/* Property Cards Preview */}
             <div className="space-y-2">
-              {properties.slice(0, 3).map((sp, i) => (
+              {properties.map((sp, i) => (
                 <div
                   key={sp.property.code || i}
                   className="flex items-center gap-3 p-2 rounded-lg bg-muted/50"
@@ -95,29 +90,28 @@ export function EmailPreview({
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-xs truncate">
-                      {sp.property.address}
+                      {properties.length > 1 ? `${i + 1}. ` : ''}{sp.property.address}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {sp.property.price
-                        ? `$${sp.property.price.toLocaleString()}`
-                        : 'Price TBD'}{' '}
-                      • {sp.score.score}% match
+                      {sp.property.beds ? `${sp.property.beds} bd` : ''}{sp.property.baths ? ` • ${sp.property.baths} ba` : ''}
+                      {sp.property.downPayment ? ` • $${sp.property.downPayment.toLocaleString()} down` : ''}
+                      {sp.property.monthlyPayment ? ` • $${sp.property.monthlyPayment.toLocaleString()}/mo` : ''}
                     </p>
                   </div>
                 </div>
               ))}
-              {properties.length > 3 && (
-                <p className="text-xs text-muted-foreground text-center py-1">
-                  +{properties.length - 3} more{' '}
-                  {properties.length - 3 === 1 ? 'property' : 'properties'}
-                </p>
-              )}
             </div>
 
-            <p className="text-muted-foreground">
-              Best regards,
-              <br />
-              The Purple Homes Team
+            <p className="text-muted-foreground leading-relaxed">
+              If one catches your eye, let me know and we can schedule a time for you to see it in person.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              If none of these feel right, that is completely fine. Just let us know and we will adjust things and send you better options.
+            </p>
+
+            <p>
+              Talk soon,<br />
+              <strong>Krista</strong>
             </p>
           </div>
         </div>

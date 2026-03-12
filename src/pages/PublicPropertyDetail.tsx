@@ -561,7 +561,9 @@ export default function PublicPropertyDetail() {
     for (const p of airtableData.properties) {
       const city = `${p.city || ''}${p.state ? `, ${p.state}` : ''}${p.zipCode ? ` ${p.zipCode}` : ''}`;
       const propertySlug = generatePropertySlug(p.address, city);
-      if (propertySlug === slug) {
+      // Fallback: also try just address + city (without state/zip) for older SMS links
+      const cityOnlySlug = generatePropertySlug(p.address, p.city || '');
+      if (propertySlug === slug || cityOnlySlug === slug) {
         // Transform to Property type
         const transformed: Property = {
           id: p.recordId,

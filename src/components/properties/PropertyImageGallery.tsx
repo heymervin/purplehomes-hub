@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
   ChevronLeft, ChevronRight, Star, Plus, Trash2, ExternalLink,
-  GripVertical, Loader2, X
+  GripVertical, Loader2, X, Upload
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +29,7 @@ export function PropertyImageGallery({
   const [newImageUrl, setNewImageUrl] = useState('');
   const [showAddInput, setShowAddInput] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Note: GHL document URLs are now auto-uploaded on save, no need to warn users
   // const isProblematicUrl = (url: string): boolean => {
@@ -91,6 +92,34 @@ export function PropertyImageGallery({
       setSelectedIndex(Math.max(0, selectedIndex - 1));
     }
     toast.success('Image removed');
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    try {
+      const res = await fetch('/api/images/upload', {
+        method: 'POST',
+        body: file,
+        headers: {
+          'Content-Type': file.type,
+          'x-filename': `property-${Date.now()}-${file.name}`,
+        },
+      });
+      const { url } = await res.json();
+      if (!heroImage && allOriginalImages.length === 0) {
+        onHeroChange(url);
+      } else {
+        onImagesChange([...images.filter(i => i !== heroImage), url]);
+      }
+      toast.success('Image uploaded');
+    } catch {
+      toast.error('Upload failed');
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
   };
 
   const addImage = () => {
@@ -366,6 +395,23 @@ export function PropertyImageGallery({
             <Plus className="h-5 w-5 text-muted-foreground" />
             <span className="text-[10px] text-muted-foreground">+ URL</span>
           </button>
+
+          {/* Upload File Button */}
+          <label className="w-20 h-20 rounded-md border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 flex flex-col items-center justify-center transition-colors gap-1 flex-shrink-0 cursor-pointer">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileUpload}
+              disabled={isUploading}
+            />
+            {isUploading ? (
+              <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
+            ) : (
+              <Upload className="h-5 w-5 text-muted-foreground" />
+            )}
+            <span className="text-[10px] text-muted-foreground">{isUploading ? 'Uploading' : 'Upload'}</span>
+          </label>
         </div>
       )}
 
