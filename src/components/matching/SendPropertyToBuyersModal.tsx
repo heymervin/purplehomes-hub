@@ -692,7 +692,7 @@ export function SendPropertyToBuyersModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md flex flex-col max-h-[90vh] overflow-hidden">
+      <DialogContent className="max-w-xl flex flex-col max-h-[90vh] overflow-hidden">
         <DialogHeader className="shrink-0">
           <DialogTitle>Send Property to Buyers</DialogTitle>
         </DialogHeader>
