@@ -17,7 +17,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { StatusBadge } from '@/components/ui/status-badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -183,7 +182,11 @@ export default function PropertyDetail() {
                     </span>
                   )}
                 </div>
-                <StatusBadge status={property.status} />
+                {property.source && (
+                  <span className="inline-flex items-center rounded-md bg-purple-100 text-purple-700 border border-purple-200 px-2 py-0.5 text-xs font-medium">
+                    {property.source}
+                  </span>
+                )}
               </div>
 
               <h1 className="text-2xl font-bold mb-1">{property.address}</h1>
