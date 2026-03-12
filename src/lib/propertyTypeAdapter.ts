@@ -10,7 +10,7 @@ export function convertPropertyDetailsToProperty(details: PropertyDetails): Prop
     id: details.recordId,
     propertyCode: details.propertyCode,
     address: details.address,
-    city: details.city,
+    city: `${details.city || ''}${details.state ? `, ${details.state}` : ''}${details.zipCode ? ` ${details.zipCode}` : ''}` || details.city,
     price: details.price || 0,
     beds: details.beds,
     baths: details.baths,

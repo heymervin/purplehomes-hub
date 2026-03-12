@@ -7,6 +7,8 @@ const SITE_URL = typeof window !== 'undefined' ? window.location.origin : 'https
 
 /** Build city string the same way PublicPropertyDetail does, so slugs match */
 function buildCityForSlug(p: { city?: string; state?: string; zipCode?: string }): string {
+  // If city already contains a state abbreviation (e.g. "Slidell, LA 70461"), use it directly
+  if (p.city && /,\s*[A-Z]{2}\b/.test(p.city)) return p.city;
   return `${p.city || ''}${p.state ? `, ${p.state}` : ''}${p.zipCode ? ` ${p.zipCode}` : ''}`;
 }
 
