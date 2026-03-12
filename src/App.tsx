@@ -38,15 +38,15 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             
             {/* Public Routes (embeddable, no sidebar) */}
-            <Route path="/listings" element={<PublicListings />} />
             <Route path="/listing/:slug" element={<PublicPropertyDetail />} />
-            
+
             {/* Protected Internal Routes (with sidebar) */}
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/properties" element={<Properties />} />
                 <Route path="/properties/:id" element={<PropertyDetail />} />
+                <Route path="/listings" element={<PublicListings />} />
                 <Route path="/buyer-management" element={<BuyerManagement />} />
                 <Route path="/acquisitions" element={<BuyerAcquisitions />} />
                 <Route path="/seller-acquisitions" element={<SellerAcquisitions />} />
