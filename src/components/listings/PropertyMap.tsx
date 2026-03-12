@@ -422,27 +422,32 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
     if (!map.current.getLayer('unclustered-point')) return;
 
     const hoveredId = hoveredPropertyId ?? '';
+    console.log('[PropertyMap] Hover effect firing, hoveredId:', hoveredId);
 
-    map.current.setPaintProperty('unclustered-point', 'circle-color', [
-      'case',
-      ['==', ['get', 'id'], hoveredId],
-      '#f59e0b',   // amber highlight
-      '#9333ea',   // default purple
-    ]);
+    try {
+      map.current.setPaintProperty('unclustered-point', 'circle-color', [
+        'case',
+        ['==', ['get', 'id'], hoveredId],
+        '#f59e0b',   // amber highlight
+        '#9333ea',   // default purple
+      ]);
 
-    map.current.setPaintProperty('unclustered-point', 'circle-radius', [
-      'case',
-      ['==', ['get', 'id'], hoveredId],
-      14,
-      10,
-    ]);
+      map.current.setPaintProperty('unclustered-point', 'circle-radius', [
+        'case',
+        ['==', ['get', 'id'], hoveredId],
+        14,
+        10,
+      ]);
 
-    map.current.setPaintProperty('unclustered-point', 'circle-stroke-width', [
-      'case',
-      ['==', ['get', 'id'], hoveredId],
-      3,
-      2,
-    ]);
+      map.current.setPaintProperty('unclustered-point', 'circle-stroke-width', [
+        'case',
+        ['==', ['get', 'id'], hoveredId],
+        3,
+        2,
+      ]);
+    } catch (err) {
+      console.error('[PropertyMap] setPaintProperty failed:', err);
+    }
   }, [hoveredPropertyId, mapLoaded]);
 
   // Update map style when theme changes
