@@ -18,7 +18,7 @@ export default function ToneSelector({ selectedTone, onSelect }: ToneSelectorPro
           className={cn(
             "px-4 py-2 rounded-full text-sm font-medium transition-all",
             selectedTone === preset.id
-              ? "bg-purple-600 text-white shadow-md"
+              ? "bg-primary text-primary-foreground shadow-md"
               : "bg-muted hover:bg-muted/80 text-foreground"
           )}
         >

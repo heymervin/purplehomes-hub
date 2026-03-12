@@ -13,6 +13,7 @@ import {
   Megaphone,
   Contact,
   GitCompareArrows,
+  Globe,
 } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -46,7 +47,7 @@ const navigationGroups: NavGroup[] = [
     label: 'Properties',
     items: [
       { name: 'Properties', href: '/properties', icon: Building2, permission: 'properties' },
-      { name: 'Matching', href: '/matching', icon: GitCompareArrows, permission: 'properties' },
+      { name: 'Public Listings', href: '/listings', icon: Globe, permission: 'public-listings' },
     ],
   },
   {
@@ -54,6 +55,7 @@ const navigationGroups: NavGroup[] = [
     items: [
       { name: 'Buyers', href: '/buyer-management', icon: Users, permission: 'buyers' },
       { name: 'Contacts', href: '/contacts', icon: Contact, permission: 'contacts' },
+      { name: 'Matching', href: '/matching', icon: GitCompareArrows, permission: 'properties' },
     ],
   },
   {
@@ -67,14 +69,14 @@ const navigationGroups: NavGroup[] = [
     label: 'Marketing',
     items: [
       { name: 'Social Hub', href: '/social', icon: Megaphone, permission: 'social-hub' },
+      { name: 'Documents', href: '/documents', icon: FileText, permission: 'documents' },
     ],
   },
   {
     label: 'System',
     items: [
-      { name: 'Documents', href: '/documents', icon: FileText, permission: 'documents' },
-      { name: 'Activity Logs', href: '/activity', icon: Activity, permission: 'activity-logs' },
       { name: 'Settings', href: '/settings', icon: Settings, permission: 'settings' },
+      { name: 'Activity Logs', href: '/activity', icon: Activity, permission: 'activity-logs' },
     ],
   },
 ];
@@ -120,12 +122,12 @@ export function AppSidebar() {
     >
       <div className="flex h-full flex-col">
         {/* Logo */}
-        <div className="flex items-center gap-2 px-4 py-4 border-b border-border">
-          <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-xs font-bold">PH</span>
+        <div className="flex items-center gap-2.5 px-4 h-14 border-b border-border flex-shrink-0">
+          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
+            <span className="text-xs font-bold text-white tracking-tight">PH</span>
           </div>
           {!sidebarCollapsed && (
-            <span className="text-sm font-semibold tracking-tight text-foreground">Purple Homes</span>
+            <span className="font-semibold text-sm text-foreground tracking-tight">Purple Homes</span>
           )}
           {!sidebarCollapsed && (
             <button
@@ -151,14 +153,19 @@ export function AppSidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 px-2 py-2 overflow-y-auto">
-          {filteredGroups.map((group) => (
+          {filteredGroups.map((group, groupIndex) => (
             <div key={group.label}>
               {!sidebarCollapsed && (
-                <p className="px-3 pt-4 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                <p
+                  className={cn(
+                    "text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 px-3 py-1 mb-1",
+                    groupIndex === 0 ? "" : "mt-4"
+                  )}
+                >
                   {group.label}
                 </p>
               )}
-              {sidebarCollapsed && <div className="pt-3" />}
+              {sidebarCollapsed && groupIndex !== 0 && <div className="pt-3" />}
               <div className="space-y-0.5">
                 {group.items.map((item) => {
                   const isActive =
@@ -170,14 +177,14 @@ export function AppSidebar() {
                       key={item.name}
                       to={item.href}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200",
+                        "flex items-center gap-3 rounded-md px-3 h-9 text-sm font-medium transition-colors border-l-2",
                         isActive
-                          ? "bg-primary/10 text-primary font-medium border-l-2 border-primary pl-[6px]"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                       title={sidebarCollapsed ? item.name : undefined}
                     >
-                      <item.icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-primary")} />
+                      <item.icon className={cn("h-5 w-5 flex-shrink-0", isActive ? "text-primary" : "")} />
                       {!sidebarCollapsed && <span>{item.name}</span>}
                     </NavLink>
                   );
@@ -188,7 +195,7 @@ export function AppSidebar() {
         </nav>
 
         {/* Theme Toggle & User Info */}
-        <div className="border-t border-sidebar-border p-3 space-y-2">
+        <div className="border-t border-sidebar-border p-3 space-y-1">
           <ThemeToggle collapsed={sidebarCollapsed} />
 
           {user && !sidebarCollapsed && (

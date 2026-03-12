@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Bed, 
-  Bath, 
-  Square, 
-  ExternalLink, 
-  RefreshCw, 
-  Send, 
-  Calendar, 
+import {
+  ArrowLeft,
+  Bed,
+  Bath,
+  Square,
+  ExternalLink,
+  RefreshCw,
+  Send,
+  Calendar,
   SkipForward,
   Trash2,
   Image as ImageIcon,
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageContainer } from '@/components/ui/page-container';
 import { Textarea } from '@/components/ui/textarea';
 import {
   AlertDialog,
@@ -127,7 +128,7 @@ export default function PropertyDetail() {
   };
 
   return (
-    <div className="space-y-6 p-6">
+    <PageContainer>
       {/* Back Button */}
       <Button variant="ghost" onClick={() => navigate(fromPage)}>
         <ArrowLeft className="h-4 w-4 mr-2" />
@@ -406,6 +407,6 @@ export default function PropertyDetail() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </PageContainer>
   );
 }

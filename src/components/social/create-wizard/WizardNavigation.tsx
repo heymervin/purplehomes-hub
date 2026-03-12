@@ -57,7 +57,7 @@ export default function WizardNavigation({
         <Button
           onClick={onNext}
           disabled={!canGoNext}
-          className="gap-2 bg-purple-600 hover:bg-purple-700"
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           Next: {nextConfig?.title}
           <ChevronRight className="h-4 w-4" />
@@ -66,7 +66,7 @@ export default function WizardNavigation({
         <Button
           onClick={onNext}
           disabled={!canGoNext || isPublishing}
-          className="gap-2 bg-purple-600 hover:bg-purple-700"
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <Rocket className="h-4 w-4" />
           {isPublishing ? 'Publishing...' : 'Publish Now'}

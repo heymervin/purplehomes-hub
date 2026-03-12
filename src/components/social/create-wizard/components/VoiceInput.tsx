@@ -356,7 +356,7 @@ export default function VoiceInput({ onTranscript, disabled, className }: VoiceI
                   {[...Array(20)].map((_, i) => (
                     <div
                       key={i}
-                      className="w-1.5 bg-purple-500 rounded-full transition-all duration-75"
+                      className="w-1.5 bg-primary rounded-full transition-all duration-75"
                       style={{
                         height: `${Math.max(8, Math.min(64, (audioLevel * 64 * (0.5 + Math.random() * 0.5))))}px`,
                         opacity: 0.5 + audioLevel * 0.5,
@@ -400,8 +400,8 @@ export default function VoiceInput({ onTranscript, disabled, className }: VoiceI
             {modalState === 'processing' && (
               <div className="flex flex-col items-center justify-center py-8 space-y-4">
                 <div className="relative">
-                  <div className="h-16 w-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                  <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">

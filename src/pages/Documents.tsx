@@ -11,7 +11,6 @@ import {
   CheckCircle,
   AlertCircle,
   Wifi,
-  WifiOff,
   X,
   ChevronDown,
   RefreshCw
@@ -309,15 +308,10 @@ export default function Documents() {
         description="View and track documents generated via HighLevel workflows"
         actions={
           <>
-            {isGhlConnected ? (
+            {isGhlConnected && (
               <Badge className="bg-success flex items-center gap-1">
                 <Wifi className="h-3 w-3" />
                 GHL Connected
-              </Badge>
-            ) : (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <WifiOff className="h-3 w-3" />
-                Demo Mode
               </Badge>
             )}
             <Button

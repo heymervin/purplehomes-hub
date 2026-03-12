@@ -178,7 +178,7 @@ export default function PublishStep({ state, updateState, onGoToStep }: PublishS
                       {isGenerating && (
                         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
                           <div className="text-center space-y-2">
-                            <Loader2 className="h-8 w-8 animate-spin text-purple-500 mx-auto" />
+                            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
                             <p className="text-sm font-medium">Generating image preview...</p>
                           </div>
                         </div>
@@ -245,7 +245,7 @@ export default function PublishStep({ state, updateState, onGoToStep }: PublishS
                   className={cn(
                     "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
                     state.selectedAccounts.includes(account.id)
-                      ? "border-purple-600 bg-purple-50 dark:bg-purple-950/20"
+                      ? "border-primary bg-primary/5 dark:bg-primary/5"
                       : "hover:bg-muted/50"
                   )}
                 >

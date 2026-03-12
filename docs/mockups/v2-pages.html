@@ -1,0 +1,2683 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Purple Homes Hub — v2 Pages Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --surface: #fafafa;
+      --surface-2: #f4f4f5;
+      --border: #e4e4e7;
+      --text: #09090b;
+      --text-muted: #71717a;
+      --text-faint: #a1a1aa;
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+      --accent-bg: #eef2ff;
+      --accent-border: #c7d2fe;
+      --sidebar-bg: #f8fafc;
+      --sidebar-border: #e2e8f0;
+      --success: #16a34a;
+      --success-bg: #f0fdf4;
+      --success-text: #15803d;
+      --warning: #d97706;
+      --warning-bg: #fffbeb;
+      --warning-text: #b45309;
+      --destructive: #dc2626;
+      --destructive-bg: #fef2f2;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0c0c0e;
+      --surface: #141416;
+      --surface-2: #1c1c1f;
+      --border: #27272a;
+      --text: #fafafa;
+      --text-muted: #71717a;
+      --text-faint: #52525b;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-bg: #1e1b4b;
+      --accent-border: #3730a3;
+      --sidebar-bg: #111113;
+      --sidebar-border: #1f1f23;
+      --success: #22c55e;
+      --success-bg: #052e16;
+      --success-text: #4ade80;
+      --warning: #f59e0b;
+      --warning-bg: #1c1400;
+      --warning-text: #fbbf24;
+      --destructive: #ef4444;
+      --destructive-bg: #1f0000;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── APP SHELL ─── */
+    .app {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--sidebar-border);
+      display: flex;
+      flex-direction: column;
+      transition: width 0.2s ease, min-width 0.2s ease;
+      overflow: hidden;
+      position: relative;
+      z-index: 10;
+    }
+    .sidebar.collapsed {
+      width: 56px;
+      min-width: 56px;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 14px 14px;
+      border-bottom: 1px solid var(--sidebar-border);
+      min-height: 56px;
+    }
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      background: var(--accent);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .logo-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .logo-text span {
+      color: var(--accent);
+    }
+    .sidebar.collapsed .logo-text,
+    .sidebar.collapsed .nav-label,
+    .sidebar.collapsed .nav-group-label,
+    .sidebar.collapsed .sidebar-footer-label {
+      display: none;
+    }
+    .collapse-btn {
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: var(--bg);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 11px;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .collapse-btn:hover { background: var(--surface-2); }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 8px 0;
+      scrollbar-width: thin;
+    }
+    .nav-group {
+      padding: 10px 0 2px;
+    }
+    .nav-group-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--text-faint);
+      padding: 0 14px 4px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 14px;
+      cursor: pointer;
+      border-radius: 0;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      font-weight: 450;
+      white-space: nowrap;
+      overflow: hidden;
+      border-left: 3px solid transparent;
+      transition: color 0.1s, background 0.1s;
+      position: relative;
+    }
+    .nav-item:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+    .nav-item.active {
+      background: var(--accent-bg);
+      color: var(--accent);
+      border-left-color: var(--accent);
+      font-weight: 500;
+    }
+    .nav-icon {
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent-bg);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 10px;
+      min-width: 20px;
+      text-align: center;
+    }
+    .nav-item.active .nav-badge {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--sidebar-border);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .avatar-sm {
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .sidebar-footer-label {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .sidebar-footer-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ─── MAIN CONTENT ─── */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--bg);
+      position: relative;
+    }
+
+    /* ─── TOP TOOLBAR ─── */
+    .top-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 24px;
+      height: 48px;
+      gap: 8px;
+    }
+    .theme-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      transition: background 0.15s;
+    }
+    .theme-btn:hover { background: var(--surface-2); }
+
+    /* ─── PAGE CONTENT ─── */
+    .page {
+      display: none;
+      padding: 24px;
+      max-width: 1400px;
+    }
+    .page.active { display: block; }
+
+    /* ─── PAGE HEADER ─── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 16px;
+    }
+    .page-header-left h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+    }
+    .page-header-left p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+    .page-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+      line-height: 1;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { background: var(--surface-2); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      padding: 7px 10px;
+    }
+    .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.15s;
+    }
+    .btn-icon:hover { background: var(--surface-2); }
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12.5px;
+    }
+    .btn-destructive {
+      background: var(--destructive);
+      color: #fff;
+      border: none;
+    }
+
+    /* ─── STAT CARDS ─── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-trend {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+    .trend-up { color: #16a34a; }
+    .trend-down { color: #dc2626; }
+    .trend-neutral { color: var(--text-muted); }
+
+    /* ─── CARDS ─── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .card-body { padding: 20px; }
+
+    /* ─── BADGES ─── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .badge-active { background: #f0fdf4; color: #15803d; }
+    .badge-pending { background: #fffbeb; color: #b45309; }
+    .badge-inactive { background: #f4f4f5; color: #71717a; }
+    .badge-qualified { background: #eef2ff; color: #4338ca; }
+    .badge-contract { background: #eff6ff; color: #1d4ed8; }
+    .badge-closed { background: #f0fdf4; color: #15803d; }
+    .badge-dead { background: #f4f4f5; color: #71717a; }
+    .badge-score-hi { background: #f0fdf4; color: #15803d; }
+    .badge-score-mid { background: #fffbeb; color: #b45309; }
+    .badge-score-lo { background: #f4f4f5; color: #52525b; }
+
+    [data-theme="dark"] .badge-active { background: #052e16; color: #4ade80; }
+    [data-theme="dark"] .badge-pending { background: #1c1400; color: #fbbf24; }
+    [data-theme="dark"] .badge-inactive { background: #1c1c1f; color: #a1a1aa; }
+    [data-theme="dark"] .badge-qualified { background: #1e1b4b; color: #a5b4fc; }
+    [data-theme="dark"] .badge-contract { background: #172554; color: #93c5fd; }
+    [data-theme="dark"] .badge-closed { background: #052e16; color: #4ade80; }
+    [data-theme="dark"] .badge-dead { background: #1c1c1f; color: #71717a; }
+    [data-theme="dark"] .badge-score-hi { background: #052e16; color: #4ade80; }
+    [data-theme="dark"] .badge-score-mid { background: #1c1400; color: #fbbf24; }
+    [data-theme="dark"] .badge-score-lo { background: #1c1c1f; color: #a1a1aa; }
+
+    /* ─── TABLES ─── */
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    thead th {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      height: 48px;
+      transition: background 0.1s;
+    }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--surface-2); }
+    tbody td {
+      padding: 0 16px;
+      font-size: 13.5px;
+      color: var(--text);
+      vertical-align: middle;
+    }
+    .td-muted { color: var(--text-muted); font-size: 12.5px; }
+    .td-primary { font-weight: 500; }
+
+    /* ─── FILTER BAR ─── */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .filter-input {
+      padding: 7px 12px 7px 32px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+      min-width: 220px;
+      position: relative;
+    }
+    .filter-input:focus { border-color: var(--accent); }
+    .filter-input-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .filter-input-icon {
+      position: absolute;
+      left: 10px;
+      color: var(--text-faint);
+      font-size: 13px;
+      pointer-events: none;
+    }
+    .filter-select {
+      padding: 7px 28px 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      min-width: 130px;
+    }
+    .filter-select:focus { border-color: var(--accent); }
+
+    /* ─── TABS ─── */
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .tab {
+      padding: 10px 16px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.15s;
+      white-space: nowrap;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ─── PROPERTY CARDS ─── */
+    .property-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .property-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.15s;
+    }
+    .property-card:hover { box-shadow: var(--shadow-md); }
+    .property-img {
+      width: 100%;
+      height: 160px;
+      background: var(--surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-faint);
+      font-size: 28px;
+      position: relative;
+    }
+    .property-img-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+    .property-body {
+      padding: 14px 16px 16px;
+    }
+    .property-price {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .property-address {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .property-city {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .property-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+    .property-meta span {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    /* ─── KANBAN ─── */
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+    .kanban-col {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .kanban-col-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-left: 3px solid;
+    }
+    .kanban-col-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .kanban-count {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      background: var(--surface-2);
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .kanban-col-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .kanban-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+    .kanban-card:hover { box-shadow: var(--shadow-md); }
+    .kanban-card-address {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+    .kanban-card-price {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .kanban-card-meta {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    /* ─── SCORE CARDS ─── */
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .score-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .score-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .score-badge {
+      font-size: 13px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+    .score-address {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .score-buyer {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .score-reasons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .score-reason-tag {
+      font-size: 11.5px;
+      padding: 2px 8px;
+      background: var(--surface-2);
+      border-radius: 4px;
+      color: var(--text-muted);
+    }
+    .score-distance {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ─── ACTIVITY FEED ─── */
+    .activity-feed { display: flex; flex-direction: column; }
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot {
+      width: 8px;
+      height: 8px;
+      min-width: 8px;
+      border-radius: 50%;
+      margin-top: 5px;
+    }
+    .activity-dot-blue { background: #3b82f6; }
+    .activity-dot-green { background: #22c55e; }
+    .activity-dot-amber { background: #f59e0b; }
+    .activity-dot-indigo { background: var(--accent); }
+    .activity-dot-red { background: #ef4444; }
+    .activity-content {
+      flex: 1;
+    }
+    .activity-action {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 1px;
+    }
+    .activity-detail {
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+    .activity-time {
+      font-size: 11.5px;
+      color: var(--text-faint);
+      white-space: nowrap;
+    }
+
+    /* ─── TWO-COL GRID ─── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* ─── SOCIAL HUB ─── */
+    .social-composer {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 20px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .form-input, .form-textarea, .form-select-full {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select-full:focus {
+      border-color: var(--accent);
+    }
+    .form-textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+    .platform-checks {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .platform-check {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+    .platform-check.checked {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    .preview-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .preview-card-img {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+    }
+    .preview-card-body { padding: 14px; }
+    .preview-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .preview-card-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .preview-hashtags {
+      font-size: 12.5px;
+      color: var(--accent);
+    }
+
+    /* ─── SETTINGS ─── */
+    .connection-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .connection-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .connection-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .connection-info { }
+    .connection-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12.5px;
+    }
+    .dot-online {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+    .dot-offline {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+
+    /* ─── AUTH PAGE ─── */
+    .auth-page {
+      display: none;
+      min-height: 100vh;
+      background: var(--bg);
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-page.active { display: flex; }
+    .auth-card {
+      width: 100%;
+      max-width: 360px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 32px;
+      box-shadow: var(--shadow-md);
+    }
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .auth-logo-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .auth-logo h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .auth-logo p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+    }
+    .auth-form .form-group { margin-bottom: 14px; }
+    .auth-form .form-label { margin-bottom: 5px; }
+    .auth-submit {
+      width: 100%;
+      padding: 10px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.15s;
+    }
+    .auth-submit:hover { background: var(--accent-hover); }
+
+    /* ─── TOGGLE GROUP ─── */
+    .toggle-group {
+      display: inline-flex;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .toggle-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.15s;
+    }
+    .toggle-btn + .toggle-btn { border-left: 1px solid var(--border); }
+    .toggle-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+    /* ─── METRIC MINI CARDS ─── */
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1200px) {
+      .kanban-board { grid-template-columns: repeat(3, 1fr); }
+      .score-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 960px) {
+      .property-grid { grid-template-columns: repeat(2, 1fr); }
+      .two-col { grid-template-columns: 1fr; }
+      .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ─── CHECKBOX ─── */
+    .cb {
+      width: 15px;
+      height: 15px;
+      border: 1.5px solid var(--border);
+      border-radius: 3px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+    /* ─── SECTION LABEL ─── */
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    /* ─── INLINE STAT ─── */
+    .inline-stats {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .inline-stats strong { color: var(--text); font-weight: 500; }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-size: 13.5px;
+    }
+
+    /* ─── NOTIFICATION DOT ─── */
+    .notif-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ef4444;
+      position: absolute;
+      top: 6px;
+      right: 6px;
+    }
+
+    /* ─── DEAL METRIC ─── */
+    .deal-metric {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px 20px;
+    }
+    .deal-metric-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .deal-metric-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+    .deal-metric-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     AUTH PAGE (shown standalone, no sidebar)
+═══════════════════════════════════════════ -->
+<div class="auth-page" id="page-auth">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">P</div>
+      <h1>Purple Homes Hub</h1>
+      <p>Sign in to your account</p>
+    </div>
+    <div class="auth-form">
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input type="email" class="form-input" placeholder="mervin@purplehomes.com" value="mervin@purplehomes.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" placeholder="••••••••" value="••••••••" />
+      </div>
+      <button class="auth-submit" onclick="showApp()">Sign In</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     APP SHELL (sidebar + main)
+═══════════════════════════════════════════ -->
+<div class="app" id="app-shell" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon">P</div>
+        <div class="logo-text">Purple <span>Homes</span></div>
+      </div>
+      <button class="collapse-btn" onclick="toggleSidebar()" title="Collapse sidebar">&#8942;</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-group-label">Overview</div>
+        <div class="nav-item active" onclick="showPage('dashboard')">
+          <span class="nav-icon">⊞</span>
+          <span class="nav-label">Dashboard</span>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">Properties</div>
+        <div class="nav-item" onclick="showPage('properties')">
+          <span class="nav-icon">⌂</span>
+          <span class="nav-label">Properties</span>
+          <span class="nav-badge">24</span>
+        </div>
+        <div class="nav-item" onclick="showPage('matching')">
+          <span class="nav-icon">◎</span>
+          <span class="nav-label">Matching</span>
+          <span class="nav-badge">67</span>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">People</div>
+        <div class="nav-item" onclick="showPage('buyers')">
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <span class="nav-label">Buyers</span>
+          <span class="nav-badge">142</span>
+        </div>
+        <div class="nav-item" onclick="showPage('contacts')">
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.49 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.4 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6.22 6.22l1.06-1.06a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.99 16.92z"/></svg></span>
+          <span class="nav-label">Contacts</span>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">Pipeline</div>
+        <div class="nav-item" onclick="showPage('seller-pipeline')">
+          <span class="nav-icon">⬡</span>
+          <span class="nav-label">Seller Pipeline</span>
+        </div>
+        <div class="nav-item" onclick="showPage('deal-pipeline')">
+          <span class="nav-icon">◈</span>
+          <span class="nav-label">Deal Pipeline</span>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">Marketing</div>
+        <div class="nav-item" onclick="showPage('social-hub')">
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg></span>
+          <span class="nav-label">Social Hub</span>
+          <span style="position:relative; display:inline-block; width:16px; height:16px;">
+            <span class="notif-dot" style="top:2px;right:0;"></span>
+          </span>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">System</div>
+        <div class="nav-item" onclick="showPage('documents')">
+          <span class="nav-icon">▤</span>
+          <span class="nav-label">Documents</span>
+        </div>
+        <div class="nav-item" onclick="showPage('activity-logs')">
+          <span class="nav-icon">≡</span>
+          <span class="nav-label">Activity Logs</span>
+        </div>
+        <div class="nav-item" onclick="showPage('settings')">
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span class="nav-label">Settings</span>
+        </div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="avatar-sm">MD</div>
+      <div class="sidebar-footer-label">
+        <div style="font-size:12.5px;font-weight:500;color:var(--text);">Mervin D.</div>
+        <div class="sidebar-footer-sub">Admin</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main" id="main-content">
+
+    <!-- TOP TOOLBAR -->
+    <div class="top-toolbar">
+      <button class="theme-btn" onclick="toggleTheme()" title="Toggle dark mode"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></button>
+    </div>
+
+    <!-- ═══ PAGE: DASHBOARD ═══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Dashboard</h1>
+          <p>Good morning, Mervin — here's what's happening today.</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-outline btn-sm">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Active Properties</div>
+          <div class="stat-value">24</div>
+          <div class="stat-trend trend-up">↑ 3 this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Buyers</div>
+          <div class="stat-value">142</div>
+          <div class="stat-trend trend-up">↑ 12 this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Open Deals</div>
+          <div class="stat-value">8</div>
+          <div class="stat-trend trend-down">↓ 2 this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Matches Found</div>
+          <div class="stat-value">67</div>
+          <div class="stat-trend trend-up">↑ 18% this month</div>
+        </div>
+      </div>
+
+      <!-- Two-col: Recent Properties + Activity -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Properties</span>
+            <button class="btn btn-ghost btn-sm" onclick="showPage('properties')">View all →</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Address</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Matches</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><div class="td-primary">4512 Crestwood Dr</div><div class="td-muted">Houston, TX 77007</div></td>
+                  <td style="font-weight:600;color:var(--accent);">$287,000</td>
+                  <td><span class="badge badge-active">Active</span></td>
+                  <td><span style="font-weight:500;">12</span></td>
+                </tr>
+                <tr>
+                  <td><div class="td-primary">7823 Briargrove Ln</div><div class="td-muted">Houston, TX 77042</div></td>
+                  <td style="font-weight:600;color:var(--accent);">$349,500</td>
+                  <td><span class="badge badge-active">Active</span></td>
+                  <td><span style="font-weight:500;">8</span></td>
+                </tr>
+                <tr>
+                  <td><div class="td-primary">2201 Westheimer Rd</div><div class="td-muted">Houston, TX 77098</div></td>
+                  <td style="font-weight:600;color:var(--accent);">$415,000</td>
+                  <td><span class="badge badge-pending">Pending</span></td>
+                  <td><span style="font-weight:500;">5</span></td>
+                </tr>
+                <tr>
+                  <td><div class="td-primary">9134 Fallbrook Dr</div><div class="td-muted">Houston, TX 77064</div></td>
+                  <td style="font-weight:600;color:var(--accent);">$198,000</td>
+                  <td><span class="badge badge-active">Active</span></td>
+                  <td><span style="font-weight:500;">19</span></td>
+                </tr>
+                <tr>
+                  <td><div class="td-primary">5560 Chimney Rock Rd</div><div class="td-muted">Houston, TX 77081</div></td>
+                  <td style="font-weight:600;color:var(--accent);">$162,500</td>
+                  <td><span class="badge badge-inactive">Off Market</span></td>
+                  <td><span style="font-weight:500;">3</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Activity</span>
+            <button class="btn btn-ghost btn-sm" onclick="showPage('activity-logs')">View all →</button>
+          </div>
+          <div class="card-body">
+            <div class="activity-feed">
+              <div class="activity-item">
+                <div class="activity-dot activity-dot-green"></div>
+                <div class="activity-content">
+                  <div class="activity-action">New buyer registered</div>
+                  <div class="activity-detail">Marcus T. — looking in Katy, TX · up to $320k</div>
+                </div>
+                <div class="activity-time">2m ago</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot activity-dot-indigo"></div>
+                <div class="activity-content">
+                  <div class="activity-action">Property matched</div>
+                  <div class="activity-detail">4512 Crestwood Dr → 3 new buyer matches</div>
+                </div>
+                <div class="activity-time">14m ago</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot activity-dot-blue"></div>
+                <div class="activity-content">
+                  <div class="activity-action">Deal moved to Under Contract</div>
+                  <div class="activity-detail">7823 Briargrove — buyer: Sandra K.</div>
+                </div>
+                <div class="activity-time">1h ago</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot activity-dot-amber"></div>
+                <div class="activity-content">
+                  <div class="activity-action">Social post scheduled</div>
+                  <div class="activity-detail">Just Listed — 9134 Fallbrook Dr · Instagram + Facebook</div>
+                </div>
+                <div class="activity-time">2h ago</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot activity-dot-green"></div>
+                <div class="activity-content">
+                  <div class="activity-action">Property added</div>
+                  <div class="activity-detail">1445 Dunlavy St — $224,000 · 3 bed / 2 bath</div>
+                </div>
+                <div class="activity-time">3h ago</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot activity-dot-red"></div>
+                <div class="activity-content">
+                  <div class="activity-action">Deal marked as Dead</div>
+                  <div class="activity-detail">2201 Westheimer — financing fell through</div>
+                </div>
+                <div class="activity-time">5h ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /dashboard -->
+
+    <!-- ═══ PAGE: PROPERTIES ═══ -->
+    <div class="page" id="page-properties">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Properties</h1>
+          <p>24 properties in your portfolio</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn-icon">↻</button>
+          <button class="btn btn-primary">+ Add Property</button>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-input-wrap">
+          <span class="filter-input-icon">⌕</span>
+          <input class="filter-input" type="text" placeholder="Search by address, city..." />
+        </div>
+        <select class="filter-select">
+          <option>All Sources</option>
+          <option>MLS</option>
+          <option>Direct</option>
+          <option>Zillow</option>
+          <option>Wholesaler</option>
+        </select>
+        <select class="filter-select">
+          <option>All Statuses</option>
+          <option>Active</option>
+          <option>Pending</option>
+          <option>Off Market</option>
+          <option>Sold</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" style="color:var(--text-muted);display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Clear filters</button>
+      </div>
+
+      <div class="property-grid">
+        <!-- Card 1 -->
+        <div class="property-card">
+          <div class="property-img">
+            ⌂
+            <div class="property-img-badge"><span class="badge badge-active">Active</span></div>
+          </div>
+          <div class="property-body">
+            <div class="property-price">$287,000</div>
+            <div class="property-address">4512 Crestwood Drive</div>
+            <div class="property-city">Houston, TX 77007</div>
+            <div class="property-meta">
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V4a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5M2 22v-5a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5M2 13h20M7 9v4M17 9v4"/></svg> 3 bd</span>
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><line x1="10" y1="5" x2="8" y2="7"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="7" y1="19" x2="7" y2="21"/><line x1="17" y1="19" x2="17" y2="21"/></svg> 2 ba</span>
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> 1,842 sqft</span>
+              <span style="margin-left:auto;">12 matches</span>
+            </div>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="property-card">
+          <div class="property-img">
+            ⌂
+            <div class="property-img-badge"><span class="badge badge-active">Active</span></div>
+          </div>
+          <div class="property-body">
+            <div class="property-price">$349,500</div>
+            <div class="property-address">7823 Briargrove Lane</div>
+            <div class="property-city">Houston, TX 77042</div>
+            <div class="property-meta">
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V4a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5M2 22v-5a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5M2 13h20M7 9v4M17 9v4"/></svg> 4 bd</span>
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><line x1="10" y1="5" x2="8" y2="7"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="7" y1="19" x2="7" y2="21"/><line x1="17" y1="19" x2="17" y2="21"/></svg> 3 ba</span>
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> 2,310 sqft</span>
+              <span style="margin-left:auto;">8 matches</span>
+            </div>
+          </div>
+        </div>
+        <!-- Card 3 -->
+        <div class="property-card">
+          <div class="property-img">
+            ⌂
+            <div class="property-img-badge"><span class="badge badge-pending">Pending</span></div>
+          </div>
+          <div class="property-body">
+            <div class="property-price">$415,000</div>
+            <div class="property-address">2201 Westheimer Road</div>
+            <div class="property-city">Houston, TX 77098</div>
+            <div class="property-meta">
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V4a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5M2 22v-5a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5M2 13h20M7 9v4M17 9v4"/></svg> 4 bd</span>
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><line x1="10" y1="5" x2="8" y2="7"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="7" y1="19" x2="7" y2="21"/><line x1="17" y1="19" x2="17" y2="21"/></svg> 2 ba</span>
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> 2,640 sqft</span>
+              <span style="margin-left:auto;">5 matches</span>
+            </div>
+          </div>
+        </div>
+        <!-- Card 4 -->
+        <div class="property-card">
+          <div class="property-img">
+            ⌂
+            <div class="property-img-badge"><span class="badge badge-active">Active</span></div>
+          </div>
+          <div class="property-body">
+            <div class="property-price">$198,000</div>
+            <div class="property-address">9134 Fallbrook Drive</div>
+            <div class="property-city">Houston, TX 77064</div>
+            <div class="property-meta">
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V4a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5M2 22v-5a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5M2 13h20M7 9v4M17 9v4"/></svg> 3 bd</span>
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><line x1="10" y1="5" x2="8" y2="7"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="7" y1="19" x2="7" y2="21"/><line x1="17" y1="19" x2="17" y2="21"/></svg> 2 ba</span>
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> 1,520 sqft</span>
+              <span style="margin-left:auto;">19 matches</span>
+            </div>
+          </div>
+        </div>
+        <!-- Card 5 -->
+        <div class="property-card">
+          <div class="property-img">
+            ⌂
+            <div class="property-img-badge"><span class="badge badge-inactive">Off Market</span></div>
+          </div>
+          <div class="property-body">
+            <div class="property-price">$162,500</div>
+            <div class="property-address">5560 Chimney Rock Road</div>
+            <div class="property-city">Houston, TX 77081</div>
+            <div class="property-meta">
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V4a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5M2 22v-5a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5M2 13h20M7 9v4M17 9v4"/></svg> 2 bd</span>
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><line x1="10" y1="5" x2="8" y2="7"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="7" y1="19" x2="7" y2="21"/><line x1="17" y1="19" x2="17" y2="21"/></svg> 1 ba</span>
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> 1,180 sqft</span>
+              <span style="margin-left:auto;">3 matches</span>
+            </div>
+          </div>
+        </div>
+        <!-- Card 6 -->
+        <div class="property-card">
+          <div class="property-img">
+            ⌂
+            <div class="property-img-badge"><span class="badge badge-active">Active</span></div>
+          </div>
+          <div class="property-body">
+            <div class="property-price">$224,000</div>
+            <div class="property-address">1445 Dunlavy Street</div>
+            <div class="property-city">Houston, TX 77006</div>
+            <div class="property-meta">
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9V4a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5M2 22v-5a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1v5M2 13h20M7 9v4M17 9v4"/></svg> 3 bd</span>
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-1-.5C4.683 3 4 3.683 4 4.5V17a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5"/><line x1="10" y1="5" x2="8" y2="7"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="7" y1="19" x2="7" y2="21"/><line x1="17" y1="19" x2="17" y2="21"/></svg> 2 ba</span>
+              <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg> 1,680 sqft</span>
+              <span style="margin-left:auto;">7 matches</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /properties -->
+
+    <!-- ═══ PAGE: BUYERS ═══ -->
+    <div class="page" id="page-buyers">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Buyers</h1>
+          <p>142 buyers in your database</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn-icon">↻</button>
+          <button class="btn btn-primary">+ Add Buyer</button>
+        </div>
+      </div>
+
+      <div class="inline-stats">
+        <strong>142</strong> total &nbsp;·&nbsp; <strong>89</strong> qualified &nbsp;·&nbsp; <strong>31</strong> missing criteria
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-input-wrap">
+          <span class="filter-input-icon">⌕</span>
+          <input class="filter-input" type="text" placeholder="Search buyers..." />
+        </div>
+        <select class="filter-select">
+          <option>All Locations</option>
+          <option>Houston</option>
+          <option>Katy</option>
+          <option>Sugar Land</option>
+          <option>Pearland</option>
+        </select>
+        <select class="filter-select">
+          <option>All Buyers</option>
+          <option>Qualified</option>
+          <option>Unqualified</option>
+          <option>Missing Info</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" style="color:var(--text-muted);display:inline-flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Clear filters</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:36px;"><input type="checkbox" class="cb" /></th>
+                <th>Name / Email</th>
+                <th>Phone</th>
+                <th>Location</th>
+                <th>Budget</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td>
+                  <div class="td-primary">Marcus Thompson</div>
+                  <div class="td-muted">marcus.t@gmail.com</div>
+                </td>
+                <td class="td-muted">(281) 554-7821</td>
+                <td class="td-muted">Katy, TX</td>
+                <td style="font-weight:500;">$280–$320k</td>
+                <td><span class="badge badge-qualified">Qualified</span></td>
+                <td><button class="btn btn-outline btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td>
+                  <div class="td-primary">Sandra Kim</div>
+                  <div class="td-muted">sandrakim@outlook.com</div>
+                </td>
+                <td class="td-muted">(713) 882-3490</td>
+                <td class="td-muted">Sugar Land, TX</td>
+                <td style="font-weight:500;">$350–$420k</td>
+                <td><span class="badge badge-qualified">Qualified</span></td>
+                <td><button class="btn btn-outline btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td>
+                  <div class="td-primary">David Reyes</div>
+                  <div class="td-muted">d.reyes@yahoo.com</div>
+                </td>
+                <td class="td-muted">(832) 661-0044</td>
+                <td class="td-muted">Houston, TX 77064</td>
+                <td style="font-weight:500;">$180–$225k</td>
+                <td><span class="badge badge-pending">Pending</span></td>
+                <td><button class="btn btn-outline btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td>
+                  <div class="td-primary">Alicia Nguyen</div>
+                  <div class="td-muted">alicia.n@gmail.com</div>
+                </td>
+                <td class="td-muted">(713) 330-9872</td>
+                <td class="td-muted">Pearland, TX</td>
+                <td style="font-weight:500;">$220–$270k</td>
+                <td><span class="badge badge-qualified">Qualified</span></td>
+                <td><button class="btn btn-outline btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td>
+                  <div class="td-primary">James Okafor</div>
+                  <div class="td-muted">jokafor@proton.me</div>
+                </td>
+                <td class="td-muted">(281) 774-5512</td>
+                <td class="td-muted">Houston, TX 77007</td>
+                <td style="font-weight:500;">$250–$310k</td>
+                <td><span class="badge badge-inactive">Missing Info</span></td>
+                <td><button class="btn btn-outline btn-sm">View</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="cb" /></td>
+                <td>
+                  <div class="td-primary">Rachel Flores</div>
+                  <div class="td-muted">rflores@icloud.com</div>
+                </td>
+                <td class="td-muted">(832) 448-2197</td>
+                <td class="td-muted">Katy, TX</td>
+                <td style="font-weight:500;">$300–$360k</td>
+                <td><span class="badge badge-qualified">Qualified</span></td>
+                <td><button class="btn btn-outline btn-sm">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /buyers -->
+
+    <!-- ═══ PAGE: CONTACTS ═══ -->
+    <div class="page" id="page-contacts">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Contacts</h1>
+          <p>All contacts synced from GoHighLevel</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn-icon">↻</button>
+          <button class="btn btn-primary">+ Add Contact</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="empty-state">
+            <div style="margin-bottom:10px;color:var(--text-faint);"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.49 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.4 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6.22 6.22l1.06-1.06a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.99 16.92z"/></svg></div>
+            <div style="font-weight:500;margin-bottom:6px;color:var(--text);">Contact list synced from GHL</div>
+            <div>Select Contacts from the sidebar to manage your contact database.</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /contacts -->
+
+    <!-- ═══ PAGE: MATCHING ═══ -->
+    <div class="page" id="page-matching">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Property Matching</h1>
+          <p>67 matches &nbsp;·&nbsp; Last synced 5m ago</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-outline btn-sm">↻ Refresh</button>
+          <button class="btn btn-primary">▶ Run Matching</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active">By Buyer</div>
+        <div class="tab">By Property</div>
+      </div>
+
+      <div class="score-grid">
+        <!-- Score card 1 -->
+        <div class="score-card">
+          <div class="score-card-top">
+            <div>
+              <div class="score-address">4512 Crestwood Drive</div>
+              <div class="score-buyer">Buyer: Marcus Thompson</div>
+            </div>
+            <div class="score-badge badge-score-hi" style="font-size:14px;font-weight:700;padding:4px 12px;border-radius:20px;background:#f0fdf4;color:#15803d;">94</div>
+          </div>
+          <div class="score-distance"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 4.2 mi from preferred area</div>
+          <div class="score-reasons">
+            <span class="score-reason-tag">Price match</span>
+            <span class="score-reason-tag">3 bed req.</span>
+            <span class="score-reason-tag">In zip range</span>
+            <span class="score-reason-tag">Owner fin.</span>
+          </div>
+        </div>
+
+        <!-- Score card 2 -->
+        <div class="score-card">
+          <div class="score-card-top">
+            <div>
+              <div class="score-address">9134 Fallbrook Drive</div>
+              <div class="score-buyer">Buyer: Alicia Nguyen</div>
+            </div>
+            <div class="score-badge badge-score-hi" style="font-size:14px;font-weight:700;padding:4px 12px;border-radius:20px;background:#f0fdf4;color:#15803d;">91</div>
+          </div>
+          <div class="score-distance"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 1.8 mi from preferred area</div>
+          <div class="score-reasons">
+            <span class="score-reason-tag">Price match</span>
+            <span class="score-reason-tag">Zip match</span>
+            <span class="score-reason-tag">3 bed req.</span>
+          </div>
+        </div>
+
+        <!-- Score card 3 -->
+        <div class="score-card">
+          <div class="score-card-top">
+            <div>
+              <div class="score-address">7823 Briargrove Lane</div>
+              <div class="score-buyer">Buyer: Sandra Kim</div>
+            </div>
+            <div class="score-badge badge-score-mid" style="font-size:14px;font-weight:700;padding:4px 12px;border-radius:20px;background:#fffbeb;color:#b45309;">82</div>
+          </div>
+          <div class="score-distance"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 7.1 mi from preferred area</div>
+          <div class="score-reasons">
+            <span class="score-reason-tag">Price match</span>
+            <span class="score-reason-tag">4 bed req.</span>
+            <span class="score-reason-tag">Garage req.</span>
+          </div>
+        </div>
+
+        <!-- Score card 4 -->
+        <div class="score-card">
+          <div class="score-card-top">
+            <div>
+              <div class="score-address">1445 Dunlavy Street</div>
+              <div class="score-buyer">Buyer: James Okafor</div>
+            </div>
+            <div class="score-badge badge-score-mid" style="font-size:14px;font-weight:700;padding:4px 12px;border-radius:20px;background:#fffbeb;color:#b45309;">76</div>
+          </div>
+          <div class="score-distance"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 2.4 mi from preferred area</div>
+          <div class="score-reasons">
+            <span class="score-reason-tag">Zip match</span>
+            <span class="score-reason-tag">Price match</span>
+            <span class="score-reason-tag">Backyard req.</span>
+          </div>
+        </div>
+
+        <!-- Score card 5 -->
+        <div class="score-card">
+          <div class="score-card-top">
+            <div>
+              <div class="score-address">2201 Westheimer Road</div>
+              <div class="score-buyer">Buyer: Rachel Flores</div>
+            </div>
+            <div class="score-badge badge-score-mid" style="font-size:14px;font-weight:700;padding:4px 12px;border-radius:20px;background:#fffbeb;color:#b45309;">71</div>
+          </div>
+          <div class="score-distance"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 11.2 mi from preferred area</div>
+          <div class="score-reasons">
+            <span class="score-reason-tag">Price range</span>
+            <span class="score-reason-tag">4 bed req.</span>
+          </div>
+        </div>
+
+        <!-- Score card 6 -->
+        <div class="score-card">
+          <div class="score-card-top">
+            <div>
+              <div class="score-address">5560 Chimney Rock Rd</div>
+              <div class="score-buyer">Buyer: David Reyes</div>
+            </div>
+            <div class="score-badge badge-score-lo" style="font-size:14px;font-weight:700;padding:4px 12px;border-radius:20px;background:#f4f4f5;color:#52525b;">58</div>
+          </div>
+          <div class="score-distance"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 9.6 mi from preferred area</div>
+          <div class="score-reasons">
+            <span class="score-reason-tag">Price match</span>
+            <span class="score-reason-tag">Distance far</span>
+          </div>
+        </div>
+      </div>
+    </div><!-- /matching -->
+
+    <!-- ═══ PAGE: SELLER PIPELINE ═══ -->
+    <div class="page" id="page-seller-pipeline">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Seller Pipeline</h1>
+          <p>14 active sellers across 5 stages</p>
+        </div>
+        <div class="page-header-actions">
+          <div class="toggle-group">
+            <button class="toggle-btn">≡ List</button>
+            <button class="toggle-btn active">⊞ Board</button>
+          </div>
+          <button class="btn btn-primary">+ Add Lead</button>
+        </div>
+      </div>
+
+      <div class="kanban-board">
+        <!-- Lead -->
+        <div class="kanban-col">
+          <div class="kanban-col-header" style="border-left-color:#4f46e5;">
+            <span class="kanban-col-title">Lead</span>
+            <span class="kanban-count">3</span>
+          </div>
+          <div class="kanban-col-body">
+            <div class="kanban-card">
+              <div class="kanban-card-address">3812 Westpark Drive, Houston</div>
+              <div class="kanban-card-price">$235,000</div>
+              <div class="kanban-card-meta">Day 3 in stage &nbsp;·&nbsp; 77027</div>
+            </div>
+            <div class="kanban-card">
+              <div class="kanban-card-address">6620 Antoine Drive, Houston</div>
+              <div class="kanban-card-price">$178,000</div>
+              <div class="kanban-card-meta">Day 1 in stage &nbsp;·&nbsp; 77091</div>
+            </div>
+            <div class="kanban-card">
+              <div class="kanban-card-address">1122 Hempstead Hwy, Katy</div>
+              <div class="kanban-card-price">$310,000</div>
+              <div class="kanban-card-meta">Day 7 in stage &nbsp;·&nbsp; 77449</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contacted -->
+        <div class="kanban-col">
+          <div class="kanban-col-header" style="border-left-color:#d97706;">
+            <span class="kanban-col-title">Contacted</span>
+            <span class="kanban-count">4</span>
+          </div>
+          <div class="kanban-col-body">
+            <div class="kanban-card">
+              <div class="kanban-card-address">4512 Crestwood Drive, Houston</div>
+              <div class="kanban-card-price">$287,000</div>
+              <div class="kanban-card-meta">Day 5 in stage &nbsp;·&nbsp; 77007</div>
+            </div>
+            <div class="kanban-card">
+              <div class="kanban-card-address">9870 Long Point Rd, Houston</div>
+              <div class="kanban-card-price">$196,500</div>
+              <div class="kanban-card-meta">Day 11 in stage &nbsp;·&nbsp; 77055</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Under Contract -->
+        <div class="kanban-col">
+          <div class="kanban-col-header" style="border-left-color:#16a34a;">
+            <span class="kanban-col-title">Under Contract</span>
+            <span class="kanban-count">3</span>
+          </div>
+          <div class="kanban-col-body">
+            <div class="kanban-card">
+              <div class="kanban-card-address">7823 Briargrove Lane, Houston</div>
+              <div class="kanban-card-price">$349,500</div>
+              <div class="kanban-card-meta">Day 14 in stage &nbsp;·&nbsp; 77042</div>
+            </div>
+            <div class="kanban-card">
+              <div class="kanban-card-address">2250 Fondren Rd, Houston</div>
+              <div class="kanban-card-price">$219,000</div>
+              <div class="kanban-card-meta">Day 8 in stage &nbsp;·&nbsp; 77096</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Closed -->
+        <div class="kanban-col">
+          <div class="kanban-col-header" style="border-left-color:#2563eb;">
+            <span class="kanban-col-title">Closed</span>
+            <span class="kanban-count">2</span>
+          </div>
+          <div class="kanban-col-body">
+            <div class="kanban-card">
+              <div class="kanban-card-address">5101 Beechnut St, Houston</div>
+              <div class="kanban-card-price">$258,000</div>
+              <div class="kanban-card-meta" style="color:#16a34a;">Closed Mar 8, 2026</div>
+            </div>
+            <div class="kanban-card">
+              <div class="kanban-card-address">8934 Kempwood Dr, Houston</div>
+              <div class="kanban-card-price">$183,000</div>
+              <div class="kanban-card-meta" style="color:#16a34a;">Closed Feb 22, 2026</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dead -->
+        <div class="kanban-col">
+          <div class="kanban-col-header" style="border-left-color:#71717a;">
+            <span class="kanban-col-title">Dead</span>
+            <span class="kanban-count">2</span>
+          </div>
+          <div class="kanban-col-body">
+            <div class="kanban-card">
+              <div class="kanban-card-address">2201 Westheimer Rd, Houston</div>
+              <div class="kanban-card-price">$415,000</div>
+              <div class="kanban-card-meta" style="color:#dc2626;">Financing fell through</div>
+            </div>
+            <div class="kanban-card">
+              <div class="kanban-card-address">7740 Hillcroft Ave, Houston</div>
+              <div class="kanban-card-price">$142,000</div>
+              <div class="kanban-card-meta" style="color:#dc2626;">Seller withdrew</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /seller-pipeline -->
+
+    <!-- ═══ PAGE: DEAL PIPELINE ═══ -->
+    <div class="page" id="page-deal-pipeline">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Deal Pipeline</h1>
+          <p>Track acquisition and disposition deals</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-outline btn-sm">↻ Sync GHL</button>
+          <button class="btn btn-primary">+ New Deal</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active">Overview</div>
+        <div class="tab">All Deals</div>
+        <div class="tab">Pipeline Board</div>
+      </div>
+
+      <!-- Metric cards -->
+      <div class="metric-row">
+        <div class="deal-metric">
+          <div class="deal-metric-label">Active Deals</div>
+          <div class="deal-metric-value">8</div>
+          <div class="deal-metric-sub trend-down">↓ 2 from last month</div>
+        </div>
+        <div class="deal-metric">
+          <div class="deal-metric-label">Total Pipeline Value</div>
+          <div class="deal-metric-value">$2.14M</div>
+          <div class="deal-metric-sub trend-up" style="color:#16a34a;">↑ $320k this month</div>
+        </div>
+        <div class="deal-metric">
+          <div class="deal-metric-label">Avg Days in Pipeline</div>
+          <div class="deal-metric-value">23</div>
+          <div class="deal-metric-sub" style="color:var(--text-muted);">Target: &lt;30 days</div>
+        </div>
+        <div class="deal-metric">
+          <div class="deal-metric-label">Close Rate (90d)</div>
+          <div class="deal-metric-value">68%</div>
+          <div class="deal-metric-sub trend-up" style="color:#16a34a;">↑ 4% vs prior period</div>
+        </div>
+      </div>
+
+      <!-- Deals table -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Active Deals</span>
+          <button class="btn btn-ghost btn-sm">Export CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Type</th>
+                <th>Stage</th>
+                <th>Buyer</th>
+                <th>Value</th>
+                <th>Days Open</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="td-primary">4512 Crestwood Drive</div>
+                  <div class="td-muted">Houston, TX 77007</div>
+                </td>
+                <td class="td-muted">Owner Finance</td>
+                <td><span class="badge badge-contract">Negotiation</span></td>
+                <td class="td-muted">Marcus Thompson</td>
+                <td style="font-weight:600;">$287,000</td>
+                <td class="td-muted">12</td>
+                <td><button class="btn btn-outline btn-sm">Open</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="td-primary">7823 Briargrove Lane</div>
+                  <div class="td-muted">Houston, TX 77042</div>
+                </td>
+                <td class="td-muted">Wrap Mortgage</td>
+                <td><span class="badge badge-active">Under Contract</span></td>
+                <td class="td-muted">Sandra Kim</td>
+                <td style="font-weight:600;">$349,500</td>
+                <td class="td-muted">28</td>
+                <td><button class="btn btn-outline btn-sm">Open</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="td-primary">9134 Fallbrook Drive</div>
+                  <div class="td-muted">Houston, TX 77064</div>
+                </td>
+                <td class="td-muted">Owner Finance</td>
+                <td><span class="badge badge-pending">Due Diligence</span></td>
+                <td class="td-muted">Alicia Nguyen</td>
+                <td style="font-weight:600;">$198,000</td>
+                <td class="td-muted">7</td>
+                <td><button class="btn btn-outline btn-sm">Open</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="td-primary">2250 Fondren Road</div>
+                  <div class="td-muted">Houston, TX 77096</div>
+                </td>
+                <td class="td-muted">Cash</td>
+                <td><span class="badge badge-active">Under Contract</span></td>
+                <td class="td-muted">Direct</td>
+                <td style="font-weight:600;">$219,000</td>
+                <td class="td-muted">18</td>
+                <td><button class="btn btn-outline btn-sm">Open</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="td-primary">1445 Dunlavy Street</div>
+                  <div class="td-muted">Houston, TX 77006</div>
+                </td>
+                <td class="td-muted">Wrap Mortgage</td>
+                <td><span class="badge badge-contract">Negotiation</span></td>
+                <td class="td-muted">James Okafor</td>
+                <td style="font-weight:600;">$224,000</td>
+                <td class="td-muted">4</td>
+                <td><button class="btn btn-outline btn-sm">Open</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /deal-pipeline -->
+
+    <!-- ═══ PAGE: SOCIAL HUB ═══ -->
+    <div class="page" id="page-social-hub">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Social Hub</h1>
+          <p>Create, schedule, and track your posts</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-outline btn-sm">↻ Refresh</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active">Create</div>
+        <div class="tab">Batch</div>
+        <div class="tab">Schedule</div>
+        <div class="tab">Analytics</div>
+      </div>
+
+      <div class="social-composer">
+        <!-- Left: form -->
+        <div>
+          <div class="form-group">
+            <label class="form-label">Property</label>
+            <select class="form-select-full">
+              <option>4512 Crestwood Drive — $287,000</option>
+              <option>9134 Fallbrook Drive — $198,000</option>
+              <option>7823 Briargrove Lane — $349,500</option>
+              <option>1445 Dunlavy Street — $224,000</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Template</label>
+            <select class="form-select-full">
+              <option selected>Just Listed</option>
+              <option>Just Sold</option>
+              <option>Open House</option>
+              <option>Value Tips</option>
+              <option>Success Story</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Caption</label>
+            <textarea class="form-textarea" rows="5">Just Listed in Houston, TX!
+
+4512 Crestwood Drive is now available — a stunning 3 bed / 2 bath home at $287,000. Owner financing available with as little as $5k down.
+
+Don't miss this opportunity. DM us to schedule a showing or get pre-qualified today!</textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Platforms</label>
+            <div class="platform-checks">
+              <div class="platform-check checked"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg> Facebook</div>
+              <div class="platform-check checked"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg> Instagram</div>
+              <div class="platform-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg> Twitter/X</div>
+              <div class="platform-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg> LinkedIn</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Hashtags</label>
+            <input class="form-input" type="text" value="#HoustonRealEstate #JustListed #OwnerFinancing #HoustonHomes #PurpleHomes" />
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:20px;">
+            <button class="btn btn-outline" style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.582a.5.5 0 0 1 0 .962L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg> Generate AI Caption</button>
+            <button class="btn btn-outline">Preview</button>
+            <button class="btn btn-primary" style="margin-left:auto;">Publish Now →</button>
+          </div>
+        </div>
+
+        <!-- Right: preview -->
+        <div>
+          <div class="section-title" style="margin-bottom:12px;">Post Preview</div>
+          <div class="preview-card">
+            <div class="preview-card-img">
+              <div style="text-align:center;">
+                <div style="font-size:32px;margin-bottom:6px;opacity:0.5;">⌂</div>
+                <div style="font-size:12px;">Just Listed Template</div>
+              </div>
+            </div>
+            <div class="preview-card-body">
+              <div class="preview-card-title">4512 Crestwood Drive — Houston, TX</div>
+              <div class="preview-card-text">Just Listed in Houston, TX! 3 bed / 2 bath at $287,000. Owner financing available with as little as $5k down. DM us to schedule a showing today!</div>
+              <div class="preview-hashtags">#HoustonRealEstate #JustListed #OwnerFinancing</div>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;">
+            <div class="section-title" style="font-size:13px;color:var(--text-muted);margin-bottom:8px;">POSTING TO</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <span class="badge badge-qualified" style="display:inline-flex;align-items:center;gap:5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg> Facebook</span>
+              <span class="badge badge-qualified" style="display:inline-flex;align-items:center;gap:5px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg> Instagram</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /social-hub -->
+
+    <!-- ═══ PAGE: DOCUMENTS ═══ -->
+    <div class="page" id="page-documents">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Documents</h1>
+          <p>Generated funnels and deal documents</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-primary">+ Generate Funnel</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <div class="empty-state">
+            <div style="font-size:32px;margin-bottom:10px;">▤</div>
+            <div style="font-weight:500;margin-bottom:6px;color:var(--text);">No documents yet</div>
+            <div>Generate property funnels and deal documents to see them here.</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /documents -->
+
+    <!-- ═══ PAGE: ACTIVITY LOGS ═══ -->
+    <div class="page" id="page-activity-logs">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Activity Logs</h1>
+          <p>Full audit trail of platform activity</p>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-outline btn-sm">↓ Export CSV</button>
+          <button class="btn-icon">↻</button>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div class="toggle-group">
+          <button class="toggle-btn">⏱ Timeline</button>
+          <button class="toggle-btn active">≡ Table</button>
+        </div>
+        <div class="filter-bar" style="margin-bottom:0;">
+          <select class="filter-select">
+            <option>All Types</option>
+            <option>Property</option>
+            <option>Buyer</option>
+            <option>Deal</option>
+            <option>Social</option>
+            <option>System</option>
+          </select>
+          <select class="filter-select">
+            <option>All Users</option>
+            <option>Mervin D.</option>
+            <option>System</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Action</th>
+                <th>Details</th>
+                <th>User</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-qualified">Buyer</span></td>
+                <td class="td-primary">New buyer registered</td>
+                <td class="td-muted">Marcus Thompson — Katy, TX · $280–$320k</td>
+                <td class="td-muted">System</td>
+                <td class="td-muted">Today 9:42 AM</td>
+              </tr>
+              <tr>
+                <td><span class="badge" style="background:#eef2ff;color:#4338ca;">Match</span></td>
+                <td class="td-primary">Matching run completed</td>
+                <td class="td-muted">67 matches found across 24 properties</td>
+                <td class="td-muted">Mervin D.</td>
+                <td class="td-muted">Today 9:28 AM</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-contract">Deal</span></td>
+                <td class="td-primary">Stage updated</td>
+                <td class="td-muted">7823 Briargrove → Contacted → Under Contract</td>
+                <td class="td-muted">Mervin D.</td>
+                <td class="td-muted">Today 8:51 AM</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-pending">Social</span></td>
+                <td class="td-primary">Post scheduled</td>
+                <td class="td-muted">Just Listed — 9134 Fallbrook Dr · Instagram + Facebook</td>
+                <td class="td-muted">Mervin D.</td>
+                <td class="td-muted">Today 7:34 AM</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-active">Property</span></td>
+                <td class="td-primary">Property created</td>
+                <td class="td-muted">1445 Dunlavy St — $224,000 · 3 bed / 2 bath</td>
+                <td class="td-muted">Mervin D.</td>
+                <td class="td-muted">Yesterday 4:12 PM</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-inactive">System</span></td>
+                <td class="td-primary">GHL sync completed</td>
+                <td class="td-muted">142 contacts synced, 3 updated</td>
+                <td class="td-muted">System</td>
+                <td class="td-muted">Yesterday 3:00 PM</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-contract">Deal</span></td>
+                <td class="td-primary">Deal marked dead</td>
+                <td class="td-muted">2201 Westheimer Rd — Financing fell through</td>
+                <td class="td-muted">Mervin D.</td>
+                <td class="td-muted">Yesterday 1:47 PM</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-pending">Social</span></td>
+                <td class="td-primary">AI caption generated</td>
+                <td class="td-muted">Just Listed template · 4512 Crestwood Drive</td>
+                <td class="td-muted">Mervin D.</td>
+                <td class="td-muted">Yesterday 11:03 AM</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /activity-logs -->
+
+    <!-- ═══ PAGE: SETTINGS ═══ -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1>Settings</h1>
+          <p>Manage connections, team, and preferences</p>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="settingsTab(this, 'conn')">Connections</div>
+        <div class="tab" onclick="settingsTab(this, 'calc')">Calculator</div>
+        <div class="tab" onclick="settingsTab(this, 'team')">Team</div>
+        <div class="tab" onclick="settingsTab(this, 'ai')">AI Performance</div>
+      </div>
+
+      <!-- Connections tab -->
+      <div id="settings-conn">
+        <div style="max-width:720px;">
+          <div class="section-title">Integrations</div>
+
+          <div class="connection-card">
+            <div class="connection-left">
+              <div class="connection-icon" style="background:#f0f9ff;color:#0ea5e9;font-size:15px;font-weight:700;">GHL</div>
+              <div class="connection-info">
+                <div class="connection-name">GoHighLevel CRM</div>
+                <div class="connection-status">
+                  <span class="dot-online"></span>
+                  <span style="color:#16a34a;font-weight:500;">Connected</span>
+                  <span style="color:var(--text-muted);">&nbsp;· Last sync 5 min ago</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-faint);margin-top:2px;">Location: Purple Homes Houston &nbsp;·&nbsp; 142 contacts synced</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-outline btn-sm">↻ Sync Now</button>
+              <button class="btn btn-outline btn-sm">Configure</button>
+            </div>
+          </div>
+
+          <div class="connection-card">
+            <div class="connection-left">
+              <div class="connection-icon" style="background:#faf5ff;color:#7c3aed;font-size:15px;font-weight:700;">AT</div>
+              <div class="connection-info">
+                <div class="connection-name">Airtable</div>
+                <div class="connection-status">
+                  <span class="dot-online"></span>
+                  <span style="color:#16a34a;font-weight:500;">Connected</span>
+                  <span style="color:var(--text-muted);">&nbsp;· Last sync 2 min ago</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-faint);margin-top:2px;">Base: Purple Homes Hub &nbsp;·&nbsp; 24 properties · 142 buyers</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-outline btn-sm">↻ Sync Now</button>
+              <button class="btn btn-outline btn-sm">Configure</button>
+            </div>
+          </div>
+
+          <div class="connection-card">
+            <div class="connection-left">
+              <div class="connection-icon" style="background:#fff7ed;color:#ea580c;font-size:13px;font-weight:700;">MAP</div>
+              <div class="connection-info">
+                <div class="connection-name">Mapbox</div>
+                <div class="connection-status">
+                  <span class="dot-online"></span>
+                  <span style="color:#16a34a;font-weight:500;">Connected</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-faint);margin-top:2px;">Geocoding + map tiles enabled</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-outline btn-sm">Configure</button>
+            </div>
+          </div>
+
+          <div class="connection-card">
+            <div class="connection-left">
+              <div class="connection-icon" style="background:#fef2f2;color:#dc2626;font-size:12px;font-weight:700;">IMG</div>
+              <div class="connection-info">
+                <div class="connection-name">Imejis (Image Templates)</div>
+                <div class="connection-status">
+                  <span class="dot-online"></span>
+                  <span style="color:#16a34a;font-weight:500;">Connected</span>
+                </div>
+                <div style="font-size:12px;color:var(--text-faint);margin-top:2px;">5 templates configured &nbsp;·&nbsp; API active</div>
+              </div>
+            </div>
+            <div>
+              <button class="btn btn-outline btn-sm">Configure</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calculator tab (hidden) -->
+      <div id="settings-calc" style="display:none;">
+        <div style="max-width:560px;">
+          <div class="section-title">Calculator Defaults</div>
+          <div class="card card-body">
+            <div class="form-group">
+              <label class="form-label">Default Interest Rate (%)</label>
+              <input class="form-input" value="7.5" style="max-width:160px;" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Default Loan Term (years)</label>
+              <input class="form-input" value="30" style="max-width:160px;" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Default Down Payment (%)</label>
+              <input class="form-input" value="5" style="max-width:160px;" />
+            </div>
+            <button class="btn btn-primary btn-sm">Save Defaults</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team tab (hidden) -->
+      <div id="settings-team" style="display:none;">
+        <div style="max-width:720px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div class="section-title" style="margin-bottom:0;">Team Members</div>
+            <button class="btn btn-primary btn-sm">+ Invite Member</button>
+          </div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><div class="td-primary">Mervin DeC.</div></td>
+                    <td class="td-muted">mervin@purplehomes.com</td>
+                    <td><span class="badge badge-qualified">Admin</span></td>
+                    <td><span class="badge badge-active">Active</span></td>
+                    <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+                  </tr>
+                  <tr>
+                    <td><div class="td-primary">Maria S.</div></td>
+                    <td class="td-muted">maria@purplehomes.com</td>
+                    <td><span class="badge badge-inactive">Agent</span></td>
+                    <td><span class="badge badge-active">Active</span></td>
+                    <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Performance tab (hidden) -->
+      <div id="settings-ai" style="display:none;">
+        <div style="max-width:720px;">
+          <div class="section-title">AI Caption Performance</div>
+          <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);">
+            <div class="stat-card">
+              <div class="stat-label">Captions Generated</div>
+              <div class="stat-value">248</div>
+              <div class="stat-trend trend-neutral">All time</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Avg Rating</div>
+              <div class="stat-value">4.2</div>
+              <div class="stat-trend trend-up">↑ from 3.8</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Frameworks Used</div>
+              <div class="stat-value">31</div>
+              <div class="stat-trend trend-neutral">of 600+</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="section-title">Avatar Research</div>
+          <div class="card card-body" style="font-size:13.5px;color:var(--text-muted);line-height:1.6;">
+            Avatar research data is collected automatically when you rate generated captions. The system learns which frameworks and tones resonate best with your audience.
+            <div style="margin-top:12px;display:flex;gap:8px;">
+              <button class="btn btn-outline btn-sm">View Research Data</button>
+              <button class="btn btn-outline btn-sm">Reset Learning</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /settings -->
+
+  </main>
+</div><!-- /app -->
+
+<script>
+  // ─── STATE ───
+  let currentPage = null;
+  let sidebarCollapsed = false;
+  let isDark = false;
+
+  // ─── INIT: show auth on load ───
+  window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('page-auth').style.display = 'flex';
+    document.getElementById('app-shell').style.display = 'none';
+  });
+
+  function showApp() {
+    document.getElementById('page-auth').style.display = 'none';
+    document.getElementById('app-shell').style.display = 'flex';
+    showPage('dashboard');
+  }
+
+  // ─── SHOW PAGE ───
+  function showPage(id) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    // Show target page
+    const target = document.getElementById('page-' + id);
+    if (target) target.classList.add('active');
+
+    // Update nav active state
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    const navMap = {
+      'dashboard': 0,
+      'properties': 1,
+      'matching': 2,
+      'buyers': 3,
+      'contacts': 4,
+      'seller-pipeline': 5,
+      'deal-pipeline': 6,
+      'social-hub': 7,
+      'documents': 8,
+      'activity-logs': 9,
+      'settings': 10,
+    };
+    const items = document.querySelectorAll('.nav-item');
+    const idx = navMap[id];
+    if (idx !== undefined && items[idx]) items[idx].classList.add('active');
+
+    currentPage = id;
+
+    // Scroll main back to top
+    document.getElementById('main-content').scrollTop = 0;
+  }
+
+  // ─── SIDEBAR COLLAPSE ───
+  function toggleSidebar() {
+    sidebarCollapsed = !sidebarCollapsed;
+    const sidebar = document.getElementById('sidebar');
+    if (sidebarCollapsed) {
+      sidebar.classList.add('collapsed');
+    } else {
+      sidebar.classList.remove('collapsed');
+    }
+  }
+
+  // ─── DARK MODE ───
+  function toggleTheme() {
+    isDark = !isDark;
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    document.querySelector('.theme-btn').innerHTML = isDark
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+    // also update auth page if visible
+  }
+
+  // ─── SETTINGS TABS ───
+  function settingsTab(el, tab) {
+    // Update tab active
+    document.querySelectorAll('#page-settings .tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    // Show/hide panels
+    document.getElementById('settings-conn').style.display = tab === 'conn' ? 'block' : 'none';
+    document.getElementById('settings-calc').style.display = tab === 'calc' ? 'block' : 'none';
+    document.getElementById('settings-team').style.display = tab === 'team' ? 'block' : 'none';
+    document.getElementById('settings-ai').style.display = tab === 'ai' ? 'block' : 'none';
+  }
+
+  // ─── PLATFORM CHECKS ───
+  document.querySelectorAll('.platform-check').forEach(el => {
+    el.addEventListener('click', () => el.classList.toggle('checked'));
+  });
+
+  // ─── MATCHING TABS (visual only) ───
+  document.querySelectorAll('#page-matching .tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('#page-matching .tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // ─── DEAL PIPELINE TABS (visual only) ───
+  document.querySelectorAll('#page-deal-pipeline .tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('#page-deal-pipeline .tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // ─── SOCIAL HUB TABS (visual only) ───
+  document.querySelectorAll('#page-social-hub .tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('#page-social-hub .tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // ─── SELLER PIPELINE TOGGLE ───
+  document.querySelectorAll('#page-seller-pipeline .toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#page-seller-pipeline .toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // ─── ACTIVITY LOGS TOGGLE ───
+  document.querySelectorAll('#page-activity-logs .toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#page-activity-logs .toggle-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

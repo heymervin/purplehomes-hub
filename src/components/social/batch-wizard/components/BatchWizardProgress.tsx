@@ -46,8 +46,8 @@ export function BatchWizardProgress({ currentStep, onStepClick }: BatchWizardPro
                     <div
                       className={cn(
                         'w-10 h-10 rounded-full flex items-center justify-center font-medium text-sm transition-all',
-                        isCompleted && 'bg-purple-600 text-white',
-                        isCurrent && 'bg-purple-600 text-white ring-4 ring-purple-200 dark:ring-purple-900',
+                        isCompleted && 'bg-primary text-primary-foreground',
+                        isCurrent && 'bg-primary text-primary-foreground ring-4 ring-primary/20',
                         !isCompleted && !isCurrent && 'bg-muted text-muted-foreground'
                       )}
                     >
@@ -60,8 +60,8 @@ export function BatchWizardProgress({ currentStep, onStepClick }: BatchWizardPro
                     <span
                       className={cn(
                         'text-xs font-medium hidden sm:block',
-                        isCurrent && 'text-purple-600',
-                        isCompleted && 'text-purple-600',
+                        isCurrent && 'text-primary',
+                        isCompleted && 'text-primary',
                         !isCompleted && !isCurrent && 'text-muted-foreground'
                       )}
                     >
@@ -80,7 +80,7 @@ export function BatchWizardProgress({ currentStep, onStepClick }: BatchWizardPro
                 <div
                   className={cn(
                     'flex-1 h-0.5 mx-2',
-                    index < currentIndex ? 'bg-purple-600' : 'bg-muted'
+                    index < currentIndex ? 'bg-primary' : 'bg-muted'
                   )}
                 />
               )}

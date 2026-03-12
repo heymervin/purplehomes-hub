@@ -50,7 +50,7 @@ export default function PostPreview({
       <div className={`bg-white dark:bg-[#242526] rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm ${compact ? 'w-full' : 'max-w-[500px] mx-auto'}`}>
         {/* Header */}
         <div className="flex items-center gap-3 p-3">
-          <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-sm">
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
             PH
           </div>
           <div className="flex-1">
@@ -153,7 +153,7 @@ export default function PostPreview({
         <div className="flex items-center gap-3 p-3">
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[2px]">
             <div className="w-full h-full rounded-full bg-white dark:bg-black flex items-center justify-center">
-              <div className="w-[26px] h-[26px] rounded-full bg-purple-600 flex items-center justify-center text-white text-[10px] font-bold">
+              <div className="w-[26px] h-[26px] rounded-full bg-primary flex items-center justify-center text-primary-foreground text-[10px] font-bold">
                 PH
               </div>
             </div>
@@ -246,7 +246,7 @@ export default function PostPreview({
     <div className={`bg-white dark:bg-[#1B1F23] rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm ${compact ? 'w-full' : 'max-w-[552px] mx-auto'}`}>
       {/* Header */}
       <div className="flex items-start gap-2 p-3">
-        <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+        <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm flex-shrink-0">
           PH
         </div>
         <div className="flex-1 min-w-0">

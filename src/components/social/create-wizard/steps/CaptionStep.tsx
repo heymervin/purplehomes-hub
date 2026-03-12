@@ -142,16 +142,16 @@ export default function CaptionStep({ state, updateState }: CaptionStepProps) {
                   disabled={!isClickable}
                   className={cn(
                     "flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-all",
-                    isCompleted && "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
-                    isCurrent && "bg-purple-600 text-white",
+                    isCompleted && "bg-primary/10 text-primary dark:bg-primary/10 dark:text-primary",
+                    isCurrent && "bg-primary text-primary-foreground",
                     !isCompleted && !isCurrent && "bg-muted text-muted-foreground",
                     isClickable ? "cursor-pointer hover:opacity-80" : "cursor-not-allowed"
                   )}
                 >
                   <span className={cn(
                     "w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium",
-                    isCompleted && "bg-purple-600 text-white",
-                    isCurrent && "bg-white text-purple-600",
+                    isCompleted && "bg-primary text-primary-foreground",
+                    isCurrent && "bg-background text-primary",
                     !isCompleted && !isCurrent && "bg-muted-foreground/20"
                   )}>
                     {isCompleted ? '✓' : index + 1}
@@ -162,7 +162,7 @@ export default function CaptionStep({ state, updateState }: CaptionStepProps) {
                 {index < CAPTION_SUBSTEPS.length - 1 && (
                   <div className={cn(
                     "w-8 h-0.5",
-                    index < currentSubstepIndex ? "bg-purple-600" : "bg-muted"
+                    index < currentSubstepIndex ? "bg-primary" : "bg-muted"
                   )} />
                 )}
               </React.Fragment>

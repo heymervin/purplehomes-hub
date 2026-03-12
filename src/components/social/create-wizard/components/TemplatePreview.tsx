@@ -28,7 +28,7 @@ export default function TemplatePreview({
       <div className="aspect-square relative">
         {isLoading ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80">
-            <Loader2 className="h-8 w-8 animate-spin text-purple-600 mb-2" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
             <p className="text-sm text-muted-foreground">Generating image...</p>
           </div>
         ) : imageUrl ? (

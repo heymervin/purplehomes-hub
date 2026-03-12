@@ -141,8 +141,8 @@ export default function SelectPropertiesStep({
 
       {/* Selection Summary */}
       {selectedCount > 0 && (
-        <div className="flex items-center gap-2 p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg">
-          <Badge className="bg-purple-600">{selectedCount} selected</Badge>
+        <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-lg">
+          <Badge className="bg-primary">{selectedCount} selected</Badge>
           <span className="text-sm text-muted-foreground">
             {selectedCount === 1 ? 'property' : 'properties'} will be included in this batch
           </span>
@@ -178,7 +178,7 @@ export default function SelectPropertiesStep({
                   className={cn(
                     'flex items-center gap-4 p-3 rounded-lg border cursor-pointer transition-all',
                     isSelected
-                      ? 'border-purple-500 bg-purple-50 dark:bg-purple-950/20'
+                      ? 'border-primary bg-primary/5'
                       : 'border-transparent hover:bg-muted/50'
                   )}
                 >

@@ -1679,7 +1679,7 @@ export default function PublicPropertyDetail() {
                     <div className="absolute pointer-events-none -inset-6 bg-gradient-to-br from-indigo-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
                     <div className="absolute pointer-events-none -inset-3 bg-gradient-to-tr from-indigo-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
 
-                    <div className="relative w-full bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-indigo-400/25 rounded-3xl px-10 py-14 md:px-12 md:py-16 text-center shadow-2xl shadow-indigo-900/40 hover:border-indigo-300/40 hover:shadow-indigo-800/50 transition-all duration-500">
+                    <div className="relative w-full bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 border border-indigo-400/25 rounded-3xl px-10 py-14 md:px-12 md:py-16 text-center shadow-2xl shadow-indigo-900/40 hover:border-indigo-300/40 hover:shadow-indigo-800/50 transition-all duration-500">
                       {/* Decorative quote marks */}
                       <div className="absolute top-6 left-6 text-6xl text-indigo-500/20 font-serif leading-none">"</div>
                       <div className="absolute bottom-6 right-6 text-6xl text-indigo-500/20 font-serif leading-none rotate-180">"</div>
@@ -1767,7 +1767,7 @@ export default function PublicPropertyDetail() {
                     <div className="absolute pointer-events-none -inset-6 bg-gradient-to-br from-indigo-500/20 to-violet-600/15 rounded-[2.5rem] blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
                     <div className="absolute pointer-events-none -inset-3 bg-gradient-to-tr from-indigo-400/10 to-transparent rounded-[2rem] blur-xl animate-pulse" style={{ animationDuration: '2.5s', animationDelay: '0.5s' }} />
 
-                    <div className="relative w-full bg-gradient-to-br from-[#1e1a2e] via-[#1a1528] to-[#13101c] border border-indigo-400/25 rounded-3xl px-8 py-14 md:px-12 md:py-20 text-center shadow-2xl shadow-indigo-900/40 hover:border-indigo-300/40 hover:shadow-indigo-800/50 transition-all duration-500">
+                    <div className="relative w-full bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 border border-indigo-400/25 rounded-3xl px-8 py-14 md:px-12 md:py-20 text-center shadow-2xl shadow-indigo-900/40 hover:border-indigo-300/40 hover:shadow-indigo-800/50 transition-all duration-500">
                       {/* Subtle inner glow */}
                       <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none" />
 
@@ -1791,9 +1791,9 @@ export default function PublicPropertyDetail() {
                           />
                           <defs>
                             <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                              <stop offset="0%" stopColor="#a855f7" stopOpacity="0.6" />
-                              <stop offset="50%" stopColor="#c084fc" stopOpacity="0.8" />
-                              <stop offset="100%" stopColor="#a855f7" stopOpacity="0.6" />
+                              <stop offset="0%" stopColor="#6366f1" stopOpacity="0.6" />
+                              <stop offset="50%" stopColor="#818cf8" stopOpacity="0.8" />
+                              <stop offset="100%" stopColor="#6366f1" stopOpacity="0.6" />
                             </linearGradient>
                           </defs>
                         </svg>
@@ -2026,7 +2026,7 @@ export default function PublicPropertyDetail() {
               <div className="text-center mt-12 md:mt-16">
                 <button
                   onClick={scrollToForm}
-                  className="group relative bg-white hover:bg-indigo-50 text-indigo-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(168,85,247,0.5),0_0_100px_rgba(139,92,246,0.3)] hover:shadow-[0_0_80px_rgba(168,85,247,0.6),0_0_120px_rgba(139,92,246,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-indigo-300/50"
+                  className="group relative bg-white hover:bg-indigo-50 text-indigo-900 font-black text-lg md:text-xl uppercase tracking-wide px-10 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(99,102,241,0.5),0_0_100px_rgba(99,102,241,0.3)] hover:shadow-[0_0_80px_rgba(99,102,241,0.6),0_0_120px_rgba(99,102,241,0.4)] transition-all duration-300 hover:-translate-y-1 border-2 border-indigo-300/50"
                 >
                   {t('journey.chooseNewWay')}
                   <span className="ml-3 inline-block group-hover:translate-x-2 transition-transform text-2xl">&rarr;</span>
@@ -2124,7 +2124,7 @@ export default function PublicPropertyDetail() {
             <div>
               <button
                 onClick={scrollToForm}
-                className="group relative bg-white hover:bg-indigo-50 text-indigo-900 font-black text-lg md:text-xl uppercase tracking-wide px-12 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(99,102,241,0.4),0_0_100px_rgba(139,92,246,0.2)] hover:shadow-[0_0_80px_rgba(168,85,247,0.5),0_0_120px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-indigo-300/50"
+                className="group relative bg-white hover:bg-indigo-50 text-indigo-900 font-black text-lg md:text-xl uppercase tracking-wide px-12 md:px-16 py-5 md:py-6 rounded-2xl shadow-[0_0_60px_rgba(99,102,241,0.4),0_0_100px_rgba(99,102,241,0.2)] hover:shadow-[0_0_80px_rgba(99,102,241,0.5),0_0_120px_rgba(99,102,241,0.3)] transition-all duration-300 hover:-translate-y-1 border-2 border-indigo-300/50"
               >
                 {t('urgency.lockInPrice')}
                 <span className="ml-3 inline-block group-hover:translate-x-2 transition-transform text-2xl">&rarr;</span>
@@ -2156,7 +2156,7 @@ export default function PublicPropertyDetail() {
               <div className="flex flex-col items-center gap-3">
                 <button
                   onClick={scrollToForm}
-                  className="group relative bg-white/90 hover:bg-white text-indigo-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_30px_rgba(168,85,247,0.25),0_0_50px_rgba(139,92,246,0.15)] hover:shadow-[0_0_40px_rgba(168,85,247,0.35),0_0_60px_rgba(139,92,246,0.2)] transition-all duration-300 hover:-translate-y-0.5 border-2 border-indigo-300/40"
+                  className="group relative bg-white/90 hover:bg-white text-indigo-900 font-black text-base sm:text-lg md:text-xl uppercase tracking-wide px-6 sm:px-10 md:px-14 py-4 md:py-5 rounded-xl shadow-[0_0_30px_rgba(99,102,241,0.25),0_0_50px_rgba(99,102,241,0.15)] hover:shadow-[0_0_40px_rgba(99,102,241,0.35),0_0_60px_rgba(99,102,241,0.2)] transition-all duration-300 hover:-translate-y-0.5 border-2 border-indigo-300/40"
                 >
                   {t('finalCta.cta')}
                   <span className="ml-2 inline-block group-hover:translate-x-1 transition-transform">&rarr;</span>

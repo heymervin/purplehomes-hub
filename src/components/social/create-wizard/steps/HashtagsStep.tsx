@@ -216,7 +216,7 @@ export default function HashtagsStep({ state, updateState }: HashtagsStepProps) 
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-2">
-          <Hash className="h-5 w-5 text-purple-500" />
+          <Hash className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">Hashtags</h2>
           <Tooltip>
             <TooltipTrigger>
@@ -254,7 +254,7 @@ export default function HashtagsStep({ state, updateState }: HashtagsStepProps) 
                       variant={isSelected ? 'default' : 'outline'}
                       className={cn(
                         'cursor-pointer transition-all text-sm py-1.5 px-3',
-                        isSelected && 'bg-purple-600 hover:bg-purple-700'
+                        isSelected && 'bg-primary hover:bg-primary/90'
                       )}
                       onClick={() => toggleHashtag(hashtag)}
                     >

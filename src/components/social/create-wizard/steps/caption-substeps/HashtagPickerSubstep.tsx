@@ -177,7 +177,7 @@ export default function HashtagPickerSubstep({
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <Hash className="h-5 w-5 text-purple-500" />
+          <Hash className="h-5 w-5 text-primary" />
           <h3 className="text-lg font-medium">Choose Hashtags</h3>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -213,7 +213,7 @@ export default function HashtagPickerSubstep({
                     variant={isSelected ? 'default' : 'outline'}
                     className={cn(
                       'cursor-pointer transition-all text-sm py-1.5 px-3',
-                      isSelected && 'bg-purple-600 hover:bg-purple-700'
+                      isSelected && 'bg-primary hover:bg-primary/90'
                     )}
                     onClick={() => toggleHashtag(hashtag)}
                   >
@@ -285,7 +285,7 @@ export default function HashtagPickerSubstep({
         </Button>
         <Button
           onClick={onNext}
-          className="gap-2 bg-purple-600 hover:bg-purple-700"
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           Next: Generate Caption
           <ChevronRight className="h-4 w-4" />

@@ -717,7 +717,7 @@ export function PropertyDetailModal({
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between gap-4 p-4 sm:p-6 border-t bg-gray-50/50 dark:bg-gray-900/50">
+        <div className="flex items-center justify-between gap-4 p-4 sm:p-6 border-t bg-muted/30">
           {/* Left Side - Secondary Actions */}
           <div className="flex items-center gap-2 flex-wrap">
             <Button

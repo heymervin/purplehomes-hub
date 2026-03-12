@@ -170,11 +170,11 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
     <div className="space-y-6">
       {/* Current Selection Summary */}
       <div className="flex items-center gap-4 flex-wrap">
-        <div className="flex items-center gap-2 text-sm bg-purple-50 dark:bg-purple-950/20 px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-2 text-sm bg-primary/5 px-3 py-1.5 rounded-full">
           <span>{selectedIntent?.icon}</span>
           <span className="font-medium">{selectedIntent?.label}</span>
         </div>
-        <div className="flex items-center gap-2 text-sm bg-purple-50 dark:bg-purple-950/20 px-3 py-1.5 rounded-full">
+        <div className="flex items-center gap-2 text-sm bg-primary/5 px-3 py-1.5 rounded-full">
           <span>{selectedTone?.icon}</span>
           <span className="font-medium">{selectedTone?.label}</span>
         </div>
@@ -253,7 +253,7 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
                 {isGenerating && (
                   <div className="absolute inset-0 bg-background/80 flex items-center justify-center rounded-md">
                     <div className="flex items-center gap-2">
-                      <Loader2 className="h-5 w-5 animate-spin text-purple-600" />
+                      <Loader2 className="h-5 w-5 animate-spin text-primary" />
                       <span className="text-sm text-muted-foreground">Generating caption...</span>
                     </div>
                   </div>
@@ -264,7 +264,7 @@ export default function EditCaptionSubstep({ state, updateState, onBack }: EditC
               {platformHashtags && state.platformHashtagSettings[platform]?.enabled && (
                 <div className="bg-muted/50 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-2">
-                    <Hash className="h-3.5 w-3.5 text-purple-500" />
+                    <Hash className="h-3.5 w-3.5 text-primary" />
                     <span className="text-xs font-medium text-muted-foreground">
                       {hashtagCount} hashtag{hashtagCount !== 1 ? 's' : ''} will be added
                     </span>

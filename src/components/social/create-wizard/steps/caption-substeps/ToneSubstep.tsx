@@ -31,10 +31,10 @@ export default function ToneSubstep({ state, updateState, onNext, onBack }: Tone
       </div>
 
       {/* Show selected intent reminder */}
-      <div className="flex items-center gap-2 text-sm bg-purple-50 dark:bg-purple-950/20 px-3 py-2 rounded-lg">
+      <div className="flex items-center gap-2 text-sm bg-primary/5 px-3 py-2 rounded-lg">
         <span>{selectedIntent?.icon}</span>
         <span className="text-muted-foreground">Post Intent:</span>
-        <span className="font-medium text-purple-700 dark:text-purple-300">
+        <span className="font-medium text-primary">
           {selectedIntent?.label}
         </span>
       </div>
@@ -46,8 +46,8 @@ export default function ToneSubstep({ state, updateState, onNext, onBack }: Tone
             key={tone.id}
             onClick={() => handleSelect(tone.id)}
             className={cn(
-              "cursor-pointer transition-all hover:border-purple-400",
-              state.tone === tone.id && "border-purple-600 ring-2 ring-purple-200 bg-purple-50 dark:bg-purple-950/20"
+              "cursor-pointer transition-all hover:border-primary/40",
+              state.tone === tone.id && "border-primary ring-2 ring-primary/20 bg-primary/5"
             )}
           >
             <CardContent className="p-4">
@@ -75,14 +75,14 @@ export default function ToneSubstep({ state, updateState, onNext, onBack }: Tone
 
       {/* Combination Preview */}
       {state.postIntent && state.tone && (
-        <div className="border rounded-lg p-4 bg-gradient-to-r from-purple-50 to-transparent dark:from-purple-950/20">
+        <div className="border rounded-lg p-4 bg-gradient-to-r from-primary/5 to-transparent">
           <p className="text-sm font-medium mb-2">Your caption will be:</p>
           <div className="flex items-center gap-2 text-sm">
-            <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 rounded text-purple-700 dark:text-purple-300">
+            <span className="px-2 py-1 bg-primary/10 rounded text-primary">
               {selectedIntent?.label}
             </span>
             <span className="text-muted-foreground">+</span>
-            <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 rounded text-purple-700 dark:text-purple-300">
+            <span className="px-2 py-1 bg-primary/10 rounded text-primary">
               {selectedTone?.label} tone
             </span>
           </div>
@@ -98,7 +98,7 @@ export default function ToneSubstep({ state, updateState, onNext, onBack }: Tone
         <Button
           onClick={onNext}
           disabled={!state.tone}
-          className="gap-2 bg-purple-600 hover:bg-purple-700"
+          className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
         >
           Generate Caption
           <ChevronRight className="h-4 w-4" />

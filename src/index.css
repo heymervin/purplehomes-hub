@@ -40,21 +40,21 @@ body {
     --card-foreground: 240 6% 4%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 6% 4%;
-    --primary: 244 57% 51%;
+    --primary: 239 84% 60%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 5% 96%;
     --secondary-foreground: 240 4% 16%;
     --muted: 240 5% 96%;
     --muted-foreground: 240 4% 46%;
-    --accent: 244 57% 51%;
+    --accent: 239 84% 60%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 240 6% 90%;
     --input: 240 6% 90%;
-    --ring: 244 57% 51%;
+    --ring: 239 84% 60%;
     --radius: 0.5rem;
-    
+
     /* Status Colors */
     --status-pending: 38 92% 50%;
     --status-posted: 160 84% 39%;
@@ -70,14 +70,14 @@ body {
     --info: 217 91% 60%;
     
     /* Sidebar */
-    --sidebar-background: 210 40% 98%;
-    --sidebar-foreground: 240 6% 4%;
-    --sidebar-primary: 244 57% 51%;
+    --sidebar-background: 240 6% 97%;
+    --sidebar-foreground: 240 5% 26%;
+    --sidebar-primary: 239 84% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 5% 96%;
     --sidebar-accent-foreground: 240 6% 4%;
     --sidebar-border: 240 6% 90%;
-    --sidebar-ring: 244 57% 51%;
+    --sidebar-ring: 239 84% 60%;
   }
 
   .dark {
@@ -116,8 +116,8 @@ body {
     --info: 217 91% 60%;
     
     /* Sidebar */
-    --sidebar-background: 240 5% 7%;
-    --sidebar-foreground: 0 0% 98%;
+    --sidebar-background: 240 10% 7%;
+    --sidebar-foreground: 240 5% 84%;
     --sidebar-primary: 239 84% 67%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3% 11%;
