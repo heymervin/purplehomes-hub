@@ -159,11 +159,18 @@ export function PropertyCard({
                 </span>
               )}
             </div>
-            {property.propertyType && (
-              <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm text-white text-xs">
-                {property.propertyType}
-              </Badge>
-            )}
+            <div className="flex items-center gap-1.5">
+              {property.source && (
+                <span className="inline-flex items-center rounded-md bg-black/50 backdrop-blur-sm text-white px-2 py-0.5 text-xs font-medium">
+                  {property.source}
+                </span>
+              )}
+              {property.propertyType && (
+                <Badge variant="secondary" className="bg-white/20 backdrop-blur-sm text-white text-xs">
+                  {property.propertyType}
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -173,14 +180,7 @@ export function PropertyCard({
         <h3 className="font-semibold text-gray-900 mb-0.5 truncate">
           {property.address}
         </h3>
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-sm text-gray-600">{property.city}</p>
-          {property.source && (
-            <span className="inline-flex items-center rounded-md bg-purple-100 text-purple-700 border border-purple-200 px-2 py-0.5 text-xs font-medium">
-              {property.source}
-            </span>
-          )}
-        </div>
+        <p className="text-sm text-gray-600 mb-3">{property.city}</p>
 
         {/* Price */}
         <div className="mb-3">
