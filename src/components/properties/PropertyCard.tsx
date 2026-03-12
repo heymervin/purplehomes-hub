@@ -4,7 +4,6 @@ import { Bed, Bath, Clock, Square, Share2, Check } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { SourceBadge } from '@/components/matching/SourceBadge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Property } from '@/types';
@@ -177,7 +176,9 @@ export function PropertyCard({
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm text-gray-600">{property.city}</p>
           {property.source && (
-            <SourceBadge source={property.source} size="sm" />
+            <span className="inline-flex items-center rounded-md bg-purple-100 text-purple-700 border border-purple-200 px-2 py-0.5 text-xs font-medium">
+              {property.source}
+            </span>
           )}
         </div>
 

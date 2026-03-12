@@ -41,7 +41,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { SocialStatusBadge } from '@/components/ui/social-status-badge';
-import { SourceBadge } from '@/components/matching/SourceBadge';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { toast } from 'sonner';
 import type { Property, PropertyCondition, PropertyType, PropertyStatus } from '@/types';
@@ -412,7 +411,11 @@ export function PropertyDetailModal({
               <DialogTitle className="text-xl font-bold">
                 {property.propertyCode || 'Property Details'}
               </DialogTitle>
-              {property.source && <SourceBadge source={property.source} size="sm" />}
+              {property.source && (
+                <span className="inline-flex items-center rounded-md bg-purple-100 text-purple-700 border border-purple-200 px-2 py-0.5 text-xs font-medium">
+                  {property.source}
+                </span>
+              )}
               {property.isDemo && (
                 <Badge variant="secondary" className="bg-accent">DEMO</Badge>
               )}
