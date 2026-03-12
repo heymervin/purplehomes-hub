@@ -561,9 +561,11 @@ export default function PublicPropertyDetail() {
     for (const p of airtableData.properties) {
       const city = `${p.city || ''}${p.state ? `, ${p.state}` : ''}${p.zipCode ? ` ${p.zipCode}` : ''}`;
       const propertySlug = generatePropertySlug(p.address, city);
-      // Fallback: also try just address + city (without state/zip) for older SMS links
+      // Fallback: city only (older SMS links)
       const cityOnlySlug = generatePropertySlug(p.address, p.city || '');
-      if (propertySlug === slug || cityOnlySlug === slug) {
+      // Fallback: raw abbreviated state format before expansion (e.g. gretna-la-70053)
+      const rawSlug = `${p.address}-${city}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+      if (propertySlug === slug || cityOnlySlug === slug || rawSlug === slug) {
         // Transform to Property type
         const transformed: Property = {
           id: p.recordId,
