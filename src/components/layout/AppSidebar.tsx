@@ -47,7 +47,7 @@ const navigationGroups: NavGroup[] = [
     label: 'Properties',
     items: [
       { name: 'Properties', href: '/properties', icon: Building2, permission: 'properties' },
-      { name: 'Public Listings', href: '/listings', icon: Globe, permission: 'properties' },
+      { name: 'Public Listings', href: '/listings', icon: Globe },
     ],
   },
   {
