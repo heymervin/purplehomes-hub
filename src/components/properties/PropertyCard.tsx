@@ -4,6 +4,7 @@ import { Bed, Bath, Clock, Square, Share2, Check } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { SourceBadge } from '@/components/matching/SourceBadge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { Property } from '@/types';
@@ -147,17 +148,6 @@ export function PropertyCard({
         <div className="absolute bottom-3 left-3 right-3">
           <div className="flex items-end justify-between">
             <div className="flex items-center gap-2">
-              {property.source && (
-                <span className={cn(
-                  "inline-flex items-center rounded-md px-2 py-1 text-xs font-semibold backdrop-blur-sm",
-                  property.source === 'Zillow' && "bg-blue-500/80 text-white",
-                  property.source === 'Inventory' && "bg-purple-600/80 text-white",
-                  property.source === 'Lead' && "bg-amber-500/80 text-white",
-                  !['Zillow', 'Inventory', 'Lead'].includes(property.source) && "bg-black/60 text-white",
-                )}>
-                  {property.source}
-                </span>
-              )}
               {showPostedDate && (
                 <span className="text-xs text-white/80">
                   {format(new Date(property.postedDate!), 'MMM d')}
@@ -184,7 +174,12 @@ export function PropertyCard({
         <h3 className="font-semibold text-gray-900 mb-0.5 truncate">
           {property.address}
         </h3>
-        <p className="text-sm text-gray-600 mb-3">{property.city}</p>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm text-gray-600">{property.city}</p>
+          {property.source && (
+            <SourceBadge source={property.source} size="sm" />
+          )}
+        </div>
 
         {/* Price */}
         <div className="mb-3">

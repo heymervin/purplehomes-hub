@@ -52,7 +52,7 @@ export interface Property {
   isDemo?: boolean;
   downPayment?: number;
   monthlyPayment?: number;
-  source?: 'Inventory' | 'Lead' | 'Zillow';
+  source?: 'Inventory' | 'Partnered' | 'Acquisitions' | 'Zillow';
   zillowUrl?: string;
   daysOnMarket?: number;
   // Calculator scenarios (stored as JSON strings)
