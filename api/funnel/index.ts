@@ -1390,9 +1390,22 @@ async function generateAvatarResearchAndGetId(
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const service = req.query.service as string;
   const action = req.query.action as string;
 
-  console.log(`[Funnel API] Action: ${action}, Environment: ${IS_VERCEL ? 'Vercel' : 'Local'}`);
+  console.log(`[Funnel API] Service: ${service || 'none'}, Action: ${action}, Environment: ${IS_VERCEL ? 'Vercel' : 'Local'}`);
+
+  // Route to avatar-research sub-handler when service=avatar-research
+  // This handles requests rewritten from /api/funnel/avatar-research
+  if (service === 'avatar-research') {
+    try {
+      const avatarResearchModule = await import('./avatar-research.js');
+      return avatarResearchModule.default(req, res);
+    } catch (error) {
+      console.error('[Funnel API] Avatar research handler error:', error);
+      return res.status(500).json({ error: 'Avatar research service error', details: String(error) });
+    }
+  }
 
   try {
     switch (action) {
@@ -2398,7 +2411,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       default:
-        return res.status(400).json({ error: 'Unknown action', validActions: ['generate', 'get', 'save', 'delete', 'list', 'test', 'clear-inputs', 'analytics-track', 'analytics-aggregate', 'analytics-metrics'] });
+        return res.status(400).json({ error: 'Unknown action', validActions: ['generate', 'get', 'save', 'delete', 'list', 'test', 'clear-inputs', 'analytics-track', 'analytics-aggregate', 'analytics-metrics', 'avatar-research'] });
     }
   } catch (error) {
     console.error('[Funnel API] Error:', error);

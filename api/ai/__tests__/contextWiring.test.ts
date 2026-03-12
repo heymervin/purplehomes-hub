@@ -18,7 +18,7 @@ import {
   getIntentDomain,
   INTENT_DOMAINS,
   type Property,
-} from '../promptBuilder';
+} from '../_promptBuilder';
 
 // ============================================================================
 // TEST FIXTURES - Unique, unmistakable context phrases

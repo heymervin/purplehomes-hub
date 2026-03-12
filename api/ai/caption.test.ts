@@ -22,7 +22,7 @@ import {
   getIntentContextSections,
   INTENT_DOMAINS,
   type Property,
-} from './promptBuilder';
+} from './_promptBuilder';
 
 // ============================================================================
 // UNIT TESTS - Pure functions from promptBuilder.ts

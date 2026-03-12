@@ -21,6 +21,22 @@
       "destination": "/api?service=buyers"
     },
     {
+      "source": "/api/calculator",
+      "destination": "/api?service=calculator"
+    },
+    {
+      "source": "/api/company-info",
+      "destination": "/api?service=company-info"
+    },
+    {
+      "source": "/api/testimonials",
+      "destination": "/api?service=testimonials"
+    },
+    {
+      "source": "/api/funnel/avatar-research",
+      "destination": "/api/funnel?service=avatar-research"
+    },
+    {
       "source": "/api/insights",
       "destination": "/api/ai?action=insights"
     },
@@ -53,19 +69,16 @@
     "api/index.ts": {
       "maxDuration": 60
     },
-    "api/zillow/index.ts": {
-      "maxDuration": 60
-    },
     "api/ai/index.ts": {
       "maxDuration": 60
     },
     "api/funnel/index.ts": {
       "maxDuration": 60
     },
-    "api/funnel/avatar-research.ts": {
+    "api/images/upload.ts": {
       "maxDuration": 60
     },
-    "api/images/upload.ts": {
+    "api/zillow/index.ts": {
       "maxDuration": 60
     }
   }
