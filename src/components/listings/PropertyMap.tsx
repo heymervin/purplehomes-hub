@@ -422,7 +422,6 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
     if (!map.current.getLayer('unclustered-point')) return;
 
     const hoveredId = hoveredPropertyId ?? '';
-    console.log('[PropertyMap] Hover effect firing, hoveredId:', hoveredId);
 
     try {
       map.current.setPaintProperty('unclustered-point', 'circle-color', [
@@ -445,8 +444,8 @@ export function PropertyMap({ properties, onPropertySelect, hoveredPropertyId, z
         3,
         2,
       ]);
-    } catch (err) {
-      console.error('[PropertyMap] setPaintProperty failed:', err);
+    } catch (_err) {
+      // ignore paint errors (layer may not be ready)
     }
   }, [hoveredPropertyId, mapLoaded]);
 
