@@ -1,81 +1,22 @@
-# Purple Homes Property Matching System
+# Purple Homes Hub
 
-A comprehensive AI-powered property matching system that connects buyers with suitable properties based on their preferences and criteria. Built with React, TypeScript, Vite, and integrated with HighLevel CRM and Airtable.
+Internal property listing application for Purple Homes with AI-powered buyer-property matching and Mapbox visualization.
 
-## 📚 Documentation
+Agents input property listings, the system matches them against buyer preferences using AI scoring, and generates personalized property recommendations. Integrated with GoHighLevel CRM for contact management.
 
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Complete feature overview and architecture
-- **[IMPLEMENTATION_PRIORITIES.md](IMPLEMENTATION_PRIORITIES.md)** - Priority matrix and roadmap
-- **[IMPLEMENTATION_STORIES.md](IMPLEMENTATION_STORIES.md)** - Development timeline and milestones
+## Stack
 
-## Project Info
+- React, TypeScript, Vite
+- Supabase (PostgreSQL)
+- Mapbox GL
+- GoHighLevel API
+- Tailwind CSS, shadcn/ui
+- Vercel
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Setup
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
+cp .env.example .env.local  # add Supabase + Mapbox + GHL credentials
 npm run dev
 ```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
