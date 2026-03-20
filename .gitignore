@@ -47,3 +47,16 @@ docs/caption-stress-test-results.md
 *.temp
 src/backups/
 .worktrees/
+
+# Test/stress-test scripts
+scripts/stress-test*
+scripts/batch-stress-test*
+scripts/test-*
+
+# Dev servers
+local-api-server.*
+dev-server.*
+
+# PDFs and test files
+*.pdf
+test-*
